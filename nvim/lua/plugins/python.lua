@@ -1,0 +1,89 @@
+-- Persisted by the nvimlsp zsh script; read once at startup.
+local selection_file = vim.fn.stdpath("config") .. "/python-lsp"
+local selected = "zuban"
+if vim.fn.filereadable(selection_file) == 1 then
+  local value = vim.trim(table.concat(vim.fn.readfile(selection_file), "\n"))
+  if value == "ty" or value == "zuban" or value == "pyrefly" then
+    selected = value
+  else
+    vim.schedule(function()
+      vim.notify("Invalid Python LSP selection; using zuban. Run nvimlsp ty|zuban|pyrefly.", vim.log.levels.WARN)
+    end)
+  end
+end
+
+return {
+  {
+    "stevearc/conform.nvim",
+    opts = {
+      formatters_by_ft = {
+        python = { "ruff_format" },
+      },
+    },
+  },
+  {
+    "mason-org/mason.nvim",
+    opts = function(_, opts)
+      opts.ensure_installed = opts.ensure_installed or {}
+      vim.list_extend(opts.ensure_installed, { "ruff" })
+    end,
+  },
+  {
+    "neovim/nvim-lspconfig",
+    opts = {
+      servers = {
+        ty = {
+          enabled = selected == "ty",
+          mason = false,
+          cmd = { vim.fn.expand("~/.local/bin/ty"), "server" },
+          settings = { ty = {} },
+          before_init = function(_, config)
+            -- Standalone scripts may use packages installed with pip --user.
+            -- Project roots and activated environments keep their own search paths.
+            if
+              (config.root_dir and config.root_dir ~= vim.fn.expand("~"))
+              or vim.env.VIRTUAL_ENV
+              or vim.env.CONDA_PREFIX
+            then
+              return
+            end
+            if vim.fn.isdirectory(vim.fn.getcwd() .. "/.venv") == 1 then
+              return
+            end
+            local result = vim.system({ "python3", "-m", "site", "--user-site" }, { text = true }):wait()
+            local path = vim.trim(result.stdout or "")
+            if result.code == 0 and vim.fn.isdirectory(path) == 1 then
+              config.settings.ty = vim.tbl_deep_extend("force", config.settings.ty or {}, {
+                configuration = { environment = { ["extra-paths"] = { path } } },
+              })
+            end
+          end,
+          capabilities = {
+            workspace = {
+              didChangeWatchedFiles = { dynamicRegistration = true },
+            },
+          },
+        },
+        pyrefly = {
+          enabled = selected == "pyrefly",
+          mason = false,
+          cmd = { vim.fn.expand("~/.local/bin/pyrefly"), "lsp" },
+        },
+        zuban = {
+          enabled = selected == "zuban",
+          keys = {
+            { "<leader>ch", function() require("config.python_help").show() end, desc = "Python builtin help" },
+          },
+          mason = false,
+          cmd = { vim.fn.expand("~/.local/bin/zuban"), "server" },
+        },
+        ruff = {
+          on_attach = function(client)
+            -- Let the selected Python server provide Python hover information.
+            client.server_capabilities.hoverProvider = false
+          end,
+        },
+      },
+    },
+  },
+}
