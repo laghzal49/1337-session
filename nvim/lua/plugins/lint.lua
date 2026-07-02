@@ -40,6 +40,12 @@ return {
           lint.try_lint(nil, { ignore_errors = true })
         end,
       })
+
+      -- the plugin lazy-loads on the first file's BufReadPost, which has
+      -- already fired by the time the autocmd above exists — lint it now
+      vim.schedule(function()
+        lint.try_lint(nil, { ignore_errors = true })
+      end)
     end,
   },
 }

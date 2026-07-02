@@ -1,7 +1,7 @@
 -- ============================================================================
 -- lua/plugins/ui.lua — MAX visual overhaul built around oxocarbon (v2)
 -- ============================================================================
--- SCOPE: visual layers ONLY. Does not touch telescope, LSP servers
+-- SCOPE: visual layers ONLY. Does not touch the picker, LSP servers
 -- (basedpyright/ruff/conform/nvim-lint), treesitter config, or editing
 -- keymaps. Anything that *reads* LSP/treesitter data here (breadcrumbs,
 -- rainbow delimiters, diagnostics counts) is display-only.
@@ -71,17 +71,16 @@ return {
           hl("NotifyDEBUGBorder", { fg = carbon.gray })
           hl("NotifyTRACEBorder", { fg = carbon.purple })
 
-          -- Telescope: borderless Carbon "panel" look (highlights ONLY —
-          -- zero changes to telescope's config or behavior)
-          hl("TelescopeNormal", { bg = carbon.bg })
-          hl("TelescopeBorder", { fg = carbon.bg, bg = carbon.bg })
-          hl("TelescopePromptNormal", { bg = carbon.bg2 })
-          hl("TelescopePromptBorder", { fg = carbon.bg2, bg = carbon.bg2 })
-          hl("TelescopePromptTitle", { fg = carbon.bg, bg = carbon.pink, bold = true })
-          hl("TelescopePreviewTitle", { fg = carbon.bg, bg = carbon.cyan, bold = true })
-          hl("TelescopeResultsTitle", { fg = carbon.bg, bg = carbon.purple, bold = true })
-          hl("TelescopeSelection", { bg = carbon.bg2, fg = carbon.white, bold = true })
-          hl("TelescopeMatching", { fg = carbon.cyan, bold = true })
+          -- Snacks picker (LazyVim's default picker): Carbon "panel" look
+          -- (highlights ONLY — zero changes to picker config or behavior)
+          hl("SnacksPicker", { bg = carbon.bg })
+          hl("SnacksPickerBorder", { fg = carbon.gray, bg = carbon.bg })
+          hl("SnacksPickerInput", { bg = carbon.bg2 })
+          hl("SnacksPickerInputBorder", { fg = carbon.bg2, bg = carbon.bg2 })
+          hl("SnacksPickerTitle", { fg = carbon.bg, bg = carbon.pink, bold = true })
+          hl("SnacksPickerPreviewTitle", { fg = carbon.bg, bg = carbon.cyan, bold = true })
+          hl("SnacksPickerListCursorLine", { bg = carbon.bg2, bold = true })
+          hl("SnacksPickerMatch", { fg = carbon.cyan, bold = true })
 
           -- dashboard
           hl("SnacksDashboardHeader", { fg = carbon.purple })
@@ -341,6 +340,9 @@ return {
       filesystem = {
         filtered_items = { visible = true, hide_dotfiles = false }, -- soft-dim, don't hide
         use_libuv_file_watcher = true, -- keeps the tree visually in sync
+        -- LazyVim's snacks explorer already handles `nvim <dir>` (netrw
+        -- replacement); without this, BOTH explorers open on `nvim .`
+        hijack_netrw_behavior = "disabled",
       },
     },
   },
@@ -348,7 +350,7 @@ return {
   -- ==========================================================================
   -- 6. DASHBOARD + SMOOTH SCROLL + STATUSCOLUMN — snacks.nvim
   -- ==========================================================================
-  -- Buttons call your EXISTING Telescope commands; nothing new wired into
+  -- Buttons use the snacks picker (LazyVim's default); nothing new wired into
   -- search. scroll/statuscolumn are pure rendering. snacks.indent disabled
   -- because ibl (below) owns indent guides.
   {
@@ -376,9 +378,9 @@ return {
   ▀██████▀  ████       ███▄  ▀██████▀ ]],
           keys = {
             { icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
-            { icon = " ", key = "f", desc = "Find File", action = "<cmd>Telescope find_files<cr>" },
-            { icon = " ", key = "r", desc = "Recent Files", action = "<cmd>Telescope oldfiles<cr>" },
-            { icon = " ", key = "g", desc = "Grep Text", action = "<cmd>Telescope live_grep<cr>" },
+            { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
+            { icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
+            { icon = " ", key = "g", desc = "Grep Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
             { icon = "󰒲 ", key = "l", desc = "Lazy", action = ":Lazy" },
             { icon = " ", key = "q", desc = "Quit", action = ":qa" },
           },
