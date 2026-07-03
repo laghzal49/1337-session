@@ -9,9 +9,15 @@ A [LazyVim](https://github.com/LazyVim/LazyVim) config with a full oxocarbon
   (`lua/plugins/ui.lua`) — the whole UI re-tints per mode (normal/insert/
   visual/replace/cmdline), yanks pulse-fade instead of flat-flashing, and the
   dashboard header animates through the palette.
-- Rounded-bubble `lualine` statusline, slant `bufferline`, floating `noice`
-  cmdline, `dropbar` winbar breadcrumbs, `rainbow-delimiters`, inline hex/rgb
-  color swatches, rendered markdown, and a `smear-cursor` trail.
+- Rounded-bubble `lualine` statusline with a hand-built **per-mode Carbon
+  theme** — the statusline bubbles recolor with the same accent map as the
+  reactive engine, so the whole UI shifts color together.
+- Slant `bufferline` (cyan underline on the active buffer, pink modified
+  dot), floating `noice` cmdline, `dropbar` winbar breadcrumbs,
+  `rainbow-delimiters`, inline hex/rgb color swatches, rendered markdown,
+  and a `smear-cursor` trail.
+- "1337" dashboard header with an animated Carbon gradient; diagnostics
+  float in a rounded panel that names its source (basedpyright/flake8/mypy).
 - Everything above is display-only — it never touches LSP config, the
   picker, or keymaps.
 
