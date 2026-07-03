@@ -2,8 +2,8 @@
 -- lua/plugins/ui.lua — MAX visual overhaul built around oxocarbon (v2)
 -- ============================================================================
 -- SCOPE: visual layers ONLY. Does not touch the picker, LSP servers
--- (basedpyright/ruff/conform/nvim-lint), treesitter config, or editing
--- keymaps. Anything that *reads* LSP/treesitter data here (breadcrumbs,
+-- (basedpyright/conform/nvim-lint — see plugins/python.lua), treesitter
+-- config, or editing keymaps. Anything that *reads* LSP/treesitter data here (breadcrumbs,
 -- rainbow delimiters, diagnostics counts) is display-only.
 --
 -- NOTE: this config is a LazyVim starter — lualine / bufferline / noice /
