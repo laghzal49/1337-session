@@ -70,8 +70,9 @@ return {
       { "<leader>dPc", function() require("dap-python").test_class() end, desc = "Debug Class", ft = "python" },
     },
     config = function()
-      local path = require("mason-registry").get_package("debugpy"):get_install_path() .. "/venv/bin/python3"
-      require("dap-python").setup(path)
+      -- LazyVim.get_pkg_path resolves the mason install dir on both mason
+      -- 1.x and 2.0 (get_install_path() was removed in mason 2.0)
+      require("dap-python").setup(LazyVim.get_pkg_path("debugpy", "/venv/bin/python"))
     end,
   },
 

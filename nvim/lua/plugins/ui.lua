@@ -1,15 +1,19 @@
 -- ============================================================================
--- lua/plugins/ui.lua — MAX visual overhaul built around oxocarbon (v2)
+-- lua/plugins/ui.lua — MAX visual overhaul built around oxocarbon (v3)
 -- ============================================================================
 -- SCOPE: visual layers ONLY. Does not touch the picker, LSP servers
 -- (basedpyright/conform/nvim-lint — see plugins/python.lua), treesitter
--- config, or editing keymaps. Anything that *reads* LSP/treesitter data here (breadcrumbs,
--- rainbow delimiters, diagnostics counts) is display-only.
+-- config, or editing keymaps. Anything that *reads* LSP/treesitter data here
+-- (breadcrumbs, rainbow delimiters, diagnostics counts) is display-only.
 --
--- NOTE: this config is a LazyVim starter — lualine / bufferline / noice /
--- notify / neo-tree / snacks / devicons already ship upstream; those specs
--- below MERGE/OVERRIDE the LazyVim ones. Genuinely new plugins are listed in
--- the diff block at the bottom.
+-- v3 = conflict-free + performance pass:
+--   ONE system per job. LazyVim already ships snacks (notifier, indent,
+--   explorer, dashboard, statuscolumn, scroll) — v2 duplicated three of
+--   those with extra plugins (nvim-notify, neo-tree, indent-blankline).
+--   All three are gone; snacks owns those layers now, restyled in Carbon.
+--   Every remaining custom plugin declares a lazy trigger (event/ft/cmd),
+--   and lua/config/lazy.lua sets defaults.lazy = true, so nothing here
+--   loads at startup except the colorscheme.
 -- ============================================================================
 
 -- IBM Carbon accent palette (oxocarbon), reused across every layer below.
@@ -60,19 +64,25 @@ return {
           hl("FloatBorder", { fg = carbon.gray, bg = carbon.bg })
           hl("FloatTitle", { fg = carbon.cyan, bg = carbon.bg, bold = true })
 
-          -- indent guides
-          hl("IblIndent", { fg = carbon.bg2, nocombine = true })
-          hl("IblScope", { fg = carbon.cyan, nocombine = true })
+          -- indent guides (snacks.indent — no separate plugin)
+          hl("SnacksIndent", { fg = carbon.bg2, nocombine = true })
+          hl("SnacksIndentScope", { fg = carbon.cyan, nocombine = true })
 
-          -- notify borders in Carbon accents
-          hl("NotifyINFOBorder", { fg = carbon.cyan })
-          hl("NotifyWARNBorder", { fg = carbon.pink })
-          hl("NotifyERRORBorder", { fg = carbon.pink })
-          hl("NotifyDEBUGBorder", { fg = carbon.gray })
-          hl("NotifyTRACEBorder", { fg = carbon.purple })
+          -- notifications (snacks.notifier — no separate plugin)
+          hl("SnacksNotifierBorderInfo", { fg = carbon.cyan, bg = carbon.bg })
+          hl("SnacksNotifierBorderWarn", { fg = carbon.pink, bg = carbon.bg })
+          hl("SnacksNotifierBorderError", { fg = carbon.pink, bg = carbon.bg })
+          hl("SnacksNotifierBorderDebug", { fg = carbon.gray, bg = carbon.bg })
+          hl("SnacksNotifierBorderTrace", { fg = carbon.purple, bg = carbon.bg })
+          hl("SnacksNotifierIconInfo", { fg = carbon.cyan })
+          hl("SnacksNotifierIconWarn", { fg = carbon.pink })
+          hl("SnacksNotifierIconError", { fg = carbon.pink })
+          hl("SnacksNotifierTitleInfo", { fg = carbon.cyan, bold = true })
+          hl("SnacksNotifierTitleWarn", { fg = carbon.pink, bold = true })
+          hl("SnacksNotifierTitleError", { fg = carbon.pink, bold = true })
 
-          -- Snacks picker (LazyVim's default picker): Carbon "panel" look
-          -- (highlights ONLY — zero changes to picker config or behavior)
+          -- Snacks picker AND explorer (the explorer is a picker layout, so
+          -- these groups style both): Carbon "panel" look
           hl("SnacksPicker", { bg = carbon.bg })
           hl("SnacksPickerBorder", { fg = carbon.gray, bg = carbon.bg })
           hl("SnacksPickerInput", { bg = carbon.bg2 })
@@ -81,6 +91,11 @@ return {
           hl("SnacksPickerPreviewTitle", { fg = carbon.bg, bg = carbon.cyan, bold = true })
           hl("SnacksPickerListCursorLine", { bg = carbon.bg2, bold = true })
           hl("SnacksPickerMatch", { fg = carbon.cyan, bold = true })
+          hl("SnacksPickerDir", { fg = carbon.gray })
+          hl("SnacksPickerPathHidden", { fg = carbon.gray })
+          hl("SnacksPickerGitStatusModified", { fg = carbon.blue })
+          hl("SnacksPickerGitStatusAdded", { fg = carbon.green })
+          hl("SnacksPickerGitStatusUntracked", { fg = carbon.gray })
 
           -- dashboard
           hl("SnacksDashboardHeader", { fg = carbon.purple })
@@ -139,7 +154,7 @@ return {
         local hl = function(g, o) vim.api.nvim_set_hl(0, g, o) end
         hl("CursorLine", { bg = blend(a, carbon.bg, 0.09) }) -- faint accent glow
         hl("CursorLineNr", { fg = a, bold = true })
-        hl("IblScope", { fg = a, nocombine = true })
+        hl("SnacksIndentScope", { fg = a, nocombine = true })
         hl("MatchParen", { fg = a, bold = true, underline = true })
         hl("WinSeparator", { fg = blend(a, carbon.bg, 0.35) })
         hl("FloatBorder", { fg = blend(a, carbon.bg, 0.65), bg = carbon.bg })
@@ -157,11 +172,12 @@ return {
 
       -- ── 2) YANK PULSE ────────────────────────────────────────────────────
       -- Yanked region flashes pink and FADES out over 12 frames instead of
-      -- the stock flat flash.
+      -- the stock flat flash. (vim.hl is 0.11+; vim.highlight before that.)
       vim.api.nvim_create_autocmd("TextYankPost", {
         group = vim.api.nvim_create_augroup("CarbonYankPulse", { clear = true }),
         callback = function()
-          vim.hl.on_yank({ higroup = "CarbonYank", timeout = 400 })
+          local hilite = vim.hl or vim.highlight
+          hilite.on_yank({ higroup = "CarbonYank", timeout = 400 })
           local frames, i = 12, 0
           local timer = vim.uv.new_timer()
           timer:start(0, 30, vim.schedule_wrap(function()
@@ -180,7 +196,8 @@ return {
 
       -- ── 3) LIVING DASHBOARD ──────────────────────────────────────────────
       -- The ASCII header continuously melts through the Carbon palette while
-      -- the dashboard is open; timer stops the moment you leave it.
+      -- the dashboard is open; timer stops the moment you leave it, so it
+      -- costs zero once you're editing.
       local hues = { carbon.purple, carbon.cyan, carbon.mint, carbon.pink, carbon.blue }
       vim.api.nvim_create_autocmd("FileType", {
         group = vim.api.nvim_create_augroup("CarbonLivingDash", { clear = true }),
@@ -289,7 +306,7 @@ return {
           lualine_y = { { "filetype", icon_only = false }, "progress" },
           lualine_z = { { "location", separator = { left = "", right = "" } } },
         },
-        extensions = { "neo-tree", "lazy", "quickfix", "man" },
+        extensions = { "lazy", "quickfix", "man" },
       }
     end,
   },
@@ -310,53 +327,28 @@ return {
   },
 
   -- ==========================================================================
-  -- 5. FILE EXPLORER UI — neo-tree v3, visual config only (no keys defined)
+  -- 5. SNACKS — dashboard, notifier, indent guides, explorer styling,
+  --    smooth scroll, statuscolumn (ONE plugin owns all of these; v2 used
+  --    nvim-notify + indent-blankline + neo-tree for three of them)
   -- ==========================================================================
-  {
-    "nvim-neo-tree/neo-tree.nvim",
-    branch = "v3.x",
-    dependencies = { "nvim-lua/plenary.nvim", "nvim-tree/nvim-web-devicons", "MunifTanjim/nui.nvim" },
-    opts = {
-      popup_border_style = "rounded",
-      window = { position = "left", width = 34 },
-      default_component_configs = {
-        indent = {
-          with_expanders = true,
-          expander_collapsed = "",
-          expander_expanded = "",
-          indent_marker = "│",
-          last_indent_marker = "└",
-          highlight = "IblIndent",
-        },
-        icon = { folder_closed = "", folder_open = "", folder_empty = "" },
-        modified = { symbol = "●" },
-        git_status = {
-          symbols = {
-            added = "", modified = "", deleted = "✖", renamed = "󰁕",
-            untracked = "", ignored = "", unstaged = "󰄱", staged = "", conflict = "",
-          },
-        },
-      },
-      filesystem = {
-        filtered_items = { visible = true, hide_dotfiles = false }, -- soft-dim, don't hide
-        use_libuv_file_watcher = true, -- keeps the tree visually in sync
-        -- LazyVim's snacks explorer already handles `nvim <dir>` (netrw
-        -- replacement); without this, BOTH explorers open on `nvim .`
-        hijack_netrw_behavior = "disabled",
-      },
-    },
-  },
-
-  -- ==========================================================================
-  -- 6. DASHBOARD + SMOOTH SCROLL + STATUSCOLUMN — snacks.nvim
-  -- ==========================================================================
-  -- Buttons use the snacks picker (LazyVim's default); nothing new wired into
-  -- search. scroll/statuscolumn are pure rendering. snacks.indent disabled
-  -- because ibl (below) owns indent guides.
   {
     "folke/snacks.nvim",
     opts = {
-      indent = { enabled = false }, -- ibl owns guides; avoid doubles
+      -- indent guides + animated scope (replaces indent-blankline;
+      -- SnacksIndent/SnacksIndentScope colors set in the accent layer,
+      -- scope re-tinted per mode by the reactive engine)
+      indent = {
+        enabled = true,
+        indent = { char = "▏" },
+        scope = { enabled = true, char = "▏" },
+      },
+      -- notifications (replaces nvim-notify; noice routes through vim.notify)
+      notifier = {
+        enabled = true,
+        timeout = 3000,
+        top_down = false, -- rise from the bottom
+        style = "compact",
+      },
       scroll = { enabled = true }, -- buttery smooth scrolling (visual only)
       statuscolumn = {
         enabled = true, -- unified sign/number/fold column, no behavior change
@@ -364,9 +356,19 @@ return {
         right = { "fold", "git" },
         folds = { open = true, git_hl = true },
       },
+      -- explorer: LazyVim's default (snacks picker layout, <leader>e).
+      -- Styled by the SnacksPicker* groups in the accent layer; show
+      -- dotfiles softly dimmed instead of hidden.
+      picker = {
+        sources = {
+          explorer = {
+            hidden = true,
+            layout = { preset = "sidebar", preview = false },
+          },
+        },
+      },
       dashboard = {
         preset = {
-          -- TODO: replace with your own ASCII header
           header = [[
   ▄██████▄  ▀████    ▐████▀  ▄██████▄
  ███    ███   ███▌   ████▀  ███    ███
@@ -396,7 +398,7 @@ return {
   },
 
   -- ==========================================================================
-  -- 7. BUFFERLINE — slant separators, ordinal numbers
+  -- 6. BUFFERLINE — slant separators, ordinal numbers
   -- ==========================================================================
   {
     "akinsho/bufferline.nvim",
@@ -411,35 +413,31 @@ return {
         always_show_bufferline = false,
         indicator = { style = "underline" },
         offsets = {
-          { filetype = "neo-tree", text = " Explorer", highlight = "Directory", text_align = "left", separator = true },
+          {
+            filetype = "snacks_layout_box", -- the snacks explorer sidebar
+            text = " Explorer",
+            highlight = "Directory",
+            text_align = "left",
+            separator = true,
+          },
         },
       },
     },
   },
 
   -- ==========================================================================
-  -- 8. CMDLINE / MESSAGES / LSP DOC RENDERING — noice.nvim + nvim-notify
+  -- 7. CMDLINE / MESSAGES / LSP DOC RENDERING — noice.nvim
   -- ==========================================================================
   -- CAVEAT (honest one): noice restyles LSP hover/signature by swapping the
   -- markdown RENDERING path — your servers, conform, and nvim-lint are
   -- untouched; only the output windows change. Set lsp.override entries to
-  -- false for zero interception.
-  {
-    "rcarriga/nvim-notify",
-    opts = {
-      stages = "fade_in_slide_out",
-      timeout = 3000,
-      render = "wrapped-compact",
-      top_down = false,
-      background_colour = carbon.bg,
-      max_width = 60,
-    },
-  },
+  -- false for zero interception. Notifications go through vim.notify →
+  -- snacks.notifier (no nvim-notify; one notification system).
   {
     "folke/noice.nvim",
     event = "VeryLazy", -- load-order: after colorscheme (priority 1000) so
     -- highlights link right. Do NOT make this lazy=false.
-    dependencies = { "MunifTanjim/nui.nvim", "rcarriga/nvim-notify" },
+    dependencies = { "MunifTanjim/nui.nvim" },
     opts = {
       cmdline = {
         view = "cmdline_popup", -- floating centered cmdline
@@ -487,23 +485,7 @@ return {
   },
 
   -- ==========================================================================
-  -- 9. INDENT GUIDES — ibl, scope in Carbon cyan
-  -- ==========================================================================
-  {
-    "lukas-reineke/indent-blankline.nvim",
-    main = "ibl",
-    event = { "BufReadPost", "BufNewFile" },
-    opts = {
-      indent = { char = "▏", highlight = "IblIndent" },
-      scope = { enabled = true, highlight = "IblScope", show_start = false, show_end = false },
-      exclude = {
-        filetypes = { "help", "snacks_dashboard", "alpha", "neo-tree", "lazy", "mason", "noice" },
-      },
-    },
-  },
-
-  -- ==========================================================================
-  -- 10. RAINBOW DELIMITERS (NEW) — nested brackets in Carbon accents
+  -- 8. RAINBOW DELIMITERS — nested brackets in Carbon accents
   -- ==========================================================================
   -- Uses treesitter parse trees for DISPLAY only; does not touch your
   -- nvim-treesitter config or parsers.
@@ -525,7 +507,7 @@ return {
   },
 
   -- ==========================================================================
-  -- 11. INLINE COLOR SWATCHES (NEW) — hex/rgb/hsl rendered as their color
+  -- 9. INLINE COLOR SWATCHES — hex/rgb/hsl rendered as their color
   -- ==========================================================================
   {
     "brenoprata10/nvim-highlight-colors",
@@ -538,7 +520,7 @@ return {
   },
 
   -- ==========================================================================
-  -- 12. PRETTY MARKDOWN (NEW) — headings, tables, checkboxes rendered in-buffer
+  -- 10. PRETTY MARKDOWN — headings, tables, checkboxes rendered in-buffer
   -- ==========================================================================
   -- Display-only treesitter consumer; raw text returns the moment you edit
   -- the line. No keymaps, no behavior change.
@@ -554,7 +536,7 @@ return {
   },
 
   -- ==========================================================================
-  -- 13. CURSOR TRAIL (NEW, pure flair) — smear-cursor
+  -- 11. CURSOR TRAIL (pure flair) — smear-cursor
   -- ==========================================================================
   -- GPU-shader-style smear when the cursor jumps. 100% cosmetic; if it's too
   -- much, delete this block — nothing depends on it.
@@ -571,11 +553,10 @@ return {
 }
 
 -- ============================================================================
--- PLUGINS THIS FILE ADDS / OVERRIDES (diff against your current config)
+-- PLUGINS THIS FILE ADDS / OVERRIDES (diff against stock LazyVim)
 -- ============================================================================
 -- NEW (not in stock LazyVim):
 --   nyoom-engineering/oxocarbon.nvim        colorscheme + Carbon accent layer
---   lukas-reineke/indent-blankline.nvim     indent guides (snacks.indent off)
 --   Bekaboo/dropbar.nvim                    winbar breadcrumbs (needs nvim 0.10+)
 --   HiPhish/rainbow-delimiters.nvim         Carbon rainbow brackets
 --   brenoprata10/nvim-highlight-colors      inline color swatches
@@ -584,16 +565,21 @@ return {
 -- OVERRIDDEN (ship with LazyVim; restyled here):
 --   LazyVim/LazyVim                         colorscheme = "oxocarbon"
 --   nvim-lualine/lualine.nvim               full replacement, bubble sections
---   nvim-neo-tree/neo-tree.nvim             visual opts merge
---   folke/snacks.nvim                       dashboard + smooth scroll +
---                                           statuscolumn, indent disabled
+--   folke/snacks.nvim                       dashboard + notifier + indent +
+--                                           explorer styling + smooth scroll +
+--                                           statuscolumn — ONE system per job
 --   akinsho/bufferline.nvim                 slant + ordinal numbers
 --   folke/noice.nvim                        floating cmdline, LSP doc borders,
 --                                           progress spinner
 --                                           + ONE optional new keymap <leader>un
---   rcarriga/nvim-notify                    fade/wrapped-compact/bottom-up
 --   nvim-tree/nvim-web-devicons             default icons on
--- DEPENDENCIES pulled in if missing: plenary.nvim, nui.nvim
+--
+-- REMOVED in v3 (duplicated a snacks module already shipped by LazyVim):
+--   rcarriga/nvim-notify        → snacks.notifier owns notifications
+--   nvim-neo-tree/neo-tree.nvim → snacks explorer owns the file tree
+--                                 (also dropped plenary/nui-for-neo-tree deps
+--                                 and the startup-time eager load)
+--   lukas-reineke/indent-blankline.nvim → snacks.indent owns guides
 --
 -- HAND-WRITTEN (no plugin — unique to this config, in the oxocarbon block):
 --   ★ Carbon Reactive engine:

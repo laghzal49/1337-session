@@ -15,6 +15,20 @@ A [LazyVim](https://github.com/LazyVim/LazyVim) config with a full oxocarbon
 - Everything above is display-only — it never touches LSP config, the
   picker, or keymaps.
 
+## Performance / no-conflict rules
+
+- **One system per job**: snacks (which LazyVim already ships) owns
+  notifications, indent guides, the file explorer, dashboard, statuscolumn,
+  and smooth scroll — all restyled in Carbon. No `nvim-notify`, no
+  `neo-tree`, no `indent-blankline` duplicating them.
+- **Everything lazy-loads**: `defaults.lazy = true`; every custom plugin
+  declares an `event`/`ft`/`cmd`/`keys` trigger. Startup pays only for the
+  colorscheme.
+- Unused built-in plugins (netrw, gzip, tar/zip, tutor, tohtml, rplugin)
+  are disabled from the runtimepath.
+- The reactive-engine timers (yank pulse, dashboard gradient) self-destruct
+  the moment their moment passes — zero idle cost while editing.
+
 ## Python
 
 Fully wired in `lua/plugins/python.lua`:
