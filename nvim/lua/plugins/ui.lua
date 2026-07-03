@@ -1,5 +1,5 @@
 -- ============================================================================
--- lua/plugins/ui.lua — MAX visual overhaul built around oxocarbon (v3)
+-- lua/plugins/ui.lua — MAX visual overhaul built around oxocarbon (v4)
 -- ============================================================================
 -- SCOPE: visual layers ONLY. Does not touch the picker, LSP servers
 -- (basedpyright/conform/nvim-lint — see plugins/python.lua), treesitter
@@ -14,6 +14,15 @@
 --   Every remaining custom plugin declares a lazy trigger (event/ft/cmd),
 --   and lua/config/lazy.lua sets defaults.lazy = true, so nothing here
 --   loads at startup except the colorscheme.
+--
+-- v4 = design-coherence pass — every layer speaks Carbon:
+--   · lualine gets a hand-built PER-MODE theme using the exact accent map
+--     of the reactive engine, so the statusline recolors with the mode
+--     like everything else (was: static "auto" theme)
+--   · dashboard header is "1337" (this is the 1337-session config)
+--   · diagnostics float: rounded panel that names its source
+--     (basedpyright / flake8 / mypy)
+--   · bufferline: cyan underline on the selected buffer, pink modified dot
 -- ============================================================================
 
 -- IBM Carbon accent palette (oxocarbon), reused across every layer below.
@@ -231,6 +240,20 @@ return {
   -- clobbers oxocarbon with tokyonight.
   { "LazyVim/LazyVim", opts = { colorscheme = "oxocarbon" } },
 
+  -- Diagnostics DESIGN (display-only, merged into LazyVim's diagnostics
+  -- opts): rounded float panel that always names its source — with three
+  -- producers on Python buffers (basedpyright, flake8, mypy) you want to
+  -- know who's talking. Zero changes to how diagnostics are produced.
+  {
+    "neovim/nvim-lspconfig",
+    opts = {
+      diagnostics = {
+        severity_sort = true,
+        float = { border = "rounded", source = true },
+      },
+    },
+  },
+
   -- ==========================================================================
   -- 2. ICONS — nvim-web-devicons everywhere
   -- ==========================================================================
@@ -261,9 +284,37 @@ return {
         return " " .. table.concat(names, " · ")
       end
 
+      -- Carbon per-mode statusline theme: the a/z bubbles recolor with the
+      -- SAME accent map as the reactive engine (normal=purple, insert=cyan,
+      -- visual=pink, replace=mint, cmd=blue, term=green), so the statusline
+      -- and the rest of the UI breathe together instead of the static
+      -- "auto" theme oxocarbon ships.
+      local function mode_theme(accent)
+        return {
+          a = { fg = carbon.bg, bg = accent, gui = "bold" },
+          b = { fg = carbon.white, bg = carbon.bg2 },
+          c = { fg = carbon.gray, bg = carbon.bg },
+          x = { fg = carbon.gray, bg = carbon.bg },
+          y = { fg = carbon.white, bg = carbon.bg2 },
+          z = { fg = carbon.bg, bg = accent, gui = "bold" },
+        }
+      end
+
       return {
         options = {
-          theme = "auto", -- oxocarbon ships a lualine theme; auto picks it up
+          theme = {
+            normal = mode_theme(carbon.purple),
+            insert = mode_theme(carbon.cyan),
+            visual = mode_theme(carbon.pink),
+            replace = mode_theme(carbon.mint),
+            command = mode_theme(carbon.blue),
+            terminal = mode_theme(carbon.green),
+            inactive = {
+              a = { fg = carbon.gray, bg = carbon.bg },
+              b = { fg = carbon.gray, bg = carbon.bg },
+              c = { fg = carbon.gray, bg = carbon.bg },
+            },
+          },
           globalstatus = true,
           component_separators = { left = "", right = "" },
           section_separators = { left = "", right = "" }, -- rounded bubbles
@@ -369,15 +420,16 @@ return {
       },
       dashboard = {
         preset = {
+          -- "1337" — this IS the 1337-session config; the living-gradient
+          -- animation from the reactive engine plays across it
           header = [[
-  ▄██████▄  ▀████    ▐████▀  ▄██████▄
- ███    ███   ███▌   ████▀  ███    ███
- ███    ███    ███  ▐███    ███    ███
- ███    ███    ▀███▄███▀    ███    ███
- ███    ███    ████▀██▄     ███    ███
- ███    ███   ▐███  ▀███    ███    ███
- ███    ███  ▄███     ███▄  ███    ███
-  ▀██████▀  ████       ███▄  ▀██████▀ ]],
+ ██╗██████╗ ██████╗ ███████╗
+███║╚════██╗╚════██╗╚════██║
+╚██║ █████╔╝ █████╔╝    ██╔╝
+ ██║ ╚═══██╗ ╚═══██╗   ██╔╝
+ ██║██████╔╝██████╔╝   ██║
+ ╚═╝╚═════╝ ╚═════╝    ╚═╝
+    s  e  s  s  i  o  n]],
           keys = {
             { icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
             { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
@@ -421,6 +473,15 @@ return {
             separator = true,
           },
         },
+      },
+      -- Carbon touches: selected buffer bold with a cyan underline
+      -- indicator; modified dot in pink (same pink as the yank pulse)
+      highlights = {
+        buffer_selected = { bold = true, italic = false },
+        indicator_selected = { fg = carbon.cyan, sp = carbon.cyan, underline = true },
+        modified = { fg = carbon.pink },
+        modified_visible = { fg = carbon.pink },
+        modified_selected = { fg = carbon.pink },
       },
     },
   },
