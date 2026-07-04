@@ -1,18 +1,26 @@
 -- ============================================================================
--- lua/plugins/python.lua — complete Python IDE stack
+-- lua/plugins/python.lua — complete Python IDE stack (ruff generation)
 -- ============================================================================
--- LSP (basedpyright), linting (flake8 + mypy, wired in plugins/lint.lua),
--- formatting (isort + autopep8 — the flake8/pycodestyle-driven formatter),
--- virtualenv switching, and debugging (debugpy). Everything installs itself
--- via mason — this is also the only ACTIVE mason.nvim spec in this config
--- (the one in the old example.lua never ran: it sat behind `if true then
--- return {} end`, so flake8/mypy were never actually auto-installed).
+-- LSP (basedpyright for intelligence + ruff's native server for style),
+-- type checking (mypy on save, wired in plugins/lint.lua), formatting
+-- (ruff), virtualenv switching, and debugging (debugpy). Everything
+-- installs itself via mason.
+--
+-- WHY RUFF (v5.2 upgrade): flake8 + isort + autopep8 were three separate
+-- Python-based tools; ruff is ONE Rust binary that reimplements all of
+-- them (flake8's E/W/F rules, isort's import sorting, the pycodestyle
+-- autofixes) roughly 100x faster — and its LSP server surfaces the same
+-- diagnostics LIVE as you type instead of only on :w. Same rules, same
+-- diagnostics UI (chips/lualine/bufferline pick them up unchanged), no
+-- new keymaps.
 -- ============================================================================
 
 return {
-  -- LSP: basedpyright — pyright fork, faster + more inference features.
-  -- typeCheckingMode is off here on purpose: mypy (nvim-lint) owns type
-  -- checking, so we don't get duplicate/conflicting diagnostics.
+  -- LSPs. basedpyright — pyright fork, faster + more inference features —
+  -- owns intelligence (hover, completion, go-to-def). typeCheckingMode is
+  -- off on purpose: mypy (nvim-lint) owns type checking, so we don't get
+  -- duplicate/conflicting diagnostics. ruff's native server owns style
+  -- diagnostics + code actions (fix-all, organize imports).
   {
     "neovim/nvim-lspconfig",
     opts = {
@@ -28,31 +36,50 @@ return {
             },
           },
         },
+        ruff = {
+          init_options = {
+            settings = {
+              logLevel = "error",
+              lineLength = 100, -- same limit the old autopep8 setup used
+            },
+          },
+        },
+      },
+      setup = {
+        ruff = function()
+          -- basedpyright owns hover; ruff would shadow it with rule docs
+          LazyVim.lsp.on_attach(function(client)
+            client.server_capabilities.hoverProvider = false
+          end, "ruff")
+        end,
       },
     },
   },
 
-  -- Formatter: isort (import sorting) + autopep8 (the flake8/pycodestyle
-  -- autofixer — the "flake8 formatter" you asked for). Runs on save via
-  -- LazyVim's format-on-save (vim.g.autoformat), same as every other ft.
+  -- Formatter: ruff — import sorting + black-style formatting in one pass
+  -- (replaces isort + autopep8). Runs on save via LazyVim's format-on-save
+  -- (vim.g.autoformat), same as every other ft.
   {
     "stevearc/conform.nvim",
     opts = {
       formatters_by_ft = {
-        python = { "isort", "autopep8" },
+        python = { "ruff_organize_imports", "ruff_format" },
       },
       formatters = {
-        autopep8 = {
-          prepend_args = { "--max-line-length", "100" },
+        ruff_format = {
+          -- keep the 100-column limit the old autopep8 config enforced
+          args = { "format", "--line-length", "100", "--force-exclude", "--stdin-filename", "$FILENAME", "-" },
         },
       },
     },
   },
 
   -- Virtualenv / interpreter switcher.
+  -- No branch pin: the old "regexp" rewrite branch WAS the recommended
+  -- install, but it was merged into main on 2025-08-27 — pinning it now
+  -- breaks fresh installs.
   {
     "linux-cultist/venv-selector.nvim",
-    branch = "regexp",
     cmd = "VenvSelect",
     opts = {},
     keys = {
@@ -76,19 +103,18 @@ return {
     end,
   },
 
-  -- Make sure everything above (and flake8/mypy from lint.lua) is on $PATH.
+  -- Make sure everything above (and mypy from lint.lua) is on $PATH.
+  -- (mason-org/mason.nvim is the canonical repo since the 2025 org move)
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     opts = {
       ensure_installed = {
         "stylua",
         "shellcheck",
         "shfmt",
         "basedpyright",
-        "flake8",
+        "ruff",
         "mypy",
-        "autopep8",
-        "isort",
         "debugpy",
       },
     },
@@ -98,10 +124,12 @@ return {
 -- ============================================================================
 -- WHAT THIS FILE ADDS (for diffing):
 --   basedpyright               Python LSP (hover, completion, go-to-def, refs)
---   isort + autopep8           format-on-save via conform.nvim
+--   ruff (native LSP server)   live style diagnostics + code actions —
+--                              replaces flake8 (same E/W/F rule families,
+--                              ~100x faster, live instead of on-save-only)
+--   ruff via conform.nvim      format-on-save: import sorting + formatting
+--                              in one pass — replaces isort + autopep8
 --   linux-cultist/venv-selector.nvim   <leader>cv to pick a venv/interpreter
 --   nvim-dap-python + dap.core extra   <leader>d* debugging, <leader>dPt/dPc
---   mason ensure_installed      the ACTIVE list (flake8/mypy now really
---                                get installed — the old one in example.lua
---                                was dead code and never ran)
+--   mason ensure_installed     basedpyright, ruff, mypy, debugpy (+ lua/sh)
 -- ============================================================================

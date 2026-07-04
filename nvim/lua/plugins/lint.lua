@@ -1,11 +1,17 @@
 -- ============================================================================
--- lua/plugins/lint.lua — flake8 + mypy automatically on save (Python)
+-- lua/plugins/lint.lua — mypy automatically on save (Python)
 -- ============================================================================
--- Uses nvim-lint: runs the external binaries and shows results as normal
--- Neovim diagnostics (same UI as LSP diagnostics — lualine counts, bufferline
--- badges, and noice rendering from ui.lua all pick them up automatically).
+-- Uses nvim-lint: runs the external binary and shows results as normal
+-- Neovim diagnostics (same UI as LSP diagnostics — the tiny-inline chips,
+-- lualine counts, and bufferline badges from ui.lua all pick them up).
 --
--- Requires `flake8` and `mypy` on $PATH (found at ~/.local/bin).
+-- mypy is the only external linter left here on purpose: style linting
+-- moved to ruff's native LSP server (plugins/python.lua), which reports
+-- the same flake8-family rules LIVE as you type instead of on save. mypy
+-- stays on-save because whole-program type checking is too heavy to run
+-- per keystroke.
+--
+-- Requires `mypy` on $PATH (mason installs it — see plugins/python.lua).
 -- ============================================================================
 
 return {
@@ -14,7 +20,7 @@ return {
     event = { "BufReadPost", "BufNewFile", "BufWritePre" },
     opts = {
       linters_by_ft = {
-        python = { "flake8", "mypy" },
+        python = { "mypy" },
       },
     },
     config = function(_, opts)
@@ -32,7 +38,7 @@ return {
       local group = vim.api.nvim_create_augroup("AutoLintOnSave", { clear = true })
 
       -- lint automatically: on open (so existing issues show right away) and
-      -- on EVERY save — this is the "run flake8 + mypy when I save" part
+      -- on EVERY save — this is the "run mypy when I save" part
       vim.api.nvim_create_autocmd({ "BufReadPost", "BufWritePost" }, {
         group = group,
         callback = function()
@@ -52,8 +58,9 @@ return {
 
 -- ============================================================================
 -- WHAT THIS FILE ADDS (for diffing):
---   mfussenegger/nvim-lint  — flake8 + mypy on Python buffers, triggered on
---                             file open and on every :w
+--   mfussenegger/nvim-lint  — mypy on Python buffers, triggered on file
+--                             open and on every :w (style rules live in
+--                             ruff's LSP server, plugins/python.lua)
 -- No keymaps added. Results appear as standard diagnostics:
---   inline virtual text / signs, counts in lualine + bufferline (ui.lua)
+--   tiny-inline chips, counts in lualine + bufferline (ui.lua)
 -- ============================================================================

@@ -31,6 +31,10 @@ require("lazy").setup({
     version = false, -- always use the latest git commit
   },
   install = { colorscheme = { "oxocarbon", "habamax" } },
+  ui = {
+    border = "rounded", -- the :Lazy menu matches every other Carbon panel
+    backdrop = 60, -- dim the editor behind it
+  },
   checker = {
     enabled = true, -- check for plugin updates periodically
     notify = false, -- notify on update
