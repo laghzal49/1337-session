@@ -74,7 +74,6 @@ local function paint(accent)
   hl("FloatBorder", { fg = blend(accent, C.bg, 0.65), bg = C.bg })
   hl("NoiceCmdlinePopupBorder", { fg = accent })
   hl("ModeMsg", { fg = accent, bold = true })
-  hl("CarbonPulseHeat", { fg = blend(accent, C.gray, heat), bg = C.bg })
 end
 
 -- ──────────────────────────────────────────────────────────────────────────
@@ -103,6 +102,14 @@ local spark = SPARKS[1]
 --- typing climbs the bar and tints it toward the current mode accent.
 function M.heat_spark()
   return spark
+end
+
+--- lualine color for the spark. MUST be used as a color *function* — lualine
+--- snapshots the colors of a highlight-group NAME once when it builds its
+--- highlights, so a group repainted per frame would never show; a color
+--- function is re-evaluated on every statusline refresh instead.
+function M.heat_color()
+  return { fg = blend(current, C.gray, heat), bg = C.bg }
 end
 
 local function ensure_decay()
@@ -263,6 +270,14 @@ local function apply_static()
   hl("WhichKeyTitle", { fg = C.cyan, bold = true })
   hl("WhichKeyNormal", { bg = C.bg })
   hl("WhichKeyBorder", { fg = C.gray, bg = C.bg })
+
+  -- dropbar breadcrumbs: quiet gray trail, cyan current symbol, Carbon menu
+  hl("DropBarIconUISeparator", { fg = C.gray })
+  hl("DropBarMenuFloatBorder", { fg = C.gray, bg = C.bg })
+  hl("DropBarMenuNormalFloat", { bg = C.bg })
+  hl("DropBarMenuCurrentContext", { bg = C.bg2, bold = true })
+  hl("DropBarMenuHoverEntry", { bg = C.bg2 })
+  hl("DropBarMenuHoverIcon", { fg = C.cyan })
 
   paint(current) -- restore the reactive groups the colorscheme just reset
 end

@@ -247,10 +247,12 @@ return {
             },
             { lsp_clients, color = { fg = C.gray } },
             -- ★ the typing-heat spark: gray "▁" at rest, climbs the bar and
-            -- tints toward the mode accent while you're in flow
+            -- tints toward the mode accent while you're in flow.
+            -- color MUST be a function: lualine snapshots highlight-group
+            -- names once, so a per-frame-repainted group would never show.
             {
               function() return require("carbon.reactive").heat_spark() end,
-              color = "CarbonPulseHeat",
+              color = function() return require("carbon.reactive").heat_color() end,
               padding = { left = 1, right = 1 },
             },
           },
