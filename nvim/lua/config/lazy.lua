@@ -35,6 +35,9 @@ require("lazy").setup({
     border = "rounded", -- the :Lazy menu matches every other Carbon panel
     backdrop = 60, -- dim the editor behind it
   },
+  -- no plugin here uses luarocks — disable it so lazy never looks for a
+  -- luarocks/hererocks toolchain (clean :checkhealth on no-sudo boxes)
+  rocks = { enabled = false },
   checker = {
     enabled = true, -- check for plugin updates periodically
     notify = false, -- notify on update

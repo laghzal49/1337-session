@@ -110,6 +110,7 @@ step "0/10 · prerequisites"
 # ============================================================================
 have curl || have wget || die "need curl or wget to download anything"
 have tar || die "need tar (present on every Ubuntu)"
+have gzip || die "need gzip (present on every Ubuntu)"
 if have git; then
   ok "git $(git --version | awk '{print $3}')"
 else
@@ -118,6 +119,60 @@ else
   # cloud/desktop image, so this should never fire.
   die "git is missing and can't be installed without sudo — ask an admin for: apt install git"
 fi
+
+# mason unpacks some of its packages from .zip (stylua) and .tar.xz
+# (shellcheck), and the Nerd Font ships as .tar.xz — but minimal Ubuntu
+# images often lack unzip/xz, and neither can be installed without sudo.
+# python3 (always present) can do both jobs, so shim them when missing.
+if ! have unzip && have python3; then
+  cat > "$BIN/unzip" <<'UNZIP_SHIM'
+#!/bin/sh
+# unzip shim via python3 zipfile (no-sudo fallback).
+# Supports the common form: unzip [-o] [-q] ARCHIVE [-d DIR]
+exec python3 - "$@" <<'PYEOF'
+import os, sys, zipfile
+args, dest, src, i = sys.argv[1:], ".", None, 0
+while i < len(args):
+    a = args[i]
+    if a == "-d" and i + 1 < len(args):
+        i += 1
+        dest = args[i]
+    elif not a.startswith("-") and src is None:
+        src = a
+    i += 1
+if src is None:
+    sys.exit("unzip shim: no archive given")
+with zipfile.ZipFile(src) as z:
+    z.extractall(dest)
+    for info in z.infolist():  # zipfile drops exec bits; restore them
+        mode = info.external_attr >> 16
+        if mode:
+            os.chmod(os.path.join(dest, info.filename), mode)
+PYEOF
+UNZIP_SHIM
+  chmod +x "$BIN/unzip"
+  ok "no system unzip — shimmed via python3 (exec bits preserved)"
+fi
+if ! have xz && have python3; then
+  cat > "$BIN/xz" <<'XZ_SHIM'
+#!/bin/sh
+# xz shim via python3 lzma (no-sudo fallback): decompress-only, stdin→stdout
+# — exactly the way tar -xJf invokes it.
+for a in "$@"; do
+  case "$a" in
+    -d|--decompress|-dc|-cd|-dk|-T0) DEC=1 ;;
+  esac
+done
+if [ "${DEC:-0}" = 1 ]; then
+  exec python3 -c 'import sys,lzma,shutil; shutil.copyfileobj(lzma.LZMAFile(sys.stdin.buffer), sys.stdout.buffer)'
+fi
+echo "xz shim: only decompression (-d) from stdin is supported" >&2
+exit 1
+XZ_SHIM
+  chmod +x "$BIN/xz"
+  ok "no system xz — shimmed via python3 lzma"
+fi
+have python3 || warn "python3 missing (very unusual for Ubuntu) — mason's pip tools and the unzip/xz shims need it"
 
 # ============================================================================
 step "1/10 · PATH — ~/.local/bin in every future shell"
