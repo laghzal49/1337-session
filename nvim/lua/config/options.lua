@@ -28,6 +28,26 @@ vim.opt.guicursor = table.concat({
 -- scrolling over wrapped lines moves by screen line, not text line (0.10+)
 vim.opt.smoothscroll = true
 
+-- language providers this config never uses: off. Faster startup, and
+-- :checkhealth stops warning about missing host interpreters. (rplugin
+-- support is already stripped from the runtimepath in config/lazy.lua;
+-- nvim-dap-python is unaffected — it spawns debugpy itself.)
+vim.g.loaded_python3_provider = 0
+vim.g.loaded_ruby_provider = 0
+vim.g.loaded_perl_provider = 0
+vim.g.loaded_node_provider = 0
+
+-- clipboard on boxes with no clipboard tool (common without sudo): let the
+-- terminal itself carry yanks via OSC52 (0.11 shorthand; works over SSH and
+-- in every modern terminal). System tools still win when present.
+if
+  vim.fn.executable("xclip") == 0
+  and vim.fn.executable("wl-copy") == 0
+  and vim.fn.executable("pbcopy") == 0
+then
+  vim.g.clipboard = "osc52"
+end
+
 -- completion menu: cap the height so it never swallows the screen
 vim.opt.pumheight = 12
 
