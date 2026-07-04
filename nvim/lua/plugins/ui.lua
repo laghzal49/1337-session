@@ -282,8 +282,10 @@ return {
   },
 
   -- Mason's package menu: rounded Carbon panel, calm dot icons
+  -- (repo lives at mason-org since the 2025 org move; the old
+  -- williamboman path only works via redirect)
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     opts = {
       ui = {
         border = "rounded",
@@ -571,7 +573,7 @@ return {
 --   LazyVim/LazyVim                         colorscheme = "oxocarbon"
 --   saghen/blink.cmp                        rounded menu/doc windows, explicit
 --                                           Rust fuzzy matcher
---   williamboman/mason.nvim                 rounded panel, dot icons
+--   mason-org/mason.nvim                    rounded panel, dot icons
 --   nvim-lualine/lualine.nvim               bubbles, per-mode theme, cached
 --                                           LSP readout, typing-heat spark
 --   folke/snacks.nvim                       dashboard + notifier + indent +
