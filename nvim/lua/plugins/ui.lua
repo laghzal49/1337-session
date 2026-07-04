@@ -92,7 +92,7 @@ return {
 
   -- Diagnostics DESIGN (display-only, merged into LazyVim's diagnostics
   -- opts): rounded float panel that always names its source — with three
-  -- producers on Python buffers (basedpyright, flake8, mypy) you want to
+  -- producers on Python buffers (basedpyright, ruff, mypy) you want to
   -- know who's talking. Zero changes to how diagnostics are produced.
   -- virtual_text is OFF because tiny-inline-diagnostic (below) renders it
   -- better and cheaper.
@@ -108,7 +108,7 @@ return {
   },
 
   -- Cursor-line diagnostics as rounded Carbon chips that name their source
-  -- (basedpyright/flake8/mypy), wrapping cleanly over multiple lines.
+  -- (basedpyright/ruff/mypy), wrapping cleanly over multiple lines.
   -- PERF: renders only the cursor line instead of virtual text on every
   -- diagnostic line — less extmark churn than the stock renderer it replaces.
   {

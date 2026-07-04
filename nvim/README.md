@@ -81,13 +81,18 @@ Hand-written, unique to this config, display-only. Three small modules:
 
 ## Python
 
-Fully wired in `lua/plugins/python.lua`:
+Fully wired in `lua/plugins/python.lua`, on the fast (ruff) toolchain:
 
-- **LSP**: `basedpyright` (type checking left to mypy, see below).
-- **Lint**: `flake8` + `mypy`, run on open and on every save
-  (`lua/plugins/lint.lua`), surfaced as normal diagnostics.
-- **Format**: `isort` + `autopep8` (the flake8/pycodestyle-driven
-  formatter) on save, via `conform.nvim`.
+- **LSP**: `basedpyright` for intelligence (hover, completion, go-to-def)
+  + **`ruff`'s native LSP server** for style — the same flake8-family
+  rules, reimplemented in Rust ~100x faster, reported **live as you type**
+  instead of only on save, with code actions (fix-all, organize imports).
+- **Types**: `mypy` on open and on every save (`lua/plugins/lint.lua`) —
+  whole-program type checking is too heavy per keystroke, so it stays
+  on-save. basedpyright's own type checking is off to avoid duplicates.
+- **Format**: `ruff` on save via `conform.nvim` — import sorting +
+  black-style formatting in one pass (replaces isort + autopep8; keeps
+  the 100-column limit).
 - **Virtualenvs**: `<leader>cv` → `venv-selector.nvim`.
 - **Debugging**: `debugpy` via `nvim-dap` + `nvim-dap-python`
   (`<leader>d*`, plus `<leader>dPt` / `<leader>dPc` for method/class debug).
