@@ -1,6 +1,13 @@
 -- Options are automatically loaded before lazy.nvim startup
 -- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
 
+-- AUTOFORMAT ON SAVE — explicit, not implied. LazyVim runs conform.nvim on
+-- every :w when this is true (its default, pinned here so it can never
+-- silently regress): ruff for Python (imports + format, python.lua),
+-- stylua for Lua, shfmt for shell — all auto-installed via mason.
+-- Toggle per-session with <leader>uf (stock LazyVim keymap).
+vim.g.autoformat = true
+
 -- terminal / OS window title follows the current file
 vim.opt.title = true
 vim.opt.titlestring = "%t %m — nvim"
