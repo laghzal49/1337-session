@@ -50,9 +50,11 @@ return {
   },
 
   -- Virtualenv / interpreter switcher.
+  -- No branch pin: the old "regexp" rewrite branch WAS the recommended
+  -- install, but it was merged into main on 2025-08-27 — pinning it now
+  -- breaks fresh installs.
   {
     "linux-cultist/venv-selector.nvim",
-    branch = "regexp",
     cmd = "VenvSelect",
     opts = {},
     keys = {
@@ -77,8 +79,9 @@ return {
   },
 
   -- Make sure everything above (and flake8/mypy from lint.lua) is on $PATH.
+  -- (mason-org/mason.nvim is the canonical repo since the 2025 org move)
   {
-    "williamboman/mason.nvim",
+    "mason-org/mason.nvim",
     opts = {
       ensure_installed = {
         "stylua",
