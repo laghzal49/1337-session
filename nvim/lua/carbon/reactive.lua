@@ -22,6 +22,9 @@
 --   · YANK PULSE    yanked text flashes pink and eases out over 400ms
 --                   instead of the stock flat flash.
 --
+--   · FOCUS FADE    switching splits animates the window you left down
+--                   into the inactive dim instead of cutting instantly.
+--
 --   · LIVING DASH   the "1337" dashboard header melts through the palette;
 --                   its tween is cancelled the moment you leave, so it
 --                   costs zero once you're editing.
@@ -110,6 +113,10 @@ local function ensure_decay()
     heat = math.max(heat - 0.025, 0) -- full cool-down ≈ 1.3s after you stop
     spark = SPARKS[math.max(math.ceil(heat * #SPARKS), 1)]
     paint(current)
+    -- the spark is statusline CONTENT, not just color: re-evaluate it while
+    -- (and only while) the heat animation is live. This lets lualine keep
+    -- its slow default poll — zero statusline churn when idle.
+    vim.cmd.redrawstatus()
     if heat <= 0 then
       pulse.stop("heat") -- lets the clock sleep again
     end
@@ -142,7 +149,24 @@ local function yank_pulse()
 end
 
 -- ──────────────────────────────────────────────────────────────────────────
--- 4) LIVING DASHBOARD — header melts through the Carbon palette
+-- 4) FOCUS FADE — the window you leave dissolves into the dark
+-- ──────────────────────────────────────────────────────────────────────────
+-- NormalNC (all inactive windows) animates from full brightness down to the
+-- resting dim instead of cutting instantly, so switching splits reads as
+-- the old window sinking away. One 220ms tween per switch; skipped entirely
+-- when there's nothing to dim.
+local DIM = "#101010"
+local function focus_fade()
+  if #vim.api.nvim_tabpage_list_wins(0) < 2 then
+    return -- single window: NormalNC is invisible, don't wake the clock
+  end
+  pulse.start("focus", 220, function(p)
+    hl("NormalNC", { bg = blend(DIM, C.bg, ease(p)) })
+  end)
+end
+
+-- ──────────────────────────────────────────────────────────────────────────
+-- 5) LIVING DASHBOARD — header melts through the Carbon palette
 -- ──────────────────────────────────────────────────────────────────────────
 local hues = { C.purple, C.cyan, C.mint, C.pink, C.blue }
 local function dashboard_gradient(buf)
@@ -216,7 +240,29 @@ local function apply_static()
   hl("Visual", { bg = blend(C.pink, C.bg, 0.18) })
 
   -- focus dim: inactive windows drop darker so the active pane glows
-  hl("NormalNC", { bg = "#101010" })
+  -- (the focus-fade tween animates this group on every window switch)
+  hl("NormalNC", { bg = DIM })
+
+  -- completion menu (blink.cmp): Carbon panel, cyan fuzzy matches
+  hl("Pmenu", { bg = C.bg })
+  hl("PmenuSel", { bg = C.bg2, bold = true })
+  hl("PmenuThumb", { bg = C.gray })
+  hl("BlinkCmpMenu", { bg = C.bg })
+  hl("BlinkCmpMenuBorder", { fg = C.gray, bg = C.bg })
+  hl("BlinkCmpMenuSelection", { bg = C.bg2, bold = true })
+  hl("BlinkCmpLabelMatch", { fg = C.cyan, bold = true })
+  hl("BlinkCmpDoc", { bg = C.bg })
+  hl("BlinkCmpDocBorder", { fg = C.gray, bg = C.bg })
+  hl("BlinkCmpSignatureHelpBorder", { fg = C.gray, bg = C.bg })
+
+  -- which-key menu: pink keys, purple groups, quiet chrome
+  hl("WhichKey", { fg = C.pink, bold = true })
+  hl("WhichKeyGroup", { fg = C.purple })
+  hl("WhichKeyDesc", { fg = C.white })
+  hl("WhichKeySeparator", { fg = C.gray })
+  hl("WhichKeyTitle", { fg = C.cyan, bold = true })
+  hl("WhichKeyNormal", { bg = C.bg })
+  hl("WhichKeyBorder", { fg = C.gray, bg = C.bg })
 
   paint(current) -- restore the reactive groups the colorscheme just reset
 end
@@ -243,6 +289,11 @@ function M.setup()
   vim.api.nvim_create_autocmd("TextYankPost", {
     group = group,
     callback = yank_pulse,
+  })
+
+  vim.api.nvim_create_autocmd("WinEnter", {
+    group = group,
+    callback = focus_fade,
   })
 
   vim.api.nvim_create_autocmd("FileType", {

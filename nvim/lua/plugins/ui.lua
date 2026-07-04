@@ -30,8 +30,27 @@
 -- "1337" dashboard, diagnostics float that names its source, bufferline
 -- with cyan underline + pink modified dot.
 --
+-- v5.1 = "every surface perfect" + latest-generation audit:
+--   · verified current: this setup already runs the 2026 fast stack —
+--     blink.cmp (Rust fuzzy matcher) and the nvim-treesitter `main` rewrite
+--     (async parsing) via LazyVim; lockfile is days old
+--   · diagnostics: rachartier/tiny-inline-diagnostic — cursor-line
+--     diagnostics as rounded Carbon chips (stock virtual_text off; chips
+--     render ONLY the cursor line, cheaper than painting every line)
+--   · quickfix: stevearc/quicker.nvim — the last stock-ugly menu, fixed
+--   · completion menu, which-key, Mason, and the Lazy manager UI all get
+--     rounded Carbon panels (blink borders here; hl groups + :Lazy border
+--     in carbon/reactive.lua and config/lazy.lua)
+--   · FOCUS FADE (carbon/reactive.lua): the split you leave dissolves into
+--     the inactive dim instead of cutting
+--   · statusline poll dropped to lualine's slow default — the heat tween
+--     calls :redrawstatus only while the spark is animating
+--   · dead weight cut: tokyonight + catppuccin (never load; oxocarbon is
+--     the identity) disabled so they stop installing/updating
+--
 -- KEYMAPS: unchanged. The only mapping this file has ever added is
--- <leader>un (dismiss notifications), kept exactly as-is.
+-- <leader>un (dismiss notifications), kept exactly as-is. None of the new
+-- plugins register any mapping.
 -- ============================================================================
 
 local C = require("carbon.palette").colors
@@ -66,16 +85,41 @@ return {
   -- clobbers oxocarbon with tokyonight.
   { "LazyVim/LazyVim", opts = { colorscheme = "oxocarbon" } },
 
+  -- oxocarbon IS the identity — the stock colorschemes never load, so stop
+  -- installing and updating them (`:Lazy clean` removes the leftovers)
+  { "folke/tokyonight.nvim", enabled = false },
+  { "catppuccin/nvim", enabled = false },
+
   -- Diagnostics DESIGN (display-only, merged into LazyVim's diagnostics
   -- opts): rounded float panel that always names its source — with three
   -- producers on Python buffers (basedpyright, flake8, mypy) you want to
   -- know who's talking. Zero changes to how diagnostics are produced.
+  -- virtual_text is OFF because tiny-inline-diagnostic (below) renders it
+  -- better and cheaper.
   {
     "neovim/nvim-lspconfig",
     opts = {
       diagnostics = {
         severity_sort = true,
+        virtual_text = false, -- owned by tiny-inline-diagnostic
         float = { border = "rounded", source = true },
+      },
+    },
+  },
+
+  -- Cursor-line diagnostics as rounded Carbon chips that name their source
+  -- (basedpyright/flake8/mypy), wrapping cleanly over multiple lines.
+  -- PERF: renders only the cursor line instead of virtual text on every
+  -- diagnostic line — less extmark churn than the stock renderer it replaces.
+  {
+    "rachartier/tiny-inline-diagnostic.nvim",
+    event = "VeryLazy",
+    opts = {
+      preset = "modern",
+      options = {
+        show_source = { enabled = true, if_many = true },
+        multilines = { enabled = true },
+        throttle = 20,
       },
     },
   },
@@ -164,7 +208,10 @@ return {
           component_separators = { left = "", right = "" },
           section_separators = { left = "", right = "" }, -- rounded bubbles
           disabled_filetypes = { statusline = { "snacks_dashboard", "alpha" } },
-          refresh = { statusline = 100 }, -- keeps the typing spark fluid
+          -- slow poll on purpose: mode/diff/diagnostics refresh via events,
+          -- and the typing spark drives :redrawstatus itself while animating
+          -- (carbon/reactive.lua) — zero statusline churn when idle
+          refresh = { statusline = 1000 },
         },
         sections = {
           lualine_a = { { "mode", separator = { left = "", right = "" } } },
@@ -213,6 +260,50 @@ return {
         extensions = { "lazy", "quickfix", "man" },
       }
     end,
+  },
+
+  -- ==========================================================================
+  -- 3.5 COMPLETION MENU — blink.cmp restyled (engine untouched)
+  -- ==========================================================================
+  -- blink.cmp is already LazyVim's default and already the fast option (Rust
+  -- fuzzy matcher, pinned explicit here so it never silently falls back to
+  -- Lua). This spec only rounds the menu/doc/signature windows — the Carbon
+  -- colors come from the Blink* groups in carbon/reactive.lua.
+  {
+    "saghen/blink.cmp",
+    opts = {
+      fuzzy = { implementation = "prefer_rust_with_warning" },
+      completion = {
+        menu = { border = "rounded" },
+        documentation = { window = { border = "rounded" } },
+      },
+      signature = { window = { border = "rounded" } },
+    },
+  },
+
+  -- Mason's package menu: rounded Carbon panel, calm dot icons
+  {
+    "williamboman/mason.nvim",
+    opts = {
+      ui = {
+        border = "rounded",
+        width = 0.8,
+        height = 0.8,
+        icons = {
+          package_installed = "●",
+          package_pending = "◐",
+          package_uninstalled = "○",
+        },
+      },
+    },
+  },
+
+  -- Quickfix, the last stock-ugly menu: syntax-highlighted entries, real
+  -- filenames, editable buffer. No keymaps of its own.
+  {
+    "stevearc/quicker.nvim",
+    ft = "qf",
+    opts = {},
   },
 
   -- ==========================================================================
@@ -470,12 +561,17 @@ return {
 -- NEW (not in stock LazyVim):
 --   nyoom-engineering/oxocarbon.nvim        colorscheme
 --   Bekaboo/dropbar.nvim                    winbar breadcrumbs (needs nvim 0.10+)
+--   rachartier/tiny-inline-diagnostic.nvim  cursor-line diagnostic chips
+--   stevearc/quicker.nvim                   pretty + editable quickfix
 --   HiPhish/rainbow-delimiters.nvim         Carbon rainbow brackets
 --   brenoprata10/nvim-highlight-colors      inline color swatches
 --   MeanderingProgrammer/render-markdown.nvim  pretty markdown rendering
 --   sphamba/smear-cursor.nvim               cursor trail (pure flair, deletable)
 -- OVERRIDDEN (ship with LazyVim; restyled here):
 --   LazyVim/LazyVim                         colorscheme = "oxocarbon"
+--   saghen/blink.cmp                        rounded menu/doc windows, explicit
+--                                           Rust fuzzy matcher
+--   williamboman/mason.nvim                 rounded panel, dot icons
 --   nvim-lualine/lualine.nvim               bubbles, per-mode theme, cached
 --                                           LSP readout, typing-heat spark
 --   folke/snacks.nvim                       dashboard + notifier + indent +
@@ -486,11 +582,13 @@ return {
 --                                           progress spinner
 --                                           + the one keymap: <leader>un
 --   nvim-tree/nvim-web-devicons             default icons on
+-- DISABLED (ship with LazyVim; dead weight here):
+--   folke/tokyonight.nvim, catppuccin/nvim  oxocarbon is the identity
 --
 -- HAND-WRITTEN (no plugin — unique to this config, in lua/carbon/):
 --   ★ Carbon Pulse    single-clock tween engine — every animation shares one
 --                     30fps timer that stops the instant nothing animates
 --   ★ Carbon Reactive mode-morph cross-fades · typing-heat glow + statusline
---                     spark · fading yank pulse · living dashboard gradient ·
---                     mode-tinted cursor block · inactive-window focus dim
+--                     spark · fading yank pulse · focus-fade on window switch ·
+--                     living dashboard gradient · mode-tinted cursor block
 -- ============================================================================
