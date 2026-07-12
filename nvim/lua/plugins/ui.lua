@@ -246,15 +246,6 @@ return {
               symbols = { error = " ", warn = " ", info = " ", hint = " " },
             },
             { lsp_clients, color = { fg = C.gray } },
-            -- ★ the typing-heat spark: gray "▁" at rest, climbs the bar and
-            -- tints toward the mode accent while you're in flow.
-            -- color MUST be a function: lualine snapshots highlight-group
-            -- names once, so a per-frame-repainted group would never show.
-            {
-              function() return require("carbon.reactive").heat_spark() end,
-              color = function() return require("carbon.reactive").heat_color() end,
-              padding = { left = 1, right = 1 },
-            },
           },
           lualine_y = { { "filetype", icon_only = false }, "progress" },
           lualine_z = { { "location", separator = { left = "", right = "" } } },
@@ -346,7 +337,7 @@ return {
         top_down = false, -- rise from the bottom
         style = "compact",
       },
-      scroll = { enabled = true }, -- buttery smooth scrolling (visual only)
+      scroll = { enabled = false }, -- disabled: per-frame animation, pure CPU cost on weak hardware
       statuscolumn = {
         enabled = true, -- unified sign/number/fold column, no behavior change
         left = { "mark", "sign" },
@@ -539,22 +530,6 @@ return {
       heading = { icons = { "󰲡 ", "󰲣 ", "󰲥 ", "󰲧 ", "󰲩 ", "󰲫 " } },
       code = { style = "full", border = "thin" },
       bullet = { icons = { "●", "○", "◆", "◇" } },
-    },
-  },
-
-  -- ==========================================================================
-  -- 11. CURSOR TRAIL (pure flair) — smear-cursor
-  -- ==========================================================================
-  -- GPU-shader-style smear when the cursor jumps. 100% cosmetic; if it's too
-  -- much, delete this block — nothing depends on it.
-  {
-    "sphamba/smear-cursor.nvim",
-    event = "VeryLazy",
-    opts = {
-      cursor_color = C.cyan,
-      stiffness = 0.8, -- snappy, not floaty
-      trailing_stiffness = 0.5,
-      distance_stop_animating = 0.5,
     },
   },
 }

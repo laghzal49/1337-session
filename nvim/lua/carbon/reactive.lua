@@ -12,13 +12,6 @@
 --                   the same wave: normal=purple · insert=cyan · visual=pink
 --                   · replace=mint · cmdline=blue · terminal=green
 --
---   · TYPING HEAT   a keystroke-velocity meter. Each keypress feeds a heat
---                   value (0..1) that decays when you pause; the cursorline
---                   glow intensifies with it, and lualine shows it as a live
---                   spark (▁▂▃▄▅▆▇█) that climbs from gray to the mode
---                   accent while you're in flow. The editor breathes with
---                   your typing speed.
---
 --   · YANK PULSE    yanked text flashes pink and eases out over 400ms
 --                   instead of the stock flat flash.
 --
@@ -29,8 +22,8 @@
 --                   its tween is cancelled the moment you leave, so it
 --                   costs zero once you're editing.
 --
--- The hot path is honest: a keypress does ONE arithmetic bump; the clock
--- only spins while something is visibly animating (see pulse.lua).
+-- The clock only spins while something is visibly animating (see pulse.lua).
+-- Nothing here runs on a per-keystroke hook — typing itself is untouched.
 -- ============================================================================
 
 local palette = require("carbon.palette")
@@ -59,13 +52,12 @@ local mode_accent = {
 }
 
 local current = C.purple -- the accent painted right now (mid-morph included)
-local heat = 0 -- 0..1 typing velocity, decays when you pause
 
 -- Paint every accent-reactive group in one color. Called per animation
 -- frame — blend() is memoized, so steady-state frames are pure lookups.
 local function paint(accent)
   current = accent
-  hl("CursorLine", { bg = blend(accent, C.bg, 0.07 + 0.09 * heat) })
+  hl("CursorLine", { bg = blend(accent, C.bg, 0.07) })
   hl("CursorLineNr", { fg = accent, bold = true })
   hl("CarbonCursor", { fg = C.bg, bg = accent }) -- the real cursor block (guicursor)
   hl("SnacksIndentScope", { fg = accent, nocombine = true })
@@ -93,59 +85,7 @@ local function on_mode_changed(new_mode)
 end
 
 -- ──────────────────────────────────────────────────────────────────────────
--- 2) TYPING HEAT — keystroke velocity → glow + statusline spark
--- ──────────────────────────────────────────────────────────────────────────
-local SPARKS = { "▁", "▂", "▃", "▄", "▅", "▆", "▇", "█" }
-local spark = SPARKS[1]
-
---- lualine component: the live activity spark. Idle = gray "▁"; sustained
---- typing climbs the bar and tints it toward the current mode accent.
-function M.heat_spark()
-  return spark
-end
-
---- lualine color for the spark. MUST be used as a color *function* — lualine
---- snapshots the colors of a highlight-group NAME once when it builds its
---- highlights, so a group repainted per frame would never show; a color
---- function is re-evaluated on every statusline refresh instead.
-function M.heat_color()
-  return { fg = blend(current, C.gray, heat), bg = C.bg }
-end
-
-local function ensure_decay()
-  if heat <= 0 then
-    return
-  end
-  pulse.start("heat", math.huge, function()
-    heat = math.max(heat - 0.025, 0) -- full cool-down ≈ 1.3s after you stop
-    spark = SPARKS[math.max(math.ceil(heat * #SPARKS), 1)]
-    paint(current)
-    -- the spark is statusline CONTENT, not just color: re-evaluate it while
-    -- (and only while) the heat animation is live. This lets lualine keep
-    -- its slow default poll — zero statusline churn when idle.
-    vim.cmd.redrawstatus()
-    if heat <= 0 then
-      pulse.stop("heat") -- lets the clock sleep again
-    end
-  end)
-end
-
-local heat_scheduled = false
-local function on_key()
-  -- HOT PATH: runs on every keypress — pure arithmetic only. The tween
-  -- (re)registration is deferred and coalesced via vim.schedule.
-  heat = math.min(heat + 0.09, 1)
-  if not heat_scheduled then
-    heat_scheduled = true
-    vim.schedule(function()
-      heat_scheduled = false
-      ensure_decay()
-    end)
-  end
-end
-
--- ──────────────────────────────────────────────────────────────────────────
--- 3) YANK PULSE — pink flash that eases out instead of cutting off
+-- 2) YANK PULSE — pink flash that eases out instead of cutting off
 -- ──────────────────────────────────────────────────────────────────────────
 local function yank_pulse()
   local hilite = vim.hl or vim.highlight -- vim.hl is 0.11+
@@ -156,7 +96,7 @@ local function yank_pulse()
 end
 
 -- ──────────────────────────────────────────────────────────────────────────
--- 4) FOCUS FADE — the window you leave dissolves into the dark
+-- 3) FOCUS FADE — the window you leave dissolves into the dark
 -- ──────────────────────────────────────────────────────────────────────────
 -- NormalNC (all inactive windows) animates from full brightness down to the
 -- resting dim instead of cutting instantly, so switching splits reads as
@@ -173,7 +113,7 @@ local function focus_fade()
 end
 
 -- ──────────────────────────────────────────────────────────────────────────
--- 5) LIVING DASHBOARD — header melts through the Carbon palette
+-- 4) LIVING DASHBOARD — header melts through the Carbon palette
 -- ──────────────────────────────────────────────────────────────────────────
 local hues = { C.purple, C.cyan, C.mint, C.pink, C.blue }
 local function dashboard_gradient(buf)
@@ -279,6 +219,46 @@ local function apply_static()
   hl("DropBarMenuHoverEntry", { bg = C.bg2 })
   hl("DropBarMenuHoverIcon", { fg = C.cyan })
 
+  -- SYNTAX CLARITY, softened for eye comfort: oxocarbon leaves @variable/
+  -- @parameter the same washed-out near-white as plain text — nothing reads
+  -- as "a variable" at a glance. Every category gets its own distinct color,
+  -- but every color is pulled ~20% toward the background first (soften()) so
+  -- nothing is neon, and bold is used sparingly (only `def`/`class`/`return`-
+  -- style keywords) instead of on every group — less visual noise overall.
+  local function soften(color) return blend(color, C.bg, 0.8) end
+  local sw, sblue, spink, spurple, scyan, smint, sgreen =
+    soften(C.white), soften(C.blue), soften(C.pink), soften(C.purple), soften(C.cyan), soften(C.mint), soften(C.green)
+
+  hl("@variable", { fg = sw }) -- plain locals: soft off-white, not stark white
+  hl("@variable.parameter", { fg = sblue }) -- fn args: blue, distinct from locals
+  hl("@variable.member", { fg = spink }) -- obj.field / self.x
+  hl("@variable.builtin", { fg = spurple, italic = true }) -- self/this/super
+  hl("@parameter", { fg = sblue }) -- legacy group name, same as @variable.parameter
+  hl("@property", { fg = spink })
+  hl("@function", { fg = scyan })
+  hl("@function.call", { fg = scyan })
+  hl("@function.builtin", { fg = scyan, italic = true })
+  hl("@function.method", { fg = scyan })
+  hl("@function.method.call", { fg = scyan })
+  hl("@constructor", { fg = smint })
+  hl("@keyword", { fg = spurple, bold = true })
+  hl("@keyword.function", { fg = spurple, bold = true })
+  hl("@keyword.return", { fg = spurple, bold = true })
+  hl("@keyword.operator", { fg = spurple })
+  hl("@conditional", { fg = spurple, bold = true })
+  hl("@repeat", { fg = spurple, bold = true })
+  hl("@type", { fg = smint })
+  hl("@type.builtin", { fg = smint, italic = true })
+  hl("@string", { fg = sgreen })
+  hl("@string.escape", { fg = spink })
+  hl("@number", { fg = smint })
+  hl("@boolean", { fg = smint })
+  hl("@constant", { fg = smint })
+  hl("@constant.builtin", { fg = smint })
+  hl("@comment", { fg = C.gray, italic = true })
+  hl("@punctuation.bracket", { fg = sw })
+  hl("@punctuation.delimiter", { fg = C.gray })
+
   paint(current) -- restore the reactive groups the colorscheme just reset
 end
 
@@ -318,8 +298,6 @@ function M.setup()
       dashboard_gradient(ev.buf)
     end,
   })
-
-  vim.on_key(on_key, vim.api.nvim_create_namespace("carbon_heat"))
 
   apply_static() -- initial paint (ColorScheme already fired before setup)
 end

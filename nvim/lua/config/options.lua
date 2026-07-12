@@ -18,7 +18,7 @@ vim.opt.titlestring = "%t %m — nvim"
 -- the rest of the UI. The gentle blink is kept exactly as before.
 -- (Terminals without cursor-color support just ignore the group — safe.)
 vim.opt.guicursor = table.concat({
-  "n-v-sv:block-CarbonCursor",
+  "n-v:block-CarbonCursor",
   "i-ci-ve:ver25-CarbonCursor",
   "r-cr-o:hor20-CarbonCursor",
   "c:ver25-CarbonCursor",
@@ -30,8 +30,7 @@ vim.opt.smoothscroll = true
 
 -- language providers this config never uses: off. Faster startup, and
 -- :checkhealth stops warning about missing host interpreters. (rplugin
--- support is already stripped from the runtimepath in config/lazy.lua;
--- nvim-dap-python is unaffected — it spawns debugpy itself.)
+-- support is already stripped from the runtimepath in config/lazy.lua.)
 vim.g.loaded_python3_provider = 0
 vim.g.loaded_ruby_provider = 0
 vim.g.loaded_perl_provider = 0
@@ -56,7 +55,7 @@ vim.opt.pumheight = 12
 vim.opt.fillchars = {
   eob = " ",
   fold = " ",
-  foldopen = "",
-  foldclose = "",
+  foldopen = "▾",
+  foldclose = "▸",
   diff = "╱",
 }

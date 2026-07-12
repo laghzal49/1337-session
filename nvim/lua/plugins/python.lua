@@ -3,8 +3,7 @@
 -- ============================================================================
 -- LSP (basedpyright for intelligence + ruff's native server for style),
 -- type checking (mypy on save, wired in plugins/lint.lua), formatting
--- (ruff), virtualenv switching, and debugging (debugpy). Everything
--- installs itself via mason.
+-- (ruff), and virtualenv switching. Everything installs itself via mason.
 --
 -- WHY RUFF (v5.2 upgrade): flake8 + isort + autopep8 were three separate
 -- Python-based tools; ruff is ONE Rust binary that reimplements all of
@@ -40,7 +39,7 @@ return {
           init_options = {
             settings = {
               logLevel = "error",
-              lineLength = 100, -- same limit the old autopep8 setup used
+              lineLength = 79,
             },
           },
         },
@@ -48,9 +47,9 @@ return {
       setup = {
         ruff = function()
           -- basedpyright owns hover; ruff would shadow it with rule docs
-          LazyVim.lsp.on_attach(function(client)
+          Snacks.util.lsp.on({ name = "ruff" }, function(_, client)
             client.server_capabilities.hoverProvider = false
-          end, "ruff")
+          end)
         end,
       },
     },
@@ -67,8 +66,7 @@ return {
       },
       formatters = {
         ruff_format = {
-          -- keep the 100-column limit the old autopep8 config enforced
-          args = { "format", "--line-length", "100", "--force-exclude", "--stdin-filename", "$FILENAME", "-" },
+          args = { "format", "--line-length", "70", "--force-exclude", "--stdin-filename", "$FILENAME", "-" },
         },
       },
     },
@@ -87,22 +85,6 @@ return {
     },
   },
 
-  -- Debugging: debugpy via nvim-dap, using LazyVim's dap UI/core.
-  { import = "lazyvim.plugins.extras.dap.core" },
-  {
-    "mfussenegger/nvim-dap-python",
-    ft = "python",
-    keys = {
-      { "<leader>dPt", function() require("dap-python").test_method() end, desc = "Debug Method", ft = "python" },
-      { "<leader>dPc", function() require("dap-python").test_class() end, desc = "Debug Class", ft = "python" },
-    },
-    config = function()
-      -- LazyVim.get_pkg_path resolves the mason install dir on both mason
-      -- 1.x and 2.0 (get_install_path() was removed in mason 2.0)
-      require("dap-python").setup(LazyVim.get_pkg_path("debugpy", "/venv/bin/python"))
-    end,
-  },
-
   -- Make sure everything above (and mypy from lint.lua) is on $PATH.
   -- (mason-org/mason.nvim is the canonical repo since the 2025 org move)
   {
@@ -115,7 +97,6 @@ return {
         "basedpyright",
         "ruff",
         "mypy",
-        "debugpy",
       },
     },
   },
@@ -130,6 +111,5 @@ return {
 --   ruff via conform.nvim      format-on-save: import sorting + formatting
 --                              in one pass — replaces isort + autopep8
 --   linux-cultist/venv-selector.nvim   <leader>cv to pick a venv/interpreter
---   nvim-dap-python + dap.core extra   <leader>d* debugging, <leader>dPt/dPc
---   mason ensure_installed     basedpyright, ruff, mypy, debugpy (+ lua/sh)
+--   mason ensure_installed     basedpyright, ruff, mypy (+ lua/sh)
 -- ============================================================================
