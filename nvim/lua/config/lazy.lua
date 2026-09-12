@@ -18,39 +18,45 @@ require("lazy").setup({
   spec = {
     -- add LazyVim and import its plugins
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
+    { import = "lazyvim.plugins.extras.dap.core" },
+    { import = "lazyvim.plugins.extras.test.core" },
+    { import = "lazyvim.plugins.extras.lang.python" },
+    { import = "lazyvim.plugins.extras.lang.json" },
+    { import = "lazyvim.plugins.extras.lang.toml" },
+    { import = "lazyvim.plugins.extras.lang.clangd" },
+    { import = "lazyvim.plugins.extras.editor.neo-tree" },
+    { import = "lazyvim.plugins.extras.ui.edgy" },
+    { import = "lazyvim.plugins.extras.editor.aerial" },
+    { import = "lazyvim.plugins.extras.editor.harpoon2" },
+    { import = "lazyvim.plugins.extras.coding.yanky" },
+    { import = "lazyvim.plugins.extras.coding.mini-surround" },
+    { import = "lazyvim.plugins.extras.coding.neogen" },
+    { import = "lazyvim.plugins.extras.ui.treesitter-context" },
     -- import/override with your plugins
     { import = "plugins" },
   },
   defaults = {
-    -- lazy-load EVERYTHING: every custom spec in lua/plugins/ declares its
-    -- own trigger (event/ft/cmd/keys), and the colorscheme opts out with
-    -- lazy = false + priority 1000. Startup only pays for the colorscheme.
-    lazy = true,
+    -- By default, only LazyVim plugins will be lazy-loaded. Your custom plugins will load during startup.
+    -- If you know what you're doing, you can set this to `true` to have all your custom plugins lazy-loaded by default.
+    lazy = false,
     -- It's recommended to leave version=false for now, since a lot the plugin that support versioning,
     -- have outdated releases, which may break your Neovim install.
     version = false, -- always use the latest git commit
+    -- version = "*", -- try installing the latest stable version for plugins that support semver
   },
-  install = { colorscheme = { "oxocarbon", "habamax" } },
-  ui = {
-    border = "rounded", -- the :Lazy menu matches every other Carbon panel
-    backdrop = 60, -- dim the editor behind it
-  },
-  -- no plugin here uses luarocks — disable it so lazy never looks for a
-  -- luarocks/hererocks toolchain (clean :checkhealth on no-sudo boxes)
-  rocks = { enabled = false },
+  install = { colorscheme = { "tokyonight", "habamax" } },
   checker = {
     enabled = true, -- check for plugin updates periodically
     notify = false, -- notify on update
   }, -- automatically check for plugin updates
-  change_detection = { notify = false }, -- no popup on every config edit
   performance = {
     rtp = {
-      -- disable built-in rtp plugins this config never uses
-      -- (netrw included: the snacks explorer handles `nvim <dir>`)
+      -- disable some rtp plugins
       disabled_plugins = {
         "gzip",
-        "netrwPlugin",
-        "rplugin",
+        -- "matchit",
+        -- "matchparen",
+        -- "netrwPlugin",
         "tarPlugin",
         "tohtml",
         "tutor",
