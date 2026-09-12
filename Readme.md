@@ -22,3 +22,7 @@ prebuilt binaries — **never calls sudo, never leaves $HOME**:
 
 Idempotent — re-run it any time; installed tools are skipped
 (`--force` reinstalls, `--no-sync` skips the headless plugin download).
+
+## Personal dotfiles
+
+Current shell, terminal and desktop configs are in [`dotfiles/`](dotfiles/README.md), with restore instructions.

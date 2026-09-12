@@ -1,0 +1,16 @@
+# Private credentials and generated state must never be published.
+.ssh/
+.gnupg/
+.aws/
+.config/gh/
+.config/gcloud/
+.env
+.env.*
+*.pem
+*.key
+*history*
+.zcompdump*
+fish_variables
+*.local
+*.bak
+*.log

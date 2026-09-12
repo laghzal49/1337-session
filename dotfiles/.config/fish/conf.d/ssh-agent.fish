@@ -1,0 +1,1 @@
+set -gx SSH_AUTH_SOCK /run/user/(id -u)/ssh-agent.socket
