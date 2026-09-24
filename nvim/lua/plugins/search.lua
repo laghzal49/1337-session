@@ -8,18 +8,18 @@ return {
         layouts = {
           workspace = {
             layout = {
-              box = "vertical", width = 0.84, height = 0.65,
-              border = require("config.ui").border, title = " {title} ", title_pos = "left", backdrop = false,
+              box = "vertical", width = 0.78, height = 0.72,
+              border = require("config.ui").border, title = "   {title} ", title_pos = "left", backdrop = false,
               { win = "input", height = 1, border = "bottom" },
               { box = "horizontal",
-                { win = "list", border = "none", width = 0.44 },
+                { win = "list", border = "none", width = 0.42 },
                 { win = "preview", border = "left", title = " {preview} " },
               },
             },
           },
           workspace_small = {
             layout = {
-              box = "vertical", width = 0.92, height = 0.76,
+              box = "vertical", width = 0.92, height = 0.72,
               border = require("config.ui").border, title = " {title} ", title_pos = "left", backdrop = false,
               { win = "input", height = 1, border = "bottom" },
               { win = "list", border = "none" },
