@@ -31,7 +31,15 @@ return {
     opts = {
       close_if_last_window = true,
       popup_border_style = "rounded",
-      window = { width = 30, position = "left" },
+      window = { width = 28, position = "left" },
+      event_handlers = {
+        {
+          event = "file_opened",
+          handler = function()
+            if vim.o.columns < 110 then require("neo-tree.command").execute({ action = "close" }) end
+          end,
+        },
+      },
       source_selector = {
         winbar = false,
         statusline = false,

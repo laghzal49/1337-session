@@ -1,6 +1,4 @@
 local ui = require("config.ui")
-local active_notifications = {}
-local notification_priority = { trace = 0, debug = 1, info = 2, warn = 3, error = 4 }
 
 return {
   {
@@ -37,7 +35,8 @@ return {
   {
     "folke/snacks.nvim",
     keys = {
-      { "<leader>n", function() Snacks.notifier.show_history() end, desc = "Notification history drawer" },
+      { "<leader>n", function() require("config.notifications").history() end, desc = "Notification history drawer" },
+      { "<leader>un", function() require("config.notifications").dismiss() end, desc = "Dismiss notifications" },
     },
     opts = {
       input = {
@@ -47,32 +46,7 @@ return {
       notifier = {
         enabled = true, style = "compact", timeout = 3000,
         level = vim.log.levels.INFO,
-        filter = function(notif)
-          if notif.timeout == 3000 then
-            if notif.level == "warn" then notif.timeout = 6000 end
-            if notif.level == "error" then notif.timeout = 0 end
-          end
-          -- History keeps every toast. Cap only the live stack, and keep
-          -- errors visible ahead of informational notifications.
-          active_notifications = vim.tbl_filter(function(item)
-            return not item.hidden and item.id ~= notif.id
-          end, active_notifications)
-          active_notifications[#active_notifications + 1] = notif
-          if #active_notifications > 3 then
-            local oldest = 1
-            for i, item in ipairs(active_notifications) do
-              if notification_priority[item.level] < notification_priority[active_notifications[oldest].level] then
-                oldest = i
-              end
-            end
-            local removed = table.remove(active_notifications, oldest)
-            if removed == notif then
-              return false -- Retained in history; live slots have higher severity.
-            end
-            Snacks.notifier.hide(removed.id)
-          end
-          return true
-        end,
+        filter = require("config.notifications").filter,
         width = { min = 24, max = 0.35 }, height = { min = 1, max = 0.25 },
         margin = { top = 1, right = 1, bottom = 0 }, padding = true,
       },
@@ -101,5 +75,8 @@ return {
   },
   { "folke/which-key.nvim", opts = { win = { border = ui.border, padding = { 0, 1 }, wo = { winblend = ui.blend } } } },
   { "mason-org/mason.nvim", opts = { ui = { border = ui.border, width = 0.8, height = 0.8 } } },
-  { "lewis6991/gitsigns.nvim", opts = { preview_config = { border = ui.border, style = "minimal", relative = "cursor", row = 0, col = 1 } } },
+  { "lewis6991/gitsigns.nvim", opts = {
+    signs_staged_enable = false, -- One Git marker leaves room for the diagnostic.
+    preview_config = { border = ui.border, style = "minimal", relative = "cursor", row = 0, col = 1 },
+  } },
 }

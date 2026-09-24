@@ -40,7 +40,8 @@ other secondary surfaces stay neutral.
 ## Components and behavior
 
 - **Editor:** Black background, body text off-white, dim line numbers, one
-  reserved sign slot that expands to two on collisions, a barely raised cursor line, and no end-of-buffer
+  reserved sign slot that expands to two on collisions, a barely raised cursor
+  line, and no end-of-buffer
   tildes. Errors can show inline; warnings stay in signs and the statusline.
 - **Chrome:** One global statusline; a buffer tab row appears when useful.
   The command line is hidden until needed. Code-area percentages apply only
@@ -53,27 +54,35 @@ other secondary surfaces stay neutral.
   Project name is short, source selector is hidden, and an already visible
   file gets a filled active row. Redundant unstaged exclamation marks are
   hidden; change type and staged/conflict indicators remain. Closing the tree
-  returns its width to code.
+  returns its width to code. Below 110 columns the tree closes automatically
+  after opening a file. At wider sizes it remains open for repeated navigation.
 - **Search:** Quick file, buffer, recent, and command pickers use a compact
   list. Project grep and references use a larger list with a preview. At
-  narrow widths they switch to stacked layouts. Main navigation pickers have
+  narrow widths the preview starts hidden and can open below the results.
+  `Ctrl-P` toggles the preview from the input or result list, including file
+  search. Wide searches give 58% of the split to results and expand to 90% of
+  terminal width. Main navigation pickers have
   no borders: the list uses `#1E1E1E`, preview uses `#141414`, and selection
-  uses `#2A2A2A`. The input prompt names its operation. Layouts cap at 110 x 36;
+  uses `#2A2A2A`. The input prompt names its operation. Quick and narrow layouts
+  cap at 110 x 36; wide inspection caps at 130 x 36 to reduce path truncation;
   backup files are excluded from file search. Generic selection dialogs retain
   their existing compact borders.
 - **Completion and hover:** Completion shows at most eight items; docs open
   on request. Floats use opaque backgrounds. Borders are cell characters
   where separation is necessary, not simulated glow or shadows.
-- **Notifications:** Compact opaque toasts: info 3 seconds, warning 6 seconds,
-  and errors without a timeout. At most three are tracked. Overflow removes
-  the lowest-severity toast first, oldest first on ties. A new info toast
-  cannot evict an error; a fourth error replaces the oldest error in the live
-  stack. All ordinary notifications remain in Snacks' session history.
+- **Notifications:** Compact opaque toasts: info 3 seconds, warning 6 seconds.
+  Identical active messages batch by severity, title, and text, displaying a
+  `×N` counter. Individual original records remain in Snacks' session history;
+  explicit caller IDs still have Snacks' normal replacement semantics.
+  Errors produce one sticky summary showing the number of error notifications
+  since the last review or dismissal. Detailed error messages stay in history.
+  At most three live toasts remain, with lower-severity overflow removed first.
   `<leader>n` opens a scrollable bottom history drawer; `q` closes it and
-  `<leader>un` dismisses live toasts. Explicit caller timeouts are respected
-  except the default 3000 ms value, which gets severity defaults. Callers may
-  explicitly opt out of history. History is not saved across restarts.
-  Identical notifications are not yet batched into counters.
+  `<leader>un` dismisses live toasts. Either action acknowledges the error
+  summary without deleting history. Info/warning caller timeouts are respected
+  except the default 3000 ms value, which gets severity defaults. Errors always
+  use the summary. Callers may explicitly opt out of history. History is not
+  saved across restarts.
 - **Motion:** Panel motion and scrolling animation are off. Indent scope has
   an at-most-110 ms animation; set `vim.g.reduce_motion = true` before plugin
   setup to disable it.
@@ -97,16 +106,22 @@ the captured terminal grid, but needs inspection on the actual cluster display.
 The earlier toast cap evicted by age alone, so an info message could remove a
 persistent error. Severity-aware overflow fixes that. Snacks already kept
 history before this change; dismissing a toast did not delete its record.
-The new drawer makes this recovery path explicit. There is still no duplicate
-counter, and a three-toast cap necessarily displaces an error if four errors
-arrive. The history drawer contains all four unless a caller disables history.
+The drawer makes this recovery path explicit. Repeated toasts now batch, and
+an error burst produces one persistent summary instead of three competing
+messages. Reviewing the drawer acknowledges the summary. The tradeoff is that
+reading an error's full text takes one explicit navigation action.
 
 Native `signcolumn=auto:1-2` now handles collisions, with the custom status
 column disabled so that rendering follows the option. The original LazyVim
 status column had separate Git and diagnostic components, so the old option
-alone was not proof that those signs always overwrote one another. More than
-two simultaneous signs can still exceed the new limit; priority decides
-which two remain visible.
+alone was not proof that those signs always overwrote one another. The signs
+handler now shows only the most severe diagnostic on each line across all
+active diagnostic sources. Hiding/resetting a source restores the next
+available diagnostic. The complete diagnostics remain available to floats,
+navigation, and Trouble. The separate staged Git sign is disabled, leaving
+room for one Git sign and one diagnostic; staging information remains in Git
+tools and the tree. Extra breakpoint/bookmark signs can still compete for the
+two available slots.
 
 The pure-black canvas is a preference, not a promise of reduced eye strain.
 OLED transition behavior depends on the display. `#14` is decimal 20, and
@@ -120,20 +135,37 @@ them as fringe wrappers does not establish a dependency defect.
 
 ### Verification of this revision
 
+Tests used Neovim 0.12.5 in the local container, with the repository's pinned
+LazyVim, Snacks, Neo-tree, and Gitsigns versions.
+
 - Actual embedded Neovim UI: one sign used 2 cells, two signs on one line used
   4, and removing the second sign returned the gutter to 2 cells.
-- Three errors followed by an info message: all four remained in history,
-  with all three errors retained in the live stack.
+- Five identical warnings: one live toast with `×5`, all five history records.
+- Four errors: one summary, all four original error records in history.
+- A subsequent info burst keeps the live stack at three and preserves the
+  error summary.
+- Two diagnostic namespaces on one line: one error sign; resetting the error
+  namespace restores the warning, and resetting both removes the sign.
 - Notification history opened as a scrollable bottom split (10 rows at
   100 x 30), rather than an automatically appearing overlay.
-- File search and project grep inspected through captured Neovim UI grids.
+- File search and project grep preview toggling/geometry passed at 80 x 24,
+  100 x 30, and 140 x 42; wide grep inspected through a captured Neovim UI grid.
+- Tree file-open event closes the panel at 80 columns and preserves it at 140.
+- Three warm local headless start-and-exit runs: 43.1, 49.0, and 42.9 ms.
+  These exclude interactive UI startup, external language servers, and NFS.
+- Synthetic 20,000-line buffer: 4,000 diagnostics collapsed to 2,000 signs;
+  buffer creation, diagnostic publication, one edit, and redraw took 167.2 ms
+  in this container. This is not a real-project LSP or typing-latency benchmark.
+- Regression checks are saved in `nvim/tests/ui_review.py`.
 
 ### Remaining limits and rating
 
-**8.5/10, subjective.** The layout is cohesive and the tested failure states
-behave predictably. It falls short of a complete 10 because duplicate batching
-is absent, content-area goals depend on the active layout, and no latency or
-long-session comfort measurements have been made on the 1337 workstation.
+**9/10, subjective.** The layout is cohesive and the tested failure states
+behave predictably. The remaining gap is validation on the actual 1337
+workstation: NFS startup, real ty/Ruff workloads, font rendering, and comfort
+over a long coding session. Content-area goals still depend on the active
+layout. Session-only notification history and one extra action to read error
+details are deliberate tradeoffs, not guarantees of perfection.
 
 ### Technical references
 
@@ -155,3 +187,15 @@ binding, then try file search and project grep. Check a narrow 80 x 24 terminal
 as well as a wide one. To verify the Lua files load without startup errors,
 run `nvim --headless '+qa!'` in an environment where this config and its
 plugins are installed.
+
+Run the UI regression suite from the repository root with Neovim and its
+plugins installed: `uv run --with msgpack python nvim/tests/ui_review.py`.
+Set `NVIM_BIN` if the Neovim executable is not on PATH. The suite uses unsaved
+test buffers and inherited cache/data directories; it does not edit projects.
+
+| Action | Shortcut |
+| --- | --- |
+| Toggle picker preview | `Ctrl-P` in picker input/list |
+| Review and acknowledge notifications | `<leader>n` |
+| Dismiss live notifications | `<leader>un` |
+| Close notification drawer | `q` |
