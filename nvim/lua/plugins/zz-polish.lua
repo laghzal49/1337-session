@@ -3,23 +3,20 @@ return {
     "folke/snacks.nvim",
     opts = {
       dashboard = {
-        width = 52,
+        width = 44,
         preset = {
-          header = "  1337  /  TARIK",
+          header = "    1337  /  NVIM\n  ─────────────────────",
           keys = {
             { icon = " ", key = "f", desc = "Find a file", action = ":lua Snacks.dashboard.pick('files')" },
             { icon = " ", key = "g", desc = "Search project", action = ":lua Snacks.dashboard.pick('live_grep')" },
             { icon = " ", key = "r", desc = "Recent files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
             { icon = " ", key = "n", desc = "New buffer", action = ":ene | startinsert" },
-            { icon = " ", key = "s", desc = "Resume session", section = "session" },
-            { icon = " ", key = "c", desc = "Configuration", action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})" },
-            { icon = "󰒲 ", key = "l", desc = "Plugins", action = ":Lazy" },
             { icon = " ", key = "q", desc = "Quit", action = ":qa" },
           },
         },
         sections = {
           { section = "header", padding = 1 },
-          { section = "keys", gap = 0, padding = 1 },
+          { section = "keys", gap = 1, padding = 1 },
           { icon = " ", title = "Recent", section = "recent_files", limit = 4, indent = 2, padding = 1 },
         },
       },
@@ -60,10 +57,10 @@ return {
         show_buffer_close_icons = false,
         indicator = { style = "underline" },
         max_name_length = 26,
-        tab_size = 22,
+        tab_size = 20,
         enforce_regular_tabs = false,
         always_show_bufferline = false,
-        diagnostics = "nvim_lsp",
+        diagnostics = false,
         diagnostics_indicator = function(_, _, diag)
           local parts = {}
           if diag.error then parts[#parts + 1] = " " .. diag.error end
