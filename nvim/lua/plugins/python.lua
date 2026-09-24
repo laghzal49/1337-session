@@ -1,17 +1,4 @@
--- Persisted by the nvimlsp zsh script; read once at startup.
-local selection_file = vim.fn.stdpath("config") .. "/python-lsp"
-local selected = "zuban"
-if vim.fn.filereadable(selection_file) == 1 then
-  local value = vim.trim(table.concat(vim.fn.readfile(selection_file), "\n"))
-  if value == "ty" or value == "zuban" or value == "pyrefly" then
-    selected = value
-  else
-    vim.schedule(function()
-      vim.notify("Invalid Python LSP selection; using zuban. Run nvimlsp ty|zuban|pyrefly.", vim.log.levels.WARN)
-    end)
-  end
-end
-
+-- Python uses ty for language features and Ruff for linting and formatting.
 return {
   {
     "stevearc/conform.nvim",
@@ -33,9 +20,9 @@ return {
     opts = {
       servers = {
         ty = {
-          enabled = selected == "ty",
+          enabled = true,
           mason = false,
-          cmd = { vim.fn.expand("~/.local/bin/ty"), "server" },
+          cmd = { "ty", "server" },
           settings = { ty = {} },
           before_init = function(_, config)
             -- Standalone scripts may use packages installed with pip --user.
@@ -64,22 +51,9 @@ return {
             },
           },
         },
-        pyrefly = {
-          enabled = selected == "pyrefly",
-          mason = false,
-          cmd = { vim.fn.expand("~/.local/bin/pyrefly"), "lsp" },
-        },
-        zuban = {
-          enabled = selected == "zuban",
-          keys = {
-            { "<leader>ch", function() require("config.python_help").show() end, desc = "Python builtin help" },
-          },
-          mason = false,
-          cmd = { vim.fn.expand("~/.local/bin/zuban"), "server" },
-        },
         ruff = {
           on_attach = function(client)
-            -- Let the selected Python server provide Python hover information.
+            -- Let ty provide Python hover information.
             client.server_capabilities.hoverProvider = false
           end,
         },
