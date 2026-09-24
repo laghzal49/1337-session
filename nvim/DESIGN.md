@@ -1,11 +1,11 @@
-# Perfect Black — Edition 02
+# Perfect Black — Edition 03
 
 ## Direction
 
 A pure-black editor with readable syntax, cool blue interaction surfaces, and
 clear emphasis. The previous all-italic, mostly gray design made controls hard
-to distinguish. This edition changes typography, Python syntax, documentation,
-commands, icons, and the statusline as one system.
+to distinguish. Edition 03 unifies interactive panels through `lua/config/surfaces.lua` and
+removes repeated information from completion, search, and the statusline.
 
 ## Palette
 
@@ -16,11 +16,11 @@ commands, icons, and the statusline as one system.
 | Secondary text | `#A0A0A0` | Paths and supporting details |
 | Comments | `#7A7A7A` | Quiet, italic annotations |
 | Interaction accent | `#82AAFF` | Selection, prompts, headings, matches |
-| Documentation fill | `#10151C` | Separate reference material from code |
-| Command fill | `#121923` | A recognizable command surface |
+| Shared panel fill | `#10151C` | Commands, search, docs, and notifications |
+| Inset fill | `#0A0F16` | Preview, sidebar, and statusline |
 | Popup edge | `#354357` | Delimit text panels over dense code |
 | Selected completion | `#243B59` | Obvious keyboard selection |
-| Picker selection | `#162439` | Tie search to the interaction accent |
+| Picker selection | `#243B59` | Match completion and tree selection |
 | Statusline | `#0A0F16` | A quiet continuous base |
 | Statusline end blocks | `#172333` | Group mode and cursor position |
 
@@ -28,7 +28,8 @@ Python receives its own syntax overrides:
 
 | Token | Color |
 | --- | --- |
-| Variables, parameters, members | `#B8D7F0` |
+| Variables and parameters | `#B8D7F0` |
+| Members and properties | `#CCD6E0` |
 | Keywords, decorators, built-in variable references | `#C4A7E7` |
 | Functions and methods | `#E5C07B` |
 | Types and constructors | `#78DCCA` |
@@ -49,8 +50,9 @@ Alacritty select all four real faces. The installer verifies all four files.
 Neovim cannot change a terminal emulator's font itself.
 
 Completion uses one Codicon family for symbol kinds, alongside readable kind
-and source labels. Project files use recognizable filetype glyphs; Python and
-Lua have restrained yellow/blue accents. Directory names remain neutral.
+labels. Code files, documents, shell scripts, folders, and dashboard actions
+use related outline glyphs. Configured file icons share a muted foreground;
+third-party file types can retain their plugin defaults.
 Dashboard actions use matching outline icons. The statusline avoids repeating
 a language icon beside an already visible file name.
 
@@ -59,15 +61,17 @@ a language icon beside an already visible file name.
 ### Bottom status bar
 
 Mode and file are on the left. Diagnostics follow the filename. Git branch,
-change counts, and filetype appear on the right when space allows. The final
-block explicitly labels line and column. The modified marker is `+` and a
+and change counts appear on the right when space allows. The redundant
+filetype label is removed. The final
+block explicitly labels line and column, shortening to `line:column` in
+narrow terminals. The modified marker is `+` and a
 recording indicator appears while recording a macro. Mode color stays in the
 mode block; the cursor-position block remains neutral. Branch/change counts
 hide before they crowd small terminals.
 
 ### Completion and documentation
 
-The menu orders information as kind icon, completion text, then kind/source.
+The menu orders information as kind icon, completion text, then a short kind label. Source names are omitted.
 Labels longer than 38 cells are shortened for display; insertion text is
 unmodified. Selected items have a stronger blue fill.
 
@@ -81,7 +85,7 @@ unlabelled to avoid crowding. Documentation still opens only on request.
 ### Command palette and hover
 
 Commands have explicit COMMAND, LUA, SEARCH, HELP, or SHELL labels, a restrained
-outline, horizontal padding, and a 55% width capped at 78 columns. Noice's command
+outline, horizontal padding, and a content-sized input between 42 and 72 columns. Noice's command
 palette preset aligns command completion beneath the input. Hover shares the
 documentation palette and wraps prose.
 
@@ -94,14 +98,18 @@ borders; radius and font rendering depend on the terminal.
 Quick pickers are compact; grep and references have a preview. Height follows
 result count within the viewport cap. Ctrl-P toggles preview. Narrow layouts
 stack it below results; wide inspection uses a side-by-side preview. File names
-come first, with muted directories. Search retains filled padding without an
-outline. Neo-tree is 28 columns and closes after opening a file below 110 columns.
+come first, with muted directories. Search shares the documentation panel fill, outline, heading style, and
+selection color. Its footer keeps preview/close shortcuts visible. When a
+grep preview is open, rows show file locations and the preview shows code;
+when hidden, rows retain matching code so narrow layouts stay informative. Neo-tree is 28 columns and closes after opening a file below 110 columns.
 
 ### Workspace
 
 The 1337 wordmark and two panes appear at 100×30 or larger. Small terminals show
 compact actions and recent files. Recents are scoped to the working directory.
-The launch screen disappears when editing begins.
+The two section headings align, actions share key badges, and recent filenames
+include their immediate parent directory. The launch screen disappears when
+editing begins.
 
 ### Feedback
 

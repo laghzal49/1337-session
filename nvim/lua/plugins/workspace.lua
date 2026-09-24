@@ -44,9 +44,9 @@ return {
         winbar = false,
         statusline = false,
         sources = {
-          { source = "filesystem", display_name = "󰉋 Files" },
-          { source = "buffers", display_name = "󰈙 Bufs" },
-          { source = "git_status", display_name = " Git" },
+          { source = "filesystem", display_name = " Files" },
+          { source = "buffers", display_name = " Bufs" },
+          { source = "git_status", display_name = " Git" },
         },
       },
       filesystem = {

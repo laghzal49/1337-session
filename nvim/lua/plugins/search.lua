@@ -4,11 +4,11 @@ return {
     "folke/snacks.nvim",
     opts = {
       picker = {
-        prompt = "  ",
+        prompt = "  ",
         on_show = function(picker) require("config.picker_layout").attach(picker) end,
         on_change = function(picker) require("config.picker_layout").queue(picker) end,
         formatters = {
-          file = { filename_first = true, truncate = "center", min_width = 36, icon_width = 2, git_status_hl = false },
+          file = { filename_first = true, truncate = "center", min_width = 18, icon_width = 2, git_status_hl = false },
         },
         layout = {
           preset = function(source)
@@ -24,7 +24,8 @@ return {
             hidden = { "preview" },
             layout = {
               box = "vertical", width = 0.54, height = 0.46, min_width = 48, max_width = 110, max_height = 36,
-              border = "solid", row = 0.15, backdrop = false,
+              border = "rounded", title = " {title} ", title_pos = "left",
+              footer = { { " Ctrl-P preview · Esc close ", "BlackDocsHint" } }, footer_pos = "right", row = 0.15, backdrop = false,
               { win = "input", height = 1, border = "none" },
               { win = "list", border = "none" },
               { win = "preview", border = "solid", height = 0.4 },
@@ -34,7 +35,8 @@ return {
             hidden = { "preview" },
             layout = {
               box = "vertical", width = 0.92, height = 0.55, max_width = 110, max_height = 36,
-              border = "solid", row = 0.15, backdrop = false,
+              border = "rounded", title = " {title} ", title_pos = "left",
+              footer = { { " Ctrl-P preview · Esc close ", "BlackDocsHint" } }, footer_pos = "right", row = 0.15, backdrop = false,
               { win = "input", height = 1, border = "none" },
               { win = "list", border = "none" },
               { win = "preview", border = "solid", height = 0.4 },
@@ -43,10 +45,11 @@ return {
           inspect = {
             layout = {
               box = "vertical", width = 0.90, height = 0.70, max_width = 130, max_height = 36,
-              border = "solid", row = 0.15, backdrop = false,
+              border = "rounded", title = " {title} ", title_pos = "left",
+              footer = { { " Ctrl-P preview · Esc close ", "BlackDocsHint" } }, footer_pos = "right", row = 0.15, backdrop = false,
               { win = "input", height = 1, border = "none" },
               { box = "horizontal",
-                { win = "list", border = "none", width = 0.58 },
+                { win = "list", border = "none", width = 0.50 },
                 { win = "preview", border = "solid" },
               },
             },
@@ -55,7 +58,8 @@ return {
             hidden = { "preview" },
             layout = {
               box = "vertical", width = 0.92, height = 0.78, max_width = 110, max_height = 36,
-              border = "solid", row = 0.15, backdrop = false,
+              border = "rounded", title = " {title} ", title_pos = "left",
+              footer = { { " Ctrl-P preview · Esc close ", "BlackDocsHint" } }, footer_pos = "right", row = 0.15, backdrop = false,
               { win = "input", height = 1, border = "none" },
               { win = "list", border = "none" },
               { win = "preview", border = "solid", height = 0.38 },
@@ -63,13 +67,18 @@ return {
           },
         },
         sources = {
-          files = { hidden = true, ignored = false, exclude = { "*.bak-*" }, title = "Files", prompt = "Files    " },
-          buffers = { prompt = "Buffers    " },
-          recent = { prompt = "Recent    " },
-          commands = { prompt = "Commands    " },
-          keymaps = { prompt = "Keys    " },
-          grep = { hidden = true, ignored = false, title = "Search project", prompt = "Project    " },
-          grep_word = { hidden = true, ignored = false, title = "References", prompt = "References    " },
+          files = { hidden = true, ignored = false, exclude = { "*.bak-*" }, title = "Files", prompt = "  " },
+          buffers = { prompt = "Buffers    " },
+          recent = { prompt = "Recent    " },
+          commands = { prompt = "Commands    " },
+          keymaps = { prompt = "Keys    " },
+          grep = { hidden = true, ignored = false, title = "Search project", prompt = "  ", format = function(item, picker)
+            if picker.layout and not picker.layout:is_hidden("preview") then
+              return Snacks.picker.format.filename(item, picker)
+            end
+            return Snacks.picker.format.file(item, picker)
+          end },
+          grep_word = { hidden = true, ignored = false, title = "References", prompt = "References    " },
         },
         win = {
           input = { keys = {

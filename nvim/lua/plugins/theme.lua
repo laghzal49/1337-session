@@ -38,7 +38,7 @@ return {
         -- Python: identifiers stay readable; structure and values have distinct roles.
         ["@variable.python"] = { fg = "#B8D7F0" },
         ["@variable.parameter.python"] = { fg = "#B8D7F0" },
-        ["@variable.member.python"] = { fg = "#B8D7F0" },
+        ["@variable.member.python"] = { fg = "#CCD6E0" },
         ["@variable.builtin.python"] = { fg = "#C4A7E7" },
         ["@keyword.import.python"] = { fg = "#C4A7E7" },
         ["@keyword.function.python"] = { fg = "#C4A7E7" },
@@ -71,7 +71,7 @@ return {
         ["@punctuation.python"] = { fg = "$light_grey" },
         ["@lsp.type.variable.python"] = { fg = "#B8D7F0" },
         ["@lsp.type.parameter.python"] = { fg = "#B8D7F0" },
-        ["@lsp.type.property.python"] = { fg = "#B8D7F0" },
+        ["@lsp.type.property.python"] = { fg = "#CCD6E0" },
         ["@lsp.type.function.python"] = { fg = "#E5C07B" },
         ["@lsp.type.method.python"] = { fg = "#E5C07B" },
         ["@lsp.type.class.python"] = { fg = "#78DCCA" },
@@ -175,6 +175,7 @@ return {
       },
     },
     config = function(_, opts)
+      opts.highlights = vim.tbl_deep_extend("force", opts.highlights or {}, require("config.surfaces").highlights())
       require("onedark").setup(opts)
       require("onedark").load()
     end,

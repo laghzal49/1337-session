@@ -52,8 +52,7 @@ return {
         if vim.fn.strdisplaywidth(item.abbr) > 38 then
           item.abbr = vim.fn.strcharpart(item.abbr, 0, 35) .. "…"
         end
-        local labels = { nvim_lsp = "LSP", buffer = "Buffer", path = "Path", snippets = "Snippet", lazydev = "Lua" }
-        item.menu = kind .. " · " .. (labels[entry.source.name] or entry.source.name)
+        item.menu = kind
         return item
       end
       opts.performance = vim.tbl_deep_extend("force", opts.performance or {}, {

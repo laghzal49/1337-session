@@ -46,8 +46,8 @@ return {
         always_show_bufferline = false,
         diagnostics = false,
         offsets = {
-          { filetype = "neo-tree", text = " 󰉋  FILES", text_align = "left", separator = true },
-          { filetype = "aerial", text = " 󰅩  SYMBOLS", text_align = "left", separator = true },
+          { filetype = "neo-tree", text = "   FILES", text_align = "left", separator = true },
+          { filetype = "aerial", text = "   SYMBOLS", text_align = "left", separator = true },
         },
       },
     },
@@ -90,11 +90,11 @@ return {
         lualine_x = {
           { "branch", icon = "", color = { fg = palette.light_grey }, cond = function() return vim.o.columns >= 100 end },
           { "diff", symbols = { added = "+", modified = "~", removed = "−" }, cond = function() return vim.o.columns >= 115 end },
-          { "filetype", icons_enabled = false, color = { fg = palette.light_grey }, cond = function() return vim.o.columns >= 90 end },
         },
         lualine_y = {},
         lualine_z = { { function()
-          return string.format("Ln %d, Col %d", vim.fn.line("."), vim.fn.virtcol("."))
+          return vim.o.columns < 90 and string.format("%d:%d", vim.fn.line("."), vim.fn.virtcol("."))
+            or string.format("Ln %d, Col %d", vim.fn.line("."), vim.fn.virtcol("."))
         end, color = { bg = "#172333", fg = palette.fg } } },
       }
     end,

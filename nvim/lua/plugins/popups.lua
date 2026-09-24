@@ -19,7 +19,7 @@ return {
         cmdline_popup = {
           win_options = { winblend = ui.blend },
           position = { row = "25%", col = "50%" },
-          size = { min_width = 32, width = "55%", max_width = 78, height = "auto" },
+          size = { min_width = 42, width = "auto", max_width = 72, height = "auto" },
           border = { style = "rounded", padding = { 0, 2 } },
         },
         popupmenu = {

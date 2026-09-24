@@ -1,7 +1,7 @@
 # Perfect Black Neovim
 
 Pure black code, clearer Python syntax, a useful documentation panel, and a
-composed status bar. Built on LazyVim with **ty + Ruff** for Python.
+composed status bar. Panels share one palette and consistent outlines. Built on LazyVim with **ty + Ruff** for Python.
 
 ## Editing
 
@@ -14,7 +14,7 @@ are light blue, functions warm gold, types teal, and keywords lavender.
 
 ![Completion and documentation panel](assets/documentation.png)
 
-A distinct reference surface, symbol icons, readable kind labels, and visible
+A distinct reference surface, consistent symbol icons, short kind labels, and visible
 keyboard hints. This actual Neovim capture uses a deterministic demo completion
 source, not a live ty response.
 
@@ -22,13 +22,17 @@ source, not a live ty response.
 
 ![Command palette](assets/command.png)
 
-Explicit operation labels, consistent padding, and a subtle outline over code.
+Explicit operation labels, content-sized width, and the same outline as search
+and documentation.
 
 ## Workspace and search
 
 ![1337 workspace](assets/workspace.png)
 
 ![Adaptive project search](assets/perfect-black.png)
+
+File locations occupy the result list while code stays in the preview. Toggle
+the preview off and matching code returns to the rows.
 
 All images are actual Neovim UI-grid captures rendered with the configured font
 faces. Python examples are unsaved demonstration buffers.
