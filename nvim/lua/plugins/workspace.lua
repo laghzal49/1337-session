@@ -2,8 +2,7 @@ return {
   {
     "snacks.nvim",
     opts = {
-      terminal = { shell = "/usr/bin/zsh", win = { position = "bottom", height = 0.35, border = "rounded" } },
-      picker = { layout = { preset = "default" }, win = { input = { border = "rounded" } } },
+      terminal = { win = { position = "bottom", height = 0.30, border = "rounded" } },
       scroll = { enabled = true },
       styles = {
         notification = { border = "rounded", wo = { winblend = 0 } },
@@ -31,7 +30,7 @@ return {
     opts = {
       close_if_last_window = true,
       popup_border_style = "rounded",
-      window = { width = 28, position = "left" },
+      window = { width = 30, position = "left" },
       source_selector = {
         winbar = true,
         statusline = false,
@@ -43,6 +42,8 @@ return {
       },
       filesystem = {
         filtered_items = { hide_dotfiles = false, hide_gitignored = true, hide_by_name = { ".git", "__pycache__" } },
+        follow_current_file = { enabled = true },
+        group_empty_dirs = true,
       },
       default_component_configs = {
         indent = {
