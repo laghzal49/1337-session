@@ -103,7 +103,21 @@ return {
           { "diagnostics", sources = { "nvim_diagnostic" }, sections = { "error", "warn" },
             symbols = { error = " ", warn = " " } },
         },
-        lualine_x = { { "filetype", colored = false, cond = function() return vim.o.columns >= 90 end } },
+        lualine_x = {
+          {
+            function()
+              local names = {}
+              for _, client in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
+                if client.name ~= "ruff" then names[#names + 1] = client.name end
+              end
+              table.sort(names)
+              return #names > 0 and ("  " .. table.concat(names, " · ")) or ""
+            end,
+            cond = function() return vim.o.columns >= 115 end,
+            color = { fg = palette.grey },
+          },
+          { "filetype", colored = false, cond = function() return vim.o.columns >= 90 end },
+        },
         lualine_y = {},
         lualine_z = { "location" },
       }
