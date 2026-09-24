@@ -1,5 +1,5 @@
--- Options are automatically loaded before lazy.nvim startup
--- Default options that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/options.lua
+vim.g.mapleader = " "
+vim.g.maplocalleader = "\\"
 -- Add any additional options here
 
 -- A black, opaque canvas with one compact status row and one tab row.
@@ -25,3 +25,17 @@ vim.opt.cursorline = true
 vim.opt.cursorlineopt = "number,line"
 
 vim.opt.winborder = require("config.ui").border
+
+
+vim.opt.expandtab = true
+vim.opt.shiftwidth = 4
+vim.opt.tabstop = 4
+vim.opt.smartindent = true
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+vim.opt.splitbelow = true
+vim.opt.splitright = true
+vim.opt.undofile = true
+vim.opt.completeopt = { "menu", "menuone", "noselect" }
+vim.opt.scrolloff = 5
+vim.opt.wrap = false

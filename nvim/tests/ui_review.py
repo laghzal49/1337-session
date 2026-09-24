@@ -104,45 +104,21 @@ call('nvim_command',['set nomodified'])
 for width,height in [(80,24),(100,30),(140,42)]:
  call('nvim_ui_try_resize',[width,height]);pump(.2)
  for source in ['files','grep']:
-  expr="Snacks.picker.files()" if source=='files' else "Snacks.picker.grep({search='neo-tree'})"
-  call('nvim_exec_lua',['_G.review_picker='+expr,[]]);pump(.7)
-  def dims():
-   return call('nvim_exec_lua',["local p=review_picker; local wins={}; for _,w in ipairs({p.input.win,p.list.win,p.preview.win}) do if w:win_valid() then wins[#wins+1]={width=vim.api.nvim_win_get_width(w.win),height=vim.api.nvim_win_get_height(w.win)} end end; return {hidden=p.layout:is_hidden('preview'),wins=wins}",[]])
-  before=dims()
-  call('nvim_exec_lua',["review_picker:toggle('preview')",[]]);pump(.3)
-  after=dims();assert before['hidden']!=after['hidden'],(width,source,before,after)
-  for d in before['wins']+after['wins']: assert 0<d['width']<=width and 0<d['height']<=height,d
-  call('nvim_exec_lua',['review_picker:close()',[]]);pump(.2)
- print('PICKERS',width,height,'preview toggle and geometry PASS',flush=True)
-# A completed query shrinks the same picker, and clearing it grows it again.
-call('nvim_exec_lua',['_G.review_picker=Snacks.picker.files()',[]]);pump(.7)
-def picker_height():
- return call('nvim_exec_lua',['return vim.api.nvim_win_get_height(review_picker.layout.root.win)',[]])
-full=picker_height()
-call('nvim_exec_lua',["review_picker.input:set('notifications.lua')",[]]);pump(.7)
-small=picker_height()
-assert small<full,(full,small)
-call('nvim_exec_lua',["review_picker:toggle('preview')",[]]);pump(.3)
-assert not call('nvim_exec_lua',["return review_picker.layout:is_hidden('preview')",[]])
-call('nvim_exec_lua',["review_picker.input:set('')",[]]);pump(.7)
-assert picker_height()>small
-assert not call('nvim_exec_lua',["return review_picker.layout:is_hidden('preview')",[]])
-call('nvim_exec_lua',['review_picker:close()',[]]);pump(.2)
-print('ADAPTIVE: shrinks with results, grows when cleared, preserves preview PASS',flush=True)
+  call('nvim_exec_lua',["local source=...; vim.schedule(function() require('config.pick').open(source) end)",[source]]);pump(.7)
+  call('nvim_input',['notifications' if source=='files' else 'vim.notify']);pump(.7)
+  state=call('nvim_exec_lua',["local p=require('mini.pick'); local s=p.get_picker_state(); return {items=#p.get_picker_items(),width=vim.api.nvim_win_get_width(s.windows.main),height=vim.api.nvim_win_get_height(s.windows.main)}",[]])
+  assert state['items']>0 and state['width']<=width and state['height']<=height,state
+  call('nvim_input',['<C-p>']);pump(.3)
+  assert call('nvim_exec_lua',["local s=require('mini.pick').get_picker_state(); return s.buffers.preview~=nil and vim.api.nvim_win_get_buf(s.windows.main)==s.buffers.preview",[]])
+  call('nvim_input',['<C-p>']);pump(.2)
+  call('nvim_input',['<Esc>']);pump(.3)
+  assert call('nvim_exec_lua',["return require('mini.pick').get_picker_state()==nil",[]])
+ print('MINI PICK',width,height,'files, live grep, previews, close PASS',flush=True)
 # Synthetic large-buffer cost; this excludes external LSP work and NFS latency.
 stress=call('nvim_exec_lua',["local t=vim.uv.hrtime(); local lines={}; for i=1,20000 do lines[i]='local value_'..i..' = '..i end; vim.api.nvim_buf_set_lines(0,0,-1,false,lines); local a,b={},{}; for i=1,2000 do a[i]={lnum=i-1,col=0,message='warning',severity=2}; b[i]={lnum=i-1,col=0,message='error',severity=1} end; vim.diagnostic.set(review_a,0,a); vim.diagnostic.set(review_b,0,b); vim.api.nvim_buf_set_text(0,10000,0,10000,0,{'-- edited '}); vim.cmd.redraw(); return {ms=(vim.uv.hrtime()-t)/1e6,lines=vim.api.nvim_buf_line_count(0)}",[]])
 assert stress['lines']==20000 and len(signs())==2000,stress
 print('LARGE BUFFER: 20k lines, 4k diagnostics, 2k signs',stress,flush=True)
 call('nvim_exec_lua',["vim.diagnostic.reset(review_a,0); vim.diagnostic.reset(review_b,0); vim.api.nvim_buf_set_lines(0,0,-1,false,{'test complete'}); vim.bo.modified=false",[]])
-# Exercise the exact Neo-tree event that fires after opening a file.
-for width,expected in [(80,False),(140,True)]:
- call('nvim_ui_try_resize',[width,30]);pump(.2)
- call('nvim_command',['Neotree show']);pump(.5)
- call('nvim_exec_lua',["require('neo-tree.events').fire_event('file_opened','nvim/init.lua')",[]]);pump(.2)
- visible=call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='neo-tree' then return true end end; return false",[]])
- assert visible==expected,(width,visible)
- call('nvim_command',['Neotree close'])
-print('TREE: narrow closes, wide remains PASS',flush=True)
 # Exercise documentation via the real insert-mode mappings at two viewport sizes.
 call('nvim_exec_lua',[r"""
 local cmp = require('cmp')
@@ -187,26 +163,33 @@ for width,height in [(80,24),(140,42)]:
  print('DOCS / COMMAND',width,height,'open, scroll, close and geometry PASS',flush=True)
 
 print('PLUGIN INTEGRATION',call('nvim_exec_lua',["return dofile('nvim/tests/plugins_review.lua')",[]]),flush=True)
+call('nvim_exec_lua',["vim.schedule(function() require('config.pick').open('files',{cwd=plugin_review.dir}) end)",[]]);pump(.7)
+call('nvim_input',['renamed']);pump(.5)
+call('nvim_input',['<CR>']);pump(.5)
+assert call('nvim_eval',["expand('%:t')"])=='renamed.txt'
+call('nvim_exec_lua',["vim.api.nvim_set_current_buf(plugin_review.buf); vim.api.nvim_win_set_cursor(0,{3,5})",[]])
+print('MINI FILES rename + MINI PICK selection PASS',flush=True)
+
 for width,height in [(80,24),(140,42)]:
  call('nvim_ui_try_resize',[width,height]);pump(.3)
  call('nvim_exec_lua',["require('mini.files').open(plugin_review.dir,true,require('config.tool_layout').files())",[]]);pump(.3)
  files=call('nvim_exec_lua',["local r={} for _,w in ipairs(vim.api.nvim_list_wins()) do local c=vim.api.nvim_win_get_config(w); if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='minifiles' then r[#r+1]=c end end return r",[]])
  assert files and all(c['width']<=width-4 and c['height']<=height-2 for c in files),files
  call('nvim_exec_lua',["require('mini.files').close()",[]]);pump(.2)
- for command,ft in [('Glance references','glance'),('Namu symbols','namu')]:
+ for command,ft in [('Glance references','glance'),('AerialOpen float','aerial')]:
   call('nvim_command',[command]);pump(.8)
   panels=call('nvim_exec_lua',["local r={} for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype:lower():match(...) then r[#r+1]={vim.api.nvim_win_get_width(w),vim.api.nvim_win_get_height(w)} end end return r",[ft]])
   assert panels and all(c[0]<=width and c[1]<=height-2 for c in panels),(command,panels)
   if ft=='glance':call('nvim_exec_lua',["require('glance').actions.close()",[]])
-  else:call('nvim_input',['<Esc>'])
+  else:call('nvim_command',['AerialClose'])
   pump(.3)
- print('TOOL PANELS',width,height,'Mini Files, Glance, Namu PASS',flush=True)
+ print('TOOL PANELS',width,height,'Mini Files, Glance, Aerial PASS',flush=True)
 call('nvim_exec_lua',["vim.api.nvim_set_current_buf(plugin_review.buf); vim.api.nvim_win_set_cursor(0,{3,5})",[]])
 call('nvim_input',[':IncRename renamed']);pump(.6)
 call('nvim_input',['<CR>']);pump(.6)
 assert 'renamed' in call('nvim_exec_lua',["return vim.api.nvim_buf_get_lines(plugin_review.buf,2,3,false)[1]",[]])
 call('nvim_exec_lua',["vim.lsp.stop_client(plugin_review.client,true); vim.api.nvim_buf_delete(plugin_review.buf,{force=true}); vim.fn.delete(plugin_review.dir,'rf')",[]])
-print('LSP UI: Glance, Namu, incremental rename PASS',flush=True)
+print('LSP UI: Glance, Aerial, incremental rename PASS',flush=True)
 errors=call('nvim_eval',['v:errors']); assert errors==[],errors
 print('V_ERRORS',errors,flush=True)
 req('nvim_command',['silent! qa!'])

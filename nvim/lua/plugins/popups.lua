@@ -58,20 +58,6 @@ return {
           wo = { wrap = true, winblend = 0, winbar = "  Notification history · q to close" },
         },
       },
-      picker = {
-        layouts = {
-          select = {
-            layout = {
-              box = "vertical", width = 0.65, min_width = 20, max_width = ui.max_width,
-              height = 0.4, min_height = 3, border = ui.border,
-              title = " {title} ", title_pos = "left", backdrop = false,
-              { win = "input", height = 1, border = "bottom" },
-              { win = "list", border = "none" },
-              { win = "preview", height = 0.4, border = "top" },
-            },
-          },
-        },
-      },
     },
   },
   { "folke/which-key.nvim", opts = { win = { border = ui.border, padding = { 0, 1 }, wo = { winblend = ui.blend } } } },

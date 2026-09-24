@@ -1,164 +1,114 @@
 # Perfect Black Neovim
 
-Pure black code, clearer Python syntax, a useful documentation panel, and a
-composed status bar. Panels share one palette and consistent outlines. Built on LazyVim with **ty + Ruff** for Python.
+A standalone Neovim configuration: **no LazyVim distribution**. lazy.nvim manages
+36 explicitly configured plugins and dependencies, pinned in `lazy-lock.json`.
+Pure-black code, italic comments, opaque panels, and **ty + Ruff** for Python.
 
-## Editing
+## Editing surfaces
 
-![Python palette and bottom status bar](assets/python.png)
+![Python palette and status bar](assets/python.png)
 
-Upright JetBrains Mono keeps code readable. Comments retain italics. Variables
-are light blue, functions warm gold, types teal, and keywords lavender.
+![Completion documentation](assets/documentation.png)
 
-## Completion documentation
+![Command bar](assets/command.png)
 
-![Completion and documentation panel](assets/documentation.png)
+These actual UI-grid captures show the retained editing surfaces from the previous
+release. The documentation image uses a demo completion source. The new Mini Pick
+and Aerial layouts are tested at narrow and wide sizes; older Snacks picker images
+are intentionally no longer presented as current UI.
 
-A distinct reference surface, consistent symbol icons, short kind labels, and visible
-keyboard hints. This actual Neovim capture uses a deterministic demo completion
-source, not a live ty response.
+## The smaller workflow
 
-## Commands
+- **Mini Pick + Mini Extra:** files, live grep, buffers, commands, diagnostics and
+  symbols. Ctrl-P switches between results and preview in the same window.
+- **Mini Files:** the only file browser. Edit filenames like a buffer, then press
+  `=` to review/synchronize operations. One column on narrow terminals.
+- **Aerial:** on-demand code outline, with Tree-sitter and LSP backends.
+- **Glance:** peek at definitions/references without leaving the source.
+- **Quicker:** editable quickfix with expandable context.
+- **Tiny Inline Diagnostic:** wrapped cursor-line errors, quiet during insertion.
+- **Magazine completion:** plain readable labels, kind icons, on-demand docs.
+- **TreeSJ, incremental rename, selected text objects:** editing tools with no
+  permanent panels. Native inlay hints are off until you toggle them.
 
-![Command palette](assets/command.png)
-
-Explicit operation labels, content-sized width, and the same outline as search
-and documentation.
-
-## Workspace and search
-
-![1337 workspace](assets/workspace.png)
-
-![Adaptive project search](assets/perfect-black.png)
-
-File locations occupy the result list while code stays in the preview. Toggle
-the preview off and matching code returns to the rows.
-
-All images are actual Neovim UI-grid captures rendered with the configured font
-faces. Python examples are unsaved demonstration buffers.
+Snacks remains for its dashboard, terminal, input, indentation and Git UI; its
+picker and explorer are disabled. Neo-tree, Namu, Colorful Menu and Endhints are
+removed. There are no inherited distribution keymaps or background tool installs.
 
 ## Keys
 
 `<leader>` is Space.
 
 | Action | Keys |
-| --- | --- |
-| Find files | `<leader><space>` |
-| Search project | `<leader>/` |
-| Toggle picker preview | `Ctrl-P` in the picker |
-| Toggle completion documentation | `Ctrl-D` |
-| Open/scroll completion documentation | `Ctrl-B` / `Ctrl-F` |
-| Toggle file tree | `<leader>e` |
-| Mini Files: current file / project | `<leader>fm` / `<leader>fM` |
-| Namu: file / workspace symbols | `<leader>cs` / `<leader>cS` |
-| Glance: definition / references | `<leader>cgd` / `<leader>cgr` |
-| Glance: type / implementation | `<leader>cgt` / `<leader>cgi` |
-| Rename with live preview | `<leader>cr` |
-| Split/join list, dict, or call | `<leader>cj` |
-| Editable quickfix | `<leader>xQ` |
-| Expand/collapse quickfix context | `>` / `<` in quickfix |
-| Inner/around Python indentation | `ii` / `ai` after an operator or in Visual mode |
-| Inner/around snake_case subword | `iS` / `aS` after an operator or in Visual mode |
-| Toggle LSP inlay hints at line ends | `<leader>uh` |
-| Notification history | `<leader>n` |
-| Dismiss live notifications | `<leader>un` |
+|---|---|
+| Find files / search text | `<leader><space>` / `<leader>/` |
+| Buffers / recent files | `<leader>,` / `<leader>fr` |
+| Commands / keymaps / help | `<leader>sC` / `<leader>sk` / `<leader>sh` |
+| Preview / mark / send marked to quickfix | `Ctrl-P` / `Tab` / `Alt-Enter` in picker |
+| Toggle file browser | `<leader>e` |
+| Browse current file / project | `<leader>fm` / `<leader>fM` |
+| Code outline / find file symbol | `<leader>cs` / `<leader>ss` |
+| Find workspace symbol | `<leader>cS` |
+| Peek definition / references | `<leader>cgd` / `<leader>cgr` |
+| Definition / references / hover | `gd` / `gr` / `K` |
+| Rename / code action / format | `<leader>cr` / `<leader>ca` / `<leader>cf` |
+| Split/join structure | `<leader>cj` |
+| Editable quickfix / expand / collapse | `<leader>xQ` / `>` / `<` |
+| Indentation / subword text objects | `ii`, `ai` / `iS`, `aS` |
+| Completion docs toggle / open and scroll | `Ctrl-D` / `Ctrl-B`, `Ctrl-F` in insertion |
+| Native hints / format-on-save toggle | `<leader>uh` / `<leader>uf` |
+| Notification history / dismiss | `<leader>n` / `<leader>un` |
+| Terminal / Git UI | `<leader>ft` / `<leader>gg` |
+| Restore session | `<leader>qs` |
+| Save / previous buffer / next buffer | `Ctrl-S` / `Shift-H` / `Shift-L` |
 
-Normal-mode Ctrl-B retains page-up behavior. Documentation shortcuts apply in
-insert/select mode while using completion.
+Quicker `:w` updates source buffers. Previously unmodified buffers are autosaved;
+already modified buffers remain unsaved. Ruff can reformat TreeSJ layouts on save.
 
-## Added workflow tools
+Notification history retains the latest 500 messages, capped at 16 KiB each, and
+reports discarded records. Errors stay visible until acknowledged; their aggregate
+count survives rollover, but older details can age out. History is session-only.
 
-All eleven shortlisted plugins are included and pinned in `lazy-lock.json`.
-Mini Files is an on-demand alternative; Neo-tree keeps its sidebar shortcut.
-Namu provides symbol navigation, while Glance previews definitions/references.
-TreeSJ handles structural split/join; selected Various Textobjs mappings extend
-existing motions without enabling its full default keymap set.
+## Setup / update
 
-Tiny Inline Diagnostic displays full, wrapped cursor-line messages and stays
-quiet while typing. Mini Notify owns notifications: info lasts 3 seconds,
-warnings 6 seconds, and errors persist until history is opened or notifications
-are dismissed. At most three grouped entries are displayed in one window;
-the latest 500 original messages stay in session history. The drawer reports how
-many older records were discarded. Individual messages are capped at 16 KiB;
-unacknowledged error counts survive history rollover. History is session-only.
+Requires **Neovim 0.11+**, Git and ripgrep. Select **JetBrainsMono Nerd Font Mono,
+13 pt** in the terminal, with its real Italic face. Terminal fonts are not set by Lua.
+Use the [repository installer](../Readme.md) for the no-sudo workstation setup.
 
-Colorful Menu enriches completion when possible, with plain-label fallback.
-The upstream plugin does not list a dedicated ty formatter: this integration
-uses its generic fallback rather than pretending ty is pyright. Endhints only
-shows hints supplied by the active server. Namu is beta; its tested revision is
-pinned. Ruff may reformat structures after a TreeSJ edit when you save.
+For an existing installation, update the repository, then run `:Lazy restore`.
+After checking that the new config works, `:Lazy clean` removes unused plugin
+checkouts. This does not remove project data.
 
-Quicker `:w` applies result edits to source buffers. Its default autosave policy
-writes previously unmodified buffers; already modified buffers remain unsaved.
+Install Python tools with `uv tool install ty` and `uv tool install ruff`, ensuring
+uv's executable directory is on PATH before opening Neovim. `:ConfigTools` reports
+missing executables. `:Mason` is available for manual tool management.
 
-## Font and setup
+Install syntax parsers once (the installer also does this):
 
-Choose **JetBrainsMono Nerd Font Mono — Regular — 13 pt** in your terminal.
-Comments use Italic and emphasis uses Bold. The repository's
-[Kitty](../dotfiles/.config/kitty/kitty.conf) and
-[Alacritty](../dotfiles/.config/alacritty/alacritty.toml) settings select the real
-font faces. Installing only Neovim's config does not change terminal settings.
+```vim
+:TSInstall python c cpp lua vim vimdoc query markdown markdown_inline
+```
 
-See the [repository installation guide](../Readme.md) and the complete
-[design decisions](DESIGN.md).
+Project roots use canonical paths. Activate your environment before opening
+Neovim; restart it after switching environments. Project `.venv` discovery stays
+with ty. No environment paths tied to a particular desk are hardcoded.
 
-## UI checks
+## Verification
 
-With plugins installed and Python `msgpack` available:
+Run from the repository root with installed plugins and Python `msgpack`:
 
 ```sh
 NVIM_BIN=/path/to/nvim python3 nvim/tests/ui_review.py
-```
-
-Use the same `XDG_DATA_HOME` as your plugin installation if it is nonstandard.
-The suite checks diagnostic collisions, notification overflow, adaptive search,
-large buffers, responsive navigation, and documentation mappings with deliberately
-slow completion responses. It also loads all eleven additions, checks Mini Files,
-TreeSJ and quickfix edits in temporary files, and exercises Glance, Namu, rename,
-and endhints with a deterministic test LSP. This is integration coverage, not a
-claim about live ty accuracy, external-server latency, or cluster performance.
-
-Python environment-discovery checks (run from the repository root):
-
-```sh
 nvim --headless -u NONE -l nvim/tests/python_environment.lua
-```
-
-Standalone Python user-package discovery is asynchronous and cached. Project
-roots and active environments keep their normal discovery behavior.
-
-## Choose navigation by task
-
-| Task | Shortcut | Tool |
-|---|---|---|
-| Find a file by name | `<leader><space>` | Search picker |
-| Find text across the project | `<leader>/` | Search picker |
-| Rename/move nearby files | `<leader>fm` | Mini Files |
-| Keep the project hierarchy visible | `<leader>e` | Neo-tree |
-| Find a symbol in this file | `<leader>cs` | Namu |
-| Read references without leaving the code | `<leader>cgr` | Glance |
-
-Start with file/text search. Open other tools for the tasks above; none needs to
-remain open. Mini Files uses one column below 100 terminal columns and refreshes
-its layout when the terminal resizes. Namu uses a compact borderless surface;
-Glance caps its peek height at 12 rows to leave surrounding code visible.
-
-## Real Python and performance checks
-
-Run from the repository root with `ty` and Python's `venv` available:
-
-```sh
 NVIM_TY=/path/to/ty nvim --headless -u NONE -l nvim/tests/real_ty.lua
+nvim --headless '+lua dofile("nvim/tests/standalone.lua")' +qa!
 python3 nvim/tests/startup_bench.py --runs 5
-MINI_NOTIFY_PATH=/path/to/mini.notify nvim --headless -u NONE -l nvim/tests/notifications_review.lua
 ```
 
-The real-server fixture tests completion, hover, rename, hints, diagnostics and
-an installed `.venv` dependency through a project-directory symlink. It uses a
-temporary project, not your RAG project. Roots resolve to their physical path so
-aliases do not create inconsistent project identities. Start Neovim after activating
-an environment; after changing environments in a running session, restart the LSP.
+Use your installation's `XDG_DATA_HOME`. UI checks cover Mini Pick files/grep/
+preview, diagnostics, notifications, documentation controls, quickfix edits,
+Mini Files, Aerial, Glance and rename. The standalone test requires ty on PATH
+and verifies actual attachment and diagnostics through the full config.
 
-The startup benchmark measures headless configuration startup with existing caches.
-Run it on the cluster using its installed plugins and normal `XDG_DATA_HOME`.
-It does not measure cold NFS caches, typing latency, or server response time.
+Tests use temporary files. Headless startup timings do not measure cluster NFS
+or interactive language-server latency. See [design decisions](DESIGN.md).

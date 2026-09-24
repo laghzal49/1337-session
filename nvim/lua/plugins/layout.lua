@@ -9,9 +9,7 @@ return {
         bottom = { size = 12 },
         top = { size = 8 },
       }
-      opts.left = {
-        { ft = "neo-tree", size = { width = 28 }, wo = { winbar = false } },
-      }
+      opts.left = {}
       opts.right = {
         { title = " 󰅩  SYMBOLS", ft = "aerial", size = { width = 26 } },
         { title = " 󰙨  TESTS", ft = "neotest-summary" },
@@ -35,6 +33,8 @@ return {
   },
   {
     "stevearc/aerial.nvim",
+    cmd = { "AerialToggle", "AerialOpen", "AerialNavToggle" },
+    keys = { { "<leader>cs", "<cmd>AerialToggle float<cr>", desc = "Code outline (Aerial)" } },
     opts = {
       layout = { default_direction = "right", min_width = 22, max_width = 28 },
       show_guides = true,

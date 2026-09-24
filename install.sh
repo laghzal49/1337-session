@@ -7,7 +7,7 @@
 #   font      JetBrainsMono Nerd Font (icons for the whole UI)
 #   editor    Neovim (latest stable) + this repo's config linked in
 #   search    ripgrep, fd, fzf
-#   git ui    lazygit  (<leader>gg in LazyVim)
+#   git ui    lazygit  (<leader>gg)
 #   node      Node.js LTS (LSP servers / mason packages that need npm)
 #   python    uv (+ a managed Python if the system one can't make venvs —
 #             mason needs `python3 -m venv` for basedpyright/mypy/debugpy)
@@ -250,7 +250,7 @@ if want fzf; then
 fi
 
 # ============================================================================
-step "5/10 · lazygit (LazyVim's <leader>gg)"
+step "5/10 · lazygit (<leader>gg)"
 # ============================================================================
 if want lazygit; then
   LG_TAG="$(gh_tag jesseduffield/lazygit)" # v0.45.0 → asset uses 0.45.0
@@ -292,6 +292,13 @@ if want ty; then
     ok "ty language server"
   else
     warn "ty installation failed — run: uv tool install ty"
+  fi
+fi
+if want ruff; then
+  if have uv && uv tool install --no-cache ruff >/dev/null 2>&1; then
+    ok "Ruff linter and formatter"
+  else
+    warn "Ruff installation failed — run: uv tool install ruff"
   fi
 fi
 # mason builds venvs for basedpyright/mypy/debugpy — Ubuntu without sudo
@@ -356,22 +363,23 @@ ln -sfn "$REPO_DIR/nvim" "$HOME/.config/nvim"
 ok "~/.config/nvim → ${REPO_DIR/#$HOME/~}/nvim"
 
 # ============================================================================
-step "10/10 · preinstall plugins (headless) — first launch is instant"
+step "10/10 · preinstall pinned plugins and parsers"
 # ============================================================================
 if [ "$NOSYNC" = 1 ]; then
   printf '%s  ↷ skipped (--no-sync)%s\n' "$C_DIM" "$C_OFF"
 elif have nvim; then
   if have timeout; then
-    timeout 900 nvim --headless "+Lazy! sync" +qa >/dev/null 2>&1 \
+    timeout 900 nvim --headless "+Lazy! restore" +qa >/dev/null 2>&1 \
       && ok "plugins installed" \
       || warn "headless plugin sync didn't finish — first nvim launch will finish it"
   else
-    nvim --headless "+Lazy! sync" +qa >/dev/null 2>&1 \
+    nvim --headless "+Lazy! restore" +qa >/dev/null 2>&1 \
       && ok "plugins installed" \
       || warn "headless plugin sync didn't finish — first nvim launch will finish it"
   fi
-  # mason installs its tools (ruff, basedpyright, mypy, stylua, …) in the
-  # background on the first real launch; nothing to do here
+  nvim --headless "+lua require('nvim-treesitter').install({'python','c','cpp','lua','vim','vimdoc','query','markdown','markdown_inline'}):wait(300000)" +qa >/dev/null 2>&1 \
+    && ok "syntax parsers installed" \
+    || warn "parser setup incomplete — run :TSInstall python c cpp lua vim vimdoc query markdown markdown_inline"
 fi
 
 # ── clipboard note (informational only — needs no install) ─────────────────

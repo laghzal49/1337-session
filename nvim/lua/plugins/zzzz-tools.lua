@@ -1,16 +1,23 @@
 -- Optional tools load on their command/key; feedback loads after startup.
 return {
-  { import = "lazyvim.plugins.extras.editor.inc-rename" },
+  { "smjonas/inc-rename.nvim", cmd = "IncRename", opts = {} },
   {
     "nvim-mini/mini.files",
+    lazy = false,
     keys = {
+      { "<leader>e", function()
+        local files = require("mini.files")
+        if files.close() then return end
+        local path = vim.api.nvim_buf_get_name(0)
+        files.open(vim.uv.fs_stat(path) and path or require("config.project").root(), true, require("config.tool_layout").files())
+      end, desc = "Files (Mini Files)" },
       { "<leader>fm", function()
         local path = vim.api.nvim_buf_get_name(0)
-        require("mini.files").open(vim.uv.fs_stat(path) and path or LazyVim.root(), true, require("config.tool_layout").files())
+        require("mini.files").open(vim.uv.fs_stat(path) and path or require("config.project").root(), true, require("config.tool_layout").files())
       end, desc = "Browse current file (Mini Files)" },
-      { "<leader>fM", function() require("mini.files").open(LazyVim.root(), true, require("config.tool_layout").files()) end, desc = "Browse project (Mini Files)" },
+      { "<leader>fM", function() require("mini.files").open(require("config.project").root(), true, require("config.tool_layout").files()) end, desc = "Browse project (Mini Files)" },
     },
-    opts = { options = { use_as_default_explorer = false }, windows = {
+    opts = { options = { use_as_default_explorer = true }, windows = {
       max_number = 3, preview = false, width_focus = 36, width_nofocus = 16,
     } },
   },
@@ -37,8 +44,6 @@ return {
       { "<", function() require("quicker").collapse() end, desc = "Collapse context" },
     } },
   },
-  { "xzbdmw/colorful-menu.nvim", lazy = true, opts = { max_width = 38 } },
-  { "nvim-cmp", dependencies = { "xzbdmw/colorful-menu.nvim" } },
   {
     "nvim-mini/mini.notify",
     event = "VeryLazy",
@@ -61,19 +66,6 @@ return {
     } end,
   },
   {
-    "bassamsdata/namu.nvim",
-    cmd = "Namu",
-    keys = {
-      { "<leader>cs", "<cmd>Namu symbols<cr>", desc = "Symbol navigator (Namu)" },
-      { "<leader>cS", "<cmd>Namu workspace<cr>", desc = "Workspace symbols (Namu)" },
-    },
-    opts = { namu_symbols = { options = { window = {
-      min_width = 20, max_width = 90, max_height = 30,
-      width_ratio = 0.8, height_ratio = 0.6, padding = 1,
-      border = "none", title_prefix = "", show_footer = false,
-    } } } },
-  },
-  {
     "Wansmer/treesj",
     keys = { { "<leader>cj", function() require("treesj").toggle() end, desc = "Split/join code structure" } },
     opts = { use_default_keymaps = false, max_join_length = 100 },
@@ -87,12 +79,5 @@ return {
       { "aS", function() require("various-textobjs").subword("outer") end, mode = { "o", "x" }, desc = "Around subword" },
     },
     opts = { keymaps = { useDefaults = false } },
-  },
-  {
-    "chrisgrieser/nvim-lsp-endhints",
-    event = "LspAttach",
-    main = "lsp-endhints",
-    -- Respect LazyVim's existing <leader>uh toggle, rather than force hints on.
-    opts = { autoEnableHints = false, label = { truncateAtChars = 30 } },
   },
 }

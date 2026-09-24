@@ -46,7 +46,6 @@ return {
         always_show_bufferline = false,
         diagnostics = false,
         offsets = {
-          { filetype = "neo-tree", text = "   FILES", text_align = "left", separator = true },
           { filetype = "aerial", text = "   SYMBOLS", text_align = "left", separator = true },
         },
       },
@@ -55,6 +54,7 @@ return {
   {
     "nvim-lualine/lualine.nvim",
     opts = function(_, opts)
+      opts.options = opts.options or {}
       local palette = require("onedark.colors")
       local focused_win = vim.api.nvim_get_current_win()
       vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
@@ -73,7 +73,7 @@ return {
         visual = mode(palette.purple), replace = mode(palette.red),
         command = mode(palette.yellow), inactive = mode(palette.grey),
       }
-      opts.options.ignore_focus = { "neo-tree", "snacks_picker_input", "snacks_picker_list", "snacks_picker_preview" }
+      opts.options.ignore_focus = { "minipick", "minifiles", "aerial" }
       opts.options.globalstatus = true
       opts.options.component_separators = { left = "", right = "" }
       opts.options.section_separators = { left = "", right = "" }
@@ -82,9 +82,9 @@ return {
           { "mode", fmt = function(value)
             local buf = vim.api.nvim_win_is_valid(focused_win) and vim.api.nvim_win_get_buf(focused_win) or 0
             local ft = vim.bo[buf].filetype
-            if ft:match("^snacks_picker") then return "SEARCH" end
-            if ft == "neo-tree" or ft == "minifiles" then return "FILES" end
-            if ft:match("^namu") then return "SYMBOLS" end
+            if ft == "minipick" then return "SEARCH" end
+            if ft == "minifiles" then return "FILES" end
+            if ft == "aerial" then return "SYMBOLS" end
             return vim.o.columns < 90 and value:sub(1, 1) or value
           end },
           {

@@ -1,5 +1,4 @@
 return {
-  { "saghen/blink.cmp", enabled = false },
   {
     "iguanacucumber/magazine.nvim",
     name = "nvim-cmp",
@@ -7,6 +6,10 @@ return {
     opts = function(_, opts)
       local cmp = require("cmp")
       require("config.documentation").setup()
+      opts.mapping = opts.mapping or cmp.mapping.preset.insert({
+        ["<C-Space>"] = cmp.mapping.complete(),
+        ["<CR>"] = cmp.mapping.confirm({ select = false }),
+      })
       opts.window = {
         completion = cmp.config.window.bordered({ border = "rounded", side_padding = 1, winblend = require("config.ui").blend, winhighlight = "Normal:BlackDocs,FloatBorder:BlackDocsBorder,CursorLine:PmenuSel,Search:None" }),
         documentation = cmp.config.window.bordered({
@@ -30,7 +33,7 @@ return {
           end
         end, { "i", "s" })
       end
-      -- LazyVim's preset already canonicalizes keys (e.g. <C-B>). Normalize
+      -- cmp's preset already canonicalizes keys (e.g. <C-B>). Normalize
       -- overrides too, so duplicate spellings cannot randomly restore defaults.
       local normalize = require("cmp.utils.keymap").normalize
       opts.mapping[normalize("<C-b>")] = scroll_docs(-4)
@@ -51,12 +54,6 @@ return {
       }
       opts.formatting.format = function(entry, item)
         local kind = item.kind
-        -- Unknown servers (including ty) use the plugin's documented fallback.
-        -- Keep plain labels if a parser/server cannot provide rich highlights.
-        local ok, rich = pcall(require("colorful-menu").cmp_highlights, entry)
-        if ok and rich then
-          item.abbr, item.abbr_hl_group = rich.text, rich.highlights
-        end
         item.kind = (kinds[kind] or "") .. " "
         if vim.fn.strdisplaywidth(item.abbr) > 38 then
           local text = vim.fn.strcharpart(item.abbr, 0, 37)

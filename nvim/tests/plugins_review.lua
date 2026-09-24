@@ -1,8 +1,8 @@
 -- Called by ui_review.py with an attached UI. All mutations use temporary files.
 local plugins = {
-  "mini.files", "tiny-inline-diagnostic.nvim", "quicker.nvim", "colorful-menu.nvim",
-  "mini.notify", "glance.nvim", "inc-rename.nvim", "namu.nvim", "treesj",
-  "nvim-various-textobjs", "nvim-lsp-endhints",
+  "mini.files", "tiny-inline-diagnostic.nvim", "quicker.nvim", "mini.pick", "mini.extra",
+  "mini.notify", "glance.nvim", "inc-rename.nvim", "aerial.nvim", "treesj",
+  "nvim-various-textobjs",
 }
 require("lazy").load({ plugins = plugins })
 local ready = false
@@ -13,7 +13,11 @@ assert(vim.notify == require("config.notifications").notify)
 assert(not Snacks.config.notifier.enabled)
 assert(not require("noice.config").options.notify.enabled)
 assert(vim.diagnostic.config().virtual_text == false)
-assert(require("namu").config.ui_select.enable == false)
+assert(not require("lazy.core.config").plugins.LazyVim, "distribution must not be installed")
+assert(not Snacks.config.picker.enabled)
+for _, name in ipairs({ "neo-tree.nvim", "namu.nvim", "colorful-menu.nvim", "nvim-lsp-endhints" }) do
+  assert(not require("lazy.core.config").plugins[name], "removed plugin still active: " .. name)
+end
 
 local dir = vim.fn.tempname()
 vim.fn.mkdir(dir, "p")
@@ -33,8 +37,29 @@ vim.api.nvim_win_set_cursor(0, {4, 6})
 require("various-textobjs").indentation("inner", "inner")
 assert(vim.fn.mode():match("[vV]"), "indentation object did not select")
 vim.cmd('execute "normal! \\<Esc>"')
+vim.fn.writefile({"temporary"}, dir .. "/rename_me.txt")
 require("mini.files").open(dir)
 assert(require("mini.files").get_explorer_state(), "Mini Files failed to open")
+local fbuf = vim.api.nvim_get_current_buf()
+vim.api.nvim_exec_autocmds("TextChanged", {buffer=fbuf})
+local file_lines = vim.api.nvim_buf_get_lines(fbuf, 0, -1, false)
+local renamed = false
+for i, line in ipairs(file_lines) do
+  if line:find("rename_me.txt", 1, true) then
+    vim.api.nvim_buf_set_lines(fbuf, i - 1, i, false, {(line:gsub("rename_me%.txt", "renamed.txt"))})
+    renamed = true
+    break
+  end
+end
+assert(renamed, "temporary file missing in explorer")
+vim.api.nvim_exec_autocmds("TextChanged", {buffer=fbuf})
+local confirm = vim.fn.confirm
+vim.fn.confirm = function() return 1 end
+local ok, err = pcall(require("mini.files").synchronize)
+vim.fn.confirm = confirm
+assert(ok, err)
+assert(vim.fn.filereadable(dir .. "/renamed.txt") == 1, "Mini Files rename failed")
+assert(vim.fn.filereadable(dir .. "/rename_me.txt") == 0)
 require("mini.files").close()
 vim.api.nvim_set_current_buf(buf)
 
@@ -108,17 +133,8 @@ assert(vim.wait(1500, function()
 end), "inline diagnostics did not render")
 vim.diagnostic.reset(diagnostics, buf)
 vim.lsp.inlay_hint.enable(true, { bufnr = buf })
-assert(vim.wait(1500, function()
-  return #vim.api.nvim_buf_get_extmarks(buf, vim.api.nvim_create_namespace("lspEndhints"), 0, -1, {}) > 0
-end), "endhints did not render")
-local marks = vim.api.nvim_buf_get_extmarks(buf, vim.api.nvim_create_namespace("lspEndhints"), 0, -1, { details = true })
-assert(marks[1][4].virt_text_pos == "eol", "hints not at end of line")
-
--- ty-like completion should be safe even without a server-specific formatter.
-local entry = { source = { source = { client = { name = "ty", is_stopped = function() return false end } } },
-  get_completion_item = function() return { label = "total", kind = 3, detail = "(values: list[int]) -> int" } end }
-local ok = pcall(require("colorful-menu").cmp_highlights, entry)
-assert(ok, "colorful-menu ty fallback failed")
+assert(vim.lsp.inlay_hint.is_enabled({bufnr=buf}), "native hints toggle failed")
+vim.lsp.inlay_hint.enable(false, {bufnr=buf})
 
 _G.plugin_review = { buf = buf, dir = dir, client = client_id }
 return { plugins = #plugins, file = path }

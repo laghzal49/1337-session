@@ -1,94 +1,41 @@
--- Quick navigation leaves the editor visible. Project searches keep a preview.
 return {
+  { 'folke/snacks.nvim', opts = { picker = { enabled = false }, explorer = { enabled = false } } },
+  { 'nvim-mini/mini.extra', lazy = true, opts = {} },
   {
-    "folke/snacks.nvim",
+    'nvim-mini/mini.pick', cmd = 'Pick', dependencies = { 'nvim-mini/mini.extra' },
+    keys = (function()
+      local result = {}
+      local maps = {
+        { '<leader><space>', 'files', 'Find files' }, { '<leader>ff', 'files', 'Find files' },
+        { '<leader>/', 'grep', 'Search project' }, { '<leader>sg', 'grep', 'Search project' },
+        { '<leader>,', 'buffers', 'Buffers' }, { '<leader>fb', 'buffers', 'Buffers' },
+        { '<leader>fr', 'oldfiles', 'Recent files' }, { '<leader>:', 'command_history', 'Command history' },
+        { '<leader>sC', 'commands', 'Commands' }, { '<leader>sk', 'keymaps', 'Keymaps' },
+        { '<leader>sh', 'help', 'Help' }, { '<leader>sd', 'diagnostic', 'Diagnostics' },
+        { '<leader>ss', 'document_symbol', 'Find document symbol' },
+        { '<leader>cS', 'workspace_symbol_live', 'Find workspace symbol' },
+        { '<leader>sS', 'workspace_symbol_live', 'Find workspace symbol' },
+        { '<leader>sr', 'resume', 'Resume search' },
+      }
+      for _, map in ipairs(maps) do
+        local command = map[2]
+        result[#result + 1] = { map[1], function() require('config.pick').open(command) end, desc = map[3] }
+      end
+      result[#result + 1] = { '<leader>fc', function() require('config.pick').open('files', { cwd = vim.fn.stdpath('config') }) end, desc = 'Find config file' }
+      return result
+    end)(),
     opts = {
-      picker = {
-        prompt = "  ",
-        on_show = function(picker) require("config.picker_layout").attach(picker) end,
-        on_change = function(picker) require("config.picker_layout").queue(picker) end,
-        formatters = {
-          file = { filename_first = true, truncate = "center", min_width = 18, icon_width = 2, git_status_hl = false },
-        },
-        layout = {
-          preset = function(source)
-            local quick = { files = true, buffers = true, recent = true, oldfiles = true, commands = true, keymaps = true }
-            if quick[source] then
-              return vim.o.columns >= 90 and "quick" or "quick_small"
-            end
-            return vim.o.columns >= 110 and "inspect" or "inspect_small"
-          end,
-        },
-        layouts = {
-          quick = {
-            hidden = { "preview" },
-            layout = {
-              box = "vertical", width = 0.54, height = 0.46, min_width = 48, max_width = 110, max_height = 36,
-              border = "rounded", title = " {title} ", title_pos = "left",
-              footer = { { " Ctrl-P preview · Esc close ", "BlackDocsHint" } }, footer_pos = "right", row = 0.15, backdrop = false,
-              { win = "input", height = 1, border = "none" },
-              { win = "list", border = "none" },
-              { win = "preview", border = "solid", height = 0.4 },
-            },
-          },
-          quick_small = {
-            hidden = { "preview" },
-            layout = {
-              box = "vertical", width = 0.92, height = 0.55, max_width = 110, max_height = 36,
-              border = "rounded", title = " {title} ", title_pos = "left",
-              footer = { { " Ctrl-P preview · Esc close ", "BlackDocsHint" } }, footer_pos = "right", row = 0.15, backdrop = false,
-              { win = "input", height = 1, border = "none" },
-              { win = "list", border = "none" },
-              { win = "preview", border = "solid", height = 0.4 },
-            },
-          },
-          inspect = {
-            layout = {
-              box = "vertical", width = 0.90, height = 0.70, max_width = 130, max_height = 36,
-              border = "rounded", title = " {title} ", title_pos = "left",
-              footer = { { " Ctrl-P preview · Esc close ", "BlackDocsHint" } }, footer_pos = "right", row = 0.15, backdrop = false,
-              { win = "input", height = 1, border = "none" },
-              { box = "horizontal",
-                { win = "list", border = "none", width = 0.50 },
-                { win = "preview", border = "solid" },
-              },
-            },
-          },
-          inspect_small = {
-            hidden = { "preview" },
-            layout = {
-              box = "vertical", width = 0.92, height = 0.78, max_width = 110, max_height = 36,
-              border = "rounded", title = " {title} ", title_pos = "left",
-              footer = { { " Ctrl-P preview · Esc close ", "BlackDocsHint" } }, footer_pos = "right", row = 0.15, backdrop = false,
-              { win = "input", height = 1, border = "none" },
-              { win = "list", border = "none" },
-              { win = "preview", border = "solid", height = 0.38 },
-            },
-          },
-        },
-        sources = {
-          files = { hidden = true, ignored = false, exclude = { "*.bak-*" }, title = "Files", prompt = "  " },
-          buffers = { prompt = "Buffers    " },
-          recent = { prompt = "Recent    " },
-          commands = { prompt = "Commands    " },
-          keymaps = { prompt = "Keys    " },
-          grep = { hidden = true, ignored = false, title = "Search project", prompt = "  ", format = function(item, picker)
-            if picker.layout and not picker.layout:is_hidden("preview") then
-              return Snacks.picker.format.filename(item, picker)
-            end
-            return Snacks.picker.format.file(item, picker)
-          end },
-          grep_word = { hidden = true, ignored = false, title = "References", prompt = "References    " },
-        },
-        win = {
-          input = { keys = {
-            ["<Esc>"] = { "cancel", mode = { "n", "i" } },
-            ["<C-p>"] = { "toggle_preview", mode = { "n", "i" } },
-          } },
-          list = { keys = { ["<C-p>"] = "toggle_preview" } },
-          preview = { wo = { number = true, relativenumber = false, signcolumn = "no", foldcolumn = "0", wrap = false, cursorline = false } },
-        },
-      },
+      mappings = { toggle_preview = '<C-p>', move_up = '<C-k>', move_down = '<C-j>', mark = '<Tab>', mark_all = '<C-a>' },
+      window = { config = function()
+        local width = math.max(1, math.min(100, vim.o.columns - 6))
+        local height = math.max(1, math.min(28, math.floor(vim.o.lines * 0.65)))
+        return { border = 'none', width = width, height = height,
+          row = math.max(0, math.floor((vim.o.lines - height) * 0.3)), col = math.floor((vim.o.columns - width) / 2) }
+      end },
     },
+    config = function(_, opts)
+      require('mini.pick').setup(opts)
+      vim.ui.select = require('mini.pick').ui_select
+    end,
   },
 }

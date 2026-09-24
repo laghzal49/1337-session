@@ -232,3 +232,38 @@ Changes and tradeoffs:
 Still imperfect: Namu is beta, Colorful Menu uses generic ty formatting, terminal
 font rendering varies, and actual cluster cold-start/interactive latency needs
 measurement there. Adding more plugins would not resolve those limits.
+
+## Standalone revision — supersedes the integration above
+
+Removed the LazyVim distribution and its inherited defaults. Kept lazy.nvim as a
+plugin manager: explicit specifications and a pinned lockfile provide reproducible
+installation without an additional package-manager migration. The tradeoff is that
+we now own the LSP setup, completion sources, keymaps and formatting policy.
+
+Mini Files replaces Neo-tree. Mini Pick + Mini Extra replace Snacks picker and
+reuse one compact results/preview window. This gives up simultaneous side-by-side
+preview and content-dependent window shrinking; it reduces custom layout code
+and remains bounded at 80×24. Aerial replaces Namu for structural navigation and
+can derive Python symbols from Tree-sitter before the LSP is ready. Glance retains
+its separate role for reference inspection. Native hints replace Endhints; plain
+completion labels replace Colorful Menu's generic ty formatting.
+
+The dashboard and all project/search mappings now call a small owned picker
+adapter. Distribution-specific integrations and their lockfile entries are gone.
+Snacks remains for useful independent modules, not its picker/explorer. No new
+claim of faster searching is made without comparative measurements.
+
+Core setup is explicit in `lua/plugins/core.lua`. The installer now installs Ruff
+through uv and installs syntax parsers explicitly. Missing LSP executables are not
+spawned repeatedly; `:ConfigTools` reports availability. Tools remain opt-in through
+Mason rather than installing silently on every workstation's first launch.
+
+Validation: real configured ty attached and reported errors without LazyVim;
+Mini Pick files/grep/preview passed at 80×24, 100×30 and 140×42; documentation
+open/scroll/close, quickfix writes, native hints toggle, Mini Files, Aerial, Glance
+and incremental rename passed. Cluster cold-cache and desk migration remain
+unverified. Prior benchmark numbers above describe the earlier revision.
+
+Standalone headless startup, five runs with existing caches: 23.920, 25.236,
+27.795, 24.544, 23.662 ms; median 24.544 ms. This excludes deferred plugins and
+LSP readiness, so it is not a claim that interactive editing is twice as fast.
