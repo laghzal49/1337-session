@@ -22,7 +22,7 @@ return {
   sections = function()
     local wide = vim.o.columns >= 100 and vim.o.lines >= 30
     local sections = {
-      { text = { { "1337", hl = "BlackBrand" }, { "  /  TARIK'S WORKSPACE", hl = "BlackMuted" } }, padding = 1 },
+      { text = { { "DEVIL", hl = "BlackBrand" }, { "  /  TARIK'S WORKSPACE", hl = "BlackMuted" } }, padding = 1 },
       { text = { { "Build something worth keeping.", hl = "BlackMuted" } }, padding = 1 },
       { text = { { "━━", hl = "BlackLabel" }, { "────────────────────────────────", hl = "BlackRule" } }, padding = 1 },
       { text = { { "  WORKSPACE", hl = "BlackLabel" } }, padding = 1 },
@@ -38,14 +38,13 @@ return {
     local pane = wide and 2 or 1
     if wide then
       table.insert(sections, 1, { text = { { [[
-       __ _____ _____ ______ 
-      /  |__   |__   |____ | 
-     /_/ |  _  |  _  |   / / 
-       | | | | | | | |  / /  
-       | | |_| | |_| | / /   
-       |_|_____|_____|/_/    
+    ____  _______ _    ______   __ 
+   / __ \/ ____/ | |  / /  _/  / / 
+  / / / / __/  | | / // /     / /  
+ / /_/ / /___  | |/ // /     / /___
+/_____/_____/  |___/___/    /_____/
 ]], hl = "BlackLabel" } }, padding = 2 })
-      sections[#sections + 1] = { text = { { "1337  ·  BLACK STUDIO", hl = "BlackLabel" } }, pane = pane, padding = 1 }
+      sections[#sections + 1] = { text = { { "DEVIL  ·  BLACK STUDIO", hl = "BlackLabel" } }, pane = pane, padding = 1 }
       sections[#sections + 1] = { text = { { vim.fn.fnamemodify(vim.fn.getcwd(), ":t"), hl = "BlackBrand" } }, pane = pane, padding = 1 }
       sections[#sections + 1] = { text = { { "━━", hl = "BlackLabel" }, { "────────────────────────────────", hl = "BlackRule" } }, pane = pane, padding = 4 }
     end
