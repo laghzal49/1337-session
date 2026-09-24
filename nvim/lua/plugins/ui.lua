@@ -56,7 +56,15 @@ return {
       },
       input = {
         enabled = true,
-        win = { border = ui.border, width = 50, row = 3, title_pos = 'left', wo = { winblend = ui.blend } },
+        icon = ' ',
+        prompt_pos = 'title',
+        win = {
+          border = ui.border,
+          width = 60,
+          row = false,
+          title_pos = 'center',
+          wo = { winblend = ui.blend },
+        },
       },
       styles = {
         notification = { border = ui.border, wo = { winblend = ui.blend, wrap = true } },
@@ -93,25 +101,35 @@ return {
         signature = { enabled = true, auto_open = { enabled = false } },
       },
       notify = { enabled = false },
-      cmdline = { format = {
-        cmdline = { icon = '', title = ' COMMAND ' },
-        lua = { icon = '', title = ' LUA ' },
-        search_down = { icon = '', title = ' SEARCH FORWARD ' },
-        search_up = { icon = '', title = ' SEARCH BACKWARD ' },
-        help = { icon = '', title = ' HELP ' },
-        filter = { icon = '', title = ' SHELL ' },
-      } },
+      cmdline = {
+        format = {
+          cmdline = { icon = '', title = ' COMMAND ' },
+          lua = { icon = '󰢱', title = ' LUA ' },
+          search_down = { icon = '󰍉', title = ' SEARCH FORWARD ' },
+          search_up = { icon = '󰍉', title = ' SEARCH BACKWARD ' },
+          help = { icon = '󰋖', title = ' HELP ' },
+          filter = { icon = '󰞷', title = ' SHELL ' },
+        },
+      },
       views = {
         cmdline_popup = {
           win_options = { winblend = ui.blend },
-          position = { row = '25%', col = '50%' },
-          size = { min_width = 42, width = 'auto', max_width = 72, height = 'auto' },
+          position = { row = '50%', col = '50%' },
+          size = { min_width = 46, width = 'auto', max_width = 72, height = 'auto' },
           border = { style = 'rounded', padding = { 0, 2 } },
         },
         popupmenu = {
           win_options = { winblend = ui.blend },
           border = { style = 'rounded', padding = { 0, 2 } },
-          size = { max_height = 8 },
+          size = { max_height = 10 },
+          scrollbar = true,
+        },
+        cmdline_popupmenu = {
+          position = 'auto',
+          border = { style = 'rounded', padding = { 0, 2 } },
+          win_options = { winblend = ui.blend },
+          size = { max_height = 10 },
+          scrollbar = true,
         },
         hover = {
           border = { style = 'rounded', padding = { 0, 2 } },
@@ -121,7 +139,7 @@ return {
         },
         popup = {
           win_options = { winblend = ui.blend },
-          border = { style = ui.border },
+          border = { style = ui.border, padding = { 0, 2 } },
           size = { width = ui.max_width, height = ui.max_height },
         },
       },
@@ -163,7 +181,7 @@ return {
     event = 'VeryLazy',
     opts = {
       preset = 'helix',
-      delay = 250,
+      delay = 200,
       win = { border = ui.border, padding = { 0, 1 }, wo = { winblend = ui.blend } },
       spec = {
         { '<leader>f', group = 'Find' },

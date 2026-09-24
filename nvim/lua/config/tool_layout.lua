@@ -1,9 +1,11 @@
 local M = {}
+
 function M.files()
   return { windows = {
     max_number = vim.o.columns < 100 and 1 or 3,
     width_focus = math.max(1, math.min(36, vim.o.columns - 8)),
-    width_nofocus = 16, preview = false,
+    width_nofocus = 16,
+    preview = false,
   } }
 end
 
@@ -33,7 +35,7 @@ function M.decorate_files(ev)
     end
     name = name .. '…'
   end
-  cfg.title = '  ' .. name .. ' '
+  cfg.title = ' 󰉋 ' .. name .. ' '
   cfg.title_pos = 'left'
   vim.api.nvim_win_set_config(ev.data.win_id, cfg)
   vim.wo[ev.data.win_id].winblend = 0
@@ -47,4 +49,5 @@ function M.setup()
   end })
   vim.api.nvim_create_autocmd('User', { group = group, pattern = 'MiniFilesWindowUpdate', callback = M.decorate_files })
 end
+
 return M

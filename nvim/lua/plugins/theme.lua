@@ -5,6 +5,11 @@ return {
     priority = 1000,
     opts = {
       code_style = { comments = "italic", keywords = "none", functions = "none", strings = "none", variables = "none" },
+      diagnostics = {
+        darker = false,
+        undercurl = true,
+        background = false,
+      },
       -- Pure black canvas; opaque filled surfaces and one selection accent.
       colors = {
         bg0 = "#000000", bg_d = "#0A0A0A", bg1 = "#141414",
@@ -144,8 +149,12 @@ return {
         RenderMarkdownCodeInline = { bg = "$bg2", fg = "$fg" },
         RenderMarkdownTableHead = { fg = "$blue" },
         RenderMarkdownTableRow = { fg = "$bg3" },
-        LineNr = { fg = "$grey", bg = "NONE" },
+        LineNr = { fg = "#555555", bg = "NONE" },
         CursorLine = { bg = "#0E1520" },  -- Slightly clearer than previous #0D121A
+        CursorLineNr = { fg = "#82AAFF", bg = "NONE", fmt = "bold" },
+        MatchParen = { fg = "#82AAFF", bg = "#1E2836", fmt = "bold" },
+        Folded = { fg = "#8994A3", bg = "#0A0F16", fmt = "italic" },
+        FoldColumn = { fg = "#555555", bg = "NONE" },
         EndOfBuffer = { fg = "$bg0", bg = "NONE" },
         StatusLine = { bg = "$bg1", fg = "$fg" },
         StatusLineNC = { bg = "$bg_d", fg = "$grey" },
@@ -157,8 +166,11 @@ return {
         WhichKeyGroup = { fg = "$blue" },
         WhichKeyDesc = { fg = "$fg" },
         WinSeparator = { fg = "$bg3", bg = "$bg0" },
-        CursorLineNr = { fg = "$blue", fmt = "bold" },
-        Pmenu = { bg = "$bg1", fg = "$fg" },
+        Pmenu = { bg = "#10151C", fg = "$fg" },
+        PmenuSel = { bg = "#243B59", fg = "#FFFFFF", fmt = "bold" },
+        PmenuBorder = { fg = "#354357", bg = "#10151C" },
+        PmenuSbar = { bg = "#10151C" },
+        PmenuThumb = { bg = "#354357" },
         CmpItemAbbrMatch = { fg = "$purple", fmt = "bold" },
         CmpItemAbbrMatchFuzzy = { fg = "$purple", fmt = "bold" },
         CmpItemMenu = { fg = "$light_grey" },
@@ -187,8 +199,15 @@ return {
         Search = { bg = "#2A3A50", fg = "$fg", fmt = "bold" },
         IncSearch = { bg = "#3A5070", fg = "#FFFFFF", fmt = "bold" },
         CurSearch = { bg = "#4A6090", fg = "#FFFFFF", fmt = "bold" },
-        Visual = { bg = "#1A2A44" },
-        VisualNOS = { bg = "#1A2A44" },
+        Visual = { bg = "#1E2E48" },
+        VisualNOS = { bg = "#1E2E48" },
+
+        -- ── Diagnostics: elegant undercurls without distracting solid backgrounds ──
+        DiagnosticUnderlineError = { sp = "$red", fmt = "undercurl", bg = "NONE" },
+        DiagnosticUnderlineWarn = { sp = "$yellow", fmt = "undercurl", bg = "NONE" },
+        DiagnosticUnderlineInfo = { sp = "$blue", fmt = "undercurl", bg = "NONE" },
+        DiagnosticUnderlineHint = { sp = "$purple", fmt = "undercurl", bg = "NONE" },
+        DiagnosticUnderlineOk = { sp = "$green", fmt = "undercurl", bg = "NONE" },
 
         -- ── Float shadows for depth ───────────────────────────────────
         FloatShadow = { bg = "#000000" },
@@ -200,7 +219,7 @@ return {
       },
     },
     config = function(_, opts)
-      opts.highlights = vim.tbl_deep_extend("force", opts.highlights or {}, require("config.surfaces").highlights())
+      opts.highlights = vim.tbl_deep_extend("force", require("config.surfaces").highlights(), opts.highlights or {})
       require("onedark").setup(opts)
       require("onedark").load()
     end,

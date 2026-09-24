@@ -27,13 +27,30 @@ return {
       return result
     end)(),
     opts = {
-      mappings = { toggle_preview = '<C-p>', move_up = '<C-k>', move_down = '<C-j>', mark = '<Tab>', mark_all = '<C-a>' },
-      window = { config = function()
-        local width = math.max(1, math.min(100, vim.o.columns - 6))
-        local height = math.max(1, math.min(28, math.floor(vim.o.lines * 0.65)))
-        return { anchor = 'NW', relative = 'editor', border = { '', '\u{2500}', '', '', '', '', '', '' }, width = width, height = height,
-          row = math.max(0, math.floor((vim.o.lines - height) * 0.3)), col = math.floor((vim.o.columns - width) / 2) }
-      end },
+      mappings = {
+        toggle_preview = '<C-p>',
+        move_up = '<C-k>',
+        move_down = '<C-j>',
+        mark = '<Tab>',
+        mark_all = '<C-a>',
+      },
+      window = {
+        prompt_prefix = ' 󰍉 ',
+        prompt_caret = '▏',
+        config = function()
+          local width = math.max(20, math.min(100, math.min(vim.o.columns - 4, math.floor(vim.o.columns * 0.8))))
+          local height = math.max(5, math.min(28, math.floor(vim.o.lines * 0.65)))
+          return {
+            anchor = 'NW',
+            relative = 'editor',
+            border = { '', '─', '', '', '', '', '', '' },
+            width = width,
+            height = height,
+            row = math.max(0, math.floor((vim.o.lines - height) * 0.3)),
+            col = math.floor((vim.o.columns - width) / 2),
+          }
+        end,
+      },
     },
     config = function(_, opts)
       require('mini.pick').setup(opts)
@@ -56,18 +73,65 @@ return {
       end, desc = 'Browse current file (Mini Files)' },
       { '<leader>fM', function() require('mini.files').open(require('config.project').root(), true, require('config.tool_layout').files()) end, desc = 'Browse project (Mini Files)' },
     },
-    opts = { options = { use_as_default_explorer = true }, windows = {
-      max_number = 3, preview = false, width_focus = 36, width_nofocus = 16,
-    } },
+    opts = {
+      options = { use_as_default_explorer = true },
+      windows = {
+        max_number = 3,
+        preview = false,
+        width_focus = 36,
+        width_nofocus = 16,
+      },
+    },
   },
   {
     'stevearc/aerial.nvim',
     cmd = { 'AerialToggle', 'AerialOpen', 'AerialNavToggle' },
     keys = { { '<leader>cs', '<cmd>AerialToggle float<cr>', desc = 'Code outline (Aerial)' } },
     opts = {
-      layout = { default_direction = 'right', min_width = 22, max_width = 28 },
+      layout = { default_direction = 'right', min_width = 24, max_width = 32 },
+      float = {
+        border = ui.border or 'rounded',
+        relative = 'cursor',
+        max_height = 0.8,
+        min_height = { 8, 0.1 },
+      },
       show_guides = true,
-      guides = { mid_item = '\u{251c}\u{2500}', last_item = '\u{2514}\u{2500}', nested_top = '\u{2502} ', whitespace = '  ' },
+      guides = {
+        mid_item = '├─',
+        last_item = '└─',
+        nested_top = '│ ',
+        whitespace = '  ',
+      },
+      nerd_font = true,
+      icons = {
+        Array = '󱡠',
+        Boolean = '󰨙',
+        Class = '󰆧',
+        Constant = '󰏿',
+        Constructor = '',
+        Enum = '',
+        EnumMember = '',
+        Event = '',
+        Field = '',
+        File = '󰈙',
+        Function = '󰊕',
+        Interface = '',
+        Key = '󰌋',
+        Method = '󰊕',
+        Module = '',
+        Namespace = '󰦮',
+        Null = '󰟢',
+        Number = '󰎠',
+        Object = '',
+        Operator = '󰆕',
+        Package = '',
+        Property = '',
+        String = '',
+        Struct = '󰆼',
+        TypeParameter = '󰗴',
+        Variable = '󰀫',
+        Collapsed = '',
+      },
     },
   },
   {
@@ -79,9 +143,44 @@ return {
       { '<leader>cgt', '<cmd>Glance type_definitions<cr>', desc = 'Peek type definition' },
       { '<leader>cgi', '<cmd>Glance implementations<cr>', desc = 'Peek implementation' },
     },
-    opts = function() return {
-      height = 12,
-      border = { enable = false }, theme = { enable = false },
-    } end,
+    opts = function()
+      return {
+        height = math.max(12, math.min(16, math.floor(vim.o.lines * 0.4))),
+        border = {
+          enable = true,
+          top_char = '─',
+          bottom_char = '─',
+        },
+        list = {
+          position = 'right',
+          width = 0.33,
+        },
+        theme = {
+          enable = false,
+        },
+        winbar = {
+          enable = true,
+        },
+        folds = {
+          fold_closed = '',
+          fold_open = '',
+          folded = true,
+        },
+        indent_lines = {
+          enable = true,
+          icon = '│',
+        },
+      }
+    end,
+    config = function(_, opts)
+      require('glance').setup(opts)
+      local s = require('config.surfaces')
+      vim.api.nvim_set_hl(0, 'GlanceWinBarTitle', { bg = s.panel, fg = s.accent, bold = true })
+      vim.api.nvim_set_hl(0, 'GlanceWinBarFilename', { bg = s.inset, fg = s.text, bold = true })
+      vim.api.nvim_set_hl(0, 'GlanceWinBarFilepath', { bg = s.inset, fg = s.muted })
+      vim.api.nvim_set_hl(0, 'GlanceBorderTop', { bg = s.panel, fg = s.edge })
+      vim.api.nvim_set_hl(0, 'GlanceListBorderBottom', { bg = s.panel, fg = s.edge })
+      vim.api.nvim_set_hl(0, 'GlancePreviewBorderBottom', { bg = s.inset, fg = s.edge })
+    end,
   },
 }

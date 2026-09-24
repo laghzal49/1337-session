@@ -19,8 +19,9 @@ vim.opt.fillchars:append({ eob = " ", fold = " ", vert = "│", diff = " " })
 
 -- Stable visual anchors; a short completion menu keeps code visible.
 vim.opt.pumheight = 8
-vim.opt.scrolloff = 6
+vim.opt.scrolloff = 8
 vim.opt.sidescrolloff = 8
+vim.opt.smoothscroll = true
 vim.opt.cursorline = true
 vim.opt.cursorlineopt = "number,line"
 

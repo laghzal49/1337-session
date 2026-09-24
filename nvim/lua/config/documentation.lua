@@ -6,10 +6,12 @@ local function decorate(win)
   local config = vim.api.nvim_win_get_config(win)
   if config.relative == "" or config.width < 28 then return end
   vim.api.nvim_win_set_config(win, {
-    title = { { "  DOCUMENTATION ", "BlackDocsTitle" } }, title_pos = "left",
-    footer = { { config.width >= 42 and " C-b / C-f scroll · C-d close " or " C-d close ", "BlackDocsHint" } },
+    title = { { " 󰋖 DOCUMENTATION ", "BlackDocsTitle" } },
+    title_pos = "left",
+    footer = { { config.width >= 42 and " ^B / ^F scroll · ^D close " or " ^D close ", "BlackDocsHint" } },
     footer_pos = "right",
   })
+  vim.wo[win].winblend = 0
 end
 
 function M.setup()
@@ -25,4 +27,5 @@ function M.setup()
   end
   installed = true
 end
+
 return M
