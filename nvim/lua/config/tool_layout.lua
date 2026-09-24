@@ -13,7 +13,7 @@ function M.setup()
     if files and files.get_explorer_state() then files.refresh(M.files()) end
   end })
   vim.api.nvim_create_autocmd("User", { group = group, pattern = "MiniFilesWindowOpen", callback = function(ev)
-    vim.api.nvim_win_set_config(ev.data.win_id, { border = "none" })
+    vim.api.nvim_win_set_config(ev.data.win_id, { border = { "", "─", "", "", "", "", "", "" } })
     vim.wo[ev.data.win_id].winblend = 0
   end })
 end

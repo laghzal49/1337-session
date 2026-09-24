@@ -39,7 +39,7 @@ return {
         separator_style = "thin",
         show_close_icon = false,
         show_buffer_close_icons = false,
-        indicator = { style = "underline" },
+        indicator = { style = "icon", icon = "▎" },
         max_name_length = 26,
         tab_size = 20,
         enforce_regular_tabs = false,

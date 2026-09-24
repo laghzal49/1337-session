@@ -29,7 +29,7 @@ return {
       window = { config = function()
         local width = math.max(1, math.min(100, vim.o.columns - 6))
         local height = math.max(1, math.min(28, math.floor(vim.o.lines * 0.65)))
-        return { border = 'none', width = width, height = height,
+        return { anchor = 'NW', relative = 'editor', border = { '', '─', '', '', '', '', '', '' }, width = width, height = height,
           row = math.max(0, math.floor((vim.o.lines - height) * 0.3)), col = math.floor((vim.o.columns - width) / 2) }
       end },
     },

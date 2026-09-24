@@ -4,6 +4,13 @@ A standalone Neovim configuration: **no LazyVim distribution**. lazy.nvim manage
 36 explicitly configured plugins and dependencies, pinned in `lazy-lock.json`.
 Pure-black code, italic comments, opaque panels, and **ty + Ruff** for Python.
 
+## Workspace
+
+![Decorated workspace dashboard](assets/workspace.png)
+
+Blue-tipped section rules, matching icons, and a compact layout at 80×24.
+Search and file panels use a single top rule; the active tab has a blue marker.
+
 ## Editing surfaces
 
 ![Python palette and status bar](assets/python.png)

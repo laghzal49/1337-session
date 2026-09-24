@@ -278,3 +278,13 @@ background, keeping the mode as the only raised control. Panels, selections and
 the pure-black code canvas remain flat. This is a terminal bevel, not simulated
 soft shadows or rounded pixel geometry. Edge contrast is decorative; the mode
 label carries the information.
+
+## Quiet decoration
+
+The launch dashboard gains two-tone section rules and compact Nerd Font labels.
+Its right pane uses a BLACK / STUDIO label instead of a numbered edition. Search
+and file-browser floats gain a single top rule, making their native titles visible
+without a complete frame. The active buffer uses a blue vertical marker and filled
+selected surface; the label stays bold and readable. The existing raised mode
+indicator remains the only beveled control. These are static highlights and glyphs:
+no animations, new plugins, shadow windows or extra persistent chrome rows.

@@ -23,8 +23,9 @@ return {
     local wide = vim.o.columns >= 100 and vim.o.lines >= 30
     local sections = {
       { text = { { "1337", hl = "BlackBrand" }, { "  /  TARIK'S WORKSPACE", hl = "BlackMuted" } }, padding = 1 },
-      { text = { { "Build something worth keeping.", hl = "BlackMuted" } }, padding = 2 },
-      { text = { { "01   WORKSPACE", hl = "BlackLabel" } }, padding = 1 },
+      { text = { { "Build something worth keeping.", hl = "BlackMuted" } }, padding = 1 },
+      { text = { { "━━", hl = "BlackLabel" }, { "────────────────────────────────", hl = "BlackRule" } }, padding = 1 },
+      { text = { { "  WORKSPACE", hl = "BlackLabel" } }, padding = 1 },
       action("", "Find a file", "f", ":lua require('config.pick').open('files')"),
       action("", "Search the project", "g", ":lua require('config.pick').open('grep')"),
       action("", "Recent files", "r", ":lua require('config.pick').open('oldfiles')"),
@@ -37,10 +38,11 @@ return {
     local pane = wide and 2 or 1
     if wide then
       table.insert(sections, 1, { text = { { " ▄█  ▀▀▀█  ▀▀▀█  █▀▀▀█\n  █   ▄▄█   ▄▄█     █ \n  █     █     █    █  \n ▄█▄ █▄▄█  █▄▄█   █   ", hl = "BlackLabel" } }, padding = 1 })
-      sections[#sections + 1] = { text = { { "BLACK / EDITION 03", hl = "BlackLabel" } }, pane = pane, padding = 1 }
-      sections[#sections + 1] = { text = { { vim.fn.fnamemodify(vim.fn.getcwd(), ":t"), hl = "BlackBrand" } }, pane = pane, padding = 7 }
+      sections[#sections + 1] = { text = { { "BLACK  /  STUDIO", hl = "BlackLabel" } }, pane = pane, padding = 1 }
+      sections[#sections + 1] = { text = { { vim.fn.fnamemodify(vim.fn.getcwd(), ":t"), hl = "BlackBrand" } }, pane = pane, padding = 1 }
+      sections[#sections + 1] = { text = { { "━━", hl = "BlackLabel" }, { "────────────────────────────────", hl = "BlackRule" } }, pane = pane, padding = 5 }
     end
-    sections[#sections + 1] = { text = { { "02   PICK UP WHERE YOU LEFT OFF", hl = "BlackLabel" } }, pane = pane, padding = 1 }
+    sections[#sections + 1] = { text = { { "  PICK UP WHERE YOU LEFT OFF", hl = "BlackLabel" } }, pane = pane, padding = 1 }
     sections[#sections + 1] = { section = "recent_files", cwd = true, limit = wide and 5 or 2, pane = pane, gap = wide and 1 or 0, padding = 1 }
     sections[#sections + 1] = { text = { { "SPACE  commands     :q  quit", hl = "BlackMuted" } }, pane = pane }
     return sections
