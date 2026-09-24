@@ -53,6 +53,7 @@ local function create_entry(buf)
   vim.api.nvim_buf_set_lines(buf, row, row, false, { '' })
   vim.api.nvim_win_set_cursor(0, { row + 1, 0 })
   vim.cmd('startinsert')
+  vim.notify('New entry: type a filename or folder/ · press = to apply', vim.log.levels.INFO)
 end
 
 local function rename_entry()
@@ -64,10 +65,12 @@ local function rename_entry()
   if not start then return end
   vim.api.nvim_win_set_cursor(0, { row, start - 1 })
   vim.cmd('startinsert')
+  vim.notify('Rename entry · press <Esc>, then = to apply', vim.log.levels.INFO)
 end
 
 local function delete_entry()
   vim.cmd('normal! dd')
+  vim.notify('Entry marked for deletion · press = to apply or <Esc> to undo', vim.log.levels.WARN)
 end
 
 function M.setup()

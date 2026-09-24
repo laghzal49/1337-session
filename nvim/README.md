@@ -36,6 +36,11 @@ with `<leader>e`; `h`/`l` navigate, `a` creates, `r` renames, `d` deletes, `q`
 closes, and `=` synchronizes file edits.
 Python has a clearer active line and quiet active-scope guides.
 
+Markdown reader mode is available with `<leader>mr`; it enables rendered Markdown,
+wrapping, spelling, and a distraction-free view, then restores the previous window
+settings when toggled off. PDFs open as searchable text automatically; use `:PdfOpen`
+or `<leader>fp` to launch an installed external viewer such as Zathura.
+
 ## The smaller workflow
 
 - **Mini Pick + Mini Extra:** files, live grep, buffers, commands, diagnostics and

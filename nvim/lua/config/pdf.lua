@@ -1,5 +1,19 @@
 local M = {}
 
+local viewers = { 'zathura', 'sioyek', 'okular', 'mupdf', 'xdg-open' }
+
+local function open_external(path)
+  for _, viewer in ipairs(viewers) do
+    if vim.fn.executable(viewer) == 1 then
+      vim.fn.jobstart({ viewer, path }, { detach = true })
+      vim.notify('Opened PDF with ' .. viewer, vim.log.levels.INFO)
+      return true
+    end
+  end
+  vim.notify('No PDF viewer found; install zathura or use :PdfRead for text', vim.log.levels.WARN)
+  return false
+end
+
 local function read_pdf(path)
   if vim.fn.executable('pdftotext') == 0 then
     vim.notify('Install poppler (pdftotext) to read PDF files', vim.log.levels.ERROR)
@@ -39,6 +53,14 @@ function M.setup()
     end
     vim.cmd.edit(vim.fn.fnameescape(path))
   end, { nargs = '?', complete = 'file', desc = 'Read a PDF as a clean text buffer' })
+  vim.api.nvim_create_user_command('PdfOpen', function(opts)
+    local path = opts.args ~= '' and vim.fn.fnamemodify(opts.args, ':p') or vim.api.nvim_buf_get_name(0)
+    if path == '' then
+      vim.notify('Usage: PdfOpen {file.pdf}', vim.log.levels.ERROR)
+      return
+    end
+    open_external(path)
+  end, { nargs = '?', complete = 'file', desc = 'Open PDF in an external viewer' })
 end
 
 return M
