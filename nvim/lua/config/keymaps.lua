@@ -3,6 +3,12 @@ vim.api.nvim_create_user_command("ConfigGuide", function()
 end, { desc = "Open your Neovim usage guide" })
 
 local map = function(lhs, rhs, desc) vim.keymap.set('n', lhs, rhs, { silent = true, desc = desc }) end
+
+-- Clear search highlights and transient notifications immediately on <Esc>
+map('<Esc>', function()
+  vim.cmd('nohlsearch')
+  pcall(function() require('config.notifications').dismiss() end)
+end, 'Clear search highlights & popups')
 map('<C-h>', '<C-w>h', 'Window left')
 map('<C-j>', '<C-w>j', 'Window down')
 map('<C-k>', '<C-w>k', 'Window up')
@@ -52,6 +58,14 @@ map('<leader>gg', function()
   if vim.fn.executable('lazygit') == 0 then vim.notify('Install lazygit to open Git UI', vim.log.levels.WARN); return end
   Snacks.lazygit({ cwd = require('config.project').root() })
 end, 'Git UI')
+
+-- Toggle terminal quickly with Ctrl-t or Ctrl-/ (works in normal & terminal mode)
+local function toggle_terminal()
+  Snacks.terminal(nil, { cwd = require('config.project').root() })
+end
+vim.keymap.set({ 'n', 't' }, '<C-t>', toggle_terminal, { desc = 'Toggle Terminal' })
+vim.keymap.set({ 'n', 't' }, '<C-/>', toggle_terminal, { desc = 'Toggle Terminal' })
+vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 map('<leader>ai', function()
   if vim.fn.executable('copilot') == 0 then

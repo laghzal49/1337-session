@@ -28,6 +28,7 @@ return {
     end)(),
     opts = {
       mappings = {
+        stop = '<Esc>',
         toggle_preview = '<C-p>',
         move_up = '<C-k>',
         move_down = '<C-j>',

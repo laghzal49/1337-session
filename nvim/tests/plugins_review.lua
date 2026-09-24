@@ -10,8 +10,9 @@ vim.schedule(function() ready = true end)
 assert(vim.wait(1500, function() return ready end))
 for _, name in ipairs(plugins) do assert(require("lazy.core.config").plugins[name]._.loaded, name) end
 assert(vim.notify == require("config.notifications").notify)
-assert(not Snacks.config.notifier.enabled)
-assert(not require("noice.config").options.notify.enabled)
+assert(not (Snacks.config.notifier and Snacks.config.notifier.enabled))
+local noice_notify = require("noice.config").options.notify
+assert(not (noice_notify and noice_notify.enabled))
 assert(vim.diagnostic.config().virtual_text == false)
 assert(not require("lazy.core.config").plugins.LazyVim, "distribution must not be installed")
 assert(not Snacks.config.picker.enabled)

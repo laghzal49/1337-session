@@ -19,7 +19,7 @@ return {
         Function = '#82AAFF',
         Constructor = '#7FB4F5',
         Field = '#B8D7F0',
-        Variable = '#CCD6E0',
+        Variable = '#E6B3FF',
         Class = '#E8D48B',
         Interface = '#93D68F',
         Module = '#7FD4C4',

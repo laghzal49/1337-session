@@ -2,11 +2,11 @@
 local M = {
   panel = "#0E141D",
   inset = "#070B10",
-  edge = "#2A3649",
-  selected = "#1E2F47",
-  accent = "#82AAFF",
-  text = "#E6E6E6",
-  muted = "#8B9BB0",
+  edge = "#25334A",
+  selected = "#14263D",
+  accent = "#69AFFF",
+  text = "#D7E3FF",
+  muted = "#61708A",
 }
 
 function M.highlights()
