@@ -161,14 +161,12 @@ return {
       opts.left = {}
       opts.right = {
         { title = ' 󰅩  SYMBOLS', ft = 'aerial', size = { width = 26 } },
-        { title = ' 󰙨  TESTS', ft = 'neotest-summary' },
       }
       opts.bottom = {
-        { title = '   TERMINAL', ft = 'snacks_terminal', size = { height = 0.30 },
+        { title = '   TERMINAL', ft = 'snacks_terminal', size = { height = 0.30 },
           filter = function(_, win) return vim.api.nvim_win_get_config(win).relative == '' end },
         { title = ' 󰒡  RESULTS', ft = 'qf', size = { height = 0.25 } },
         { title = ' 󰅚  DIAGNOSTICS', ft = 'trouble', size = { height = 0.25 } },
-        { title = ' 󰙨  TEST OUTPUT', ft = 'neotest-output-panel', size = { height = 0.30 } },
         { title = ' 󰋖  HELP', ft = 'help', size = { height = 0.35 } },
       }
       opts.top = {}
@@ -184,6 +182,7 @@ return {
       delay = 200,
       win = { border = ui.border, padding = { 0, 1 }, wo = { winblend = ui.blend } },
       spec = {
+        { '<leader>a', group = 'AI / Copilot' },
         { '<leader>f', group = 'Find' },
         { '<leader>s', group = 'Search' },
         { '<leader>c', group = 'Code' },

@@ -1,5 +1,5 @@
 vim.api.nvim_create_user_command("ConfigGuide", function()
-  vim.cmd.edit(vim.fn.expand("~/NEOVIM-GUIDE.md"))
+  vim.cmd.edit(vim.fn.stdpath("config") .. "/README.md")
 end, { desc = "Open your Neovim usage guide" })
 
 local map = function(lhs, rhs, desc) vim.keymap.set('n', lhs, rhs, { silent = true, desc = desc }) end
@@ -52,9 +52,27 @@ map('<leader>gg', function()
   if vim.fn.executable('lazygit') == 0 then vim.notify('Install lazygit to open Git UI', vim.log.levels.WARN); return end
   Snacks.lazygit({ cwd = require('config.project').root() })
 end, 'Git UI')
+
+map('<leader>ai', function()
+  if vim.fn.executable('copilot') == 0 then
+    vim.notify('Install GitHub Copilot CLI to use AI terminal', vim.log.levels.WARN)
+    return
+  end
+  Snacks.terminal('copilot', {
+    cwd = require('config.project').root(),
+    win = {
+      position = 'float',
+      width = 0.82,
+      height = 0.82,
+      border = require('config.ui').border,
+      wo = { winbar = '  󰚩 GitHub Copilot CLI · q to close' },
+    },
+  })
+end, 'Copilot CLI Terminal')
+
 vim.api.nvim_create_user_command('ConfigTools', function()
   local lines = { 'Tools found on PATH:' }
-  for _, name in ipairs({'ty','ruff','clangd','rg','git','tree-sitter','cc','lazygit'}) do
+  for _, name in ipairs({'ty','ruff','clangd','copilot','rg','git','tree-sitter','cc','lazygit'}) do
     local path = vim.fn.exepath(name)
     lines[#lines + 1] = name .. ': ' .. (path ~= '' and path or 'MISSING')
   end

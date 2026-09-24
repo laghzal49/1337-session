@@ -1,4 +1,4 @@
--- Editing tools, quickfix, and version control integration.
+-- Editing tools, quickfix, text objects, and visual utilities.
 return {
   { 'smjonas/inc-rename.nvim', cmd = 'IncRename', opts = {} },
   {
@@ -24,6 +24,78 @@ return {
       { 'aS', function() require('various-textobjs').subword('outer') end, mode = { 'o', 'x' }, desc = 'Around subword' },
     },
     opts = { keymaps = { useDefaults = false } },
+  },
+  -- Underrated Gem 1: Structural text objects (functions, arguments, classes, blocks)
+  {
+    'nvim-mini/mini.ai',
+    event = 'VeryLazy',
+    opts = function()
+      local ai = require('mini.ai')
+      return {
+        n_lines = 500,
+        custom_textobjects = {
+          o = ai.gen_spec.treesitter({ -- code block
+            a = { '@block.outer', '@conditional.outer', '@loop.outer' },
+            i = { '@block.inner', '@conditional.inner', '@loop.inner' },
+          }),
+          f = ai.gen_spec.treesitter({ a = '@function.outer', i = '@function.inner' }),
+          c = ai.gen_spec.treesitter({ a = '@class.outer', i = '@class.inner' }),
+        },
+      }
+    end,
+  },
+  -- Underrated Gem 2: Ultra-lightweight autopairs with Treesitter skip
+  {
+    'nvim-mini/mini.pairs',
+    event = 'InsertEnter',
+    opts = {
+      modes = { insert = true, command = true, terminal = false },
+      skip_next = [=[[%w%%%'%[%"%.%`%$]]=],
+      skip_ts = { 'string' },
+    },
+  },
+  -- Underrated Gem 3: Fast surround management (sa, sd, sr)
+  {
+    'nvim-mini/mini.surround',
+    keys = {
+      { 'sa', desc = 'Add surrounding', mode = { 'n', 'v' } },
+      { 'sd', desc = 'Delete surrounding' },
+      { 'sf', desc = 'Find surrounding' },
+      { 'sr', desc = 'Replace surrounding' },
+    },
+    opts = {
+      mappings = {
+        add = 'sa',
+        delete = 'sd',
+        find = 'sf',
+        find_left = 'sF',
+        highlight = 'sh',
+        replace = 'sr',
+        update_n_lines = 'sn',
+      },
+    },
+  },
+  -- Underrated Gem 4: Interactive text alignment for tables, assignments & params
+  {
+    'nvim-mini/mini.align',
+    keys = {
+      { 'ga', mode = { 'n', 'v' }, desc = 'Align text' },
+      { 'gA', mode = { 'n', 'v' }, desc = 'Align with preview' },
+    },
+    opts = {},
+  },
+  -- Underrated Gem 5: Inline hex color highlighter
+  {
+    'nvim-mini/mini.hipatterns',
+    event = { 'BufReadPost', 'BufNewFile' },
+    opts = function()
+      local hi = require('mini.hipatterns')
+      return {
+        highlighters = {
+          hex_color = hi.gen_highlighter.hex_color(),
+        },
+      }
+    end,
   },
   {
     'sindrets/diffview.nvim',

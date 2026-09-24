@@ -52,10 +52,8 @@ return {
 
               local tool_modes = {
                 minipick = 'SEARCH',
-                snacks_picker_input = 'SEARCH',
                 minifiles = 'FILES',
                 aerial = 'SYMBOLS',
-                ['neotest-summary'] = 'TESTS',
                 trouble = 'DIAGNOSTICS',
                 qf = 'RESULTS',
                 help = 'HELP',
@@ -145,6 +143,24 @@ return {
             'diff',
             symbols = { added = '+', modified = '~', removed = '−' },
             cond = function() return vim.o.columns >= 115 end,
+          },
+          {
+            function()
+              local ok, client = pcall(require, 'copilot.client')
+              if not ok then return '' end
+              if client.is_disabled() then return '' end
+              local status = package.loaded['copilot.api'] and require('copilot.api').status.data.status
+              if status == 'InProgress' then return '' end
+              return ''
+            end,
+            color = function()
+              local ok, client = pcall(require, 'copilot.client')
+              if not ok or client.is_disabled() then return { fg = '#555555' } end
+              local status = package.loaded['copilot.api'] and require('copilot.api').status.data.status
+              if status == 'InProgress' then return { fg = '#E8D48B' } end
+              return { fg = '#82AAFF' }
+            end,
+            cond = function() return vim.o.columns >= 85 end,
           },
         },
         lualine_y = {},
