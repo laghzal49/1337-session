@@ -1,0 +1,84 @@
+-- Completion formatting, documentation panel, and insert-mode keybindings.
+return {
+  {
+    'iguanacucumber/magazine.nvim',
+    name = 'nvim-cmp',
+    url = 'https://github.com/iguanacucumber/magazine.nvim.git',
+    opts = function(_, opts)
+      local cmp = require('cmp')
+      require('config.documentation').setup()
+      opts.mapping = opts.mapping or cmp.mapping.preset.insert({
+        ['<C-Space>'] = cmp.mapping.complete(),
+        ['<CR>'] = cmp.mapping.confirm({ select = false }),
+      })
+      opts.window = {
+        completion = cmp.config.window.bordered({ border = 'rounded', side_padding = 1, winblend = require('config.ui').blend, winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder,CursorLine:PmenuSel,Search:None' }),
+        documentation = cmp.config.window.bordered({
+          border = 'rounded',
+          winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder,FloatTitle:BlackDocsTitle,FloatFooter:BlackDocsHint',
+          winblend = require('config.ui').blend,
+          max_width = 68,
+          max_height = require('config.ui').max_height,
+        }),
+      }
+      opts.view = vim.tbl_deep_extend('force', opts.view or {}, { docs = { auto_open = false } })
+      local function scroll_docs(delta)
+        return cmp.mapping(function(fallback)
+          if cmp.visible_docs() then
+            cmp.scroll_docs(delta)
+          elseif cmp.visible() then
+            cmp.open_docs()
+          else
+            return fallback()
+          end
+        end, { 'i', 's' })
+      end
+      local normalize = require('cmp.utils.keymap').normalize
+      opts.mapping[normalize('<C-b>')] = scroll_docs(-4)
+      opts.mapping[normalize('<C-f>')] = scroll_docs(4)
+      opts.mapping[normalize('<C-e>')] = cmp.mapping.abort()
+      opts.mapping[normalize('<C-d>')] = cmp.mapping(function()
+        if cmp.visible_docs() then cmp.close_docs() else cmp.open_docs() end
+      end, { 'i', 's' })
+      opts.formatting = opts.formatting or {}
+      opts.formatting.fields = { 'kind', 'abbr', 'menu' }
+      local kinds = {
+        Text = '\u{f0f6}', Method = '\u{f09a}', Function = '\u{f0295}', Constructor = '\u{f0295}',
+        Field = '\u{f0292}', Variable = '\u{f0292}', Class = '\u{eb5b}', Interface = '\u{eb61}',
+        Module = '\u{f0317}', Property = '\u{f0292}', Unit = '\u{f475}', Value = '\u{f475}',
+        Enum = '\u{ea95}', Keyword = '\u{eb62}', Snippet = '\u{eb66}', Color = '\u{eb5c}',
+        File = '\u{f0f6}', Reference = '\u{eb36}', Folder = '\u{f115}', EnumMember = '\u{ea95}',
+        Constant = '\u{eb5d}', Struct = '\u{ea91}', Event = '\u{ea86}', Operator = '\u{eb64}', TypeParameter = '\u{ea92}',
+      }
+      opts.formatting.format = function(entry, item)
+        local kind = item.kind
+        item.kind = (kinds[kind] or '') .. ' '
+        if vim.fn.strdisplaywidth(item.abbr) > 38 then
+          local text = vim.fn.strcharpart(item.abbr, 0, 37)
+          while vim.fn.strdisplaywidth(text) > 37 do
+            text = vim.fn.strcharpart(text, 0, vim.fn.strchars(text) - 1)
+          end
+          item.abbr = text .. '…'
+          item.abbr_hl_group = nil
+        end
+        item.menu = kind
+        return item
+      end
+      opts.performance = vim.tbl_deep_extend('force', opts.performance or {}, {
+        max_view_entries = 40,
+      })
+      for _, source in ipairs(opts.sources or {}) do
+        if source.name == 'buffer' then
+          source.option = vim.tbl_deep_extend('force', source.option or {}, {
+            get_bufnrs = function()
+              local buf = vim.api.nvim_get_current_buf()
+              local size = vim.api.nvim_buf_get_offset(buf, vim.api.nvim_buf_line_count(buf))
+              return size >= 0 and size <= 1024 * 1024 and { buf } or {}
+            end,
+          })
+        end
+      end
+      opts.experimental = { ghost_text = false }
+    end,
+  },
+}

@@ -9,7 +9,17 @@ map('<C-k>', '<C-w>k', 'Window up')
 map('<C-l>', '<C-w>l', 'Window right')
 map('<S-h>', '<cmd>bprevious<cr>', 'Previous buffer')
 map('<S-l>', '<cmd>bnext<cr>', 'Next buffer')
-map('<leader>bd', '<cmd>bdelete<cr>', 'Close buffer')
+-- Smart buffer close: handles the last-buffer edge case gracefully.
+map('<leader>bd', function()
+  local bufs = vim.tbl_filter(function(b)
+    return vim.bo[b].buflisted and vim.api.nvim_buf_is_loaded(b)
+  end, vim.api.nvim_list_bufs())
+  if #bufs <= 1 then
+    vim.cmd('enew | bdelete #')
+  else
+    vim.cmd('bprevious | bdelete #')
+  end
+end, 'Close buffer')
 map('<leader>ww', '<C-w>w', 'Switch window')
 map('<leader>wv', '<cmd>vsplit<cr>', 'Vertical split')
 map('<leader>ws', '<cmd>split<cr>', 'Horizontal split')
@@ -19,6 +29,7 @@ map('<leader>uh', function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({bufnr=0}), {bufnr=0})
 end, 'Toggle native inlay hints')
 map('<leader>uf', function() vim.g.autoformat = vim.g.autoformat == false end, 'Toggle format on save')
+map('<leader>ch', function() require('config.python_help').show() end, 'Python builtin help')
 vim.keymap.set({'n','i'}, '<C-s>', '<cmd>write<cr>', {desc='Save'})
 vim.api.nvim_create_autocmd('LspAttach', { callback = function(ev)
   local function lmap(lhs, rhs, desc)
@@ -37,13 +48,10 @@ vim.api.nvim_create_autocmd('LspAttach', { callback = function(ev)
   lmap('gK', vim.lsp.buf.signature_help, 'Signature help')
 end })
 
-vim.ui.select = function(...) return require("mini.pick").ui_select(...) end
-
 map('<leader>gg', function()
   if vim.fn.executable('lazygit') == 0 then vim.notify('Install lazygit to open Git UI', vim.log.levels.WARN); return end
   Snacks.lazygit({ cwd = require('config.project').root() })
 end, 'Git UI')
-map('<leader>ch', function() require('config.python_help').show() end, 'Python builtin help')
 vim.api.nvim_create_user_command('ConfigTools', function()
   local lines = { 'Tools found on PATH:' }
   for _, name in ipairs({'ty','ruff','clangd','rg','git','tree-sitter','cc','lazygit'}) do

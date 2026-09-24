@@ -1,8 +1,9 @@
--- Shared by every configured popup. Change this one value to restyle borders.
-return {
+-- Shared UI constants for borders, sizes, and blending.
+-- Referenced by options.lua, lazy.lua, and every plugin that draws a panel.
+local M = {
   border = "rounded",
-  blend = 0, -- Solid black panels.
-  max_width = 76,
-  max_height = 18,
-  winhighlight = "Normal:NormalFloat,NormalNC:NormalFloat,FloatBorder:FloatBorder,FloatTitle:FloatTitle",
+  blend = 0,
+  max_width = 80,
+  max_height = 20,
 }
+return M

@@ -1,12 +1,12 @@
 -- Shared tokens for every interactive panel, independent of the code palette.
 local M = {
-  panel = "#10151C",
-  inset = "#0A0F16",
-  edge = "#354357",
-  selected = "#243B59",
+  panel = "#0E141D",
+  inset = "#070B10",
+  edge = "#2A3649",
+  selected = "#1E2F47",
   accent = "#82AAFF",
   text = "#E6E6E6",
-  muted = "#A0AFC1",
+  muted = "#8B9BB0",
 }
 
 function M.highlights()

@@ -37,5 +37,4 @@ vim.opt.splitbelow = true
 vim.opt.splitright = true
 vim.opt.undofile = true
 vim.opt.completeopt = { "menu", "menuone", "noselect" }
-vim.opt.scrolloff = 5
 vim.opt.wrap = false

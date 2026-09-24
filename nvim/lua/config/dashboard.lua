@@ -37,10 +37,17 @@ return {
     }
     local pane = wide and 2 or 1
     if wide then
-      table.insert(sections, 1, { text = { { " ▄█  ▀▀▀█  ▀▀▀█  █▀▀▀█\n  █   ▄▄█   ▄▄█     █ \n  █     █     █    █  \n ▄█▄ █▄▄█  █▄▄█   █   ", hl = "BlackLabel" } }, padding = 1 })
-      sections[#sections + 1] = { text = { { "BLACK  /  STUDIO", hl = "BlackLabel" } }, pane = pane, padding = 1 }
+      table.insert(sections, 1, { text = { { [[
+       __ _____ _____ ______ 
+      /  |__   |__   |____ | 
+     /_/ |  _  |  _  |   / / 
+       | | | | | | | |  / /  
+       | | |_| | |_| | / /   
+       |_|_____|_____|/_/    
+]], hl = "BlackLabel" } }, padding = 2 })
+      sections[#sections + 1] = { text = { { "1337  ·  BLACK STUDIO", hl = "BlackLabel" } }, pane = pane, padding = 1 }
       sections[#sections + 1] = { text = { { vim.fn.fnamemodify(vim.fn.getcwd(), ":t"), hl = "BlackBrand" } }, pane = pane, padding = 1 }
-      sections[#sections + 1] = { text = { { "━━", hl = "BlackLabel" }, { "────────────────────────────────", hl = "BlackRule" } }, pane = pane, padding = 5 }
+      sections[#sections + 1] = { text = { { "━━", hl = "BlackLabel" }, { "────────────────────────────────", hl = "BlackRule" } }, pane = pane, padding = 4 }
     end
     sections[#sections + 1] = { text = { { "  PICK UP WHERE YOU LEFT OFF", hl = "BlackLabel" } }, pane = pane, padding = 1 }
     sections[#sections + 1] = { section = "recent_files", cwd = true, limit = wide and 5 or 2, pane = pane, gap = wide and 1 or 0, padding = 1 }
