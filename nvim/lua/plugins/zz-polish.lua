@@ -5,7 +5,7 @@ return {
       dashboard = {
         width = 44,
         preset = {
-          header = "    1337  /  NVIM\n  ─────────────────────",
+          header = "  1337  \n  ───────────\n  TARIK  /  WORKSPACE",
           keys = {
             { icon = " ", key = "f", desc = "Find a file", action = ":lua Snacks.dashboard.pick('files')" },
             { icon = " ", key = "g", desc = "Search project", action = ":lua Snacks.dashboard.pick('live_grep')" },
@@ -61,12 +61,10 @@ return {
         enforce_regular_tabs = false,
         always_show_bufferline = false,
         diagnostics = false,
-        diagnostics_indicator = function(_, _, diag)
-          local parts = {}
-          if diag.error then parts[#parts + 1] = " " .. diag.error end
-          if diag.warning then parts[#parts + 1] = " " .. diag.warning end
-          return table.concat(parts, " ")
-        end,
+        offsets = {
+          { filetype = "neo-tree", text = " 󰉋  FILES", text_align = "left", separator = true },
+          { filetype = "aerial", text = " 󰅩  SYMBOLS", text_align = "left", separator = true },
+        },
       },
     },
   },
@@ -77,8 +75,8 @@ return {
       local function mode(color)
         return {
           a = { bg = palette.bg2, fg = color, gui = "bold" },
-          b = { bg = palette.bg2, fg = palette.fg },
-          c = { bg = palette.bg_d, fg = palette.fg },
+          b = { bg = palette.bg1, fg = palette.fg },
+          c = { bg = palette.bg1, fg = palette.fg },
         }
       end
       opts.options.theme = {
