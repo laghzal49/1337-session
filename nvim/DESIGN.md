@@ -14,7 +14,7 @@ removes repeated information from completion, search, and the statusline.
 | Editor canvas | `#000000` | Preserve the requested black background |
 | Body text | `#E6E6E6` | Readable without using white everywhere |
 | Secondary text | `#A0A0A0` | Paths and supporting details |
-| Comments | `#7A7A7A` | Quiet, italic annotations |
+| Comments | `#8994A3` | Readable italic annotations on black and panels |
 | Interaction accent | `#82AAFF` | Selection, prompts, headings, matches |
 | Shared panel fill | `#10151C` | Commands, search, docs, and notifications |
 | Inset fill | `#0A0F16` | Preview, sidebar, and statusline |
@@ -60,7 +60,8 @@ a language icon beside an already visible file name.
 
 ### Bottom status bar
 
-Mode and file are on the left. Diagnostics follow the filename. Git branch,
+Mode and file are on the left. The mode block reads SEARCH or FILES while
+those tools have focus, without losing the underlying editor filename. Diagnostics follow the filename. Git branch,
 and change counts appear on the right when space allows. The redundant
 filetype label is removed. The final
 block explicitly labels line and column, shortening to `line:column` in
@@ -79,8 +80,10 @@ Documentation uses a distinct opaque panel with a thin cell border, a
 DOCUMENTATION title, and keyboard hints when its width permits. Ctrl-D toggles
 it. Ctrl-B/F open it from a visible completion menu or scroll it when already
 open. Outside completion, these mappings fall back to their normal behavior.
-The title helper uses public Neovim window APIs and leaves very narrow panels
-unlabelled to avoid crowding. Documentation still opens only on request.
+The title helper decorates the window immediately after the pinned completion
+plugin renders resolved documentation. It leaves very narrow panels unlabelled
+to avoid crowding. This small adapter uses the plugin’s internal docs-open
+method and must be checked when updating that pinned dependency. Documentation still opens only on request.
 
 ### Command palette and hover
 
@@ -114,8 +117,11 @@ editing begins.
 ### Feedback
 
 A diagnostic handler shows the worst diagnostic on each line across namespaces.
+Source severity filters are honored, while the combined display uses one
+explicit icon/priority policy instead of inheriting a random namespace’s options.
 The sign column can expand for a simultaneous Git marker. Repeated active
-notifications batch; errors share a persistent summary. Original notifications
+notifications batch; errors share a persistent summary with a short latest-error
+message. Original notifications
 remain in session history. At most three live toasts are tracked. History does
 not survive restarting Neovim.
 
@@ -135,3 +141,29 @@ claim to show a live ty response. No generated UI mockups are used.
 These checks do not measure NFS startup, physical display response, sustained
 real-project LSP performance, or comfort on the user's cluster terminal. No
 numerical rating substitutes for those checks or the user's visual preference.
+
+
+## Responsiveness follow-up
+
+- Standalone Python user-site discovery is asynchronous, shares in-flight requests,
+  caches results for the session, and times out after 1.5 seconds. Only the affected
+  language-server startup waits for discovery; Neovim's UI does not. Lookup failure
+  falls back to ty's normal discovery. Project roots and active environments remain
+  isolated from the user-site override.
+- Mapping timeout is 350 ms and idle update time is 250 ms. These are interaction
+  settings, not claimed improvements to raw input latency.
+- Completion shortcut overrides use canonical key names, preventing collisions
+  with the inherited preset (such as `<C-b>` versus `<C-B>`).
+- Documentation labels follow actual rendering rather than a fixed 60 ms
+  timer. Regression tests deliberately delay completion resolution by 1.6 seconds.
+- Completion truncation uses display-cell width, including non-ASCII labels.
+- Search preview matches use an explicit readable accent on selection fill,
+  avoiding the inherited dark foreground on a dark preview row.
+- Shared panel highlights are defined once in `config/surfaces.lua`; superseded
+  declarations were removed from the theme.
+- Notification history remains session-only and unbounded. Real cluster/NFS and
+  sustained project LSP performance still need measurements on that workstation.
+
+`nvim --headless -u NONE -l nvim/tests/python_environment.lua` tests asynchronous
+lookup, coalescing, caching, failure fallback, and virtual-environment/project
+isolation with a controlled subprocess substitute.

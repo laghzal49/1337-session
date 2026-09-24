@@ -21,7 +21,9 @@ function M.highlights()
   groups("SnacksPickerPreview NeoTreeNormal NeoTreeNormalNC", { bg = M.inset, fg = M.text })
   groups("SnacksPickerPreviewBorder", { bg = M.inset, fg = M.inset })
   groups("SnacksPickerPreviewTitle", { bg = M.inset, fg = M.muted })
-  groups("SnacksPickerListCursorLine PmenuSel NoicePopupmenuSelected NeoTreeCursorLine", { bg = M.selected, fg = M.text, fmt = "bold" })
+  groups("SnacksPickerListCursorLine PmenuSel NoicePopupmenuSelected NeoTreeCursorLine", { bg = M.selected, fg = M.text })
+  groups("SnacksPickerSearch", { bg = M.selected, fg = M.accent, fmt = "bold" })
+  groups("SnacksPickerPreviewCursorLine", { bg = "#172333" })
   groups("SnacksPickerPrompt SnacksPickerMatch", { fg = M.accent, fmt = "bold" })
   for _, kind in ipairs({ "Cmdline", "Lua", "Search", "Help", "Filter", "Calculator", "Input" }) do
     h["NoiceCmdlinePopupTitle" .. kind] = { bg = M.panel, fg = M.accent, fmt = "bold" }

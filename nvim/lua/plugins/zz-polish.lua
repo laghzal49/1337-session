@@ -56,6 +56,11 @@ return {
     "nvim-lualine/lualine.nvim",
     opts = function(_, opts)
       local palette = require("onedark.colors")
+      local focused_win = vim.api.nvim_get_current_win()
+      vim.api.nvim_create_autocmd({ "WinEnter", "BufEnter" }, {
+        group = vim.api.nvim_create_augroup("black_status_focus", { clear = true }),
+        callback = function() focused_win = vim.api.nvim_get_current_win() end,
+      })
       local function mode(color)
         return {
           a = { bg = "#172333", fg = color, gui = "bold" },
@@ -74,7 +79,13 @@ return {
       opts.options.section_separators = { left = "", right = "" }
       opts.sections = {
         lualine_a = {
-          { "mode", fmt = function(value) return vim.o.columns < 90 and value:sub(1, 1) or value end },
+          { "mode", fmt = function(value)
+            local buf = vim.api.nvim_win_is_valid(focused_win) and vim.api.nvim_win_get_buf(focused_win) or 0
+            local ft = vim.bo[buf].filetype
+            if ft:match("^snacks_picker") then return "SEARCH" end
+            if ft == "neo-tree" then return "FILES" end
+            return vim.o.columns < 90 and value:sub(1, 1) or value
+          end },
           {
             function() return "REC @" .. vim.fn.reg_recording() end,
             cond = function() return vim.fn.reg_recording() ~= "" end,

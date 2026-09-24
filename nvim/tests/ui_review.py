@@ -75,11 +75,12 @@ def call(method,params):
 call('nvim_ui_attach',[100,30,{'rgb':True,'ext_linegrid':True}]);pump(1)
 call('nvim_command',['enew'])
 call('nvim_buf_set_lines',[0,0,-1,False,['test diagnostics','second line']])
-call('nvim_exec_lua',["require('config.diagnostic_signs').setup(); vim.diagnostic.config({signs=true,virtual_text=false,update_in_insert=true}); _G.review_a=vim.api.nvim_create_namespace('review_a'); _G.review_b=vim.api.nvim_create_namespace('review_b'); vim.diagnostic.set(review_a,0,{{lnum=0,col=0,message='warning',severity=2}}); vim.diagnostic.set(review_b,0,{{lnum=0,col=0,message='error',severity=1}})",[]]);pump(.2)
+call('nvim_exec_lua',["require('config.diagnostic_signs').setup(); vim.diagnostic.config({signs=true,virtual_text=false,update_in_insert=true}); _G.review_a=vim.api.nvim_create_namespace('review_a'); _G.review_b=vim.api.nvim_create_namespace('review_b'); vim.diagnostic.config({signs={priority=99,text={[1]='X'}}},review_b); vim.diagnostic.set(review_a,0,{{lnum=0,col=0,message='warning',severity=2}}); vim.diagnostic.set(review_b,0,{{lnum=0,col=0,message='error',severity=1}})",[]]);pump(.2)
 def signs():
  return call('nvim_exec_lua',["local ns=vim.api.nvim_get_namespaces().perfect_black_diagnostic_signs; local sign_ns=vim.diagnostic.get_namespace(ns).user_data.sign_ns; return sign_ns and vim.api.nvim_buf_get_extmarks(0,sign_ns,0,-1,{details=true}) or {}",[]])
 marks=signs();assert len(marks)==1,marks
 assert 'Error' in marks[0][3].get('sign_hl_group',''),marks
+assert marks[0][3]['priority'] < 99 and marks[0][3]['sign_text'].strip() != 'X',marks
 call('nvim_exec_lua',['vim.diagnostic.reset(review_b,0)',[]]);pump(.2)
 marks=signs();assert len(marks)==1 and 'Warn' in marks[0][3].get('sign_hl_group',''),marks
 call('nvim_exec_lua',['vim.diagnostic.reset(review_a,0)',[]]);pump(.2);assert signs()==[]
@@ -88,7 +89,7 @@ call('nvim_exec_lua',["require('config.notifications').dismiss(); for i=1,5 do S
 state=call('nvim_exec_lua',["local found={history=0,repeat_live=0,error_live=0}; for _,v in ipairs(Snacks.notifier.get_history()) do if v.msg:match('^review%-') then found.history=found.history+1; if v.win and v.win:win_valid() then if v.level=='warn' then found.repeat_live=found.repeat_live+1; found.title=v.title else found.error_live=found.error_live+1 end end end end; return found",[]])
 assert state=={'history':9,'repeat_live':1,'error_live':0,'title':'Notification ×5'},state
 screen='\n'.join(''.join(c for c,h in row) for row in grid)
-assert '4 errors' in screen,screen
+assert '4 errors' in screen and 'review-error-4' in screen,screen
 print('NOTIFICATIONS: 9 records, warning ×5, one error summary PASS',flush=True)
 call('nvim_exec_lua',["for i=1,6 do Snacks.notifier.notify('review-overflow-'..i,'info') end",[]]);pump(.3)
 live=call('nvim_exec_lua',["local n=0; for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='snacks_notif' then n=n+1 end end; return n",[]])
@@ -146,13 +147,21 @@ call('nvim_exec_lua',[r"""
 local cmp = require('cmp')
 cmp.register_source('ui_review', {
   complete = function(_, _, callback)
-    callback({ items = {{ label = 'summary', kind = 3, documentation = {
-      kind = 'markdown', value = '```python\ndef summary(values: list[int]) -> int\n```\n\n' .. string.rep('Documentation paragraph with a readable explanation.\n\n', 24),
-    } }}, isIncomplete = false })
+    callback({ items = {{ label = 'summary', kind = 3 }}, isIncomplete = false })
+  end,
+  resolve = function(_, item, callback)
+    vim.defer_fn(function()
+      item.documentation = {
+        kind = 'markdown', value = '```python\ndef summary(values: list[int]) -> int\n```\n\n' .. string.rep('Documentation paragraph with a readable explanation.\n\n', 24),
+      }
+      callback(item)
+    end, 1600)
   end,
 })
 """,[]])
 for width,height in [(80,24),(140,42)]:
+ call('nvim_input',['<Esc>']);pump(.5)
+ assert call('nvim_get_mode',[])['mode']=='n'
  call('nvim_ui_try_resize',[width,height]);pump(.2)
  call('nvim_command',['enew!'])
  call('nvim_command',['setfiletype python'])
@@ -160,7 +169,7 @@ for width,height in [(80,24),(140,42)]:
  call('nvim_input',['isum']);pump(.3)
  call('nvim_exec_lua',["require('cmp').complete()",[]]);pump(.4)
  call('nvim_exec_lua',["local c=require('cmp'); if not c.get_selected_entry() then c.select_next_item({behavior=c.SelectBehavior.Select}) end",[]]);pump(.2)
- call('nvim_input',['<C-b>']);pump(.5)
+ call('nvim_input',['<C-b>']);pump(1.8)
  assert call('nvim_exec_lua',["return require('cmp').visible_docs()",[]]),width
  docs=call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='cmp_docs' then return {win=w,config=vim.api.nvim_win_get_config(w)} end end",[]])
  c=docs['config'];assert c['width']+2<=width and c['height']+2<=height,(width,c)
@@ -169,11 +178,11 @@ for width,height in [(80,24),(140,42)]:
  assert call('nvim_exec_lua',["return vim.fn.getwininfo(...)[1].topline",[docs['win']]])>1
  call('nvim_input',['<C-d>']);pump(.2)
  assert not call('nvim_exec_lua',["return require('cmp').visible_docs()",[]])
- call('nvim_input',['<Esc>']);pump(.2)
+ call('nvim_input',['<Esc>']);pump(.5)
  call('nvim_input',[':set number']);pump(.3)
  wins=call('nvim_exec_lua',["local r={} for _,w in ipairs(vim.api.nvim_list_wins()) do local c=vim.api.nvim_win_get_config(w); if c.relative~='' then r[#r+1]=c end end return r",[]])
  assert all(c['width']<=width and c['height']<=height for c in wins),wins
- call('nvim_input',['<Esc>']);pump(.2)
+ call('nvim_input',['<Esc>']);pump(.5)
  print('DOCS / COMMAND',width,height,'open, scroll, close and geometry PASS',flush=True)
 
 print('V_ERRORS',call('nvim_eval',['v:errors']),flush=True)

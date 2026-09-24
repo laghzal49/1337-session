@@ -76,4 +76,14 @@ NVIM_BIN=/path/to/nvim python3 nvim/tests/ui_review.py
 
 Use the same `XDG_DATA_HOME` as your plugin installation if it is nonstandard.
 The suite checks diagnostic collisions, notification overflow, adaptive search,
-large buffers, responsive navigation, and completion-documentation mappings.
+large buffers, responsive navigation, and documentation mappings with deliberately
+slow completion responses.
+
+Python environment-discovery checks (run from the repository root):
+
+```sh
+nvim --headless -u NONE -l nvim/tests/python_environment.lua
+```
+
+Standalone Python user-package discovery is asynchronous and cached. Project
+roots and active environments keep their normal discovery behavior.

@@ -1,17 +1,19 @@
 local M = {}
 local active, errors, scheduled = {}, 0, false
+local latest_error = ""
 local summary_id = "perfect-black-error-summary"
 local priority = { trace = 0, debug = 1, info = 2, warn = 3, error = 4 }
 
 function M.filter(notif)
   if notif.level == "error" and notif.id ~= summary_id then
     errors = errors + 1
+    latest_error = vim.fn.strcharpart(notif.msg:gsub("%s+", " "), 0, 90)
     if not scheduled then
       scheduled = true
       vim.schedule(function()
         scheduled = false
         if errors > 0 then
-          Snacks.notifier.notify(errors .. " errors · <leader>n", "error", {
+          Snacks.notifier.notify(errors .. " errors · <leader>n\n" .. latest_error, "error", {
             id = summary_id, title = "Errors", timeout = false, history = false,
           })
         end

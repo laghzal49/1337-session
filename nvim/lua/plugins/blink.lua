@@ -6,6 +6,7 @@ return {
     url = "https://github.com/iguanacucumber/magazine.nvim.git",
     opts = function(_, opts)
       local cmp = require("cmp")
+      require("config.documentation").setup()
       opts.window = {
         completion = cmp.config.window.bordered({ border = "rounded", side_padding = 1, winblend = require("config.ui").blend, winhighlight = "Normal:BlackDocs,FloatBorder:BlackDocsBorder,CursorLine:PmenuSel,Search:None" }),
         documentation = cmp.config.window.bordered({
@@ -27,14 +28,16 @@ return {
           else
             return fallback()
           end
-          require("config.documentation").label()
         end, { "i", "s" })
       end
-      opts.mapping["<C-b>"] = scroll_docs(-4)
-      opts.mapping["<C-f>"] = scroll_docs(4)
-      opts.mapping["<C-e>"] = cmp.mapping.abort()
-      opts.mapping["<C-d>"] = cmp.mapping(function()
-        if cmp.visible_docs() then cmp.close_docs() else cmp.open_docs(); require("config.documentation").label() end
+      -- LazyVim's preset already canonicalizes keys (e.g. <C-B>). Normalize
+      -- overrides too, so duplicate spellings cannot randomly restore defaults.
+      local normalize = require("cmp.utils.keymap").normalize
+      opts.mapping[normalize("<C-b>")] = scroll_docs(-4)
+      opts.mapping[normalize("<C-f>")] = scroll_docs(4)
+      opts.mapping[normalize("<C-e>")] = cmp.mapping.abort()
+      opts.mapping[normalize("<C-d>")] = cmp.mapping(function()
+        if cmp.visible_docs() then cmp.close_docs() else cmp.open_docs() end
       end, { "i", "s" })
       opts.formatting = opts.formatting or {}
       opts.formatting.fields = { "kind", "abbr", "menu" }
@@ -50,7 +53,11 @@ return {
         local kind = item.kind
         item.kind = (kinds[kind] or "") .. " "
         if vim.fn.strdisplaywidth(item.abbr) > 38 then
-          item.abbr = vim.fn.strcharpart(item.abbr, 0, 35) .. "…"
+          local text = vim.fn.strcharpart(item.abbr, 0, 37)
+          while vim.fn.strdisplaywidth(text) > 37 do
+            text = vim.fn.strcharpart(text, 0, vim.fn.strchars(text) - 1)
+          end
+          item.abbr = text .. "…"
         end
         item.menu = kind
         return item

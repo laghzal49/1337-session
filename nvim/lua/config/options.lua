@@ -11,8 +11,8 @@ vim.opt.signcolumn = "auto:1-2"
 vim.opt.statuscolumn = "" -- Native rendering honors the dynamic sign width.
 vim.opt.laststatus = 3
 vim.opt.cmdheight = 0
-vim.opt.timeoutlen = 120
-vim.opt.updatetime = 80
+vim.opt.timeoutlen = 350
+vim.opt.updatetime = 250
 vim.opt.winblend = 0
 vim.opt.pumblend = 0
 vim.opt.fillchars:append({ eob = " ", fold = " ", vert = "│", diff = " " })

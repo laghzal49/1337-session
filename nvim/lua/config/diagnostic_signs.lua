@@ -16,20 +16,20 @@ function M.setup()
 
   local function render(buf)
     if not vim.api.nvim_buf_is_valid(buf) then buffers[buf] = nil; return end
-    local lines, opts = {}, nil
+    local lines = {}
+    -- One explicit display policy; each source's severity filter is applied at ingestion.
+    local opts = { severity_sort = true, signs = { priority = 10, text = {
+      [vim.diagnostic.severity.ERROR] = "", [vim.diagnostic.severity.WARN] = "",
+      [vim.diagnostic.severity.INFO] = "", [vim.diagnostic.severity.HINT] = "",
+    } } }
     for _, source in pairs(buffers[buf] or {}) do
-      opts = source.opts
       for _, diagnostic in ipairs(source.diagnostics) do
         local old = lines[diagnostic.lnum]
         if not old or diagnostic.severity < old.severity then lines[diagnostic.lnum] = diagnostic end
       end
     end
     original.hide(namespace, buf)
-    if opts then
-      opts = vim.deepcopy(opts)
-      if type(opts.signs) == "table" then opts.signs.severity = nil end
-      original.show(namespace, buf, vim.tbl_values(lines), opts)
-    end
+    if next(lines) then original.show(namespace, buf, vim.tbl_values(lines), opts) end
   end
 
   vim.diagnostic.handlers.signs = {
@@ -37,7 +37,7 @@ function M.setup()
       buffers[buf] = buffers[buf] or {}
       local severity = type(opts.signs) == "table" and opts.signs.severity or nil
       buffers[buf][ns] = {
-        diagnostics = vim.tbl_filter(function(d) return allowed(d, severity) end, diagnostics), opts = opts,
+        diagnostics = vim.tbl_filter(function(d) return allowed(d, severity) end, diagnostics),
       }
       render(buf)
     end,

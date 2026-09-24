@@ -24,27 +24,8 @@ return {
           mason = false,
           cmd = { "ty", "server" },
           settings = { ty = {} },
-          before_init = function(_, config)
-            -- Standalone scripts may use packages installed with pip --user.
-            -- Project roots and activated environments keep their own search paths.
-            if
-              (config.root_dir and config.root_dir ~= vim.fn.expand("~"))
-              or vim.env.VIRTUAL_ENV
-              or vim.env.CONDA_PREFIX
-            then
-              return
-            end
-            if vim.fn.isdirectory(vim.fn.getcwd() .. "/.venv") == 1 then
-              return
-            end
-            local result = vim.system({ "python3", "-m", "site", "--user-site" }, { text = true }):wait()
-            local path = vim.trim(result.stdout or "")
-            if result.code == 0 and vim.fn.isdirectory(path) == 1 then
-              config.settings.ty = vim.tbl_deep_extend("force", config.settings.ty or {}, {
-                configuration = { environment = { ["extra-paths"] = { path } } },
-              })
-            end
-          end,
+          root_dir = require("config.python_environment").root_dir,
+          before_init = require("config.python_environment").before_init,
           capabilities = {
             workspace = {
               didChangeWatchedFiles = { dynamicRegistration = true },
