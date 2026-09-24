@@ -432,7 +432,7 @@ return {
         WinSeparator = { fg = "$bg3", bg = "$bg0" },
         Pmenu = { bg = "#0E141D", fg = "#E6B3FF" },
         PmenuSel = { bg = "#1D3B63", fg = "#FFFFFF", fmt = "bold" },
-        PmenuBorder = { fg = "#496B9A", bg = "#0E141D" },
+        PmenuBorder = { fg = "#4FD1C5", bg = "#0E141D" },
         PmenuSbar = { bg = "#10151C" },
         PmenuThumb = { bg = "#354357" },
         CmpItemAbbr = { fg = "#E6B3FF" },

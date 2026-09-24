@@ -47,7 +47,7 @@ return {
         match = '#82AAFF',
         panel = '#0E141D',
         selected = '#1D3B63',
-        thumb = '#496B9A',
+        thumb = '#4FD1C5',
       }
       local function setup_kind_highlights()
         for k, col in pairs(kind_colors) do
