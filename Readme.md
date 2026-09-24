@@ -4,18 +4,18 @@ My 1337 Session Setting: nvim, vscode, zsh and also Zed.
 
 ## Perfect Black Neovim
 
-Pure black editing, adaptive search, quiet icons, and JetBrains Mono Nerd Font
-Mono Italic. Python uses `ty` and Ruff.
+Pure black editing, clearer Python colors, a redesigned documentation panel,
+and a composed status bar. JetBrains Mono with selective italics. Python uses
+`ty` and Ruff.
 
-![1337 workspace](nvim/assets/workspace.png)
+![Python palette and status bar](nvim/assets/python.png)
 
-![Python syntax palette](nvim/assets/python.png)
+![Completion documentation](nvim/assets/documentation.png)
 
-![Perfect Black Neovim with italic JetBrains Mono and adaptive search](nvim/assets/perfect-black.png)
-
-Actual Neovim UI-grid captures, rendered with JetBrains Mono Nerd Font Mono
-Italic and Bold Italic. See the [Neovim guide](nvim/README.md) for shortcuts and
-font setup, or the [design notes](nvim/DESIGN.md) for decisions and test results.
+Actual Neovim UI-grid captures. Python and completion content are demonstration
+fixtures. See the [Neovim guide](nvim/README.md) for command, workspace, and search
+screenshots, shortcuts, and font setup. [Design notes](nvim/DESIGN.md) explain the
+palette, behavior, and testing limits.
 
 ## One-command dev environment (Ubuntu, zero sudo)
 

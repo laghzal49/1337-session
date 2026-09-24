@@ -6,23 +6,31 @@ return {
     opts = {
       -- Completion owns automatic documentation; signatures remain on Ctrl-K.
       lsp = { signature = { enabled = true, auto_open = { enabled = false } } },
-      presets = { command_palette = false },
+      presets = { command_palette = true },
+      cmdline = { format = {
+        cmdline = { icon = "", title = " COMMAND " },
+        lua = { icon = "", title = " LUA " },
+        search_down = { icon = "", title = " SEARCH FORWARD " },
+        search_up = { icon = "", title = " SEARCH BACKWARD " },
+        help = { icon = "", title = " HELP " },
+        filter = { icon = "", title = " SHELL " },
+      } },
       views = {
         cmdline_popup = {
           win_options = { winblend = ui.blend },
-          position = { row = "20%", col = "50%" },
-          size = { min_width = 32, width = "60%", max_width = 90, height = "auto" },
-          border = { style = "solid", padding = { 0, 1 } },
+          position = { row = "25%", col = "50%" },
+          size = { min_width = 32, width = "55%", max_width = 78, height = "auto" },
+          border = { style = "rounded", padding = { 0, 2 } },
         },
         popupmenu = {
           win_options = { winblend = ui.blend },
-          border = { style = "solid", padding = { 0, 1 } },
+          border = { style = "rounded", padding = { 0, 2 } },
           size = { max_height = 8 },
         },
         hover = {
-          border = { style = "solid", padding = { 0, 1 } },
+          border = { style = "rounded", padding = { 0, 2 } },
           size = { max_width = ui.max_width, max_height = ui.max_height },
-          win_options = { wrap = true, linebreak = true, winblend = ui.blend, winhighlight = "Normal:BlackDocs,FloatBorder:BlackDocsBorder" },
+          win_options = { wrap = true, linebreak = true, winblend = ui.blend, winhighlight = "Normal:BlackDocs,FloatBorder:BlackDocsBorder,FloatTitle:BlackDocsTitle" },
         },
         popup = {
           win_options = { winblend = ui.blend },

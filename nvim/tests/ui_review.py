@@ -141,6 +141,41 @@ for width,expected in [(80,False),(140,True)]:
  assert visible==expected,(width,visible)
  call('nvim_command',['Neotree close'])
 print('TREE: narrow closes, wide remains PASS',flush=True)
+# Exercise documentation via the real insert-mode mappings at two viewport sizes.
+call('nvim_exec_lua',[r"""
+local cmp = require('cmp')
+cmp.register_source('ui_review', {
+  complete = function(_, _, callback)
+    callback({ items = {{ label = 'summary', kind = 3, documentation = {
+      kind = 'markdown', value = '```python\ndef summary(values: list[int]) -> int\n```\n\n' .. string.rep('Documentation paragraph with a readable explanation.\n\n', 24),
+    } }}, isIncomplete = false })
+  end,
+})
+""",[]])
+for width,height in [(80,24),(140,42)]:
+ call('nvim_ui_try_resize',[width,height]);pump(.2)
+ call('nvim_command',['enew!'])
+ call('nvim_command',['setfiletype python'])
+ call('nvim_exec_lua',["vim.api.nvim_buf_set_lines(0,0,-1,false,{'# documentation check','','','',''}); vim.api.nvim_win_set_cursor(0,{5,0}); require('cmp').setup.buffer({sources={{name='ui_review'}}})",[]])
+ call('nvim_input',['isum']);pump(.3)
+ call('nvim_exec_lua',["require('cmp').complete()",[]]);pump(.4)
+ call('nvim_exec_lua',["local c=require('cmp'); if not c.get_selected_entry() then c.select_next_item({behavior=c.SelectBehavior.Select}) end",[]]);pump(.2)
+ call('nvim_input',['<C-b>']);pump(.5)
+ assert call('nvim_exec_lua',["return require('cmp').visible_docs()",[]]),width
+ docs=call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='cmp_docs' then return {win=w,config=vim.api.nvim_win_get_config(w)} end end",[]])
+ c=docs['config'];assert c['width']+2<=width and c['height']+2<=height,(width,c)
+ if c['width']>=28: assert 'DOCUMENTATION' in str(c.get('title')),c
+ call('nvim_input',['<C-f>']);pump(.3)
+ assert call('nvim_exec_lua',["return vim.fn.getwininfo(...)[1].topline",[docs['win']]])>1
+ call('nvim_input',['<C-d>']);pump(.2)
+ assert not call('nvim_exec_lua',["return require('cmp').visible_docs()",[]])
+ call('nvim_input',['<Esc>']);pump(.2)
+ call('nvim_input',[':set number']);pump(.3)
+ wins=call('nvim_exec_lua',["local r={} for _,w in ipairs(vim.api.nvim_list_wins()) do local c=vim.api.nvim_win_get_config(w); if c.relative~='' then r[#r+1]=c end end return r",[]])
+ assert all(c['width']<=width and c['height']<=height for c in wins),wins
+ call('nvim_input',['<Esc>']);pump(.2)
+ print('DOCS / COMMAND',width,height,'open, scroll, close and geometry PASS',flush=True)
+
 print('V_ERRORS',call('nvim_eval',['v:errors']),flush=True)
 req('nvim_command',['qa!'])
 pump(.3)

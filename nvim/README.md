@@ -1,88 +1,75 @@
 # Perfect Black Neovim
 
-A LazyVim workspace with a pure black editor, compact search, readable italic
-type, and restrained Nerd Font icons. Python intelligence comes from `ty`,
-with Ruff for linting and formatting.
+Pure black code, clearer Python syntax, a useful documentation panel, and a
+composed status bar. Built on LazyVim with **ty + Ruff** for Python.
+
+## Editing
+
+![Python palette and bottom status bar](assets/python.png)
+
+Upright JetBrains Mono keeps code readable. Comments retain italics. Variables
+are light blue, functions warm gold, types teal, and keywords lavender.
+
+## Completion documentation
+
+![Completion and documentation panel](assets/documentation.png)
+
+A distinct reference surface, symbol icons, readable kind labels, and visible
+keyboard hints. This actual Neovim capture uses a deterministic demo completion
+source, not a live ty response.
+
+## Commands
+
+![Command palette](assets/command.png)
+
+Explicit operation labels, consistent padding, and a subtle outline over code.
+
+## Workspace and search
 
 ![1337 workspace](assets/workspace.png)
 
-![Python syntax palette](assets/python.png)
+![Adaptive project search](assets/perfect-black.png)
 
-![Perfect Black Neovim — adaptive picker and italic JetBrains Mono](assets/perfect-black.png)
+All images are actual Neovim UI-grid captures rendered with the configured font
+faces. Python examples are unsaved demonstration buffers.
 
-Actual Neovim UI-grid captures rendered with JetBrains Mono Nerd Font Mono
-Italic and Bold Italic. No generated mockup or composited interface elements.
+## Keys
 
-## Design
-
-- A two-pane 1337 launch screen pairs direct actions with project-local recent
-  files. Small terminals use a compact single column without the wordmark.
-- Python variables are off-white, members blue-gray, functions blue, keywords
-  lavender, types sand, and values muted green/peach. LSP token overrides keep
-  the main identifier roles consistent with Tree-sitter.
-- The command bar uses a padded charcoal surface. Completion documentation
-  and hover use a quieter surface with no outline glyphs.
-- Full mode names on wide screens and a bold active filename anchor the statusline.
-
-- Search shrinks to its results after matching finishes. The input stays near
-  the top; changing selection does not repeatedly resize a settled list.
-- Filename first, bold; directories muted and long paths shortened in the
-  middle. More horizontal space goes to results than to preview.
-- One cell of filled padding surrounds the picker, with a separate preview
-  fill. There are no visible outline characters.
-- Monochrome language glyphs, outlined folder icons, and chevrons keep the
-  tree quiet. Git state colors its markers instead of entire filenames.
-- Repeated notifications batch; errors share one summary with full session
-  history. One diagnostic sign per line leaves room for its Git marker.
-
-## Shortcuts
-
-`<leader>` is Space in this configuration.
+`<leader>` is Space.
 
 | Action | Keys |
 | --- | --- |
 | Find files | `<leader><space>` |
 | Search project | `<leader>/` |
-| Toggle picker preview | `Ctrl-P` in the input or list |
-| Toggle completion documentation | `Ctrl-D` in completion |
-| Scroll completion documentation | `Ctrl-B` / `Ctrl-F` |
+| Toggle picker preview | `Ctrl-P` in the picker |
+| Toggle completion documentation | `Ctrl-D` |
+| Open/scroll completion documentation | `Ctrl-B` / `Ctrl-F` |
 | Toggle file tree | `<leader>e` |
-| Review notification history | `<leader>n` |
+| Notification history | `<leader>n` |
 | Dismiss live notifications | `<leader>un` |
-| Close history drawer | `q` |
 
-Below 110 columns, the tree closes after you open a file. Search previews
-start hidden on narrow terminals and can be opened with `Ctrl-P`.
+Normal-mode Ctrl-B retains page-up behavior. Documentation shortcuts apply in
+insert/select mode while using completion.
 
-## JetBrains Mono Italic
+## Font and setup
 
-Use **JetBrainsMono Nerd Font Mono**, **Italic**, **13 pt** in your terminal.
-The Mono variant keeps Nerd Font glyphs within terminal cells. Comments also
-request italics in the Neovim theme, so they remain italic with a regular
-terminal font. Neovim itself cannot select the font in a terminal emulator.
+Choose **JetBrainsMono Nerd Font Mono — Regular — 13 pt** in your terminal.
+Comments use Italic and emphasis uses Bold. The repository's
+[Kitty](../dotfiles/.config/kitty/kitty.conf) and
+[Alacritty](../dotfiles/.config/alacritty/alacritty.toml) settings select the real
+font faces. Installing only Neovim's config does not change terminal settings.
 
-The repository's [Kitty config](../dotfiles/.config/kitty/kitty.conf) selects
-`JetBrainsMonoNFM-Italic` and its Bold Italic face. The
-[Alacritty config](../dotfiles/.config/alacritty/alacritty.toml) selects the
-same family and styles at 13 pt. These settings take effect when you apply
-the terminal dotfiles; updating only the Neovim config does not change the
-terminal font.
+See the [repository installation guide](../Readme.md) and the complete
+[design decisions](DESIGN.md).
 
-The [installer](../install.sh) installs the Nerd Font archive and checks that
-both Mono Italic and Bold Italic faces exist. For the cluster terminal, select
-the family/style in the terminal profile's custom font setting after installation.
+## UI checks
 
-## Install and verify
-
-Follow the [repository installation guide](../Readme.md#one-command-dev-environment-ubuntu-zero-sudo).
-With plugins installed, the UI regression suite runs with:
+With plugins installed and Python `msgpack` available:
 
 ```sh
-uv run --with msgpack python nvim/tests/ui_review.py
+NVIM_BIN=/path/to/nvim python3 nvim/tests/ui_review.py
 ```
 
-Run it from the repository root. Set `NVIM_BIN` if needed. The suite uses
-unsaved buffers and checks diagnostics, notification bursts, responsive
-pickers, adaptive sizing, previews, and narrow-screen tree behavior.
-
-See [DESIGN.md](DESIGN.md) for the palette, tradeoffs, and measured test scope.
+Use the same `XDG_DATA_HOME` as your plugin installation if it is nonstandard.
+The suite checks diagnostic collisions, notification overflow, adaptive search,
+large buffers, responsive navigation, and completion-documentation mappings.

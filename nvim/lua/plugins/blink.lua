@@ -7,29 +7,53 @@ return {
     opts = function(_, opts)
       local cmp = require("cmp")
       opts.window = {
-        completion = cmp.config.window.bordered({ border = "solid", side_padding = 1, winblend = require("config.ui").blend, winhighlight = "Normal:BlackDocs,FloatBorder:BlackDocsBorder,CursorLine:PmenuSel,Search:None" }),
+        completion = cmp.config.window.bordered({ border = "rounded", side_padding = 1, winblend = require("config.ui").blend, winhighlight = "Normal:BlackDocs,FloatBorder:BlackDocsBorder,CursorLine:PmenuSel,Search:None" }),
         documentation = cmp.config.window.bordered({
-          border = "solid",
-          winhighlight = "Normal:BlackDocs,FloatBorder:BlackDocsBorder",
+          border = "rounded",
+          winhighlight = "Normal:BlackDocs,FloatBorder:BlackDocsBorder,FloatTitle:BlackDocsTitle,FloatFooter:BlackDocsHint",
           winblend = require("config.ui").blend,
-          max_width = math.min(76, math.floor(vim.o.columns * 0.55)),
+          max_width = 68,
           max_height = require("config.ui").max_height,
         }),
       }
       opts.view = vim.tbl_deep_extend("force", opts.view or {}, { docs = { auto_open = false } })
       -- Ctrl-B/F scroll documentation; Ctrl-D opens or closes it.
-      opts.mapping["<C-b>"] = cmp.mapping.scroll_docs(-4)
-      opts.mapping["<C-f>"] = cmp.mapping.scroll_docs(4)
+      local function scroll_docs(delta)
+        return cmp.mapping(function(fallback)
+          if cmp.visible_docs() then
+            cmp.scroll_docs(delta)
+          elseif cmp.visible() then
+            cmp.open_docs()
+          else
+            return fallback()
+          end
+          require("config.documentation").label()
+        end, { "i", "s" })
+      end
+      opts.mapping["<C-b>"] = scroll_docs(-4)
+      opts.mapping["<C-f>"] = scroll_docs(4)
       opts.mapping["<C-e>"] = cmp.mapping.abort()
       opts.mapping["<C-d>"] = cmp.mapping(function()
-        if cmp.visible_docs() then cmp.close_docs() else cmp.open_docs() end
+        if cmp.visible_docs() then cmp.close_docs() else cmp.open_docs(); require("config.documentation").label() end
       end, { "i", "s" })
       opts.formatting = opts.formatting or {}
-      local format = opts.formatting.format
+      opts.formatting.fields = { "kind", "abbr", "menu" }
+      local kinds = {
+        Text = "", Method = "", Function = "", Constructor = "",
+        Field = "", Variable = "", Class = "", Interface = "",
+        Module = "", Property = "", Unit = "", Value = "",
+        Enum = "", Keyword = "", Snippet = "", Color = "",
+        File = "", Reference = "", Folder = "", EnumMember = "",
+        Constant = "", Struct = "", Event = "", Operator = "", TypeParameter = "",
+      }
       opts.formatting.format = function(entry, item)
-        item = format and format(entry, item) or item
+        local kind = item.kind
+        item.kind = (kinds[kind] or "") .. " "
+        if vim.fn.strdisplaywidth(item.abbr) > 38 then
+          item.abbr = vim.fn.strcharpart(item.abbr, 0, 35) .. "…"
+        end
         local labels = { nvim_lsp = "LSP", buffer = "Buffer", path = "Path", snippets = "Snippet", lazydev = "Lua" }
-        item.menu = labels[entry.source.name] or entry.source.name
+        item.menu = kind .. " · " .. (labels[entry.source.name] or entry.source.name)
         return item
       end
       opts.performance = vim.tbl_deep_extend("force", opts.performance or {}, {

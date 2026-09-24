@@ -21,16 +21,16 @@ return {
       { text = { { "1337", hl = "BlackBrand" }, { "  /  TARIK'S WORKSPACE", hl = "BlackMuted" } }, padding = 1 },
       { text = { { "Build something worth keeping.", hl = "BlackMuted" } }, padding = 2 },
       { text = { { "01   WORKSPACE", hl = "BlackLabel" } }, padding = 1 },
-      action("", "Find a file", "f", ":lua Snacks.picker.files()"),
+      action("", "Find a file", "f", ":lua Snacks.picker.files()"),
       action("", "Search the project", "g", ":lua Snacks.picker.grep()"),
-      action("", "Recent files", "r", ":lua Snacks.picker.recent()"),
+      action("", "Recent files", "r", ":lua Snacks.picker.recent()"),
       action("", "New buffer", "n", ":ene | startinsert"),
-      { section = "session", icon = "", desc = "Restore session", key = "s", padding = 1 },
+      { section = "session", icon = "", desc = "Restore session", key = "s", padding = 1 },
     }
     local pane = wide and 2 or 1
     if wide then
       table.insert(sections, 1, { text = { { " ▄█  ▀▀▀█  ▀▀▀█  █▀▀▀█\n  █   ▄▄█   ▄▄█     █ \n  █     █     █    █  \n ▄█▄ █▄▄█  █▄▄█   █   ", hl = "BlackLabel" } }, padding = 1 })
-      sections[#sections + 1] = { text = { { "BLACK / EDITION 01", hl = "BlackLabel" } }, pane = pane, padding = 1 }
+      sections[#sections + 1] = { text = { { "BLACK / EDITION 02", hl = "BlackLabel" } }, pane = pane, padding = 1 }
       sections[#sections + 1] = { text = { { vim.fn.fnamemodify(vim.fn.getcwd(), ":t"), hl = "BlackBrand" } }, pane = pane, padding = 2 }
     end
     sections[#sections + 1] = { text = { { "02   PICK UP WHERE YOU LEFT OFF", hl = "BlackLabel" } }, pane = pane, padding = 1 }

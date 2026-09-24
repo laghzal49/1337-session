@@ -58,9 +58,9 @@ return {
       local palette = require("onedark.colors")
       local function mode(color)
         return {
-          a = { bg = color, fg = palette.bg0, gui = "bold" },
-          b = { bg = palette.bg1, fg = palette.fg },
-          c = { bg = palette.bg1, fg = palette.fg },
+          a = { bg = "#172333", fg = color, gui = "bold" },
+          b = { bg = "#0A0F16", fg = palette.fg },
+          c = { bg = "#0A0F16", fg = palette.fg },
         }
       end
       opts.options.theme = {
@@ -81,29 +81,21 @@ return {
             color = { fg = palette.red, gui = "bold" },
           },
         },
-        lualine_b = { { "branch", icon = "", cond = function() return vim.o.columns >= 90 end } },
+        lualine_b = {},
         lualine_c = {
-          { "filename", path = 0, color = { fg = palette.fg, gui = "bold" }, symbols = { modified = " ●", readonly = " ", unnamed = "[Untitled]" } },
+          { "filename", path = 0, icon = "", color = { fg = palette.fg, gui = "bold" }, symbols = { modified = " +", readonly = " 󰌾", unnamed = "Untitled" } },
           { "diagnostics", sources = { "nvim_diagnostic" }, sections = { "error", "warn" },
-            symbols = { error = " ", warn = " " } },
+            symbols = { error = " ", warn = " " } },
         },
         lualine_x = {
-          {
-            function()
-              local names = {}
-              for _, client in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
-                if client.name ~= "ruff" then names[#names + 1] = client.name end
-              end
-              table.sort(names)
-              return #names > 0 and ("  " .. table.concat(names, " · ")) or ""
-            end,
-            cond = function() return vim.o.columns >= 115 end,
-            color = { fg = palette.grey },
-          },
-          { "filetype", colored = false, cond = function() return vim.o.columns >= 90 end },
+          { "branch", icon = "", color = { fg = palette.light_grey }, cond = function() return vim.o.columns >= 100 end },
+          { "diff", symbols = { added = "+", modified = "~", removed = "−" }, cond = function() return vim.o.columns >= 115 end },
+          { "filetype", icons_enabled = false, color = { fg = palette.light_grey }, cond = function() return vim.o.columns >= 90 end },
         },
         lualine_y = {},
-        lualine_z = { { "location", color = { bg = palette.bg1, fg = palette.light_grey } } },
+        lualine_z = { { function()
+          return string.format("Ln %d, Col %d", vim.fn.line("."), vim.fn.virtcol("."))
+        end, color = { bg = "#172333", fg = palette.fg } } },
       }
     end,
   },

@@ -193,7 +193,9 @@ fi
 # ============================================================================
 step "2/10 · JetBrainsMono Nerd Font (the UI's icons)"
 # ============================================================================
-if [ -e "$FONTS/JetBrainsMonoNerdFontMono-Italic.ttf" ] \
+if [ -e "$FONTS/JetBrainsMonoNerdFontMono-Regular.ttf" ] \
+    && [ -e "$FONTS/JetBrainsMonoNerdFontMono-Bold.ttf" ] \
+    && [ -e "$FONTS/JetBrainsMonoNerdFontMono-Italic.ttf" ] \
     && [ -e "$FONTS/JetBrainsMonoNerdFontMono-BoldItalic.ttf" ] && [ "$FORCE" = 0 ]; then
   skip "JetBrainsMono Nerd Font"
 else
@@ -381,7 +383,7 @@ fi
 printf '\n%s━━━ done ━━━%s\n\n' "$C_GREEN" "$C_OFF"
 printf '  next steps:\n'
 printf '   1. restart your terminal (or: source ~/.bashrc)\n'
-printf '   2. set your terminal font to %sJetBrainsMono Nerd Font Mono, Italic, 13pt%s\n' "$C_CYAN" "$C_OFF"
+printf '   2. set your terminal font to %sJetBrainsMono Nerd Font Mono, Regular, 13pt%s\n' "$C_CYAN" "$C_OFF"
 printf '   3. run %snvim%s — mason finishes the language tools on first launch\n' "$C_CYAN" "$C_OFF"
 if [ "${#WARNINGS[@]}" -gt 0 ]; then
   printf '\n  warnings to review:\n'
