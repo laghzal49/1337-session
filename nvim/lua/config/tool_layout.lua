@@ -48,8 +48,41 @@ function M.decorate_files(ev)
   vim.wo[ev.data.win_id].winblend = 0
 end
 
+local function create_entry(buf)
+  local row = vim.api.nvim_win_get_cursor(0)[1]
+  vim.api.nvim_buf_set_lines(buf, row, row, false, { '' })
+  vim.api.nvim_win_set_cursor(0, { row + 1, 0 })
+  vim.cmd('startinsert')
+end
+
+local function rename_entry()
+  local entry = require('mini.files').get_fs_entry()
+  if not entry or not entry.name then return end
+  local row = vim.api.nvim_win_get_cursor(0)[1]
+  local line = vim.api.nvim_buf_get_lines(0, row - 1, row, false)[1]
+  local start = line:find(vim.pesc(entry.name), 1)
+  if not start then return end
+  vim.api.nvim_win_set_cursor(0, { row, start - 1 })
+  vim.cmd('startinsert')
+end
+
+local function delete_entry()
+  vim.cmd('normal! dd')
+end
+
 function M.setup()
   local group = vim.api.nvim_create_augroup('ToolLayout', { clear = true })
+  vim.api.nvim_create_autocmd('User', {
+    group = group,
+    pattern = 'MiniFilesBufferCreate',
+    callback = function(ev)
+      local opts = { buffer = ev.data.buf_id, silent = true, desc = '' }
+      vim.keymap.set('n', 'a', function() create_entry(ev.data.buf_id) end,
+        vim.tbl_extend('force', opts, { desc = 'Create file or directory' }))
+      vim.keymap.set('n', 'r', rename_entry, vim.tbl_extend('force', opts, { desc = 'Rename entry' }))
+      vim.keymap.set('n', 'd', delete_entry, vim.tbl_extend('force', opts, { desc = 'Delete entry' }))
+    end,
+  })
   vim.api.nvim_create_autocmd('VimResized', { group = group, callback = function()
     local files = package.loaded['mini.files']
     if files and files.get_explorer_state() then files.refresh(M.files()) end

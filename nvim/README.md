@@ -32,7 +32,8 @@ are intentionally no longer presented as current UI.
 ![Python and compact file browser](assets/python-files.png)
 
 Mini Files uses short directory titles, padded columns and an 18-row cap. Open
-with `<leader>e`; `h`/`l` navigate, `q` closes, and `=` synchronizes file edits.
+with `<leader>e`; `h`/`l` navigate, `a` creates, `r` renames, `d` deletes, `q`
+closes, and `=` synchronizes file edits.
 Python has a clearer active line and quiet active-scope guides.
 
 ## The smaller workflow

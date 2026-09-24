@@ -357,6 +357,7 @@ return {
         markdownRule = { fg = "#354357", fmt = "bold" },
         markdownBlockquote = { fg = "#61708A", fmt = "italic" },
         markdownListMarker = { fg = "#70D7FF" },
+        pdf = { fg = "#D7E3FF" },
 
         -- Render-Markdown plugin highlights
         RenderMarkdownH1 = { fg = "#69AFFF", fmt = "bold" },

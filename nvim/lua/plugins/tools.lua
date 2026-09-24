@@ -116,6 +116,7 @@ return {
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
     keys = {
       { '<leader>um', '<cmd>RenderMarkdown toggle<cr>', ft = 'markdown', desc = 'Toggle Markdown rendering' },
+      { '<leader>mr', '<cmd>RenderMarkdown toggle<cr>', ft = 'markdown', desc = 'Markdown reader mode' },
     },
     opts = {
       file_types = { 'markdown' },
