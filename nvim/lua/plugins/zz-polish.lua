@@ -5,7 +5,7 @@ return {
       dashboard = {
         width = 52,
         preset = {
-          header = "N E O V I M\n\nWorkspace",
+          header = "  1337  /  TARIK",
           keys = {
             { icon = " ", key = "f", desc = "Find a file", action = ":lua Snacks.dashboard.pick('files')" },
             { icon = " ", key = "g", desc = "Search project", action = ":lua Snacks.dashboard.pick('live_grep')" },
@@ -18,9 +18,9 @@ return {
           },
         },
         sections = {
-          { section = "header", padding = 2 },
-          { section = "keys", gap = 1, padding = 2 },
-          { text = "Space u z  ·  Focus     Space /  ·  Search", align = "center", padding = 1 },
+          { section = "header", padding = 1 },
+          { section = "keys", gap = 0, padding = 1 },
+          { icon = " ", title = "Recent", section = "recent_files", limit = 4, indent = 2, padding = 1 },
         },
       },
       zen = {
@@ -62,7 +62,7 @@ return {
         max_name_length = 26,
         tab_size = 22,
         enforce_regular_tabs = false,
-        always_show_bufferline = true,
+        always_show_bufferline = false,
         diagnostics = "nvim_lsp",
         diagnostics_indicator = function(_, _, diag)
           local parts = {}
@@ -95,7 +95,7 @@ return {
       opts.options.section_separators = { left = "", right = "" }
       opts.sections = {
         lualine_a = {
-          "mode",
+          { "mode", fmt = function(value) return value:sub(1, 1) end },
           {
             function() return "REC @" .. vim.fn.reg_recording() end,
             cond = function() return vim.fn.reg_recording() ~= "" end,
@@ -104,12 +104,12 @@ return {
         },
         lualine_b = { { "branch", icon = "", cond = function() return vim.o.columns >= 90 end } },
         lualine_c = {
-          { "filename", path = 1, shorting_target = 35, symbols = { modified = " ●", readonly = " ", unnamed = "[Untitled]" } },
+          { "filename", path = 0, symbols = { modified = " ●", readonly = " ", unnamed = "[Untitled]" } },
           { "diagnostics", sources = { "nvim_diagnostic" }, sections = { "error", "warn" },
             symbols = { error = " ", warn = " " } },
         },
-        lualine_x = { { "diff", cond = function() return vim.o.columns >= 100 end }, { "filetype", colored = true } },
-        lualine_y = { { "progress", cond = function() return vim.o.columns >= 80 end } },
+        lualine_x = { { "filetype", colored = false, cond = function() return vim.o.columns >= 90 end } },
+        lualine_y = {},
         lualine_z = { "location" },
       }
     end,
