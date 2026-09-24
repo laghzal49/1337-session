@@ -9,8 +9,9 @@ return {
         win = { width = 100, backdrop = { transparent = false, blend = 0 } },
       },
       indent = {
-        animate = { enabled = not vim.g.reduce_motion, duration = { step = 10, total = 110 } },
-        scope = { only_current = true },
+        animate = { enabled = false },
+        indent = { char = "│", only_current = true },
+        scope = { enabled = true, only_current = true, char = "│" },
       },
     },
   },

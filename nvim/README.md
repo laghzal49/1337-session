@@ -19,10 +19,19 @@ Search and file panels use a single top rule; the active tab has a blue marker.
 
 ![Command bar](assets/command.png)
 
-These actual UI-grid captures show the retained editing surfaces from the previous
-release. The documentation image uses a demo completion source. The new Mini Pick
+These are actual UI-grid captures. The Python and browser images show this
+revision; documentation and command images retain the previous editing surfaces.
+The documentation image uses a demo completion source. The new Mini Pick
 and Aerial layouts are tested at narrow and wide sizes; older Snacks picker images
 are intentionally no longer presented as current UI.
+
+## File browser beside Python
+
+![Python and compact file browser](assets/python-files.png)
+
+Mini Files uses short directory titles, padded columns and an 18-row cap. Open
+with `<leader>e`; `h`/`l` navigate, `q` closes, and `=` synchronizes file edits.
+Python has a clearer active line and quiet active-scope guides.
 
 ## The smaller workflow
 

@@ -288,3 +288,17 @@ without a complete frame. The active buffer uses a blue vertical marker and fill
 selected surface; the label stays bold and readable. The existing raised mode
 indicator remains the only beveled control. These are static highlights and glyphs:
 no animations, new plugins, shadow windows or extra persistent chrome rows.
+
+## Python and browser spacing refinement
+
+Mini Files keeps its temporary column-browser model but now uses short directory
+names in titles, two-cell outer margins when space permits, and blank side/bottom
+padding. Panels begin below the screen edge and stop at 18 content rows; long
+folders scroll. Narrow screens keep one column. Layout coordinates are derived
+from the current window widths, so repeated updates do not accumulate offsets.
+Python's cursor line has a slightly clearer blue-grey fill. Indent guides stay
+quiet, with a brighter muted-blue active scope and no animation. Syntax colors
+remain unchanged: structure is easier to follow without adding color categories.
+
+Indent guides also initialize for new unsaved code buffers; the upstream default
+starts on file reads, which missed the dashboard-to-new-buffer workflow.

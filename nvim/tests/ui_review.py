@@ -162,6 +162,19 @@ for width,height in [(80,24),(140,42)]:
  call('nvim_input',['<Esc>']);pump(.5)
  print('DOCS / COMMAND',width,height,'open, scroll, close and geometry PASS',flush=True)
 
+call('nvim_exec_lua',["_G.layoutdir=vim.fn.tempname(); vim.fn.mkdir(layoutdir..'/parent/long_directory_name_for_title','p')",[]])
+for width,height in [(140,42),(80,24),(100,30),(140,42)]:
+ call('nvim_ui_try_resize',[width,height]);pump(.2)
+ call('nvim_exec_lua',["local f=require('mini.files'); if not f.get_explorer_state() then f.open(layoutdir,true,require('config.tool_layout').files()) end; f.set_branch({layoutdir,layoutdir..'/parent',layoutdir..'/parent/long_directory_name_for_title'}); f.refresh(require('config.tool_layout').files())",[]]);pump(.3)
+ for repeat in range(3):
+  wins=call('nvim_exec_lua',["local s=require('mini.files').get_explorer_state(); local out={}; for _,w in ipairs(s.windows) do require('config.tool_layout').decorate_files({data={win_id=w.win_id}}); local c=vim.api.nvim_win_get_config(w.win_id); out[#out+1]={row=c.row,col=c.col,width=c.width,height=c.height,title=c.title} end return out",[]])
+  assert len(wins)==(1 if width<100 else 3),wins
+  for w in wins: assert w['col']>=0 and w['row']>=1 and w['col']+w['width']+2<=width and w['row']+w['height']+2<height,w
+  for left,right in zip(wins,wins[1:]): assert left['col']+left['width']+2<=right['col'],wins
+  if repeat: assert wins==previous,'layout drift'
+  previous=wins
+ print('BROWSER',width,height,'bounds, columns, no overlap/drift PASS',flush=True)
+call('nvim_exec_lua',["require('mini.files').close(); vim.fn.delete(layoutdir,'rf')",[]])
 print('PLUGIN INTEGRATION',call('nvim_exec_lua',["return dofile('nvim/tests/plugins_review.lua')",[]]),flush=True)
 call('nvim_exec_lua',["vim.schedule(function() require('config.pick').open('files',{cwd=plugin_review.dir}) end)",[]]);pump(.7)
 call('nvim_input',['renamed']);pump(.5)
