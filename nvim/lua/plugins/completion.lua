@@ -14,11 +14,11 @@ return {
 
       -- Dedicated kind highlight definitions matching the Perfect Black palette
       local kind_colors = {
-        Text = '#A0A0A0',
-        Method = '#82AAFF',
-        Function = '#82AAFF',
-        Constructor = '#7FB4F5',
-        Field = '#B8D7F0',
+        Text = '#A9B9D6',
+        Method = '#69AFFF',
+        Function = '#69AFFF',
+        Constructor = '#7FE3C2',
+        Field = '#70D7FF',
         Variable = '#E6B3FF',
         Class = '#E8D48B',
         Interface = '#93D68F',
@@ -28,7 +28,7 @@ return {
         Value = '#E8D48B',
         Enum = '#E8D48B',
         EnumMember = '#93D68F',
-        Keyword = '#C4A7E7',
+        Keyword = '#C7A6FF',
         Snippet = '#93D68F',
         Color = '#E88B8B',
         File = '#7FB4F5',
@@ -45,7 +45,7 @@ return {
           vim.api.nvim_set_hl(0, 'CmpItemKind' .. k, { fg = col, default = false })
         end
         vim.api.nvim_set_hl(0, 'PmenuSbar', { bg = '#0E141D', default = false })
-        vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = '#2A3649', default = false })
+        vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = '#496B9A', default = false })
       end
       setup_kind_highlights()
       vim.api.nvim_create_autocmd('ColorScheme', {
@@ -56,7 +56,7 @@ return {
       -- Window styling: pure deep surfaces, rounded borders, zero background leakage
       opts.window = {
         completion = cmp.config.window.bordered({
-          border = 'rounded',
+          border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
           side_padding = 1,
           col_offset = 0,
           scrollbar = false,
@@ -64,7 +64,7 @@ return {
           winhighlight = 'Normal:BlackDocs,NormalFloat:BlackDocs,FloatBorder:BlackDocsBorder,CursorLine:PmenuSel,Search:None,EndOfBuffer:BlackDocs',
         }),
         documentation = cmp.config.window.bordered({
-          border = 'rounded',
+          border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
           side_padding = 1,
           scrollbar = false,
           winblend = require('config.ui').blend,

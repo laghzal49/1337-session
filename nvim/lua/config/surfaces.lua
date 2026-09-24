@@ -3,7 +3,9 @@ local M = {
   panel = "#0E141D",
   inset = "#070B10",
   edge = "#25334A",
+  edge_bright = "#496B9A",
   selected = "#14263D",
+  selected_bright = "#1D3B63",
   accent = "#69AFFF",
   text = "#D7E3FF",
   muted = "#61708A",
@@ -15,7 +17,7 @@ function M.highlights()
     for name in names:gmatch("%S+") do h[name] = vim.deepcopy(value) end
   end
   groups("NormalFloat BlackDocs NoiceCmdlinePopup NoicePopupmenu SnacksInputNormal WhichKeyNormal NoicePopup SnacksNotifierHistory", { bg = M.panel, fg = M.text })
-  groups("FloatBorder BlackDocsBorder NoiceCmdlinePopupBorder NoicePopupmenuBorder SnacksInputBorder WhichKeyBorder NoicePopupBorder", { bg = M.panel, fg = M.edge })
+  groups("FloatBorder BlackDocsBorder NoiceCmdlinePopupBorder NoicePopupmenuBorder SnacksInputBorder WhichKeyBorder NoicePopupBorder", { bg = M.panel, fg = M.edge_bright })
   groups("FloatTitle BlackDocsTitle NoiceCmdlinePopupTitle SnacksInputTitle", { bg = M.panel, fg = M.accent, fmt = "bold" })
   groups("BlackRule", { fg = M.edge })
   groups("BufferLineIndicatorSelected", { fg = M.accent, bg = M.selected })
@@ -24,12 +26,12 @@ function M.highlights()
   groups("BlackDocsHint", { bg = M.panel, fg = M.muted })
   groups("PmenuSel NoicePopupmenuSelected ", { bg = M.selected, fg = M.text })
   groups("MiniFilesNormal MiniNotifyNormal GlanceListNormal MiniPickNormal AerialNormal", { bg = M.panel, fg = M.text })
-  groups("MiniFilesBorder MiniNotifyBorder MiniPickBorder", { bg = M.panel, fg = M.edge })
+  groups("MiniFilesBorder MiniNotifyBorder MiniPickBorder", { bg = M.panel, fg = M.edge_bright })
   groups("MiniFilesTitle MiniFilesTitleFocused MiniFilesBorderModified", { bg = M.panel, fg = M.accent, fmt = "bold" })
-  groups("MiniFilesCursorLine GlanceListCursorLine MiniPickMatchCurrent AerialLine", { bg = M.selected, fg = M.text })
+  groups("MiniFilesCursorLine GlanceListCursorLine MiniPickMatchCurrent AerialLine", { bg = M.selected_bright, fg = M.text })
   groups("GlancePreviewNormal GlanceWinBarFilename GlanceWinBarFilepath", { bg = M.inset, fg = M.text })
   groups("GlanceListMatch GlancePreviewMatch MiniPickMatchRanges AerialGuide", { fg = M.accent, fmt = "bold" })
-  groups("MiniPickPrompt MiniPickBorderText", { bg = M.panel, fg = M.accent, fmt = "bold" })
+  groups("MiniPickPrompt MiniPickBorderText MiniFilesTitleFocused", { bg = M.panel, fg = M.accent, fmt = "bold" })
   groups("MiniPickMatchMarked", { bg = M.selected, fg = M.accent })
   for _, kind in ipairs({ "Cmdline", "Lua", "Search", "Help", "Filter", "Calculator", "Input" }) do
     h["NoiceCmdlinePopupTitle" .. kind] = { bg = M.panel, fg = M.accent, fmt = "bold" }

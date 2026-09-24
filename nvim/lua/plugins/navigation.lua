@@ -44,7 +44,7 @@ return {
           return {
             anchor = 'NW',
             relative = 'editor',
-            border = { '', '─', '', '', '', '', '', '' },
+            border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
             width = width,
             height = height,
             row = math.max(0, math.floor((vim.o.lines - height) * 0.3)),

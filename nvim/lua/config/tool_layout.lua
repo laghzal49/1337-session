@@ -25,7 +25,7 @@ function M.decorate_files(ev)
   cfg.row = row
   cfg.col = math.max(0, math.min(2, vim.o.columns - total)) + before
   cfg.height = math.max(1, math.min(cfg.height, 18, vim.o.lines - row - 3))
-  cfg.border = { ' ', '─', ' ', ' ', ' ', ' ', ' ', ' ' }
+  cfg.border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }
   local name = vim.fn.fnamemodify(path, ':t')
   if name == '' then name = '/' end
   local room = math.max(1, cfg.width - 5)
