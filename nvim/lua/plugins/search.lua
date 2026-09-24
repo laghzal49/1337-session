@@ -5,6 +5,11 @@ return {
     opts = {
       picker = {
         prompt = "  ",
+        on_show = function(picker) require("config.picker_layout").attach(picker) end,
+        on_change = function(picker) require("config.picker_layout").queue(picker) end,
+        formatters = {
+          file = { filename_first = true, truncate = "center", min_width = 36, icon_width = 2, git_status_hl = false },
+        },
         layout = {
           preset = function(source)
             local quick = { files = true, buffers = true, recent = true, oldfiles = true, commands = true, keymaps = true }
@@ -19,30 +24,30 @@ return {
             hidden = { "preview" },
             layout = {
               box = "vertical", width = 0.54, height = 0.46, min_width = 48, max_width = 110, max_height = 36,
-              border = "none", backdrop = false,
+              border = "solid", row = 0.15, backdrop = false,
               { win = "input", height = 1, border = "none" },
               { win = "list", border = "none" },
-              { win = "preview", border = "none", height = 0.4 },
+              { win = "preview", border = "solid", height = 0.4 },
             },
           },
           quick_small = {
             hidden = { "preview" },
             layout = {
               box = "vertical", width = 0.92, height = 0.55, max_width = 110, max_height = 36,
-              border = "none", backdrop = false,
+              border = "solid", row = 0.15, backdrop = false,
               { win = "input", height = 1, border = "none" },
               { win = "list", border = "none" },
-              { win = "preview", border = "none", height = 0.4 },
+              { win = "preview", border = "solid", height = 0.4 },
             },
           },
           inspect = {
             layout = {
               box = "vertical", width = 0.90, height = 0.70, max_width = 130, max_height = 36,
-              border = "none", backdrop = false,
+              border = "solid", row = 0.15, backdrop = false,
               { win = "input", height = 1, border = "none" },
               { box = "horizontal",
                 { win = "list", border = "none", width = 0.58 },
-                { win = "preview", border = "none" },
+                { win = "preview", border = "solid" },
               },
             },
           },
@@ -50,10 +55,10 @@ return {
             hidden = { "preview" },
             layout = {
               box = "vertical", width = 0.92, height = 0.78, max_width = 110, max_height = 36,
-              border = "none", backdrop = false,
+              border = "solid", row = 0.15, backdrop = false,
               { win = "input", height = 1, border = "none" },
               { win = "list", border = "none" },
-              { win = "preview", border = "none", height = 0.38 },
+              { win = "preview", border = "solid", height = 0.38 },
             },
           },
         },
@@ -72,7 +77,7 @@ return {
             ["<C-p>"] = { "toggle_preview", mode = { "n", "i" } },
           } },
           list = { keys = { ["<C-p>"] = "toggle_preview" } },
-          preview = { wo = { number = true, relativenumber = false, wrap = false, cursorline = false } },
+          preview = { wo = { number = true, relativenumber = false, signcolumn = "no", foldcolumn = "0", wrap = false, cursorline = false } },
         },
       },
     },

@@ -10,7 +10,9 @@ an action needs attention.
 This is a terminal UI. Cell borders, line height, font size, ligatures, and
 pixel corner radius depend on the terminal; Neovim cannot promise 1 px borders
 or 10 px corners. Use JetBrainsMono Nerd Font in the terminal for the intended
-icons. Nothing in this config changes the terminal's font settings.
+icons. The terminal dotfiles select JetBrainsMono Nerd Font Mono Italic at
+13 pt, with a real Bold Italic face. The installer checks both italic font
+files. Applying only Neovim's configuration does not change terminal fonts.
 
 ## Tokens
 
@@ -67,6 +69,19 @@ other secondary surfaces stay neutral.
   cap at 110 x 36; wide inspection caps at 130 x 36 to reduce path truncation;
   backup files are excluded from file search. Generic selection dialogs retain
   their existing compact borders.
+- **Adaptive proportions:** After matching finishes, the picker height follows
+  result count within its existing viewport cap. A preview keeps a useful
+  minimum height; closing it lets a short list shrink further. The input is
+  anchored near the top so shrinking does not recenter it vertically. Resize
+  hooks are removed when the picker closes.
+- **Spacing and path hierarchy:** A one-cell solid fill border supplies padding
+  without visible outline glyphs. Preview padding uses its own surface color.
+  Filenames come first in bold, with muted directories and middle truncation.
+  File icons remain distinct by shape but share one neutral color. Folder
+  names no longer inherit Git colors; state markers retain semantic colors.
+- **Typography:** The requested terminal style is JetBrains Mono Nerd Font Mono
+  Italic, 13 pt. Comments explicitly request italic in the theme. Actual
+  italic and bold-italic font files are used to render the README capture.
 - **Completion and hover:** Completion shows at most eight items; docs open
   on request. Floats use opaque backgrounds. Borders are cell characters
   where separation is necessary, not simulated glow or shadows.
@@ -157,6 +172,8 @@ LazyVim, Snacks, Neo-tree, and Gitsigns versions.
   buffer creation, diagnostic publication, one edit, and redraw took 167.2 ms
   in this container. This is not a real-project LSP or typing-latency benchmark.
 - Regression checks are saved in `nvim/tests/ui_review.py`.
+- Adaptive search is tested by filtering the same file picker to one result,
+  clearing its query, and checking that preview visibility survives resizing.
 
 ### Remaining limits and rating
 

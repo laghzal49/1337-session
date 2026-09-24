@@ -112,6 +112,21 @@ for width,height in [(80,24),(100,30),(140,42)]:
   for d in before['wins']+after['wins']: assert 0<d['width']<=width and 0<d['height']<=height,d
   call('nvim_exec_lua',['review_picker:close()',[]]);pump(.2)
  print('PICKERS',width,height,'preview toggle and geometry PASS',flush=True)
+# A completed query shrinks the same picker, and clearing it grows it again.
+call('nvim_exec_lua',['_G.review_picker=Snacks.picker.files()',[]]);pump(.7)
+def picker_height():
+ return call('nvim_exec_lua',['return vim.api.nvim_win_get_height(review_picker.layout.root.win)',[]])
+full=picker_height()
+call('nvim_exec_lua',["review_picker.input:set('notifications.lua')",[]]);pump(.7)
+small=picker_height()
+assert small<full,(full,small)
+call('nvim_exec_lua',["review_picker:toggle('preview')",[]]);pump(.3)
+assert not call('nvim_exec_lua',["return review_picker.layout:is_hidden('preview')",[]])
+call('nvim_exec_lua',["review_picker.input:set('')",[]]);pump(.7)
+assert picker_height()>small
+assert not call('nvim_exec_lua',["return review_picker.layout:is_hidden('preview')",[]])
+call('nvim_exec_lua',['review_picker:close()',[]]);pump(.2)
+print('ADAPTIVE: shrinks with results, grows when cleared, preserves preview PASS',flush=True)
 # Synthetic large-buffer cost; this excludes external LSP work and NFS latency.
 stress=call('nvim_exec_lua',["local t=vim.uv.hrtime(); local lines={}; for i=1,20000 do lines[i]='local value_'..i..' = '..i end; vim.api.nvim_buf_set_lines(0,0,-1,false,lines); local a,b={},{}; for i=1,2000 do a[i]={lnum=i-1,col=0,message='warning',severity=2}; b[i]={lnum=i-1,col=0,message='error',severity=1} end; vim.diagnostic.set(review_a,0,a); vim.diagnostic.set(review_b,0,b); vim.api.nvim_buf_set_text(0,10000,0,10000,0,{'-- edited '}); vim.cmd.redraw(); return {ms=(vim.uv.hrtime()-t)/1e6,lines=vim.api.nvim_buf_line_count(0)}",[]])
 assert stress['lines']==20000 and len(signs())==2000,stress

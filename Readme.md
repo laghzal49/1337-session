@@ -2,6 +2,17 @@
 
 My 1337 Session Setting: nvim, vscode, zsh and also Zed.
 
+## Perfect Black Neovim
+
+Pure black editing, adaptive search, quiet icons, and JetBrains Mono Nerd Font
+Mono Italic. Python uses `ty` and Ruff.
+
+![Perfect Black Neovim with italic JetBrains Mono and adaptive search](nvim/assets/perfect-black.png)
+
+Actual Neovim UI-grid capture, rendered with JetBrains Mono Nerd Font Mono
+Italic and Bold Italic. See the [Neovim guide](nvim/README.md) for shortcuts and
+font setup, or the [design notes](nvim/DESIGN.md) for decisions and test results.
+
 ## One-command dev environment (Ubuntu, zero sudo)
 
 ```sh

@@ -63,16 +63,17 @@ return {
         },
       },
       default_component_configs = {
+        name = { use_git_status_colors = false },
         indent = {
           with_expanders = true,
           indent_size = 2,
           padding = 1,
-          expander_collapsed = "",
-          expander_expanded = "",
+          expander_collapsed = "",
+          expander_expanded = "",
           indent_marker = "│",
           last_indent_marker = "└",
         },
-        icon = { folder_closed = "", folder_open = "", folder_empty = "󰜌", default = "󰈙" },
+        icon = { folder_closed = "", folder_open = "", folder_empty = "", default = "" },
         modified = { symbol = "●" },
         git_status = {
           symbols = {

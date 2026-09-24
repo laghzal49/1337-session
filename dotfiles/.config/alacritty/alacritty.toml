@@ -21,11 +21,11 @@ history = 10000
 multiplier = 3
 
 [font]
-normal = { family = "JetBrainsMono Nerd Font", style = "Italic" }
-bold = { family = "JetBrainsMono Nerd Font", style = "Bold Italic" }
-italic = { family = "JetBrainsMono Nerd Font", style = "Italic" }
-bold_italic = { family = "JetBrainsMono Nerd Font", style = "Bold Italic" }
-size = 12.0
+normal = { family = "JetBrainsMono Nerd Font Mono", style = "Italic" }
+bold = { family = "JetBrainsMono Nerd Font Mono", style = "Bold Italic" }
+italic = { family = "JetBrainsMono Nerd Font Mono", style = "Italic" }
+bold_italic = { family = "JetBrainsMono Nerd Font Mono", style = "Bold Italic" }
+size = 13.0
 
 [colors]
 draw_bold_text_with_bright_colors = true
