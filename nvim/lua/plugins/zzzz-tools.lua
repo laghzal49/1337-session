@@ -6,9 +6,9 @@ return {
     keys = {
       { "<leader>fm", function()
         local path = vim.api.nvim_buf_get_name(0)
-        require("mini.files").open(vim.uv.fs_stat(path) and path or LazyVim.root(), true)
+        require("mini.files").open(vim.uv.fs_stat(path) and path or LazyVim.root(), true, require("config.tool_layout").files())
       end, desc = "Browse current file (Mini Files)" },
-      { "<leader>fM", function() require("mini.files").open(LazyVim.root(), true) end, desc = "Browse project (Mini Files)" },
+      { "<leader>fM", function() require("mini.files").open(LazyVim.root(), true, require("config.tool_layout").files()) end, desc = "Browse project (Mini Files)" },
     },
     opts = { options = { use_as_default_explorer = false }, windows = {
       max_number = 3, preview = false, width_focus = 36, width_nofocus = 16,
@@ -56,7 +56,7 @@ return {
       { "<leader>cgi", "<cmd>Glance implementations<cr>", desc = "Peek implementation" },
     },
     opts = function() return {
-      height = math.min(16, math.max(6, vim.o.lines - 8)),
+      height = 12,
       border = { enable = false }, theme = { enable = false },
     } end,
   },
@@ -67,7 +67,11 @@ return {
       { "<leader>cs", "<cmd>Namu symbols<cr>", desc = "Symbol navigator (Namu)" },
       { "<leader>cS", "<cmd>Namu workspace<cr>", desc = "Workspace symbols (Namu)" },
     },
-    opts = {},
+    opts = { namu_symbols = { options = { window = {
+      min_width = 20, max_width = 90, max_height = 30,
+      width_ratio = 0.8, height_ratio = 0.6, padding = 1,
+      border = "none", title_prefix = "", show_footer = false,
+    } } } },
   },
   {
     "Wansmer/treesj",

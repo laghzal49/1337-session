@@ -1,0 +1,26 @@
+-- MINI_NOTIFY_PATH=/path/to/mini.notify nvim --headless -u NONE -l nvim/tests/notifications_review.lua
+package.path = vim.fn.getcwd() .. '/nvim/lua/?.lua;' .. package.path
+vim.opt.rtp:append(assert(vim.env.MINI_NOTIFY_PATH))
+local m = require('config.notifications')
+m.setup()
+m.notify('sticky original', vim.log.levels.ERROR)
+for i = 1, 1100 do m.notify('burst ' .. i, vim.log.levels.INFO) end
+local stats = m.stats()
+assert(stats.retained == 500 and stats.discarded == 601, vim.inspect(stats))
+assert(#require('mini.notify').get_all() <= 500)
+local active = vim.tbl_filter(function(n) return not n.ts_remove end, require('mini.notify').get_all())
+local display = m.sort(active)
+assert(#display <= 3 and display[1].msg:find('sticky original', 1, true))
+assert(display[1].data.error_count == 1)
+m.notify('new sticky after rollover', vim.log.levels.ERROR)
+vim.wait(3300, function() return false end)
+active = vim.tbl_filter(function(n) return not n.ts_remove end, require('mini.notify').get_all())
+display = m.sort(active)
+assert(#display == 1 and display[1].data.error_count == 2, 'old timers removed a recycled error ID or transient toasts did not expire')
+m.history()
+assert(vim.bo.filetype == 'mininotify-history')
+assert(vim.api.nvim_buf_get_lines(0,0,1,false)[1]:find('602 older records discarded',1,true))
+assert(vim.wait(6500, function()
+  return #vim.tbl_filter(function(n) return not n.ts_remove end, require('mini.notify').get_all()) == 0
+end), 'dismissed notifications became active again')
+print('NOTIFICATIONS: 1102-message burst, bounded backend/history, sticky errors, drawer PASS')

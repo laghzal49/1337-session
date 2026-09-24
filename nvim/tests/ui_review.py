@@ -187,12 +187,20 @@ for width,height in [(80,24),(140,42)]:
  print('DOCS / COMMAND',width,height,'open, scroll, close and geometry PASS',flush=True)
 
 print('PLUGIN INTEGRATION',call('nvim_exec_lua',["return dofile('nvim/tests/plugins_review.lua')",[]]),flush=True)
-call('nvim_command',['Glance references']);pump(.6)
-assert call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype:match('^Glance') then return true end end return false",[]])
-call('nvim_exec_lua',["require('glance').actions.close()",[]]);pump(.2)
-call('nvim_command',['Namu symbols']);pump(.8)
-assert call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype:lower():match('namu') then return true end end return false",[]])
-call('nvim_input',['<Esc>']);pump(.3)
+for width,height in [(80,24),(140,42)]:
+ call('nvim_ui_try_resize',[width,height]);pump(.3)
+ call('nvim_exec_lua',["require('mini.files').open(plugin_review.dir,true,require('config.tool_layout').files())",[]]);pump(.3)
+ files=call('nvim_exec_lua',["local r={} for _,w in ipairs(vim.api.nvim_list_wins()) do local c=vim.api.nvim_win_get_config(w); if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='minifiles' then r[#r+1]=c end end return r",[]])
+ assert files and all(c['width']<=width-4 and c['height']<=height-2 for c in files),files
+ call('nvim_exec_lua',["require('mini.files').close()",[]]);pump(.2)
+ for command,ft in [('Glance references','glance'),('Namu symbols','namu')]:
+  call('nvim_command',[command]);pump(.8)
+  panels=call('nvim_exec_lua',["local r={} for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype:lower():match(...) then r[#r+1]={vim.api.nvim_win_get_width(w),vim.api.nvim_win_get_height(w)} end end return r",[ft]])
+  assert panels and all(c[0]<=width and c[1]<=height-2 for c in panels),(command,panels)
+  if ft=='glance':call('nvim_exec_lua',["require('glance').actions.close()",[]])
+  else:call('nvim_input',['<Esc>'])
+  pump(.3)
+ print('TOOL PANELS',width,height,'Mini Files, Glance, Namu PASS',flush=True)
 call('nvim_exec_lua',["vim.api.nvim_set_current_buf(plugin_review.buf); vim.api.nvim_win_set_cursor(0,{3,5})",[]])
 call('nvim_input',[':IncRename renamed']);pump(.6)
 call('nvim_input',['<CR>']);pump(.6)

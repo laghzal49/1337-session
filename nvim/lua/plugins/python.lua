@@ -23,7 +23,7 @@ return {
           enabled = true,
           mason = false,
           cmd = { "ty", "server" },
-          settings = { ty = {} },
+          settings = { ty = vim.empty_dict() },
           root_dir = require("config.python_environment").root_dir,
           before_init = require("config.python_environment").before_init,
           capabilities = {

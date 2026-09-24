@@ -27,6 +27,7 @@ end
 function M.root_dir(buf, on_dir)
   local project = vim.fs.root(buf, markers)
   local root = project or vim.fn.getcwd()
+  root = vim.uv.fs_realpath(root) or root
   if (project and project ~= vim.fn.expand("~")) or vim.env.VIRTUAL_ENV or vim.env.CONDA_PREFIX
     or vim.fn.isdirectory(root .. "/.venv") == 1 then
     roots[root] = false

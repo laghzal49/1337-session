@@ -78,7 +78,9 @@ Tiny Inline Diagnostic displays full, wrapped cursor-line messages and stays
 quiet while typing. Mini Notify owns notifications: info lasts 3 seconds,
 warnings 6 seconds, and errors persist until history is opened or notifications
 are dismissed. At most three grouped entries are displayed in one window;
-every original message stays in session history.
+the latest 500 original messages stay in session history. The drawer reports how
+many older records were discarded. Individual messages are capped at 16 KiB;
+unacknowledged error counts survive history rollover. History is session-only.
 
 Colorful Menu enriches completion when possible, with plain-label fallback.
 The upstream plugin does not list a dedicated ty formatter: this integration
@@ -124,3 +126,39 @@ nvim --headless -u NONE -l nvim/tests/python_environment.lua
 
 Standalone Python user-package discovery is asynchronous and cached. Project
 roots and active environments keep their normal discovery behavior.
+
+## Choose navigation by task
+
+| Task | Shortcut | Tool |
+|---|---|---|
+| Find a file by name | `<leader><space>` | Search picker |
+| Find text across the project | `<leader>/` | Search picker |
+| Rename/move nearby files | `<leader>fm` | Mini Files |
+| Keep the project hierarchy visible | `<leader>e` | Neo-tree |
+| Find a symbol in this file | `<leader>cs` | Namu |
+| Read references without leaving the code | `<leader>cgr` | Glance |
+
+Start with file/text search. Open other tools for the tasks above; none needs to
+remain open. Mini Files uses one column below 100 terminal columns and refreshes
+its layout when the terminal resizes. Namu uses a compact borderless surface;
+Glance caps its peek height at 12 rows to leave surrounding code visible.
+
+## Real Python and performance checks
+
+Run from the repository root with `ty` and Python's `venv` available:
+
+```sh
+NVIM_TY=/path/to/ty nvim --headless -u NONE -l nvim/tests/real_ty.lua
+python3 nvim/tests/startup_bench.py --runs 5
+MINI_NOTIFY_PATH=/path/to/mini.notify nvim --headless -u NONE -l nvim/tests/notifications_review.lua
+```
+
+The real-server fixture tests completion, hover, rename, hints, diagnostics and
+an installed `.venv` dependency through a project-directory symlink. It uses a
+temporary project, not your RAG project. Roots resolve to their physical path so
+aliases do not create inconsistent project identities. Start Neovim after activating
+an environment; after changing environments in a running session, restart the LSP.
+
+The startup benchmark measures headless configuration startup with existing caches.
+Run it on the cluster using its installed plugins and normal `XDG_DATA_HOME`.
+It does not measure cold NFS caches, typing latency, or server response time.

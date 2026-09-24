@@ -45,6 +45,18 @@ config = { root_dir = root, settings = { ty = {} } }
 m.before_init({}, config)
 assert(config.settings.ty.configuration == nil, "projects must retain native discovery")
 assert(requests == 1)
+local alias = dir .. "-desk"
+assert(vim.uv.fs_symlink(dir, alias))
+vim.api.nvim_buf_set_name(buf, alias .. "/example.py")
+m.root_dir(buf, function(value) root = value end)
+assert(root == vim.uv.fs_realpath(dir), "symlink roots must share the physical project")
+vim.fn.delete(alias)
+vim.env.CONDA_PREFIX = dir .. "/conda"
+m.root_dir(buf, function(value) root = value end)
+config = { root_dir = root, settings = { ty = {} } }
+m.before_init({}, config)
+assert(config.settings.ty.configuration == nil, "Conda environment must retain native discovery")
+vim.env.CONDA_PREFIX = nil
 
 package.loaded["config.python_environment"] = nil
 local failure = require("config.python_environment")

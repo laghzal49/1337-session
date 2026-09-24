@@ -190,5 +190,45 @@ load on VeryLazy; Endhints loads on LspAttach; Colorful Menu follows completion.
 - Endhints preserves the existing inlay-hints toggle; it does not invent type data.
 
 All new panels reuse the existing black/blue surface palette where their APIs permit.
-Namu is a pinned beta dependency. Notification history remains session-only and
-unbounded. The synthetic test LSP verifies UI integration, not real ty behavior.
+Namu is a pinned beta dependency. Notification history is session-only and bounded
+as described below. The synthetic test LSP verifies UI integration; a separate
+real-ty fixture verifies language-server behavior.
+
+## Reliability review — 2026-09-24
+
+The previous integration added useful capabilities but overestimated its evidence:
+mock LSP success did not establish real Python behavior, fixed panel sizes were
+only partially tested, and retaining every notification was unbounded memory use.
+
+Changes and tradeoffs:
+
+- **Python correctness:** real ty 0.0.84 exposed a symlink-root diagnostic failure.
+  Canonical project roots fixed the fixture. Empty settings now use an explicit
+  JSON object rather than an array, avoiding ty's deserialization warning.
+  Native `.venv`/activated-environment discovery remains authoritative. Tests cover
+  a temporary installed package reached through a project symlink. Actual desk
+  migration and the user's RAG repository remain outside this workspace's evidence.
+- **Notification retention:** 500 original records, 16 KiB maximum per message,
+  visible discard count. Mini Notify's internal history is compacted using its
+  public setup API, retaining at most three active display groups and the pending
+  error count. Timer generations prevent old callbacks removing recycled IDs;
+  preserved deadlines prevent compaction extending transient toast lifetime.
+  Older error details can age out; the error summary persists until acknowledged.
+  This is an explicit bounded journal, not a permanent audit log.
+- **Panel restraint:** Mini Files shows one column below 100 columns and updates on
+  resize. Namu removes ornamental border/footer and uses proportional dimensions.
+  Glance leaves code context by capping the peek at 12 rows. Terminal-cell geometry
+  is used; pixel-radius promises would be misleading in a terminal.
+- **Navigation:** file/text search is the default route; Mini Files manages nearby
+  files, Neo-tree shows hierarchy, Namu navigates symbols, Glance peeks references.
+  Keeping all requested plugins still carries maintenance cost. They remain lazy
+  loaded where appropriate; the README now explains when each earns its place.
+- **Performance evidence:** five headless starts on this workspace, Neovim 0.12.5,
+  existing plugin caches: 49.859, 45.365, 51.606, 52.647, 47.133 ms; median 49.859 ms.
+  The synthetic 20,000-line/4,000-diagnostic/2,000-sign operation took 143.5 ms in
+  the first review run. These are local measurements, not a cluster guarantee.
+  A repeatable startup script is included for target-machine measurement.
+
+Still imperfect: Namu is beta, Colorful Menu uses generic ty formatting, terminal
+font rendering varies, and actual cluster cold-start/interactive latency needs
+measurement there. Adding more plugins would not resolve those limits.
