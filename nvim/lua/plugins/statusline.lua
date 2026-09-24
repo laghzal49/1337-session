@@ -115,6 +115,7 @@ return {
             sources = { 'nvim_diagnostic' },
             sections = { 'error', 'warn' },
             symbols = { error = '  ', warn = '  ' },
+            color = { fg = palette.light_grey },
           },
           -- LSP status spinner/indicator: clean animated braille progress
           {
@@ -138,6 +139,15 @@ return {
             icon = '',
             color = { fg = palette.light_grey },
             cond = function() return vim.o.columns >= 100 end,
+          },
+          {
+            function()
+              local clients = vim.lsp.get_clients({ bufnr = 0 })
+              if #clients == 0 then return '' end
+              return '󰒋 ' .. (#clients == 1 and clients[1].name or (#clients .. ' LSP'))
+            end,
+            color = { fg = palette.cyan },
+            cond = function() return vim.o.columns >= 105 end,
           },
           {
             'diff',
