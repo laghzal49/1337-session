@@ -181,12 +181,12 @@ return {
     config = function(_, opts)
       require('glance').setup(opts)
       local s = require('config.surfaces')
-      vim.api.nvim_set_hl(0, 'GlanceWinBarTitle', { bg = s.panel, fg = s.accent, bold = true })
+      vim.api.nvim_set_hl(0, 'GlanceWinBarTitle', { bg = s.panel, fg = s.panel_accent, bold = true })
       vim.api.nvim_set_hl(0, 'GlanceWinBarFilename', { bg = s.inset, fg = s.text, bold = true })
       vim.api.nvim_set_hl(0, 'GlanceWinBarFilepath', { bg = s.inset, fg = s.muted })
-      vim.api.nvim_set_hl(0, 'GlanceBorderTop', { bg = s.panel, fg = s.edge })
-      vim.api.nvim_set_hl(0, 'GlanceListBorderBottom', { bg = s.panel, fg = s.edge })
-      vim.api.nvim_set_hl(0, 'GlancePreviewBorderBottom', { bg = s.inset, fg = s.edge })
+      vim.api.nvim_set_hl(0, 'GlanceBorderTop', { bg = s.panel, fg = s.edge_bright })
+      vim.api.nvim_set_hl(0, 'GlanceListBorderBottom', { bg = s.panel, fg = s.edge_bright })
+      vim.api.nvim_set_hl(0, 'GlancePreviewBorderBottom', { bg = s.inset, fg = s.edge_bright })
     end,
   },
   {

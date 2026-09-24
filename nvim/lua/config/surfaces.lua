@@ -8,6 +8,7 @@ local M = {
   selected = "#14263D",
   selected_bright = "#173B4A",
   accent = "#69AFFF",
+  panel_accent = "#4FD1C5",
   text = "#D7E3FF",
   muted = "#61708A",
 }
@@ -28,11 +29,11 @@ function M.highlights()
   groups("PmenuSel NoicePopupmenuSelected ", { bg = M.selected, fg = M.text })
   groups("MiniFilesNormal MiniNotifyNormal GlanceListNormal MiniPickNormal AerialNormal", { bg = M.panel, fg = M.text })
   groups("MiniFilesBorder MiniNotifyBorder MiniPickBorder AerialBorder GlanceBorderTop GlanceListBorderBottom GlancePreviewBorderBottom", { bg = M.panel, fg = M.edge_bright })
-  groups("MiniFilesTitle MiniFilesTitleFocused MiniFilesBorderModified", { bg = M.panel, fg = M.accent, fmt = "bold" })
+  groups("MiniFilesTitle MiniFilesTitleFocused MiniFilesBorderModified", { bg = M.panel, fg = M.panel_accent, fmt = "bold" })
   groups("MiniFilesCursorLine GlanceListCursorLine MiniPickMatchCurrent AerialLine", { bg = M.selected_bright, fg = M.text, fmt = "bold" })
   groups("GlancePreviewNormal GlanceWinBarFilename GlanceWinBarFilepath MiniPickPreviewNormal", { bg = M.inset, fg = M.text })
-  groups("GlanceListMatch GlancePreviewMatch MiniPickMatchRanges AerialGuide", { fg = M.accent, fmt = "bold" })
-  groups("MiniPickPrompt MiniPickPromptPrefix MiniPickPromptCaret MiniPickBorderText MiniPickHeader MiniFilesTitleFocused", { bg = M.panel, fg = M.accent, fmt = "bold" })
+  groups("GlanceListMatch GlancePreviewMatch MiniPickMatchRanges AerialGuide", { fg = M.panel_accent, fmt = "bold" })
+  groups("MiniPickPrompt MiniPickPromptPrefix MiniPickPromptCaret MiniPickBorderText MiniPickHeader MiniFilesTitleFocused", { bg = M.panel, fg = M.panel_accent, fmt = "bold" })
   groups("MiniPickPreviewBorder", { bg = M.inset, fg = M.edge_soft })
   groups("MiniPickPreviewLine", { bg = M.selected, fg = M.text })
   groups("MiniPickMatchMarked", { bg = M.selected, fg = M.accent, fmt = "bold" })
