@@ -6,7 +6,9 @@
 vim.opt.termguicolors = true
 vim.opt.background = "dark"
 vim.opt.number = true
-vim.opt.signcolumn = "yes:1"
+-- Keep one sign slot; add a second when multiple signs share a line.
+vim.opt.signcolumn = "auto:1-2"
+vim.opt.statuscolumn = "" -- Native rendering honors the dynamic sign width.
 vim.opt.laststatus = 3
 vim.opt.cmdheight = 0
 vim.opt.timeoutlen = 120

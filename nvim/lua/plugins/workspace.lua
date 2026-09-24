@@ -74,7 +74,7 @@ return {
             renamed = "➜",
             untracked = "?",
             ignored = "·",
-            unstaged = "!",
+            unstaged = "", -- Change type already carries this information.
             staged = "✓",
             conflict = "",
           },

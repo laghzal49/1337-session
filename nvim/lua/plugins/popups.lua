@@ -1,5 +1,6 @@
 local ui = require("config.ui")
 local active_notifications = {}
+local notification_priority = { trace = 0, debug = 1, info = 2, warn = 3, error = 4 }
 
 return {
   {
@@ -35,6 +36,9 @@ return {
   },
   {
     "folke/snacks.nvim",
+    keys = {
+      { "<leader>n", function() Snacks.notifier.show_history() end, desc = "Notification history drawer" },
+    },
     opts = {
       input = {
         enabled = true,
@@ -48,9 +52,24 @@ return {
             if notif.level == "warn" then notif.timeout = 6000 end
             if notif.level == "error" then notif.timeout = 0 end
           end
-          active_notifications[#active_notifications + 1] = notif.id
+          -- History keeps every toast. Cap only the live stack, and keep
+          -- errors visible ahead of informational notifications.
+          active_notifications = vim.tbl_filter(function(item)
+            return not item.hidden and item.id ~= notif.id
+          end, active_notifications)
+          active_notifications[#active_notifications + 1] = notif
           if #active_notifications > 3 then
-            Snacks.notifier.hide(table.remove(active_notifications, 1))
+            local oldest = 1
+            for i, item in ipairs(active_notifications) do
+              if notification_priority[item.level] < notification_priority[active_notifications[oldest].level] then
+                oldest = i
+              end
+            end
+            local removed = table.remove(active_notifications, oldest)
+            if removed == notif then
+              return false -- Retained in history; live slots have higher severity.
+            end
+            Snacks.notifier.hide(removed.id)
           end
           return true
         end,
@@ -59,7 +78,10 @@ return {
       },
       styles = {
         notification = { border = ui.border, wo = { winblend = ui.blend, wrap = true } },
-        notification_history = { border = ui.border },
+        notification_history = {
+          position = "bottom", height = 0.35, width = 0, border = "none",
+          wo = { wrap = true, winblend = 0, winbar = "  Notification history · q to close" },
+        },
       },
       picker = {
         layouts = {
