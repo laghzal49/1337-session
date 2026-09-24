@@ -8,6 +8,8 @@ Pure-black code, italic comments, opaque panels, and **ty + Ruff** for Python.
 
 ![Decorated workspace dashboard](assets/workspace.png)
 
+![Perfect Black live dashboard](assets/perfect-black-ui.png)
+
 Blue-tipped section rules, matching icons, and a compact layout at 80×24.
 Search and file panels use a single top rule; the active tab has a blue marker.
 
