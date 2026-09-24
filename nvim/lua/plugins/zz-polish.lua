@@ -26,7 +26,7 @@ return {
         win = { width = 100, backdrop = { transparent = false, blend = 0 } },
       },
       indent = {
-        animate = { duration = { step = 12, total = 180 } },
+        animate = { enabled = not vim.g.reduce_motion, duration = { step = 10, total = 110 } },
         scope = { only_current = true },
       },
     },
@@ -39,6 +39,7 @@ return {
         severity_sort = true,
         virtual_text = {
           spacing = 2, prefix = "●", source = false,
+          severity = { min = vim.diagnostic.severity.ERROR },
           format = function(diagnostic)
             local message = diagnostic.message:gsub("%s+", " ")
             return vim.fn.strchars(message) > 65 and (vim.fn.strcharpart(message, 0, 62) .. "…") or message

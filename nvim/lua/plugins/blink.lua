@@ -16,7 +16,7 @@ return {
           max_height = require("config.ui").max_height,
         }),
       }
-      opts.view = vim.tbl_deep_extend("force", opts.view or {}, { docs = { auto_open = true } })
+      opts.view = vim.tbl_deep_extend("force", opts.view or {}, { docs = { auto_open = false } })
       opts.mapping["<C-e>"] = cmp.mapping.abort()
       opts.mapping["<C-d>"] = cmp.mapping(function()
         if cmp.visible_docs() then cmp.close_docs() else cmp.open_docs() end

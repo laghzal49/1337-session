@@ -3,7 +3,6 @@ return {
     "snacks.nvim",
     opts = {
       terminal = { win = { position = "bottom", height = 0.30, border = "rounded" } },
-      scroll = { enabled = true },
       styles = {
         notification = { border = "rounded", wo = { winblend = 0 } },
       },
@@ -34,7 +33,7 @@ return {
       popup_border_style = "rounded",
       window = { width = 30, position = "left" },
       source_selector = {
-        winbar = true,
+        winbar = false,
         statusline = false,
         sources = {
           { source = "filesystem", display_name = "󰉋 Files" },
@@ -43,9 +42,17 @@ return {
         },
       },
       filesystem = {
-        filtered_items = { hide_dotfiles = false, hide_gitignored = true, hide_by_name = { ".git", "__pycache__" } },
+        filtered_items = { show_hidden_count = false, hide_dotfiles = false, hide_gitignored = true, hide_by_name = { ".git", "__pycache__" }, hide_by_pattern = { "*.bak-*" } },
         follow_current_file = { enabled = true },
         group_empty_dirs = true,
+        components = {
+          name = function(config, node, state)
+            if node:get_depth() == 1 and node.type == "directory" then
+              return { text = "  " .. vim.fn.fnamemodify(node.path, ":t"), highlight = "NeoTreeRootName" }
+            end
+            return require("neo-tree.sources.common.components").name(config, node, state)
+          end,
+        },
       },
       default_component_configs = {
         indent = {

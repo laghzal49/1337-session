@@ -30,7 +30,7 @@ require("lazy").setup({
     version = false, -- always use the latest git commit
     -- version = "*", -- try installing the latest stable version for plugins that support semver
   },
-  install = { colorscheme = { "tokyonight", "habamax" } },
+  install = { colorscheme = { "onedark", "habamax" } },
   ui = { border = require("config.ui").border },
   checker = {
     enabled = false, -- check manually with :Lazy check

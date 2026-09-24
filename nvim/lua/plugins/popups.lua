@@ -1,4 +1,5 @@
 local ui = require("config.ui")
+local active_notifications = {}
 
 return {
   {
@@ -41,6 +42,18 @@ return {
       },
       notifier = {
         enabled = true, style = "compact", timeout = 3000,
+        level = vim.log.levels.INFO,
+        filter = function(notif)
+          if notif.timeout == 3000 then
+            if notif.level == "warn" then notif.timeout = 6000 end
+            if notif.level == "error" then notif.timeout = 0 end
+          end
+          active_notifications[#active_notifications + 1] = notif.id
+          if #active_notifications > 3 then
+            Snacks.notifier.hide(table.remove(active_notifications, 1))
+          end
+          return true
+        end,
         width = { min = 24, max = 0.35 }, height = { min = 1, max = 0.25 },
         margin = { top = 1, right = 1, bottom = 0 }, padding = true,
       },

@@ -1,14 +1,39 @@
+-- Quick navigation leaves the editor visible. Project searches keep a preview.
 return {
   {
     "folke/snacks.nvim",
     opts = {
       picker = {
         prompt = "  ",
-        layout = { preset = function() return vim.o.columns >= 110 and "workspace" or "workspace_small" end },
+        layout = {
+          preset = function(source)
+            local quick = { files = true, buffers = true, recent = true, oldfiles = true, commands = true, keymaps = true }
+            if quick[source] then
+              return vim.o.columns >= 90 and "quick" or "quick_small"
+            end
+            return vim.o.columns >= 110 and "inspect" or "inspect_small"
+          end,
+        },
         layouts = {
-          workspace = {
+          quick = {
             layout = {
-              box = "vertical", width = 0.78, height = 0.72,
+              box = "vertical", width = 0.54, height = 0.46, min_width = 48,
+              border = require("config.ui").border, title = "   {title} ", title_pos = "left", backdrop = false,
+              { win = "input", height = 1, border = "bottom" },
+              { win = "list", border = "none" },
+            },
+          },
+          quick_small = {
+            layout = {
+              box = "vertical", width = 0.92, height = 0.55,
+              border = require("config.ui").border, title = "   {title} ", title_pos = "left", backdrop = false,
+              { win = "input", height = 1, border = "bottom" },
+              { win = "list", border = "none" },
+            },
+          },
+          inspect = {
+            layout = {
+              box = "vertical", width = 0.78, height = 0.70,
               border = require("config.ui").border, title = "   {title} ", title_pos = "left", backdrop = false,
               { win = "input", height = 1, border = "bottom" },
               { box = "horizontal",
@@ -17,24 +42,24 @@ return {
               },
             },
           },
-          workspace_small = {
+          inspect_small = {
             layout = {
-              box = "vertical", width = 0.92, height = 0.72,
-              border = require("config.ui").border, title = " {title} ", title_pos = "left", backdrop = false,
+              box = "vertical", width = 0.92, height = 0.78,
+              border = require("config.ui").border, title = "   {title} ", title_pos = "left", backdrop = false,
               { win = "input", height = 1, border = "bottom" },
               { win = "list", border = "none" },
-              { win = "preview", border = "top", height = 0.36, title = " {preview} " },
+              { win = "preview", border = "top", height = 0.38, title = " {preview} " },
             },
           },
         },
         sources = {
-          files = { hidden = true, ignored = false, title = "Find files" },
+          files = { hidden = true, ignored = false, title = "Files" },
           grep = { hidden = true, ignored = false, title = "Search project" },
           grep_word = { hidden = true, ignored = false, title = "References" },
         },
         win = {
           input = { keys = { ["<Esc>"] = { "cancel", mode = { "n", "i" } } } },
-          preview = { wo = { number = true, relativenumber = false, wrap = false, cursorline = false, winhighlight = "Normal:SnacksPickerPreview,NormalNC:SnacksPickerPreview,EndOfBuffer:SnacksPickerPreview" } },
+          preview = { wo = { number = true, relativenumber = false, wrap = false, cursorline = false } },
         },
       },
     },
