@@ -21,6 +21,17 @@ return {
           z = { bg = '#0A0F16', fg = palette.fg },
         }
       end
+      local function copilot_state()
+        local ok, client = pcall(require, 'copilot.client')
+        if not ok or type(client.is_disabled) ~= 'function' then return 'unavailable' end
+        local ok_disabled, disabled = pcall(client.is_disabled)
+        if not ok_disabled then return 'unavailable' end
+        if disabled then return 'disabled' end
+
+        local api = package.loaded['copilot.api']
+        local status = api and api.status and api.status.data and api.status.data.status
+        return status == 'InProgress' and 'working' or 'ready'
+      end
       opts.options.theme = {
         normal = mode(palette.blue),
         insert = mode(palette.green),
@@ -156,18 +167,17 @@ return {
           },
           {
             function()
-              local ok, client = pcall(require, 'copilot.client')
-              if not ok then return '' end
-              if client.is_disabled() then return '' end
-              local status = package.loaded['copilot.api'] and require('copilot.api').status.data.status
-              if status == 'InProgress' then return '' end
-              return ''
+              return ({
+                unavailable = '',
+                disabled = '',
+                working = '',
+                ready = '',
+              })[copilot_state()]
             end,
             color = function()
-              local ok, client = pcall(require, 'copilot.client')
-              if not ok or client.is_disabled() then return { fg = '#555555' } end
-              local status = package.loaded['copilot.api'] and require('copilot.api').status.data.status
-              if status == 'InProgress' then return { fg = '#E8D48B' } end
+              local state = copilot_state()
+              if state == 'disabled' or state == 'unavailable' then return { fg = '#555555' } end
+              if state == 'working' then return { fg = '#E8D48B' } end
               return { fg = '#82AAFF' }
             end,
             cond = function() return vim.o.columns >= 85 end,

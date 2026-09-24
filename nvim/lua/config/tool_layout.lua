@@ -1,5 +1,12 @@
 local M = {}
 
+local border = {
+  { '╭', 'MiniFilesBorder' }, { '─', 'MiniFilesBorder' },
+  { '╮', 'MiniFilesBorder' }, { '│', 'MiniFilesBorder' },
+  { '╯', 'MiniFilesBorder' }, { '─', 'MiniFilesBorder' },
+  { '╰', 'MiniFilesBorder' }, { '│', 'MiniFilesBorder' },
+}
+
 function M.files()
   return { windows = {
     max_number = vim.o.columns < 100 and 1 or 3,
@@ -25,7 +32,7 @@ function M.decorate_files(ev)
   cfg.row = row
   cfg.col = math.max(0, math.min(2, vim.o.columns - total)) + before
   cfg.height = math.max(1, math.min(cfg.height, 18, vim.o.lines - row - 3))
-  cfg.border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }
+  cfg.border = border
   local name = vim.fn.fnamemodify(path, ':t')
   if name == '' then name = '/' end
   local room = math.max(1, cfg.width - 5)

@@ -4,6 +4,7 @@ local M = {
   inset = "#070B10",
   edge = "#25334A",
   edge_bright = "#496B9A",
+  edge_soft = "#30415C",
   selected = "#14263D",
   selected_bright = "#1D3B63",
   accent = "#69AFFF",
@@ -26,13 +27,16 @@ function M.highlights()
   groups("BlackDocsHint", { bg = M.panel, fg = M.muted })
   groups("PmenuSel NoicePopupmenuSelected ", { bg = M.selected, fg = M.text })
   groups("MiniFilesNormal MiniNotifyNormal GlanceListNormal MiniPickNormal AerialNormal", { bg = M.panel, fg = M.text })
-  groups("MiniFilesBorder MiniNotifyBorder MiniPickBorder", { bg = M.panel, fg = M.edge_bright })
+  groups("MiniFilesBorder MiniNotifyBorder MiniPickBorder AerialBorder GlanceBorderTop GlanceListBorderBottom GlancePreviewBorderBottom", { bg = M.panel, fg = M.edge_bright })
   groups("MiniFilesTitle MiniFilesTitleFocused MiniFilesBorderModified", { bg = M.panel, fg = M.accent, fmt = "bold" })
-  groups("MiniFilesCursorLine GlanceListCursorLine MiniPickMatchCurrent AerialLine", { bg = M.selected_bright, fg = M.text })
-  groups("GlancePreviewNormal GlanceWinBarFilename GlanceWinBarFilepath", { bg = M.inset, fg = M.text })
+  groups("MiniFilesCursorLine GlanceListCursorLine MiniPickMatchCurrent AerialLine", { bg = M.selected_bright, fg = M.text, fmt = "bold" })
+  groups("GlancePreviewNormal GlanceWinBarFilename GlanceWinBarFilepath MiniPickPreviewNormal", { bg = M.inset, fg = M.text })
   groups("GlanceListMatch GlancePreviewMatch MiniPickMatchRanges AerialGuide", { fg = M.accent, fmt = "bold" })
-  groups("MiniPickPrompt MiniPickBorderText MiniFilesTitleFocused", { bg = M.panel, fg = M.accent, fmt = "bold" })
-  groups("MiniPickMatchMarked", { bg = M.selected, fg = M.accent })
+  groups("MiniPickPrompt MiniPickPromptPrefix MiniPickPromptCaret MiniPickBorderText MiniPickHeader MiniFilesTitleFocused", { bg = M.panel, fg = M.accent, fmt = "bold" })
+  groups("MiniPickPreviewBorder", { bg = M.inset, fg = M.edge_soft })
+  groups("MiniPickPreviewLine", { bg = M.selected, fg = M.text })
+  groups("MiniPickMatchMarked", { bg = M.selected, fg = M.accent, fmt = "bold" })
+  groups("AerialGuide", { fg = M.edge_soft })
   for _, kind in ipairs({ "Cmdline", "Lua", "Search", "Help", "Filter", "Calculator", "Input" }) do
     h["NoiceCmdlinePopupTitle" .. kind] = { bg = M.panel, fg = M.accent, fmt = "bold" }
   end

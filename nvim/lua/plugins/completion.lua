@@ -40,12 +40,29 @@ return {
         Operator = '#7FD4C4',
         TypeParameter = '#93D68F',
       }
+      local completion_colors = {
+        text = '#D7E3FF',
+        muted = '#61708A',
+        accent = '#69AFFF',
+        match = '#82AAFF',
+        panel = '#0E141D',
+        selected = '#1D3B63',
+        thumb = '#496B9A',
+      }
       local function setup_kind_highlights()
         for k, col in pairs(kind_colors) do
           vim.api.nvim_set_hl(0, 'CmpItemKind' .. k, { fg = col, default = false })
         end
-        vim.api.nvim_set_hl(0, 'PmenuSbar', { bg = '#0E141D', default = false })
-        vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = '#496B9A', default = false })
+        vim.api.nvim_set_hl(0, 'CmpItemKindDefault', { fg = completion_colors.muted, default = false })
+        vim.api.nvim_set_hl(0, 'CmpItemAbbr', { fg = completion_colors.text, default = false })
+        vim.api.nvim_set_hl(0, 'CmpItemAbbrDeprecated', { fg = completion_colors.muted, strikethrough = true, default = false })
+        vim.api.nvim_set_hl(0, 'CmpItemAbbrMatch', { fg = completion_colors.match, bold = true, default = false })
+        vim.api.nvim_set_hl(0, 'CmpItemAbbrMatchFuzzy', { fg = completion_colors.accent, bold = true, default = false })
+        vim.api.nvim_set_hl(0, 'CmpItemMenu', { fg = completion_colors.muted, default = false })
+        vim.api.nvim_set_hl(0, 'Pmenu', { bg = completion_colors.panel, fg = completion_colors.text, default = false })
+        vim.api.nvim_set_hl(0, 'PmenuSel', { bg = completion_colors.selected, fg = completion_colors.text, bold = true, default = false })
+        vim.api.nvim_set_hl(0, 'PmenuSbar', { bg = completion_colors.panel, default = false })
+        vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = completion_colors.thumb, default = false })
       end
       setup_kind_highlights()
       vim.api.nvim_create_autocmd('ColorScheme', {

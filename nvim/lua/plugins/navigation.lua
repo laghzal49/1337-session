@@ -1,6 +1,3 @@
--- Search, file browsing, symbols, and reference inspection.
-local ui = require('config.ui')
-
 return {
   { 'nvim-mini/mini.extra', lazy = true, opts = {} },
   {
@@ -45,6 +42,8 @@ return {
             anchor = 'NW',
             relative = 'editor',
             border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
+            title = '  Find  ',
+            title_pos = 'center',
             width = width,
             height = height,
             row = math.max(0, math.floor((vim.o.lines - height) * 0.3)),
@@ -91,7 +90,7 @@ return {
     opts = {
       layout = { default_direction = 'right', min_width = 24, max_width = 32 },
       float = {
-        border = ui.border or 'rounded',
+        border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
         relative = 'cursor',
         max_height = 0.8,
         min_height = { 8, 0.1 },
@@ -151,6 +150,12 @@ return {
           enable = true,
           top_char = '─',
           bottom_char = '─',
+          left_char = '│',
+          right_char = '│',
+          top_left_char = '╭',
+          top_right_char = '╮',
+          bottom_left_char = '╰',
+          bottom_right_char = '╯',
         },
         list = {
           position = 'right',
