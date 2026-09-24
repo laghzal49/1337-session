@@ -83,7 +83,8 @@ return {
             local buf = vim.api.nvim_win_is_valid(focused_win) and vim.api.nvim_win_get_buf(focused_win) or 0
             local ft = vim.bo[buf].filetype
             if ft:match("^snacks_picker") then return "SEARCH" end
-            if ft == "neo-tree" then return "FILES" end
+            if ft == "neo-tree" or ft == "minifiles" then return "FILES" end
+            if ft:match("^namu") then return "SYMBOLS" end
             return vim.o.columns < 90 and value:sub(1, 1) or value
           end },
           {

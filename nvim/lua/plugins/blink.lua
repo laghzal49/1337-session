@@ -51,6 +51,12 @@ return {
       }
       opts.formatting.format = function(entry, item)
         local kind = item.kind
+        -- Unknown servers (including ty) use the plugin's documented fallback.
+        -- Keep plain labels if a parser/server cannot provide rich highlights.
+        local ok, rich = pcall(require("colorful-menu").cmp_highlights, entry)
+        if ok and rich then
+          item.abbr, item.abbr_hl_group = rich.text, rich.highlights
+        end
         item.kind = (kinds[kind] or "") .. " "
         if vim.fn.strdisplaywidth(item.abbr) > 38 then
           local text = vim.fn.strcharpart(item.abbr, 0, 37)
@@ -58,6 +64,7 @@ return {
             text = vim.fn.strcharpart(text, 0, vim.fn.strchars(text) - 1)
           end
           item.abbr = text .. "…"
+          item.abbr_hl_group = nil -- Truncated labels must not retain stale byte ranges.
         end
         item.menu = kind
         return item

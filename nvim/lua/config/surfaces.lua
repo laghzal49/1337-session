@@ -25,6 +25,12 @@ function M.highlights()
   groups("SnacksPickerSearch", { bg = M.selected, fg = M.accent, fmt = "bold" })
   groups("SnacksPickerPreviewCursorLine", { bg = "#172333" })
   groups("SnacksPickerPrompt SnacksPickerMatch", { fg = M.accent, fmt = "bold" })
+  groups("MiniFilesNormal MiniNotifyNormal GlanceListNormal NamuNormal", { bg = M.panel, fg = M.text })
+  groups("MiniFilesBorder MiniNotifyBorder NamuBorder", { bg = M.panel, fg = M.edge })
+  groups("MiniFilesTitle MiniFilesTitleFocused MiniFilesBorderModified", { bg = M.panel, fg = M.accent, fmt = "bold" })
+  groups("MiniFilesCursorLine GlanceListCursorLine NamuPreview", { bg = M.selected, fg = M.text })
+  groups("GlancePreviewNormal GlanceWinBarFilename GlanceWinBarFilepath", { bg = M.inset, fg = M.text })
+  groups("GlanceListMatch GlancePreviewMatch NamuMatch", { fg = M.accent, fmt = "bold" })
   for _, kind in ipairs({ "Cmdline", "Lua", "Search", "Help", "Filter", "Calculator", "Input" }) do
     h["NoiceCmdlinePopupTitle" .. kind] = { bg = M.panel, fg = M.accent, fmt = "bold" }
   end

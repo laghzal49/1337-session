@@ -120,9 +120,9 @@ A diagnostic handler shows the worst diagnostic on each line across namespaces.
 Source severity filters are honored, while the combined display uses one
 explicit icon/priority policy instead of inheriting a random namespace’s options.
 The sign column can expand for a simultaneous Git marker. Repeated active
-notifications batch; errors share a persistent summary with a short latest-error
+notifications batch in the display without modifying history; errors share a persistent summary with a short latest-error
 message. Original notifications
-remain in session history. At most three live toasts are tracked. History does
+remain in session history. Mini Notify shows at most three grouped entries in one opaque window. History does
 not survive restarting Neovim.
 
 ## Verification and limits
@@ -167,3 +167,28 @@ numerical rating substitutes for those checks or the user's visual preference.
 `nvim --headless -u NONE -l nvim/tests/python_environment.lua` tests asynchronous
 lookup, coalescing, caching, failure fallback, and virtual-environment/project
 isolation with a controlled subprocess substitute.
+
+
+## Eleven-plugin integration
+
+The complete research shortlist is installed, with exact revisions in the lockfile.
+Most additions load on a command or key. Mini Notify and Tiny Inline Diagnostic
+load on VeryLazy; Endhints loads on LspAttach; Colorful Menu follows completion.
+
+- Mini Files is on-demand. Neo-tree remains available through its existing mapping.
+- Namu owns the new symbol-navigation shortcuts; Glance owns explicit peek shortcuts.
+  Neither replaces the project search picker or opens a permanent extra sidebar.
+- Incremental rename uses LazyVim's supported extra and Noice integration.
+- Tiny Inline Diagnostic replaces native virtual text, preserving gutter signs.
+- Mini Notify replaces Snacks notifier and Noice's vim.notify interception. Original
+  messages remain intact in history; grouping and the three-entry cap affect display
+  copies only. Errors remain active until acknowledged; no error TTL is applied.
+- Colorful Menu uses its generic fallback for ty; a parser failure leaves a plain
+  completion label. The existing completion documentation mappings stay in place.
+- TreeSJ extends editing; Ruff remains the formatting authority on save.
+- Various Textobjs enables only indentation and subword mappings.
+- Endhints preserves the existing inlay-hints toggle; it does not invent type data.
+
+All new panels reuse the existing black/blue surface palette where their APIs permit.
+Namu is a pinned beta dependency. Notification history remains session-only and
+unbounded. The synthetic test LSP verifies UI integration, not real ty behavior.

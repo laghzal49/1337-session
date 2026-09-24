@@ -85,19 +85,20 @@ call('nvim_exec_lua',['vim.diagnostic.reset(review_b,0)',[]]);pump(.2)
 marks=signs();assert len(marks)==1 and 'Warn' in marks[0][3].get('sign_hl_group',''),marks
 call('nvim_exec_lua',['vim.diagnostic.reset(review_a,0)',[]]);pump(.2);assert signs()==[]
 print('DIAGNOSTICS: worst-per-line and namespace removal PASS',flush=True)
-call('nvim_exec_lua',["require('config.notifications').dismiss(); for i=1,5 do Snacks.notifier.notify('review-repeat','warn') end; for i=1,4 do Snacks.notifier.notify('review-error-'..i,'error') end",[]]);pump(.6)
-state=call('nvim_exec_lua',["local found={history=0,repeat_live=0,error_live=0}; for _,v in ipairs(Snacks.notifier.get_history()) do if v.msg:match('^review%-') then found.history=found.history+1; if v.win and v.win:win_valid() then if v.level=='warn' then found.repeat_live=found.repeat_live+1; found.title=v.title else found.error_live=found.error_live+1 end end end end; return found",[]])
-assert state=={'history':9,'repeat_live':1,'error_live':0,'title':'Notification ×5'},state
+call('nvim_exec_lua',["require('config.notifications').dismiss(); for i=1,5 do vim.notify('review-repeat',vim.log.levels.WARN) end; for i=1,4 do vim.notify('review-error-'..i,vim.log.levels.ERROR) end",[]]);pump(.6)
+state=call('nvim_exec_lua',["local all=require('mini.notify').get_all(); local records=vim.tbl_filter(function(n) return n.msg:match('^review%-') end,all); local active=vim.tbl_filter(function(n) return not n.ts_remove end, records); return {history=#records,display=require('config.notifications').sort(active)}",[]])
+assert state['history']==9 and len(state['display'])==2,state
+assert state['display'][1]['data']['count']==5,state
 screen='\n'.join(''.join(c for c,h in row) for row in grid)
-assert '4 errors' in screen and 'review-error-4' in screen,screen
-print('NOTIFICATIONS: 9 records, warning ×5, one error summary PASS',flush=True)
-call('nvim_exec_lua',["for i=1,6 do Snacks.notifier.notify('review-overflow-'..i,'info') end",[]]);pump(.3)
-live=call('nvim_exec_lua',["local n=0; for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='snacks_notif' then n=n+1 end end; return n",[]])
+assert '4 errors' in screen and 'review-error-4' in screen and '×5' in screen,screen
+print('NOTIFICATIONS: originals retained, warning ×5, one error summary PASS',flush=True)
+call('nvim_exec_lua',["for i=1,6 do vim.notify('review-overflow-'..i,vim.log.levels.INFO) end",[]]);pump(.3)
+live=call('nvim_exec_lua',["local active=vim.tbl_filter(function(n) return not n.ts_remove end,require('mini.notify').get_all()); return #require('config.notifications').sort(active)",[]])
 assert live==3,live
 assert '4 errors' in '\n'.join(''.join(c for c,h in row) for row in grid)
-print('OVERFLOW: three live toasts, error summary protected PASS',flush=True)
+print('OVERFLOW: three displayed entries, error summary protected PASS',flush=True)
 call('nvim_exec_lua',["require('config.notifications').history()",[]]);pump(.2)
-assert call('nvim_eval',['&filetype'])=='snacks_notif_history'
+assert call('nvim_eval',['&filetype'])=='mininotify-history'
 call('nvim_command',['close'])
 call('nvim_command',['set nomodified'])
 for width,height in [(80,24),(100,30),(140,42)]:
@@ -185,7 +186,27 @@ for width,height in [(80,24),(140,42)]:
  call('nvim_input',['<Esc>']);pump(.5)
  print('DOCS / COMMAND',width,height,'open, scroll, close and geometry PASS',flush=True)
 
-print('V_ERRORS',call('nvim_eval',['v:errors']),flush=True)
-req('nvim_command',['qa!'])
-pump(.3)
+print('PLUGIN INTEGRATION',call('nvim_exec_lua',["return dofile('nvim/tests/plugins_review.lua')",[]]),flush=True)
+call('nvim_command',['Glance references']);pump(.6)
+assert call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype:match('^Glance') then return true end end return false",[]])
+call('nvim_exec_lua',["require('glance').actions.close()",[]]);pump(.2)
+call('nvim_command',['Namu symbols']);pump(.8)
+assert call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype:lower():match('namu') then return true end end return false",[]])
+call('nvim_input',['<Esc>']);pump(.3)
+call('nvim_exec_lua',["vim.api.nvim_set_current_buf(plugin_review.buf); vim.api.nvim_win_set_cursor(0,{3,5})",[]])
+call('nvim_input',[':IncRename renamed']);pump(.6)
+call('nvim_input',['<CR>']);pump(.6)
+assert 'renamed' in call('nvim_exec_lua',["return vim.api.nvim_buf_get_lines(plugin_review.buf,2,3,false)[1]",[]])
+call('nvim_exec_lua',["vim.lsp.stop_client(plugin_review.client,true); vim.api.nvim_buf_delete(plugin_review.buf,{force=true}); vim.fn.delete(plugin_review.dir,'rf')",[]])
+print('LSP UI: Glance, Namu, incremental rename PASS',flush=True)
+errors=call('nvim_eval',['v:errors']); assert errors==[],errors
+print('V_ERRORS',errors,flush=True)
+req('nvim_command',['silent! qa!'])
+# Installer shutdown messages may request Enter after Noice detaches on exit.
+deadline=time.time()+8
+while p.poll() is None and time.time()<deadline:
+ pump(.2)
+ if p.poll() is None:
+  try: req('nvim_input',['<CR>'])
+  except BrokenPipeError: break  # Neovim closed stdin between poll and write.
 p.wait(timeout=5)

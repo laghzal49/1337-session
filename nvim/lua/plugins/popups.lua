@@ -51,13 +51,6 @@ return {
         enabled = true,
         win = { border = ui.border, width = 50, row = 3, title_pos = "left", wo = { winblend = ui.blend } },
       },
-      notifier = {
-        enabled = true, style = "compact", timeout = 3000,
-        level = vim.log.levels.INFO,
-        filter = require("config.notifications").filter,
-        width = { min = 24, max = 0.35 }, height = { min = 1, max = 0.25 },
-        margin = { top = 1, right = 1, bottom = 0 }, padding = true,
-      },
       styles = {
         notification = { border = ui.border, wo = { winblend = ui.blend, wrap = true } },
         notification_history = {
