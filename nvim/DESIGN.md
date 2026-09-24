@@ -267,3 +267,14 @@ unverified. Prior benchmark numbers above describe the earlier revision.
 Standalone headless startup, five runs with existing caches: 23.920, 25.236,
 27.795, 24.544, 23.662 ms; median 24.544 ms. This excludes deferred plugins and
 LSP readiness, so it is not a claim that interactive editing is twice as fast.
+
+## Selective depth on the mode indicator
+
+A light left edge and dark right edge suggest a raised mode indicator on its
+existing blue-grey fill. The two single-cell edges replace its normal padding,
+so the indicator keeps the same width and the status bar stays one row tall.
+Mode text retains its semantic color. The position readout uses the flat bar
+background, keeping the mode as the only raised control. Panels, selections and
+the pure-black code canvas remain flat. This is a terminal bevel, not simulated
+soft shadows or rounded pixel geometry. Edge contrast is decorative; the mode
+label carries the information.

@@ -79,7 +79,11 @@ return {
       opts.options.section_separators = { left = "", right = "" }
       opts.sections = {
         lualine_a = {
-          { "mode", fmt = function(value)
+          -- A restrained bevel replaces the mode's two padding cells.
+          -- No extra chrome rows or shadow windows; mode text keeps its accent.
+          { function() return "▏" end, padding = 0,
+            color = { fg = "#40516A", bg = "#172333" } },
+          { "mode", padding = 0, fmt = function(value)
             local buf = vim.api.nvim_win_is_valid(focused_win) and vim.api.nvim_win_get_buf(focused_win) or 0
             local ft = vim.bo[buf].filetype
             if ft == "minipick" then return "SEARCH" end
@@ -87,6 +91,8 @@ return {
             if ft == "aerial" then return "SYMBOLS" end
             return vim.o.columns < 90 and value:sub(1, 1) or value
           end },
+          { function() return "▕" end, padding = 0,
+            color = { fg = "#05090E", bg = "#172333" } },
           {
             function() return "REC @" .. vim.fn.reg_recording() end,
             cond = function() return vim.fn.reg_recording() ~= "" end,
@@ -107,7 +113,7 @@ return {
         lualine_z = { { function()
           return vim.o.columns < 90 and string.format("%d:%d", vim.fn.line("."), vim.fn.virtcol("."))
             or string.format("Ln %d, Col %d", vim.fn.line("."), vim.fn.virtcol("."))
-        end, color = { bg = "#172333", fg = palette.fg } } },
+        end, color = { bg = "#0A0F16", fg = palette.fg } } },
       }
     end,
   },
