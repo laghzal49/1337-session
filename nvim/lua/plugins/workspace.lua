@@ -2,26 +2,6 @@ return {
   {
     "snacks.nvim",
     opts = {
-      dashboard = {
-        preset = {
-          header = [[
-          ██╗██████╗ ██████╗ ███████╗
-         ███║╚════██╗╚════██╗╚════██║
-         ╚██║ █████╔╝ █████╔╝    ██╔╝
-          ██║ ╚═══██╗ ╚═══██╗   ██╔╝
-          ██║██████╔╝██████╔╝   ██║
-          ╚═╝╚═════╝ ╚═════╝    ╚═╝
-
-             T A R I K  /  N V I M
-]],
-        },
-        sections = {
-          { section = "header", padding = 1 },
-          { section = "keys", gap = 1, padding = 1 },
-          { icon = " ", title = "Recent files", section = "recent_files", limit = 4, indent = 2, padding = 1 },
-          { section = "startup" },
-        },
-      },
       terminal = { shell = "/usr/bin/zsh", win = { position = "bottom", height = 0.35, border = "rounded" } },
       picker = { layout = { preset = "default" }, win = { input = { border = "rounded" } } },
       scroll = { enabled = true },
@@ -88,32 +68,6 @@ return {
             staged = "✓",
             conflict = "",
           },
-        },
-      },
-    },
-  },
-  {
-    "nvim-lualine/lualine.nvim",
-    opts = {
-      options = {
-        component_separators = { left = "│", right = "│" },
-        section_separators = { left = "", right = "" },
-      },
-    },
-  },
-  {
-    "akinsho/bufferline.nvim",
-    opts = {
-      options = {
-        separator_style = "slant",
-        show_close_icon = false,
-        always_show_bufferline = false,
-        indicator = { style = "icon", icon = "▎" },
-        modified_icon = "●",
-        buffer_close_icon = "󰅖",
-        offsets = {
-          { filetype = "neo-tree", text = "󰉋  PROJECT", text_align = "left", separator = true },
-          { filetype = "aerial", text = "󰅩  SYMBOLS", separator = true },
         },
       },
     },
