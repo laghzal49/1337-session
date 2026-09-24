@@ -2,24 +2,7 @@ return {
   {
     "folke/snacks.nvim",
     opts = {
-      dashboard = {
-        width = 44,
-        preset = {
-          header = "  1337  \n  ───────────\n  TARIK  /  WORKSPACE",
-          keys = {
-            { icon = " ", key = "f", desc = "Find a file", action = ":lua Snacks.dashboard.pick('files')" },
-            { icon = " ", key = "g", desc = "Search project", action = ":lua Snacks.dashboard.pick('live_grep')" },
-            { icon = " ", key = "r", desc = "Recent files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
-            { icon = " ", key = "n", desc = "New buffer", action = ":ene | startinsert" },
-            { icon = " ", key = "q", desc = "Quit", action = ":qa" },
-          },
-        },
-        sections = {
-          { section = "header", padding = 1 },
-          { section = "keys", gap = 1, padding = 1 },
-          { icon = " ", title = "Recent", section = "recent_files", limit = 4, indent = 2, padding = 1 },
-        },
-      },
+      dashboard = require("config.dashboard"),
       zen = {
         toggles = { dim = false, git_signs = false, mini_diff_signs = false },
         show = { statusline = true, tabline = false },
@@ -75,7 +58,7 @@ return {
       local palette = require("onedark.colors")
       local function mode(color)
         return {
-          a = { bg = palette.bg2, fg = color, gui = "bold" },
+          a = { bg = color, fg = palette.bg0, gui = "bold" },
           b = { bg = palette.bg1, fg = palette.fg },
           c = { bg = palette.bg1, fg = palette.fg },
         }
@@ -91,7 +74,7 @@ return {
       opts.options.section_separators = { left = "", right = "" }
       opts.sections = {
         lualine_a = {
-          { "mode", fmt = function(value) return value:sub(1, 1) end },
+          { "mode", fmt = function(value) return vim.o.columns < 90 and value:sub(1, 1) or value end },
           {
             function() return "REC @" .. vim.fn.reg_recording() end,
             cond = function() return vim.fn.reg_recording() ~= "" end,
@@ -100,7 +83,7 @@ return {
         },
         lualine_b = { { "branch", icon = "", cond = function() return vim.o.columns >= 90 end } },
         lualine_c = {
-          { "filename", path = 0, symbols = { modified = " ●", readonly = " ", unnamed = "[Untitled]" } },
+          { "filename", path = 0, color = { fg = palette.fg, gui = "bold" }, symbols = { modified = " ●", readonly = " ", unnamed = "[Untitled]" } },
           { "diagnostics", sources = { "nvim_diagnostic" }, sections = { "error", "warn" },
             symbols = { error = " ", warn = " " } },
         },
@@ -120,7 +103,7 @@ return {
           { "filetype", colored = false, cond = function() return vim.o.columns >= 90 end },
         },
         lualine_y = {},
-        lualine_z = { "location" },
+        lualine_z = { { "location", color = { bg = palette.bg1, fg = palette.light_grey } } },
       }
     end,
   },

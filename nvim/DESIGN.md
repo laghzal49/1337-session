@@ -65,7 +65,7 @@ other secondary surfaces stay neutral.
   search. Wide searches give 58% of the split to results and expand to 90% of
   terminal width. Main navigation pickers have
   no borders: the list uses `#1E1E1E`, preview uses `#141414`, and selection
-  uses `#2A2A2A`. The input prompt names its operation. Quick and narrow layouts
+  uses a subdued purple `#24202E`. The input prompt names its operation. Quick and narrow layouts
   cap at 110 x 36; wide inspection caps at 130 x 36 to reduce path truncation;
   backup files are excluded from file search. Generic selection dialogs retain
   their existing compact borders.
@@ -177,8 +177,8 @@ LazyVim, Snacks, Neo-tree, and Gitsigns versions.
 
 ### Remaining limits and rating
 
-**9/10, subjective.** The layout is cohesive and the tested failure states
-behave predictably. The remaining gap is validation on the actual 1337
+The tested failure states behave predictably. A numerical score is not a
+substitute for evaluating the rendered UI. The remaining gap is validation on the actual 1337
 workstation: NFS startup, real ty/Ruff workloads, font rendering, and comfort
 over a long coding session. Content-area goals still depend on the active
 layout. Session-only notification history and one extra action to read error
@@ -216,3 +216,31 @@ test buffers and inherited cache/data directories; it does not edit projects.
 | Review and acknowledge notifications | `<leader>n` |
 | Dismiss live notifications | `<leader>un` |
 | Close notification drawer | `q` |
+
+
+## Edition 01 refinement
+
+The previous layout gave nearly every surface equal weight. This revision adds
+identity at launch and clearer emphasis during interaction:
+
+- **Workspace:** a lavender 1337 wordmark, two numbered sections, direct action
+  keys, and recent files from the current project. The wordmark and second pane
+  require at least 100 columns and 30 rows; smaller windows keep the actions.
+- **Python:** off-white variables and parameters reduce distracting red text.
+  Blue-gray members, blue functions, lavender keywords, sand types, sage strings,
+  and peach numbers separate roles. Documentation strings are muted to reduce
+  competition with executable code. Tree-sitter and primary LSP token groups
+  are explicitly paired. This changes presentation, not ty or Ruff behavior.
+- **Command bar:** a 60% width charcoal surface capped at 90 columns, with solid
+  padding instead of a rounded outline. The active prompt supplies the accent.
+- **Documentation:** completion and hover use padded opaque panels. Ctrl-D toggles
+  completion docs; Ctrl-B/F scroll them. Normal-mode Ctrl-B remains page-up.
+- **Statusline:** a filled mode block and bold filename provide a reliable visual
+  anchor; location remains neutral. Mode labels shorten on narrow terminals.
+- **Selection:** a purple-tinted fill ties picker selection to the primary accent.
+
+Screenshots are actual embedded Neovim grids rendered with the configured italic
+font. The Python screenshot uses an illustrative unsaved buffer. They do not prove
+physical OLED behavior or replace testing on the user's terminal. The regression
+suite passed after these changes; dashboard and command popup geometry were also
+checked at 80×24 and 140×42. No claim of universal perfection is made.

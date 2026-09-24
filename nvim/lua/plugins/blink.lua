@@ -7,16 +7,19 @@ return {
     opts = function(_, opts)
       local cmp = require("cmp")
       opts.window = {
-        completion = cmp.config.window.bordered({ border = require("config.ui").border, side_padding = 1, winblend = require("config.ui").blend, winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder,CursorLine:PmenuSel,Search:None" }),
+        completion = cmp.config.window.bordered({ border = "solid", side_padding = 1, winblend = require("config.ui").blend, winhighlight = "Normal:BlackDocs,FloatBorder:BlackDocsBorder,CursorLine:PmenuSel,Search:None" }),
         documentation = cmp.config.window.bordered({
-          border = require("config.ui").border,
-          winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder",
+          border = "solid",
+          winhighlight = "Normal:BlackDocs,FloatBorder:BlackDocsBorder",
           winblend = require("config.ui").blend,
-          max_width = require("config.ui").max_width,
+          max_width = math.min(76, math.floor(vim.o.columns * 0.55)),
           max_height = require("config.ui").max_height,
         }),
       }
       opts.view = vim.tbl_deep_extend("force", opts.view or {}, { docs = { auto_open = false } })
+      -- Ctrl-B/F scroll documentation; Ctrl-D opens or closes it.
+      opts.mapping["<C-b>"] = cmp.mapping.scroll_docs(-4)
+      opts.mapping["<C-f>"] = cmp.mapping.scroll_docs(4)
       opts.mapping["<C-e>"] = cmp.mapping.abort()
       opts.mapping["<C-d>"] = cmp.mapping(function()
         if cmp.visible_docs() then cmp.close_docs() else cmp.open_docs() end

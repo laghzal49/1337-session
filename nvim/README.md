@@ -4,12 +4,25 @@ A LazyVim workspace with a pure black editor, compact search, readable italic
 type, and restrained Nerd Font icons. Python intelligence comes from `ty`,
 with Ruff for linting and formatting.
 
+![1337 workspace](assets/workspace.png)
+
+![Python syntax palette](assets/python.png)
+
 ![Perfect Black Neovim — adaptive picker and italic JetBrains Mono](assets/perfect-black.png)
 
-Actual Neovim UI-grid capture rendered with JetBrains Mono Nerd Font Mono
+Actual Neovim UI-grid captures rendered with JetBrains Mono Nerd Font Mono
 Italic and Bold Italic. No generated mockup or composited interface elements.
 
 ## Design
+
+- A two-pane 1337 launch screen pairs direct actions with project-local recent
+  files. Small terminals use a compact single column without the wordmark.
+- Python variables are off-white, members blue-gray, functions blue, keywords
+  lavender, types sand, and values muted green/peach. LSP token overrides keep
+  the main identifier roles consistent with Tree-sitter.
+- The command bar uses a padded charcoal surface. Completion documentation
+  and hover use a quieter surface with no outline glyphs.
+- Full mode names on wide screens and a bold active filename anchor the statusline.
 
 - Search shrinks to its results after matching finishes. The input stays near
   the top; changing selection does not repeatedly resize a settled list.
@@ -31,6 +44,8 @@ Italic and Bold Italic. No generated mockup or composited interface elements.
 | Find files | `<leader><space>` |
 | Search project | `<leader>/` |
 | Toggle picker preview | `Ctrl-P` in the input or list |
+| Toggle completion documentation | `Ctrl-D` in completion |
+| Scroll completion documentation | `Ctrl-B` / `Ctrl-F` |
 | Toggle file tree | `<leader>e` |
 | Review notification history | `<leader>n` |
 | Dismiss live notifications | `<leader>un` |

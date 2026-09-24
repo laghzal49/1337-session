@@ -11,18 +11,18 @@ return {
         cmdline_popup = {
           win_options = { winblend = ui.blend },
           position = { row = "20%", col = "50%" },
-          size = { min_width = 32, width = "auto", max_width = ui.max_width, height = "auto" },
-          border = { style = ui.border, padding = { 0, 1 } },
+          size = { min_width = 32, width = "60%", max_width = 90, height = "auto" },
+          border = { style = "solid", padding = { 0, 1 } },
         },
         popupmenu = {
           win_options = { winblend = ui.blend },
-          border = { style = ui.border, padding = { 0, 1 } },
+          border = { style = "solid", padding = { 0, 1 } },
           size = { max_height = 8 },
         },
         hover = {
-          border = { style = ui.border, padding = { 0, 1 } },
+          border = { style = "solid", padding = { 0, 1 } },
           size = { max_width = ui.max_width, max_height = ui.max_height },
-          win_options = { wrap = true, linebreak = true, winblend = ui.blend },
+          win_options = { wrap = true, linebreak = true, winblend = ui.blend, winhighlight = "Normal:BlackDocs,FloatBorder:BlackDocsBorder" },
         },
         popup = {
           win_options = { winblend = ui.blend },
