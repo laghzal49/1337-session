@@ -283,6 +283,14 @@ if want uv; then
     || sh "$TMP/uv-install.sh" >/dev/null 2>&1 || warn "uv installer failed"
   have uv && ok "uv $(uv --version 2>/dev/null | awk '{print $2}')"
 fi
+# Install the Python language server without sudo; uv places its executable in ~/.local/bin.
+if want ty; then
+  if have uv && uv tool install --no-cache ty >/dev/null 2>&1; then
+    ok "ty language server"
+  else
+    warn "ty installation failed — run: uv tool install ty"
+  fi
+fi
 # mason builds venvs for basedpyright/mypy/debugpy — Ubuntu without sudo
 # often lacks python3-venv, so hand mason a Python that can do it
 if python3 -m venv "$TMP/venv-probe" >/dev/null 2>&1; then
