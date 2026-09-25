@@ -49,14 +49,7 @@ Markdown reader mode is available with `<leader>mr` (or
 comfortable wrapping, spelling, concealed syntax, and a distraction-free view,
 then restores the previous window settings when toggled off. Rendering is bounded
 for very large files and keeps links, code languages, checkboxes, tables, quotes,
-and YAML front matter readable. PDFs open as searchable text automatically; use `:PdfOpen`
-or `<leader>fp` to launch an installed external viewer such as Zathura.
-
-Images use `3rd/image.nvim` only when an image-capable Kitty terminal is detected.
-Open an image with `<leader>fi` or `:ImageView`; use `<leader>fI`/`:ImageOpenExternal`
-for the system viewer, and `:ImageInfo` to inspect available support. The workflow
-falls back to `xdg-open`/`open` and never prevents Neovim from starting when Kitty,
-ImageMagick, or the plugin is unavailable.
+and YAML front matter readable.
 
 ## The smaller workflow
 
@@ -100,7 +93,6 @@ removed. There are no inherited distribution keymaps or background tool installs
 | Native hints / format-on-save toggle | `<leader>uh` / `<leader>uf` |
 | Notification history / dismiss | `<leader>n` / `<leader>un` |
 | Terminal / Git UI | `<leader>ft` / `<leader>gg` |
-| Image view / external / support | `<leader>fi` / `<leader>fI` / `<leader>f?` |
 | Restore session | `<leader>qs` |
 | Save / previous buffer / next buffer | `Ctrl-S` / `Shift-H` / `Shift-L` |
 

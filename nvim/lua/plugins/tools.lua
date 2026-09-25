@@ -1,20 +1,5 @@
 -- Editing tools, quickfix, text objects, and visual utilities.
 return {
-  {
-    '3rd/image.nvim',
-    cmd = { 'ImageView', 'ImageOpenExternal', 'ImageClear', 'ImageInfo' },
-    event = {
-      'BufReadPost *.png', 'BufReadPost *.jpg', 'BufReadPost *.jpeg', 'BufReadPost *.gif',
-      'BufReadPost *.webp', 'BufReadPost *.avif', 'BufReadPost *.tiff',
-      'BufReadPost *.PNG', 'BufReadPost *.JPG', 'BufReadPost *.JPEG', 'BufReadPost *.GIF',
-      'BufReadPost *.WEBP', 'BufReadPost *.AVIF', 'BufReadPost *.TIFF',
-    },
-    dependencies = { 'nvim-lua/plenary.nvim' },
-    config = function()
-      local images = require('config.image')
-      images.setup_commands()
-    end,
-  },
   { 'smjonas/inc-rename.nvim', cmd = 'IncRename', opts = {} },
   {
     'stevearc/quicker.nvim',

@@ -27,7 +27,6 @@ local M = {
     file_new = { nerd = '󰝒', text = '[+F]' },
     folder = { nerd = '󰉋', text = '[D]' },
     folder_open = { nerd = '󰝰', text = '[D/]' },
-    image = { nerd = '󰋩', text = '[IMG]' },
     markdown = { nerd = '󰍔', text = '[MD]' },
     code = { nerd = '󰅩', text = '[CODE]' },
     python = { nerd = '󰌠', text = '[PY]' },

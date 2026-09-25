@@ -3,9 +3,7 @@
 # 1337-session bootstrap — a user-local Neovim environment, ZERO sudo.
 # ============================================================================
 # Everything this script can install is placed in ~/.local from official
-# prebuilt release binaries.  Desktop integration (xdg-open), a Kitty-capable
-# terminal, and Poppler's pdftotext are checked but are not silently faked:
-# there are no reliable upstream Linux binaries for those dependencies.
+# prebuilt release binaries.
 #
 #   font      JetBrainsMono Nerd Font (icons for the whole UI)
 #   editor    Neovim (latest stable) + this repo's config linked in
@@ -192,7 +190,7 @@ fi
 have python3 || warn "python3 missing (very unusual for Ubuntu) — mason's pip tools and the unzip/xz shims need it"
 
 # ============================================================================
-step "1/11 · PATH — ~/.local/bin in every future shell"
+step "1/10 · PATH — ~/.local/bin in every future shell"
 # ============================================================================
 PATH_LINE="export PATH=\"\$HOME/.local/bin:\$PATH\" # 1337-session"
 for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
@@ -208,7 +206,7 @@ if [ ! -f "$HOME/.bashrc" ]; then
 fi
 
 # ============================================================================
-step "2/11 · JetBrainsMono Nerd Font (the UI's icons)"
+step "2/10 · JetBrainsMono Nerd Font (the UI's icons)"
 # ============================================================================
 if [ -e "$FONTS/JetBrainsMonoNerdFontMono-Regular.ttf" ] \
     && [ -e "$FONTS/JetBrainsMonoNerdFontMono-Bold.ttf" ] \
@@ -231,7 +229,7 @@ else
 fi
 
 # ============================================================================
-step "3/11 · Neovim (latest stable)"
+step "3/10 · Neovim (latest stable)"
 # ============================================================================
 if want nvim; then
   fetch "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${A_NVIM}.tar.gz" "$TMP/nvim.tar.gz"
@@ -242,7 +240,7 @@ if want nvim; then
 fi
 
 # ============================================================================
-step "4/11 · search tools — ripgrep · fd · fzf"
+step "4/10 · search tools — ripgrep · fd · fzf"
 # ============================================================================
 if want rg; then
   RG_TAG="$(gh_tag BurntSushi/ripgrep)" # tags have no v prefix
@@ -267,7 +265,7 @@ if want fzf; then
 fi
 
 # ============================================================================
-step "5/11 · lazygit (<leader>gg)"
+step "5/10 · lazygit (<leader>gg)"
 # ============================================================================
 if want lazygit; then
   LG_TAG="$(gh_tag jesseduffield/lazygit)" # v0.45.0 → asset uses 0.45.0
@@ -278,7 +276,7 @@ if want lazygit; then
 fi
 
 # ============================================================================
-step "6/11 · Node.js LTS (mason/LSP packages that need npm)"
+step "6/10 · Node.js LTS (mason/LSP packages that need npm)"
 # ============================================================================
 if want node; then
   # first row of index.tab whose LTS column isn't "-" = newest LTS
@@ -300,7 +298,7 @@ elif have node; then
 fi
 
 # ============================================================================
-step "7/11 · Python tooling — uv (+ venv capability for mason)"
+step "7/10 · Python tooling — uv (+ venv capability for mason)"
 # ============================================================================
 if want uv; then
   fetch "https://astral.sh/uv/install.sh" "$TMP/uv-install.sh"
@@ -354,36 +352,7 @@ else
 fi
 
 # ============================================================================
-step "8/11 · image/PDF runtime dependencies (checked, never guessed)"
-# ============================================================================
-# image.nvim's Kitty backend requires an actual Kitty-compatible terminal and
-# ImageMagick's `magick` CLI.  PdfRead requires Poppler's `pdftotext`.
-# These are distro/desktop integrations rather than portable release tools:
-# do not install an unrelated binary and pretend it is equivalent.
-if have magick; then
-  ok "ImageMagick magick CLI"
-else
-  warn "Image.nvim image rendering unavailable: install ImageMagick (magick) with your OS package manager"
-fi
-if have pdftotext; then
-  ok "Poppler pdftotext"
-else
-  warn "PDF text reading unavailable: install Poppler (pdftotext) with your OS package manager"
-fi
-if [ "${TERM:-}" = "xterm-kitty" ] || [ -n "${KITTY_WINDOW_ID:-}" ] \
-    || [ "${TERM_PROGRAM:-}" = "kitty" ]; then
-  ok "Kitty terminal image protocol detected"
-else
-  warn "image.nvim will use the external viewer fallback outside Kitty; no terminal can be installed safely from this script"
-fi
-if have xdg-open || have open; then
-  ok "desktop external viewer launcher"
-else
-  warn "no xdg-open/open; ImageOpenExternal and PdfOpen need a desktop launcher"
-fi
-
-# ============================================================================
-step "9/11 · treesitter & C/C++ toolchain — tree-sitter · cc · clangd"
+step "8/10 · treesitter & C/C++ toolchain — tree-sitter · cc · clangd"
 # ============================================================================
 if want tree-sitter; then
   TS_TAG="$(gh_tag tree-sitter/tree-sitter)"
@@ -428,7 +397,7 @@ else
 fi
 
 # ============================================================================
-step "10/11 · this repo's Neovim config → ~/.config/nvim"
+step "9/10 · this repo's Neovim config → ~/.config/nvim"
 # ============================================================================
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 if [ -d "$SCRIPT_DIR/nvim" ]; then
@@ -450,7 +419,7 @@ ln -sfn "$REPO_DIR/nvim" "$HOME/.config/nvim"
 ok "$HOME/.config/nvim → ${REPO_DIR/#$HOME/~}/nvim"
 
 # ============================================================================
-step "11/11 · preinstall pinned plugins and parsers"
+step "10/10 · preinstall pinned plugins and parsers"
 # ============================================================================
 if [ "$NOSYNC" = 1 ]; then
   printf '%s  ↷ skipped (--no-sync)%s\n' "$C_DIM" "$C_OFF"

@@ -1,6 +1,5 @@
 -- A focused launch surface; the wordmark disappears as soon as editing starts.
--- Keep this module limited to dashboard composition: workflows themselves live
--- in config.pick, config.image, and config.pdf.
+-- Keep this module limited to dashboard composition: workflows live in config.pick.
 local ui = require("config.ui")
 local M = {}
 
@@ -64,13 +63,6 @@ function M.open_markdown()
   pick_documents({ md = true, markdown = true, mkd = true }, "Markdown files", function(path)
     vim.cmd.edit(vim.fn.fnameescape(path))
   end)
-end
-
-function M.open_image()
-  pick_documents({ png = true, jpg = true, jpeg = true, gif = true, webp = true, avif = true, tiff = true },
-    "Images", function(path)
-      require("config.image").view(path)
-    end)
 end
 
 local function action(glyph, label, key, command, opts)
@@ -152,7 +144,6 @@ return {
       action(icon("terminal"), "Project terminal", "t",
         ":lua Snacks.terminal(nil, { cwd = require('config.project').root() })", { width = label_width }),
       action(icon("read"), "Markdown files", "m", M.open_markdown, { width = label_width }),
-      action(icon("file"), "Images", "i", M.open_image, { width = label_width }),
       action(icon("command"), "Quit", "q", ":qa", { width = label_width }),
       {
         section = "session",

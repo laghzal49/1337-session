@@ -86,7 +86,6 @@ return {
         show = { statusline = false, tabline = false },
         win = { width = 90, backdrop = { transparent = false, blend = 40 } },
       },
-      image = { enabled = true },
       terminal = {
         win = { position = 'bottom', height = 0.30, border = 'rounded', wo = { winbar = '  Terminal' } },
       },
