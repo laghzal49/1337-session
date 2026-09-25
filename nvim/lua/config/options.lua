@@ -67,3 +67,42 @@ vim.api.nvim_create_autocmd({ "VimEnter", "WinEnter", "WinLeave" }, {
   group = focus_group,
   callback = update_window_focus,
 })
+
+-- Session options
+vim.opt.sessionoptions = { 'buffers', 'curdir', 'tabpages', 'winsize', 'help', 'globals', 'skiprtp', 'folds' }
+
+-- Fold settings
+vim.opt.foldmethod = 'expr'
+vim.opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+vim.opt.foldlevel = 99
+vim.opt.foldlevelstart = 99
+vim.opt.foldenable = true
+
+-- Mouse and clipboard
+vim.opt.mouse = 'a'
+vim.opt.mousemodel = 'extend'
+vim.opt.clipboard = 'unnamedplus'
+
+-- Search improvements
+vim.opt.inccommand = 'split'  -- Live preview of :s substitutions in a split
+vim.opt.hlsearch = true
+vim.opt.incsearch = true
+
+-- Backup/swap improvements
+vim.opt.swapfile = false
+vim.opt.backup = false
+vim.opt.writebackup = false
+
+-- Split animation smoothness
+vim.opt.splitkeep = 'screen'  -- Reduce visual noise when splitting
+
+-- Enable soft wrap for text-heavy filetypes
+vim.api.nvim_create_autocmd('FileType', {
+  group = vim.api.nvim_create_augroup('SoftWrapFiletypes', { clear = true }),
+  pattern = { 'markdown', 'text', 'help', 'gitcommit' },
+  callback = function()
+    vim.opt_local.wrap = true
+    vim.opt_local.linebreak = true
+    vim.opt_local.breakindent = true
+  end,
+})

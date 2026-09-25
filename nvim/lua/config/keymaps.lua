@@ -123,3 +123,58 @@ vim.api.nvim_create_user_command('IconInfo', function()
     'To use ASCII on the next launch: NVIM_ASCII_ICONS=1 nvim',
   }, '\n'), vim.log.levels.INFO, { title = 'Neovim icons' })
 end, { desc = 'Show icon font status' })
+
+-- Window resize keymaps
+map('<C-Up>', '<cmd>resize +2<cr>', 'Increase window height')
+map('<C-Down>', '<cmd>resize -2<cr>', 'Decrease window height')
+map('<C-Left>', '<cmd>vertical resize -2<cr>', 'Decrease window width')
+map('<C-Right>', '<cmd>vertical resize +2<cr>', 'Increase window width')
+
+-- Quick buffer navigation
+map('<leader>1', '<cmd>BufferLineGoToBuffer 1<cr>', 'Go to buffer 1')
+map('<leader>2', '<cmd>BufferLineGoToBuffer 2<cr>', 'Go to buffer 2')
+map('<leader>3', '<cmd>BufferLineGoToBuffer 3<cr>', 'Go to buffer 3')
+map('<leader>4', '<cmd>BufferLineGoToBuffer 4<cr>', 'Go to buffer 4')
+map('<leader>5', '<cmd>BufferLineGoToBuffer 5<cr>', 'Go to buffer 5')
+
+-- Zen mode toggle
+map('<leader>uz', function() Snacks.zen() end, 'Toggle zen mode')
+map('<leader>uZ', function() Snacks.zen.zoom() end, 'Toggle zoom mode')
+
+-- Visual mode indenting
+vim.keymap.set('v', '<', '<gv', { desc = 'Indent left (keep selection)' })
+vim.keymap.set('v', '>', '>gv', { desc = 'Indent right (keep selection)' })
+
+-- Smart documentation popup (Shift-K): Uses LSP hover when available, or vim help gracefully
+map('K', function()
+  local clients = vim.lsp.get_clients({ bufnr = 0 })
+  if #clients > 0 then
+    vim.lsp.buf.hover()
+  else
+    local cword = vim.fn.expand('<cword>')
+    if cword ~= '' then
+      local ok = pcall(vim.cmd, 'help ' .. cword)
+      if not ok then
+        vim.notify('No documentation found for: ' .. cword, vim.log.levels.INFO, { title = 'Documentation' })
+      end
+    end
+  end
+end, 'Documentation (Hover)')
+
+-- Diagnostic navigation keymaps
+map('[d', function() vim.diagnostic.goto_prev() end, 'Previous diagnostic')
+map(']d', function() vim.diagnostic.goto_next() end, 'Next diagnostic')
+map('<leader>cd', function()
+  vim.diagnostic.open_float({
+    border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
+    title = ' 󰅚 Diagnostics ',
+    title_pos = 'center',
+    header = '',
+    prefix = ' ',
+    source = 'if_many',
+  })
+end, 'Line diagnostics')
+
+-- Yank to system clipboard helpers
+vim.keymap.set({ 'n', 'v' }, '<leader>y', '"+y', { desc = 'Yank to clipboard' })
+map('<leader>Y', '"+Y', 'Yank line to clipboard')

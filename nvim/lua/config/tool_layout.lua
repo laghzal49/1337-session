@@ -27,6 +27,27 @@ local function syntax_preview(win_id, path)
   if ft and ft ~= '' then vim.bo[buf].syntax = ft end
 end
 
+-- Git status cache for file tree annotations
+local git_cache = { root = '', statuses = {}, at = 0 }
+local function git_status_for(path)
+  local root = vim.fs.root(path, '.git') or ''
+  local now = (vim.uv or vim.loop).now()
+  if root ~= git_cache.root or now - git_cache.at > 5000 then
+    git_cache.root = root
+    git_cache.at = now
+    git_cache.statuses = {}
+    if root ~= '' and vim.fn.executable('git') == 1 then
+      local out = vim.fn.systemlist({ 'git', '-C', root, 'status', '--porcelain=v1', '-u' })
+      for _, line in ipairs(out) do
+        local status = line:sub(1, 2)
+        local file = root .. '/' .. line:sub(4)
+        git_cache.statuses[file] = status
+      end
+    end
+  end
+  return git_cache.statuses[path]
+end
+
 function M.decorate_files(ev)
   local state = require('mini.files').get_explorer_state()
   if not state or not vim.api.nvim_win_is_valid(ev.data.win_id) then return end
@@ -61,6 +82,31 @@ function M.decorate_files(ev)
   cfg.title_pos = 'left'
   vim.api.nvim_win_set_config(ev.data.win_id, cfg)
   vim.wo[ev.data.win_id].winblend = 0
+
+  -- Add git status markers to file entries
+  local buf = vim.api.nvim_win_get_buf(ev.data.win_id)
+  local ns = vim.api.nvim_create_namespace('mini_files_git')
+  vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+  local lines = vim.api.nvim_buf_get_lines(buf, 0, -1, false)
+  local dir = vim.api.nvim_buf_get_name(buf)
+  for i, line in ipairs(lines) do
+    local entry_name = line:match('[^ ]+$')
+    if entry_name then
+      local entry_path = dir .. '/' .. entry_name
+      local status = git_status_for(entry_path)
+      if status then
+        local marker, hl = ' ●', 'GitStatusModified'
+        if status:match('^%?') then marker, hl = ' ◌', 'GitStatusUntracked'
+        elseif status:match('^[AMD]') then marker, hl = ' ✓', 'GitStatusStaged'
+        elseif status:match('^D') or status:match('^.D') then marker, hl = ' ✗', 'GitStatusDeleted'
+        end
+        vim.api.nvim_buf_set_extmark(buf, ns, i - 1, 0, {
+          virt_text = { { marker, hl } },
+          virt_text_pos = 'eol',
+        })
+      end
+    end
+  end
 end
 
 local function create_entry(buf)

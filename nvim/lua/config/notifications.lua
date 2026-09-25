@@ -91,9 +91,17 @@ function M.setup()
         return (icons[item.level] or "") .. " " .. title .. item.level .. count .. "\n" .. item.msg
       end,
     },
-    window = { winblend = 0, max_width_share = 0.4, config = function()
-      return { border = "rounded", title = " Notifications ", title_pos = "left" }
-    end },
+    window = {
+      winblend = 0,
+      max_width_share = 0.38,
+      config = function()
+        return {
+          border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
+          title = '  Notifications ',
+          title_pos = 'left',
+        }
+      end,
+    },
   }
   require("mini.notify").setup(config)
   vim.notify = M.notify

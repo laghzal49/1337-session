@@ -16,6 +16,16 @@ return {
         ['<C-Space>'] = cmp.mapping.complete(),
         ['<CR>'] = cmp.mapping.confirm({ select = false }),
       })
+      opts.mapping['<Tab>'] = cmp.mapping(function(fallback)
+        if cmp.visible() then cmp.select_next_item()
+        elseif vim.snippet.active({ direction = 1 }) then vim.snippet.jump(1)
+        else fallback() end
+      end, { 'i', 's' })
+      opts.mapping['<S-Tab>'] = cmp.mapping(function(fallback)
+        if cmp.visible() then cmp.select_prev_item()
+        elseif vim.snippet.active({ direction = -1 }) then vim.snippet.jump(-1)
+        else fallback() end
+      end, { 'i', 's' })
 
       -- Dedicated kind highlight definitions matching the Perfect Black palette
       local kind_colors = {
@@ -48,14 +58,14 @@ return {
       local completion_colors = {
         text = '#D7E3FF',
         muted = '#61708A',
-        accent = '#69AFFF',
+        accent = '#82AAFF',
         match = '#82AAFF',
         panel = '#0E141D',
-        selected = '#1D3B63',
-        selected_text = '#FFFFFF',
+        selected = '#1B3352',
+        selected_text = '#82AAFF',
         selected_match = '#9CCBFF',
         deprecated = '#76839A',
-        thumb = '#4FD1C5',
+        thumb = '#38557A',
       }
       local function setup_kind_highlights()
         for k, col in pairs(kind_colors) do
@@ -72,6 +82,7 @@ return {
         vim.api.nvim_set_hl(0, 'CmpItemAbbrMatchSelected', { fg = completion_colors.selected_match, bold = true, default = false })
         vim.api.nvim_set_hl(0, 'PmenuSbar', { bg = completion_colors.panel, default = false })
         vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = completion_colors.thumb, default = false })
+        vim.api.nvim_set_hl(0, 'CmpGhostText', { fg = '#3A4A5E', italic = true })
       end
       setup_kind_highlights()
       vim.api.nvim_create_autocmd('ColorScheme', {
@@ -85,23 +96,24 @@ return {
         completion = cmp.config.window.bordered({
           border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
           side_padding = 1,
-          col_offset = 0,
-          scrollbar = false,
-          winblend = ui.blend,
-          max_height = ui.max_height,
-          winhighlight = 'Normal:BlackDocs,NormalFloat:BlackDocs,FloatBorder:BlackDocsBorder,CursorLine:PmenuSel,Search:None,EndOfBuffer:BlackDocs',
+          col_offset = -1,
+          scrollbar = true,
+          scrolloff = 2,
+          winblend = 0,
+          max_height = 14,
+          winhighlight = 'Normal:BlackDocs,NormalFloat:BlackDocs,FloatBorder:BlackDocsBorder,CursorLine:PmenuSel,Search:None,EndOfBuffer:BlackDocs,ScrollbarThumb:PmenuThumb,ScrollbarTrack:PmenuSbar',
         }),
         documentation = cmp.config.window.bordered({
           border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
-          side_padding = 1,
-          scrollbar = false,
-          winblend = ui.blend,
+          side_padding = 2,
+          scrollbar = true,
+          winblend = 0,
           winhighlight = 'Normal:BlackDocs,NormalFloat:BlackDocs,FloatBorder:BlackDocsBorder,FloatTitle:BlackDocsTitle,FloatFooter:BlackDocsHint,Search:None,EndOfBuffer:BlackDocs',
-          max_width = math.min(72, ui.max_width),
-          max_height = math.max(8, ui.max_height - 2),
+          max_width = math.min(76, ui.max_width),
+          max_height = math.max(12, ui.max_height),
         }),
       }
-      opts.view = vim.tbl_deep_extend('force', opts.view or {}, { docs = { auto_open = false } })
+      opts.view = vim.tbl_deep_extend('force', opts.view or {}, { docs = { auto_open = true } })
 
       local function scroll_docs(delta)
         return cmp.mapping(function(fallback)
@@ -169,7 +181,7 @@ return {
         item.kind_hl_group = kinds[kind] and ('CmpItemKind' .. kind) or 'CmpItemKindDefault'
 
         -- Keep the label readable while retaining cmp's match highlighting.
-        item.abbr = truncate(item.abbr, 38)
+        item.abbr = truncate(item.abbr, 42)
         if item.deprecated then
           item.abbr_hl_group = 'CmpItemAbbrDeprecated'
         elseif item.abbr and item.abbr:sub(-3) == '…' then
@@ -190,7 +202,7 @@ return {
       end
 
       opts.performance = vim.tbl_deep_extend('force', opts.performance or {}, {
-        max_view_entries = 40,
+        max_view_entries = 16,
       })
 
       for _, source in ipairs(opts.sources or {}) do
@@ -206,7 +218,7 @@ return {
       end
 
       opts.experimental = vim.tbl_deep_extend('force', opts.experimental or {}, {
-        ghost_text = false,
+        ghost_text = { hl_group = 'CmpGhostText' },
       })
     end,
   },

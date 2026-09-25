@@ -4,20 +4,20 @@ local colors = ui.colors
 
 local M = {
   panel = "#0E141D",
-  tree_panel = "#0C1718",
+  tree_panel = "#0A0F17",
   inset = "#070B10",
-  edge = colors.border,
-  edge_bright = colors.teal,
-  edge_soft = colors.border_soft,
-  selected = colors.selection,
-  selected_bright = colors.selection_bright,
-  accent = "#69AFFF",
-  panel_accent = colors.teal,
+  edge = "#38557A",
+  edge_bright = "#4FD1C5",
+  edge_soft = "#2A3F5C",
+  selected = "#1B3352",
+  selected_bright = "#1B3352",
+  accent = "#82AAFF",
+  panel_accent = "#4FD1C5",
   text = colors.text,
   muted = "#61708A",
   teal = colors.teal,
   lilac = colors.lilac,
-  border = colors.border,
+  border = "#38557A",
   error = colors.error,
 }
 
@@ -38,6 +38,8 @@ function M.highlights()
   groups("MiniFilesNormal", { bg = M.tree_panel, fg = M.text })
   groups("MiniFilesDirectory MiniFilesDirectoryIcon", { fg = M.panel_accent, fmt = "bold" })
   groups("MiniFilesFile MiniFilesFileIcon", { fg = M.text })
+  groups('MiniFilesTitleCount', { bg = M.tree_panel, fg = M.muted })
+  groups('MiniFilesPathSep', { fg = M.edge })
   groups("MiniFilesSymlink", { fg = M.accent, fmt = "italic" })
   groups("MiniNotifyNormal GlanceListNormal MiniPickNormal AerialNormal", { bg = M.panel, fg = M.text })
   groups("MiniFilesBorderModified", { bg = M.tree_panel, fg = M.panel_accent, fmt = "bold" })
@@ -60,6 +62,88 @@ function M.highlights()
     h["SnacksNotifier" .. level] = { bg = M.panel, fg = M.text }
     h["SnacksNotifierBorder" .. level] = { bg = M.panel, fg = M.edge }
   end
+
+  -- Edgy panel chrome
+  groups('EdgyTitle', { bg = '#0E141D', fg = '#7FE3C2', fmt = 'bold' })
+  groups('EdgyIcon EdgyIconActive', { bg = '#0E141D', fg = '#69AFFF' })
+  groups('EdgyWinBar', { bg = '#0E141D', fg = '#7FE3C2', fmt = 'bold' })
+  groups('EdgyNormal', { bg = '#0E141D', fg = M.text })
+  groups('AerialNormal', { bg = '#0E141D', fg = M.text })
+  groups('AerialLine', { bg = '#1E2F47', fg = '#7FE3C2', fmt = 'bold' })
+  -- Trouble panel chrome
+  groups('TroubleNormal TroubleNormalNC', { bg = M.panel, fg = M.text })
+  groups('TroubleCount', { fg = M.accent, fmt = 'bold' })
+  
+  -- Flash jump labels
+  groups('FlashLabel', { bg = M.accent, fg = '#000000', fmt = 'bold' })
+  groups('FlashMatch', { fg = M.panel_accent })
+  groups('FlashCurrent', { fg = M.text, fmt = 'bold' })
+  groups('FlashBackdrop', { fg = M.muted })
+  
+  -- WhichKey enhanced
+  groups('WhichKeySeparator', { fg = M.edge })
+  groups('WhichKeyValue', { fg = M.muted })
+  
+  -- Treesitter context line
+  groups('TreesitterContextSeparator', { fg = M.edge })
+
+  groups('NoiceFormatProgressDone', { bg = M.selected, fg = M.text })
+  groups('NoiceFormatProgressTodo', { bg = M.inset, fg = M.muted })
+  groups('NoiceLspProgressTitle', { fg = M.accent })
+  groups('NoiceLspProgressClient', { fg = M.panel_accent })
+  groups('NoiceLspProgressSpinner', { fg = M.accent })
+
+  -- Completion docs panel polish
+  groups('BlackDocsCode', { bg = '#070B10', fg = M.text })
+  groups('BlackDocsSeparator', { fg = M.edge })
+  groups('BlackDocsParam', { fg = M.accent, fmt = 'bold' })
+  groups('BlackDocsType', { fg = M.teal })
+  groups('BlackDocsReturn', { fg = '#7FE3C2' })
+
+  -- Snacks input enhanced
+  groups('SnacksInputIcon', { bg = M.panel, fg = M.accent })
+  groups('SnacksInputPrompt', { bg = M.panel, fg = M.panel_accent, fmt = 'bold' })
+
+  -- Mini.icons palette integration
+  groups('MiniIconsAzure', { fg = '#70D7FF' })
+  groups('MiniIconsBlue', { fg = '#69AFFF' })
+  groups('MiniIconsCyan', { fg = '#70D7FF' })
+  groups('MiniIconsGreen', { fg = '#7FE3C2' })
+  groups('MiniIconsGrey', { fg = '#A9B9D6' })
+  groups('MiniIconsOrange', { fg = '#FF9E64' })
+  groups('MiniIconsPurple', { fg = '#C7A6FF' })
+  groups('MiniIconsRed', { fg = '#FF8FA3' })
+  groups('MiniIconsYellow', { fg = '#FFD166' })
+
+  -- Lazy plugin manager panel
+  groups('LazyNormal', { bg = M.panel, fg = M.text })
+  groups('LazyButton', { bg = M.inset, fg = M.text })
+  groups('LazyButtonActive', { bg = M.selected, fg = M.text, fmt = 'bold' })
+  groups('LazyH1', { bg = M.accent, fg = '#000000', fmt = 'bold' })
+  groups('LazyH2', { fg = M.accent, fmt = 'bold' })
+  groups('LazySpecial', { fg = M.panel_accent })
+  groups('LazyComment', { fg = M.muted })
+
+  -- Mason installer panel
+  groups('MasonNormal', { bg = M.panel, fg = M.text })
+  groups('MasonHeader', { bg = M.accent, fg = '#000000', fmt = 'bold' })
+  groups('MasonHighlight', { fg = M.accent })
+  groups('MasonHighlightBlock', { bg = M.accent, fg = '#000000' })
+  groups('MasonHighlightBlockBold', { bg = M.accent, fg = '#000000', fmt = 'bold' })
+  groups('MasonMuted', { fg = M.muted })
+  groups('MasonMutedBlock', { bg = M.inset, fg = M.muted })
+
+  groups('GitStatusStaged', { fg = '#7FE3C2', fmt = 'bold' })
+  groups('GitStatusModified', { fg = '#FFD166', fmt = 'bold' })
+  groups('GitStatusUntracked', { fg = '#70D7FF', fmt = 'bold' })
+  groups('GitStatusDeleted', { fg = '#FF8FA3', fmt = 'bold' })
+
+  groups('BlackBrandIcon', { fg = '#69AFFF' })
+  groups('BlackBrand', { fg = '#C7A6FF', fmt = 'bold' })
+  groups('BlackKey', { bg = '#1E2F47', fg = '#FFFFFF', fmt = 'bold' })
+  groups('SnacksDashboardTerminal', { fg = '#61708A' })
+  groups('SnacksDashboardFooter', { fg = '#61708A' })
+  
   return h
 end
 return M

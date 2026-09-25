@@ -112,6 +112,35 @@ return {
       }
     end,
   },
+  -- Underrated Gem 6: Highlight and search TODO/FIXME/HACK/NOTE comments
+  {
+    'folke/todo-comments.nvim',
+    event = { 'BufReadPost', 'BufNewFile' },
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    opts = {
+      signs = false,
+      highlight = { multiline = false, before = '', after = 'fg', keyword = 'bg' },
+      colors = {
+        error = { '#FF8FA3' },
+        warning = { '#FFD166' },
+        info = { '#70D7FF' },
+        hint = { '#7FE3C2' },
+        default = { '#C7A6FF' },
+        test = { '#69AFFF' },
+      },
+    },
+    keys = {
+      { '<leader>st', '<cmd>TodoQuickFix<cr>', desc = 'Search TODOs' },
+      { ']t', function() require('todo-comments').jump_next() end, desc = 'Next TODO' },
+      { '[t', function() require('todo-comments').jump_prev() end, desc = 'Previous TODO' },
+    },
+  },
+  -- Underrated Gem 7: Treesitter-aware commenting with JSX/TSX support
+  {
+    'folke/ts-comments.nvim',
+    event = 'VeryLazy',
+    opts = {},
+  },
   {
     'sindrets/diffview.nvim',
     cmd = { 'DiffviewOpen', 'DiffviewFileHistory' },
@@ -207,6 +236,8 @@ return {
         conceallevel = { default = 2, rendered = 3 },
         concealcursor = { default = '', rendered = 'n' },
       },
+      horizontal_rule = { enabled = true, border = 'thick' },
+      link = { enabled = true, hyperlink = '🔗 ' },
     },
   },
 }

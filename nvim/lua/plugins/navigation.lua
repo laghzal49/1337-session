@@ -36,17 +36,17 @@ return {
         prompt_prefix = ' 󰍉 ',
         prompt_caret = '▏',
         config = function()
-          local width = math.max(20, math.min(100, math.min(vim.o.columns - 4, math.floor(vim.o.columns * 0.8))))
-          local height = math.max(5, math.min(28, math.floor(vim.o.lines * 0.65)))
+          local width = math.max(24, math.min(110, math.floor(vim.o.columns * 0.82)))
+          local height = math.max(6, math.min(32, math.floor(vim.o.lines * 0.70)))
           return {
             anchor = 'NW',
             relative = 'editor',
             border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
-            title = '  Find  ',
+            title = '  Search  ',
             title_pos = 'center',
             width = width,
             height = height,
-            row = math.max(0, math.floor((vim.o.lines - height) * 0.3)),
+            row = math.max(0, math.floor((vim.o.lines - height) * 0.28)),
             col = math.floor((vim.o.columns - width) / 2),
           }
         end,
@@ -83,14 +83,35 @@ return {
         },
         windows = windows,
         content = {
+          -- Sort: directories first, then alphabetical
+          sort = function(entries)
+            local dirs, files = {}, {}
+            for _, e in ipairs(entries) do
+              if e.fs_type == 'directory' then dirs[#dirs + 1] = e else files[#files + 1] = e end
+            end
+            table.sort(dirs, function(a, b) return a.name:lower() < b.name:lower() end)
+            table.sort(files, function(a, b) return a.name:lower() < b.name:lower() end)
+            return vim.list_extend(dirs, files)
+          end,
           prefix = function(fs_entry)
-            if fs_entry.fs_type == "directory" then return ui.icon("folder") .. " ", "Directory" end
+            if fs_entry.fs_type == 'directory' then
+              return ui.icon('folder') .. ' ', 'MiniFilesDirectory'
+            end
+            -- Use mini.icons for file type detection if available
+            local ok_icons, mini_icons = pcall(require, 'mini.icons')
+            if ok_icons then
+              local icon, hl = mini_icons.get('file', fs_entry.name)
+              return icon .. ' ', hl
+            end
             local ok, devicons = pcall(require, 'nvim-web-devicons')
-            if not ok then return '  ', 'MiniFilesFileIcon' end
-            if fs_entry.fs_type == 'directory' then return ui.icon('folder') .. ' ', 'Directory' end
-            local icon, hl = devicons.get_icon(fs_entry.name, fs_entry.ext, { default = true })
-            return (icon or ui.icon('file')) .. ' ', hl or (fs_entry.fs_type == 'directory'
-              and 'MiniFilesDirectoryIcon' or 'MiniFilesFileIcon')
+            if ok then
+              local icon, hl = devicons.get_icon(fs_entry.name, fs_entry.ext, { default = true })
+              return (icon or ui.icon('file')) .. ' ', hl or 'MiniFilesFileIcon'
+            end
+            return ui.icon('file') .. ' ', 'MiniFilesFileIcon'
+          end,
+          filter = function(fs_entry)
+            return fs_entry.name ~= '.DS_Store' and fs_entry.name ~= 'thumbs.db'
           end,
         },
       }
@@ -216,6 +237,58 @@ return {
       { 's', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end, desc = 'Flash jump' },
       { 'S', mode = { 'n', 'x', 'o' }, function() require('flash').treesitter() end, desc = 'Flash Treesitter' },
       { 'r', mode = 'o', function() require('flash').remote() end, desc = 'Remote Flash' },
+    },
+  },
+  {
+    'nvim-mini/mini.cursorword',
+    event = { 'BufReadPost', 'BufNewFile' },
+    opts = { delay = 200 },
+    config = function(_, opts)
+      require('mini.cursorword').setup(opts)
+      -- Subtle underline, no background — matches the Perfect Black aesthetic
+      vim.api.nvim_set_hl(0, 'MiniCursorword', { underline = true, sp = '#354357' })
+      vim.api.nvim_set_hl(0, 'MiniCursorwordCurrent', { underline = true, sp = '#354357' })
+    end,
+  },
+  {
+    'nvim-mini/mini.bracketed',
+    event = 'VeryLazy',
+    opts = {
+      buffer = { suffix = 'b' },
+      comment = { suffix = 'c' },
+      diagnostic = { suffix = 'd' },
+      quickfix = { suffix = 'q' },
+      treesitter = { suffix = 't' },
+      undo = { suffix = '' },
+      window = { suffix = '' },
+      yank = { suffix = '' },
+      file = { suffix = '' },
+      indent = { suffix = '' },
+      jump = { suffix = '' },
+      location = { suffix = '' },
+      oldfile = { suffix = '' },
+      conflict = { suffix = '' },
+    },
+  },
+  {
+    'nvim-mini/mini.move',
+    keys = {
+      { '<A-j>', mode = { 'n', 'v' }, desc = 'Move line down' },
+      { '<A-k>', mode = { 'n', 'v' }, desc = 'Move line up' },
+      { '<A-h>', mode = { 'n', 'v' }, desc = 'Move left' },
+      { '<A-l>', mode = { 'n', 'v' }, desc = 'Move right' },
+    },
+    opts = {
+      mappings = {
+        left = '<A-h>',
+        right = '<A-l>',
+        down = '<A-j>',
+        up = '<A-k>',
+        line_left = '<A-h>',
+        line_right = '<A-l>',
+        line_down = '<A-j>',
+        line_up = '<A-k>',
+      },
     },
   },
 }

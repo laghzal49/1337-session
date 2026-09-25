@@ -120,6 +120,7 @@ return {
     local sections = {
       {
         text = {
+          { "◆ ", hl = "BlackBrandIcon" },
           { "DEVIL", hl = "BlackBrand" },
           { compact and "  /  WORKSPACE" or "  /  TARIK'S WORKSPACE", hl = "BlackMuted" },
         },
@@ -152,6 +153,7 @@ return {
         ":lua Snacks.terminal(nil, { cwd = require('config.project').root() })", { width = label_width }),
       action(icon("read"), "Markdown files", "m", M.open_markdown, { width = label_width }),
       action(icon("file"), "Images", "i", M.open_image, { width = label_width }),
+      action(icon("command"), "Quit", "q", ":qa", { width = label_width }),
       {
         section = "session",
         key = "s",
@@ -206,6 +208,7 @@ return {
         padding = 1,
       }
     end
+    sections[#sections + 1] = { section = "startup", padding = 0 }
     return sections
   end,
 }

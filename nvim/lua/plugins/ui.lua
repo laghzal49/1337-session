@@ -4,43 +4,59 @@
 local ui = require('config.ui')
 
 return {
-  -- ── Icons ────────────────────────────────────────────────────────────
+  -- ── Icons (mini.icons — best-in-class icon provider) ─────────────────
   {
-    'nvim-tree/nvim-web-devicons',
+    'nvim-mini/mini.icons',
     lazy = false,
     priority = 1000,
     opts = {
-      default = true, color_icons = false, strict = true,
-      override = {
-        default_icon = { icon = ui.icon('file'), color = '#A9B9D6', cterm_color = '248', name = 'Default' },
+      style = 'glyph',
+      -- Use the Perfect Black palette for file type icon colors
+      file = {
+        ['.gitignore'] = { glyph = '󰊢', hl = 'MiniIconsGrey' },
+        ['Makefile'] = { glyph = '', hl = 'MiniIconsYellow' },
+        ['Dockerfile'] = { glyph = '󰡨', hl = 'MiniIconsCyan' },
+        ['docker-compose.yml'] = { glyph = '󰡨', hl = 'MiniIconsCyan' },
       },
-      override_by_extension = {
-        py = { icon = ui.icon('python'), name = 'Python', color = '#7FE3C2' },
-        lua = { icon = ui.icon('lua'), name = 'Lua', color = '#C7A6FF' },
-        c = { icon = ui.icon('code'), name = 'C', color = '#70D7FF' },
-        cpp = { icon = ui.icon('code'), name = 'Cpp', color = '#70D7FF' },
-        json = { icon = ui.icon('code'), name = 'Json', color = '#FFD166' },
-        md = { icon = ui.icon('markdown'), name = 'Markdown', color = '#69AFFF' },
-        sh = { icon = ui.icon('shell'), name = 'Shell', color = '#B8E986' },
-        ts = { icon = ui.icon('typescript'), name = 'TypeScript', color = '#70D7FF' },
-        tsx = { icon = ui.icon('typescript'), name = 'TypeScriptReact', color = '#70D7FF' },
-        js = { icon = ui.icon('javascript'), name = 'JavaScript', color = '#FFD166' },
-        jsx = { icon = ui.icon('javascript'), name = 'JavaScriptReact', color = '#FFD166' },
-        html = { icon = ui.icon('code'), name = 'Html', color = '#E88B8B' },
-        css = { icon = ui.icon('code'), name = 'Css', color = '#7FB4F5' },
-        yaml = { icon = ui.icon('code'), name = 'Yaml', color = '#B8D7F0' },
-        yml = { icon = ui.icon('code'), name = 'Yaml', color = '#B8D7F0' },
-        toml = { icon = ui.icon('code'), name = 'Toml', color = '#B8D7F0' },
-        rs = { icon = ui.icon('rust'), name = 'Rust', color = '#E8D48B' },
-        go = { icon = ui.icon('code'), name = 'Go', color = '#70D7FF' },
-        lock = { icon = ui.icon('lock'), name = 'Lock', color = '#76839A' },
+      filetype = {
+        python = { glyph = '󰌠', hl = 'MiniIconsGreen' },
+        lua = { glyph = '󰢱', hl = 'MiniIconsPurple' },
+        c = { glyph = '', hl = 'MiniIconsCyan' },
+        cpp = { glyph = '', hl = 'MiniIconsCyan' },
+        rust = { glyph = '󱘗', hl = 'MiniIconsOrange' },
+        javascript = { glyph = '󰌞', hl = 'MiniIconsYellow' },
+        typescript = { glyph = '󰛦', hl = 'MiniIconsCyan' },
+        markdown = { glyph = '󰍔', hl = 'MiniIconsBlue' },
+        json = { glyph = '', hl = 'MiniIconsYellow' },
+        yaml = { glyph = '', hl = 'MiniIconsAzure' },
+        toml = { glyph = '', hl = 'MiniIconsAzure' },
+        html = { glyph = '', hl = 'MiniIconsOrange' },
+        css = { glyph = '', hl = 'MiniIconsBlue' },
+        sh = { glyph = '', hl = 'MiniIconsGreen' },
+        go = { glyph = '󰟓', hl = 'MiniIconsCyan' },
       },
-      override_by_filename = {
-        ['Dockerfile'] = { icon = ui.icon('docker'), name = 'Dockerfile', color = '#70D7FF' },
-        ['docker-compose.yml'] = { icon = ui.icon('docker'), name = 'DockerCompose', color = '#70D7FF' },
-      },
+      lsp = {},
+      default = {},
     },
+    config = function(_, opts)
+      local icons = require('mini.icons')
+      icons.setup(opts)
+      -- Make mini.icons the global icon provider — replaces nvim-web-devicons
+      icons.mock_nvim_web_devicons()
+      -- Set up custom highlight colors matching Perfect Black palette
+      vim.api.nvim_set_hl(0, 'MiniIconsAzure', { fg = '#70D7FF' })
+      vim.api.nvim_set_hl(0, 'MiniIconsBlue', { fg = '#69AFFF' })
+      vim.api.nvim_set_hl(0, 'MiniIconsCyan', { fg = '#70D7FF' })
+      vim.api.nvim_set_hl(0, 'MiniIconsGreen', { fg = '#7FE3C2' })
+      vim.api.nvim_set_hl(0, 'MiniIconsGrey', { fg = '#A9B9D6' })
+      vim.api.nvim_set_hl(0, 'MiniIconsOrange', { fg = '#FF9E64' })
+      vim.api.nvim_set_hl(0, 'MiniIconsPurple', { fg = '#C7A6FF' })
+      vim.api.nvim_set_hl(0, 'MiniIconsRed', { fg = '#FF8FA3' })
+      vim.api.nvim_set_hl(0, 'MiniIconsYellow', { fg = '#FFD166' })
+    end,
   },
+  -- Compatibility shim — plugins that require nvim-web-devicons will use mini.icons
+  { 'nvim-tree/nvim-web-devicons', lazy = true, enabled = vim.g.have_nerd_font ~= false },
 
   -- ── Snacks (all features consolidated) ───────────────────────────────
   {
@@ -55,18 +71,24 @@ return {
       picker = { enabled = false },
       notifier = { enabled = false },
       animate = { enabled = false },
-      scroll = { enabled = false },
+      scroll = {
+        enabled = true,
+        animate = { duration = { step = 10, total = 100 } },
+      },
       indent = {
         enabled = true,
         animate = { enabled = false },
-        indent = { char = '│', only_current = true },
-        scope = { enabled = true, only_current = true, char = '│' },
+        indent = { char = '▏', only_current = false, hl = 'SnacksIndent' },
+        scope = { enabled = true, only_current = true, char = '▎', hl = 'SnacksIndentScope' },
+        chunk = { enabled = true, only_current = true, hl = 'SnacksIndentScope',
+          char = { corner_top = '╭', corner_bottom = '╰', horizontal = '─', vertical = '│', arrow = '>' } },
       },
       zen = {
-        toggles = { dim = false, git_signs = false, mini_diff_signs = false },
-        show = { statusline = true, tabline = false },
-        win = { width = 100, backdrop = { transparent = false, blend = 0 } },
+        toggles = { dim = true, git_signs = false, mini_diff_signs = false, diagnostics = false },
+        show = { statusline = false, tabline = false },
+        win = { width = 90, backdrop = { transparent = false, blend = 40 } },
       },
+      image = { enabled = true },
       terminal = {
         win = { position = 'bottom', height = 0.30, border = 'rounded', wo = { winbar = '  Terminal' } },
       },
@@ -115,6 +137,7 @@ return {
           ['vim.lsp.util.stylize_markdown'] = true,
         },
         signature = { enabled = true, auto_open = { enabled = false } },
+        hover = { enabled = true, silent = true, view = 'hover' },
       },
       notify = { enabled = false },
       cmdline = {
@@ -129,35 +152,51 @@ return {
       },
       views = {
         cmdline_popup = {
-          win_options = { winblend = ui.blend },
-          position = { row = '50%', col = '50%' },
-          size = { min_width = 46, width = 'auto', max_width = 72, height = 'auto' },
-          border = { style = 'rounded', padding = { 0, 2 } },
+          win_options = { winblend = 0, winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder,FloatTitle:BlackDocsTitle' },
+          position = { row = '38%', col = '50%' },
+          size = { min_width = 50, width = 'auto', max_width = 80, height = 'auto' },
+          border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 0, 2 } },
         },
         popupmenu = {
-          win_options = { winblend = ui.blend },
-          border = { style = 'rounded', padding = { 0, 2 } },
-          size = { max_height = 10 },
-          scrollbar = true,
+          win_options = { winblend = 0, winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder,CursorLine:PmenuSel' },
+          border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 0, 2 } },
+          size = { max_height = 12 },
+          scrollbar = false,
         },
         cmdline_popupmenu = {
           position = 'auto',
-          border = { style = 'rounded', padding = { 0, 2 } },
-          win_options = { winblend = ui.blend },
-          size = { max_height = 10 },
-          scrollbar = true,
+          border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 0, 2 } },
+          win_options = { winblend = 0, winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder,CursorLine:PmenuSel' },
+          size = { max_height = 12 },
+          scrollbar = false,
         },
         hover = {
-          border = { style = 'rounded', padding = { 0, 2 } },
-          size = { max_width = ui.max_width, max_height = ui.max_height },
-          win_options = { wrap = true, linebreak = true, winblend = ui.blend,
+          border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 0, 2 } },
+          size = { max_width = 80, max_height = 24 },
+          win_options = { wrap = true, linebreak = true, winblend = 0,
             winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder,FloatTitle:BlackDocsTitle' },
+          title = ' 󰈙 Documentation ',
+          title_pos = 'center',
         },
         popup = {
-          win_options = { winblend = ui.blend },
-          border = { style = ui.border, padding = { 0, 2 } },
-          size = { width = ui.max_width, height = ui.max_height },
+          win_options = { winblend = 0, winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder' },
+          border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 0, 2 } },
+          size = { width = 76, height = 22 },
         },
+        -- Mini notification-style messages at bottom-right
+        mini = {
+          win_options = { winblend = 0, winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder' },
+          border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' } },
+          timeout = 3000,
+        },
+      },
+      routes = {
+        -- Hide "written" messages
+        { filter = { event = 'msg_show', kind = '', find = 'written' }, opts = { skip = true } },
+        -- Hide search count messages (we show them in statusline)
+        { filter = { event = 'msg_show', kind = 'search_count' }, opts = { skip = true } },
+        -- Send long messages to a split instead of blocking
+        { filter = { event = 'msg_show', min_height = 10 }, view = 'split' },
       },
     },
   },
@@ -196,20 +235,37 @@ return {
     event = 'VeryLazy',
     opts = {
       preset = 'helix',
-      delay = 200,
-      win = { border = ui.border, padding = { 0, 1 }, wo = { winblend = ui.blend } },
+      delay = 180,
+      icons = {
+        breadcrumb = '»',
+        separator = '│',
+        group = ' ',
+        mappings = false,
+      },
+      win = {
+        border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
+        padding = { 1, 2 },
+        title = true,
+        title_pos = 'center',
+        wo = { winblend = 0, winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder,FloatTitle:BlackDocsTitle' },
+      },
+      layout = {
+        align = 'center',
+        spacing = 4,
+      },
       spec = {
-        { '<leader>a', group = 'AI / Copilot' },
-        { '<leader>f', group = 'Find' },
-        { '<leader>s', group = 'Search' },
-        { '<leader>c', group = 'Code' },
-        { '<leader>g', group = 'Git' },
-        { '<leader>u', group = 'Toggle' },
-        { '<leader>x', group = 'Trouble' },
-        { '<leader>b', group = 'Buffer' },
-        { '<leader>w', group = 'Window' },
-        { '<leader>q', group = 'Session' },
-        { '<leader>d', group = 'Debug' },
+        { '<leader>a', group = ' AI / Copilot', icon = '' },
+        { '<leader>f', group = ' Find', icon = '󰍉' },
+        { '<leader>s', group = ' Search', icon = '' },
+        { '<leader>c', group = ' Code', icon = '󰅩' },
+        { '<leader>g', group = ' Git', icon = '󰊢' },
+        { '<leader>u', group = ' Toggle', icon = '' },
+        { '<leader>x', group = ' Trouble', icon = '󰅚' },
+        { '<leader>b', group = ' Buffer', icon = '󰓩' },
+        { '<leader>w', group = ' Window', icon = '' },
+        { '<leader>q', group = ' Session', icon = '󰗈' },
+        { '<leader>d', group = ' Debug', icon = '' },
+        { '<leader>m', group = ' Markdown', icon = '󰍔' },
       },
     },
   },
@@ -220,8 +276,18 @@ return {
     cmd = 'Trouble',
     opts = {
       modes = {
-        symbols = { focus = true, auto_preview = false, win = { position = 'right', size = 32 } },
+        symbols = { focus = true, auto_preview = false, win = { position = 'right', size = 34 } },
         diagnostics = { win = { position = 'bottom', size = 0.25 } },
+      },
+      icons = {
+        indent = {
+          top = '│ ',
+          middle = '├╴',
+          last = '└╴',
+          fold_open = ' ',
+          fold_closed = ' ',
+          ws = '  ',
+        },
       },
     },
     keys = {
@@ -245,6 +311,15 @@ return {
       },
       signs_staged_enable = false,
       preview_config = { border = ui.border, style = 'minimal', relative = 'cursor', row = 0, col = 1 },
+      current_line_blame = false,
+      current_line_blame_opts = { virt_text = true, virt_text_pos = 'eol', delay = 500 },
+      current_line_blame_formatter = '  <author>, <author_time:%R> · <summary>',
+    },
+    keys = {
+      { '<leader>gb', '<cmd>Gitsigns toggle_current_line_blame<cr>', desc = 'Toggle git blame' },
+      { '<leader>gp', '<cmd>Gitsigns preview_hunk<cr>', desc = 'Preview hunk' },
+      { '<leader>gr', '<cmd>Gitsigns reset_hunk<cr>', desc = 'Reset hunk' },
+      { '<leader>gs', '<cmd>Gitsigns stage_hunk<cr>', desc = 'Stage hunk' },
     },
   },
 

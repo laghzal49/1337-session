@@ -74,11 +74,11 @@ return {
         return copilot_cache.state
       end
       opts.options.theme = {
-        normal = mode(palette.blue),
-        insert = mode(palette.green),
-        visual = mode(palette.purple),
-        replace = mode(palette.red),
-        command = mode(palette.yellow),
+        normal = mode('#69AFFF'),
+        insert = mode('#7FE3C2'),
+        visual = mode('#C7A6FF'),
+        replace = mode('#FF8FA3'),
+        command = mode('#FFD166'),
         inactive = mode(palette.grey, true),
       }
       opts.options.ignore_focus = { 'minipick', 'minifiles', 'aerial' }
@@ -141,10 +141,33 @@ return {
             color = { fg = active, bg = black },
           },
           {
-            function() return 'REC @' .. vim.fn.reg_recording() end,
+            function() return ' ' end,
             cond = function() return vim.fn.reg_recording() ~= '' end,
-            color = { fg = palette.red, gui = 'bold' },
-            padding = { left = 1, right = 0 },
+            padding = 0,
+            color = { bg = black },
+          },
+          {
+            function() return '' end,
+            cond = function() return vim.fn.reg_recording() ~= '' end,
+            padding = 0,
+            color = { fg = palette.red, bg = black },
+          },
+          {
+            function()
+              local frames = { '●', '○' }
+              local now = (vim.uv or vim.loop).now()
+              local idx = math.floor(now / 500) % 2 + 1
+              return frames[idx] .. ' REC @' .. vim.fn.reg_recording()
+            end,
+            cond = function() return vim.fn.reg_recording() ~= '' end,
+            color = { fg = '#000000', bg = '#FF8FA3', gui = 'bold' },
+            padding = { left = 1, right = 1 },
+          },
+          {
+            function() return '' end,
+            cond = function() return vim.fn.reg_recording() ~= '' end,
+            padding = 0,
+            color = { fg = palette.red, bg = black },
           },
         },
         lualine_b = {},
@@ -179,6 +202,15 @@ return {
             },
             color = function() return { fg = focused() and palette.light_grey or palette.grey } end,
           },
+          {
+            function()
+              if vim.v.hlsearch == 0 then return '' end
+              local ok, result = pcall(vim.fn.searchcount, { maxcount = 999 })
+              if not ok or result.total == 0 then return '' end
+              return string.format(' %d/%d', result.current, result.total)
+            end,
+            color = { fg = palette.yellow, gui = 'bold' },
+          },
           -- LSP status spinner/indicator: clean animated braille progress
           {
             function()
@@ -196,6 +228,18 @@ return {
           },
         },
         lualine_x = {
+          {
+            function()
+              local ok, lazy_status = pcall(require, 'lazy.status')
+              if ok and lazy_status.has_updates() then return '↑ ' .. lazy_status.updates() end
+              return ''
+            end,
+            color = { fg = palette.orange },
+            cond = function()
+              local ok, lazy_status = pcall(require, 'lazy.status')
+              return ok and lazy_status.has_updates() and vim.o.columns >= 110
+            end,
+          },
           {
             'branch',
             icon = ui.icon('branch'),
@@ -301,7 +345,12 @@ return {
         tab_size = 20,
         enforce_regular_tabs = false,
         always_show_bufferline = false,
-        diagnostics = false,
+        diagnostics = 'nvim_lsp',
+        diagnostics_indicator = function(count, level)
+          local icon = level:match('error') and require('config.ui').icon('error')
+            or level:match('warning') and require('config.ui').icon('warn') or ''
+          return icon .. ' ' .. count
+        end,
         offsets = {
           {
             filetype = 'aerial',
@@ -313,18 +362,26 @@ return {
       },
       highlights = {
         indicator_selected = {
-          fg = '#82AAFF',
+          fg = '#69AFFF',
           bg = '#1E2F47',
         },
         buffer_selected = {
-          fg = '#E6E6E6',
+          fg = '#FFFFFF',
           bg = '#1E2F47',
           bold = true,
           italic = false,
         },
         modified_selected = {
-          fg = '#82AAFF',
+          fg = '#69AFFF',
           bg = '#1E2F47',
+        },
+        buffer_visible = {
+          fg = '#61708A',
+          bg = '#0A0F16',
+        },
+        buffer = {
+          fg = '#61708A',
+          bg = '#0A0F16',
         },
         separator = {
           fg = '#1E2836',
@@ -342,6 +399,27 @@ return {
           fg = '#354357',
           bg = '#0A0F16',
         },
+        diagnostic = {
+          fg = '#61708A',
+          bg = '#0A0F16',
+        },
+        diagnostic_selected = {
+          fg = '#FFFFFF',
+          bg = '#1E2F47',
+          bold = true,
+        },
+        info = { fg = '#61708A', bg = '#0A0F16' },
+        info_selected = { fg = '#69AFFF', bg = '#1E2F47' },
+        info_diagnostic = { fg = '#61708A', bg = '#0A0F16' },
+        info_diagnostic_selected = { fg = '#69AFFF', bg = '#1E2F47' },
+        warning = { fg = '#61708A', bg = '#0A0F16' },
+        warning_selected = { fg = '#FFD166', bg = '#1E2F47' },
+        warning_diagnostic = { fg = '#61708A', bg = '#0A0F16' },
+        warning_diagnostic_selected = { fg = '#FFD166', bg = '#1E2F47' },
+        error = { fg = '#61708A', bg = '#0A0F16' },
+        error_selected = { fg = '#FF8FA3', bg = '#1E2F47' },
+        error_diagnostic = { fg = '#61708A', bg = '#0A0F16' },
+        error_diagnostic_selected = { fg = '#FF8FA3', bg = '#1E2F47' },
       },
     },
   },
