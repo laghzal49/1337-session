@@ -44,4 +44,37 @@ return {
       },
     },
   },
+  {
+    'ray-x/lsp_signature.nvim',
+    event = 'LspAttach',
+    opts = {
+      bind = true,
+      doc_lines = 10,
+      max_height = 12,
+      max_width = 80,
+      wrap = true,
+      floating_window = true,
+      floating_window_above_cur_line = true,
+      floating_window_off_x = 1,
+      floating_window_off_y = 0,
+      fix_pos = false,
+      hint_enable = true,
+      hint_prefix = '󰅩 ',
+      hint_scheme = 'String',
+      hi_parameter = 'LspSignatureActiveParameter',
+      handler_opts = {
+        border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
+      },
+      always_trigger = true,
+      auto_close_after = nil,
+      extra_trigger_chars = { '(', ',' },
+      zindex = 200,
+      padding = '',
+      timer_interval = 100,
+      toggle_key = '<C-k>',
+    },
+    config = function(_, opts)
+      require('lsp_signature').setup(opts)
+    end,
+  },
 }

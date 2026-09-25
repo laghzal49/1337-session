@@ -136,11 +136,7 @@ return {
           ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
           ['vim.lsp.util.stylize_markdown'] = true,
         },
-        signature = {
-          enabled = true,
-          auto_open = { enabled = true, trigger = true, luasnip = true, throttle = 50 },
-          view = 'signature',
-        },
+        signature = { enabled = false },
         hover = {
           enabled = true,
           silent = true,
@@ -180,24 +176,14 @@ return {
         },
         hover = {
           view = 'popup',
-          border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 0, 2 } },
+          border = {
+            style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
+            text = { top = ' 󰈙 Documentation ', top_align = 'center' },
+            padding = { 0, 2 },
+          },
           size = { max_width = 80, max_height = 24 },
           win_options = { wrap = true, linebreak = true, winblend = 0,
             winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder,FloatTitle:BlackDocsTitle' },
-          title = ' 󰈙 Documentation ',
-          title_pos = 'center',
-        },
-        signature = {
-          view = 'popup',
-          relative = 'cursor',
-          position = { row = 2, col = 0 },
-          zindex = 45,
-          border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 0, 2 } },
-          size = { max_width = 80, max_height = 12 },
-          win_options = { wrap = true, linebreak = true, winblend = 0,
-            winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder,FloatTitle:BlackDocsTitle' },
-          title = ' 󰅩 Signature Help ',
-          title_pos = 'center',
         },
         popup = {
           win_options = { winblend = 0, winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder' },
