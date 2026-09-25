@@ -16,7 +16,8 @@
 #             mason needs `python3 -m venv` for basedpyright/mypy/debugpy)
 #   parsers   tree-sitter CLI + a `cc` shim via zig if no C compiler exists
 #             (nvim-treesitter's main branch compiles grammars with cc)
-#   plugins   headless `nvim +Lazy! sync` so the first real launch is instant
+#   c/c++     clangd language server for C and C++
+#   plugins   headless `nvim +Lazy! restore` so the first real launch is instant
 #
 # Usage:
 #   ./install.sh              install everything that's missing
@@ -382,7 +383,7 @@ else
 fi
 
 # ============================================================================
-step "9/11 · treesitter toolchain — CLI + C compiler"
+step "9/11 · treesitter & C/C++ toolchain — tree-sitter · cc · clangd"
 # ============================================================================
 if want tree-sitter; then
   TS_TAG="$(gh_tag tree-sitter/tree-sitter)"
@@ -405,6 +406,25 @@ else
   else
     warn "no C compiler and zig download failed — :TSInstall won't compile grammars (fix: apt install build-essential)"
   fi
+fi
+if want clangd; then
+  if [ "$A_NVIM" = "x86_64" ]; then
+    CLANGD_TAG="$(gh_tag clangd/clangd)"
+    if fetch "https://github.com/clangd/clangd/releases/download/${CLANGD_TAG}/clangd-linux-${CLANGD_TAG}.zip" "$TMP/clangd.zip" \
+        && unzip -oq "$TMP/clangd.zip" -d "$OPT" 2>/dev/null; then
+      ln -sf "$OPT/clangd_${CLANGD_TAG}/bin/clangd" "$BIN/clangd"
+      ok "clangd $CLANGD_TAG → ~/.local/bin/clangd"
+    else
+      warn "clangd release download failed — C/C++ LSP requires clangd on PATH"
+    fi
+  else
+    warn "clangd prebuilt releases only available for x86_64 — install clangd via system package manager"
+  fi
+fi
+if have clangd; then
+  ok "clangd $(clangd --version 2>/dev/null | head -1)"
+else
+  warn "clangd is not on PATH; C/C++ language server will be unavailable"
 fi
 
 # ============================================================================

@@ -259,7 +259,6 @@ return {
         spacing = 4,
       },
       spec = {
-        { '<leader>a', group = ' AI / Copilot', icon = '' },
         { '<leader>f', group = ' Find', icon = '󰍉' },
         { '<leader>s', group = ' Search', icon = '' },
         { '<leader>c', group = ' Code', icon = '󰅩' },
@@ -269,7 +268,6 @@ return {
         { '<leader>b', group = ' Buffer', icon = '󰓩' },
         { '<leader>w', group = ' Window', icon = '' },
         { '<leader>q', group = ' Session', icon = '󰗈' },
-        { '<leader>d', group = ' Debug', icon = '' },
         { '<leader>m', group = ' Markdown', icon = '󰍔' },
       },
     },

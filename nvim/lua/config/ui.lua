@@ -68,7 +68,6 @@ local M = {
     clock = { nerd = '󰅐', text = '[TIME]' },
     calendar = { nerd = '󰃭', text = '[DATE]' },
     person = { nerd = '󰀄', text = '[USR]' },
-    copilot = { nerd = '', text = '[AI]' },
     debug = { nerd = '', text = '[DBG]' },
     play = { nerd = '󰐊', text = '[>]' },
     stop = { nerd = '󰓛', text = '[X]' },

@@ -30,7 +30,6 @@ return {
           z = { bg = background, fg = foreground },
         }
       end
-      local copilot_cache = { at = 0, state = 'unavailable' }
       local function project_name()
         local root = vim.fs.root(0, { 'ty.toml', 'pyproject.toml', 'Cargo.toml', 'go.mod', 'Makefile', '.git' })
           or (vim.uv or vim.loop).cwd()
@@ -47,31 +46,6 @@ return {
       end
       local function reader_mode()
         return vim.bo.filetype == 'markdown' and vim.wo.wrap and vim.wo.linebreak and vim.wo.conceallevel == 3
-      end
-      local function copilot_state()
-        local now = (vim.uv or vim.loop).now()
-        if now - copilot_cache.at < 250 then return copilot_cache.state end
-        copilot_cache.at = now
-
-        local ok, client = pcall(require, 'copilot.client')
-        if not ok or type(client.is_disabled) ~= 'function' then
-          copilot_cache.state = 'unavailable'
-          return copilot_cache.state
-        end
-        local ok_disabled, disabled = pcall(client.is_disabled)
-        if not ok_disabled then
-          copilot_cache.state = 'unavailable'
-          return copilot_cache.state
-        end
-        if disabled then
-          copilot_cache.state = 'disabled'
-          return copilot_cache.state
-        end
-
-        local api = package.loaded['copilot.api']
-        local status = api and api.status and api.status.data and api.status.data.status
-        copilot_cache.state = status == 'InProgress' and 'working' or 'ready'
-        return copilot_cache.state
       end
       opts.options.theme = {
         normal = mode('#69AFFF'),
@@ -280,24 +254,6 @@ return {
             end,
             color = { fg = palette.light_grey },
             cond = function() return vim.o.columns >= 125 end,
-          },
-          {
-            function()
-              return ({
-                unavailable = '',
-                disabled = '',
-                working = '',
-                ready = '',
-              })[copilot_state()]
-            end,
-            color = function()
-              local state = copilot_state()
-              if state == 'disabled' or state == 'unavailable' then return { fg = '#555555' } end
-              if not focused() then return { fg = palette.grey } end
-              if state == 'working' then return { fg = '#E8D48B' } end
-              return { fg = '#82AAFF' }
-            end,
-            cond = function() return vim.o.columns >= 85 end,
           },
         },
         lualine_y = {},

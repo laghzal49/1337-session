@@ -89,26 +89,9 @@ vim.keymap.set({ 'n', 't' }, '<C-t>', toggle_terminal, { desc = 'Toggle Terminal
 vim.keymap.set({ 'n', 't' }, '<C-/>', toggle_terminal, { desc = 'Toggle Terminal' })
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
-map('<leader>ai', function()
-  if vim.fn.executable('copilot') == 0 then
-    vim.notify('Install GitHub Copilot CLI to use AI terminal', vim.log.levels.WARN)
-    return
-  end
-  Snacks.terminal('copilot', {
-    cwd = require('config.project').root(),
-    win = {
-      position = 'float',
-      width = 0.82,
-      height = 0.82,
-      border = require('config.ui').border,
-      wo = { winbar = '  󰚩 GitHub Copilot CLI · q to close' },
-    },
-  })
-end, 'Copilot CLI Terminal')
-
 vim.api.nvim_create_user_command('ConfigTools', function()
   local lines = { 'Tools found on PATH:' }
-  for _, name in ipairs({'ty','ruff','clangd','copilot','rg','git','tree-sitter','cc','lazygit'}) do
+  for _, name in ipairs({'ty','ruff','clangd','rg','git','tree-sitter','cc','lazygit'}) do
     local path = vim.fn.exepath(name)
     lines[#lines + 1] = name .. ': ' .. (path ~= '' and path or 'MISSING')
   end
