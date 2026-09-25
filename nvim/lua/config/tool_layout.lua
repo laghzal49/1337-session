@@ -128,8 +128,6 @@ function M.setup()
         desc = 'Review and apply file changes',
       }))
       register_file_keys(ev.data.buf_id)
-      vim.notify('a create · r rename · d delete · = apply · g? help', vim.log.levels.INFO,
-        { title = 'Mini Files' })
     end,
   })
   vim.api.nvim_create_autocmd('VimResized', { group = group, callback = function()

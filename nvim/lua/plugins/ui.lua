@@ -179,6 +179,7 @@ return {
           scrollbar = false,
         },
         hover = {
+          view = 'popup',
           border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 0, 2 } },
           size = { max_width = 80, max_height = 24 },
           win_options = { wrap = true, linebreak = true, winblend = 0,
@@ -187,6 +188,7 @@ return {
           title_pos = 'center',
         },
         signature = {
+          view = 'popup',
           border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 0, 2 } },
           size = { max_width = 80, max_height = 14 },
           win_options = { wrap = true, linebreak = true, winblend = 0,

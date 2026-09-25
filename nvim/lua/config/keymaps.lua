@@ -73,7 +73,6 @@ vim.api.nvim_create_autocmd('LspAttach', { callback = function(ev)
   vim.keymap.set('n', '<leader>cr', function() return ':IncRename ' .. vim.fn.expand('<cword>') end,
     {buffer=ev.buf, expr=true, desc='Rename symbol'})
   vim.keymap.set('i', '<C-k>', vim.lsp.buf.signature_help, {buffer=ev.buf, desc='Signature help'})
-  lmap('<C-k>', vim.lsp.buf.signature_help, 'Signature help')
   lmap('gK', vim.lsp.buf.signature_help, 'Signature help')
 end })
 
