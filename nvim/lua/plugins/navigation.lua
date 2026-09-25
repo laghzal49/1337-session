@@ -84,8 +84,10 @@ return {
         windows = windows,
         content = {
           prefix = function(fs_entry)
+            if fs_entry.fs_type == "directory" then return ui.icon("folder") .. " ", "Directory" end
             local ok, devicons = pcall(require, 'nvim-web-devicons')
             if not ok then return '  ', 'MiniFilesFileIcon' end
+            if fs_entry.fs_type == 'directory' then return ui.icon('folder') .. ' ', 'Directory' end
             local icon, hl = devicons.get_icon(fs_entry.name, fs_entry.ext, { default = true })
             return (icon or ui.icon('file')) .. ' ', hl or (fs_entry.fs_type == 'directory'
               and 'MiniFilesDirectoryIcon' or 'MiniFilesFileIcon')
