@@ -1,4 +1,5 @@
 local M = {}
+local ui = require('config.ui')
 
 local border = {
   { '╭', 'MiniFilesBorder' }, { '─', 'MiniFilesBorder' },
@@ -56,7 +57,7 @@ function M.decorate_files(ev)
     end
     name = name .. '…'
   end
-  cfg.title = ' 󰉋 ' .. name .. ' '
+  cfg.title = ' ' .. ui.icon('folder') .. ' ' .. name .. ' '
   cfg.title_pos = 'left'
   vim.api.nvim_win_set_config(ev.data.win_id, cfg)
   vim.wo[ev.data.win_id].winblend = 0

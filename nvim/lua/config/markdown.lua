@@ -4,7 +4,7 @@ local options = {
   'wrap', 'linebreak', 'breakindent', 'breakindentopt', 'number', 'relativenumber',
   'numberwidth', 'signcolumn', 'statuscolumn', 'cursorline', 'cursorcolumn',
   'foldcolumn', 'colorcolumn', 'conceallevel', 'concealcursor', 'spell', 'list',
-  'statusline', 'winbar', 'sidescrolloff',
+  'statusline', 'winbar', 'sidescrolloff', 'scrolloff',
 }
 
 local function save(win)
@@ -58,6 +58,7 @@ local function set_reader_options(win)
   wo.list = false
   wo.statusline = ' '
   wo.winbar = ''
+  wo.scrolloff = 4
   wo.sidescrolloff = 12
 end
 

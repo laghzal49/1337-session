@@ -12,7 +12,7 @@ return {
     opts = {
       default = true, color_icons = false, strict = true,
       override = {
-        default_icon = { icon = '󰈚', color = '#A9B9D6', cterm_color = '248', name = 'Default' },
+        default_icon = { icon = ui.icon('file'), color = '#A9B9D6', cterm_color = '248', name = 'Default' },
       },
       override_by_extension = {
         py = { icon = '󰌠', name = 'Python', color = '#7FE3C2' },
@@ -22,6 +22,22 @@ return {
         json = { icon = '', name = 'Json', color = '#FFD166' },
         md = { icon = '', name = 'Markdown', color = '#69AFFF' },
         sh = { icon = '', name = 'Shell', color = '#B8E986' },
+        ts = { icon = '', name = 'TypeScript', color = '#70D7FF' },
+        tsx = { icon = '', name = 'TypeScriptReact', color = '#70D7FF' },
+        js = { icon = '', name = 'JavaScript', color = '#FFD166' },
+        jsx = { icon = '', name = 'JavaScriptReact', color = '#FFD166' },
+        html = { icon = '', name = 'Html', color = '#E88B8B' },
+        css = { icon = '', name = 'Css', color = '#7FB4F5' },
+        yaml = { icon = '󰈙', name = 'Yaml', color = '#B8D7F0' },
+        yml = { icon = '󰈙', name = 'Yaml', color = '#B8D7F0' },
+        toml = { icon = '󰈙', name = 'Toml', color = '#B8D7F0' },
+        rs = { icon = '', name = 'Rust', color = '#E8D48B' },
+        go = { icon = '', name = 'Go', color = '#70D7FF' },
+        lock = { icon = '󰌾', name = 'Lock', color = '#76839A' },
+      },
+      override_by_filename = {
+        ['Dockerfile'] = { icon = '󰡨', name = 'Dockerfile', color = '#70D7FF' },
+        ['docker-compose.yml'] = { icon = '󰡨', name = 'DockerCompose', color = '#70D7FF' },
       },
     },
   },
@@ -56,7 +72,7 @@ return {
       },
       input = {
         enabled = true,
-        icon = ' ',
+        icon = ui.icon('command') .. ' ',
         prompt_pos = 'title',
         win = {
           border = ui.border,
@@ -103,11 +119,11 @@ return {
       notify = { enabled = false },
       cmdline = {
         format = {
-          cmdline = { icon = '', title = ' COMMAND ' },
-          lua = { icon = '󰢱', title = ' LUA ' },
-          search_down = { icon = '󰍉', title = ' SEARCH FORWARD ' },
-          search_up = { icon = '󰍉', title = ' SEARCH BACKWARD ' },
-          help = { icon = '󰋖', title = ' HELP ' },
+          cmdline = { icon = ui.icon('command'), title = ' COMMAND ' },
+          lua = { icon = ui.icon('lua'), title = ' LUA ' },
+          search_down = { icon = ui.icon('search'), title = ' SEARCH FORWARD ' },
+          search_up = { icon = ui.icon('search'), title = ' SEARCH BACKWARD ' },
+          help = { icon = ui.icon('help'), title = ' HELP ' },
           filter = { icon = '󰞷', title = ' SHELL ' },
         },
       },
@@ -151,6 +167,7 @@ return {
     'folke/edgy.nvim',
     event = 'VeryLazy',
     opts = function(_, opts)
+      local icon = ui.icon
       opts.animate = { enabled = false }
       opts.options = {
         left = { size = 28 },
@@ -160,14 +177,14 @@ return {
       }
       opts.left = {}
       opts.right = {
-        { title = ' 󰅩  SYMBOLS', ft = 'aerial', size = { width = 26 } },
+        { title = ' ' .. icon('symbols') .. '  SYMBOLS', ft = 'aerial', size = { width = 26 } },
       }
       opts.bottom = {
-        { title = '   TERMINAL', ft = 'snacks_terminal', size = { height = 0.30 },
+        { title = ' ' .. icon('terminal') .. '  TERMINAL', ft = 'snacks_terminal', size = { height = 0.30 },
           filter = function(_, win) return vim.api.nvim_win_get_config(win).relative == '' end },
-        { title = ' 󰒡  RESULTS', ft = 'qf', size = { height = 0.25 } },
-        { title = ' 󰅚  DIAGNOSTICS', ft = 'trouble', size = { height = 0.25 } },
-        { title = ' 󰋖  HELP', ft = 'help', size = { height = 0.35 } },
+        { title = ' ' .. icon('info') .. '  RESULTS', ft = 'qf', size = { height = 0.25 } },
+        { title = ' ' .. icon('diagnostics') .. '  DIAGNOSTICS', ft = 'trouble', size = { height = 0.25 } },
+        { title = ' ' .. icon('help') .. '  HELP', ft = 'help', size = { height = 0.35 } },
       }
       opts.top = {}
     end,

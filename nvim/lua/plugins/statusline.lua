@@ -6,6 +6,7 @@ return {
     opts = function(_, opts)
       opts.options = opts.options or {}
       local palette = require('onedark.colors')
+      local ui = require('config.ui')
       local black = '#0A0F16'
       local active = '#172333'
       local inactive = '#0D131C'
@@ -149,20 +150,20 @@ return {
         lualine_b = {},
         lualine_c = {
           {
-            function() return '󰉋 ' .. project_name() end,
+            function() return ui.icon('workspace') .. ' ' .. project_name() end,
             color = { fg = palette.light_grey },
             cond = function() return vim.o.columns >= 100 end,
           },
           {
             'filename',
             path = 1,
-            icon = '',
+            icon = ui.icon('file'),
             color = function()
               return { fg = focused() and palette.fg or palette.grey, gui = 'bold' }
             end,
             symbols = {
-              modified = ' ●',
-              readonly = ' 󰌾',
+              modified = ' ' .. ui.icon('modified'),
+              readonly = ' ' .. ui.icon('lock'),
               unnamed = 'Untitled',
             },
           },
@@ -170,7 +171,12 @@ return {
             'diagnostics',
             sources = { 'nvim_diagnostic' },
             sections = { 'error', 'warn', 'hint', 'info' },
-            symbols = { error = '  ', warn = '  ', hint = '  ', info = '  ' },
+            symbols = {
+              error = ' ' .. ui.icon('error') .. ' ',
+              warn = ' ' .. ui.icon('warn') .. ' ',
+              hint = ' ' .. ui.icon('hint') .. ' ',
+              info = ' ' .. ui.icon('info') .. ' ',
+            },
             color = function() return { fg = focused() and palette.light_grey or palette.grey } end,
           },
           -- LSP status spinner/indicator: clean animated braille progress
@@ -192,7 +198,7 @@ return {
         lualine_x = {
           {
             'branch',
-            icon = '',
+            icon = ui.icon('branch'),
             color = function() return { fg = focused() and palette.light_grey or palette.grey } end,
             cond = function() return vim.o.columns >= 100 end,
           },
@@ -200,7 +206,7 @@ return {
             function()
               local clients = vim.lsp.get_clients({ bufnr = 0 })
               if #clients == 0 then return '' end
-              return '󰒋 ' .. (#clients == 1 and clients[1].name or (#clients .. ' LSP'))
+              return ui.icon('symbols') .. ' ' .. (#clients == 1 and clients[1].name or (#clients .. ' LSP'))
             end,
             color = function() return { fg = focused() and palette.cyan or palette.grey } end,
             cond = function() return vim.o.columns >= 105 end,
@@ -208,7 +214,7 @@ return {
           {
             function()
               local formatter = formatter_name()
-              return formatter ~= '' and '󰉿 ' .. formatter or ''
+              return formatter ~= '' and ui.icon('command') .. ' ' .. formatter or ''
             end,
             color = { fg = palette.green },
             cond = function() return vim.o.columns >= 115 and formatter_name() ~= '' end,
@@ -219,7 +225,7 @@ return {
             cond = function() return vim.o.columns >= 125 end,
           },
           {
-            function() return reader_mode() and '󰗈 READ' or '' end,
+            function()             return reader_mode() and (ui.icon('read') .. ' READ') or '' end,
             color = { fg = palette.purple },
             cond = function() return vim.o.columns >= 105 and reader_mode() end,
           },

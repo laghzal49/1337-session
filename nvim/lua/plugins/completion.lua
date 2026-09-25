@@ -6,6 +6,7 @@ return {
     url = 'https://github.com/iguanacucumber/magazine.nvim.git',
     opts = function(_, opts)
       local cmp = require('cmp')
+      local ui = require('config.ui')
       -- The documentation decorator is optional so completion still loads when
       -- running against an unpatched cmp build.
       pcall(function()
@@ -144,38 +145,27 @@ return {
         return result .. '…'
       end
 
-      -- Authentic VS Code Codicon glyphs from JetBrains Mono Nerd Font
+      -- Use the same symbol family as Aerial; ui.symbol() also supplies the
+      -- readable fallback when a terminal does not have a Nerd Font.
       local kinds = {
-        Text = '\u{ea73}',          -- 
-        Method = '\u{ea8c}',        -- 
-        Function = '\u{ea8c}',      -- 
-        Constructor = '\u{ea8c}',   -- 
-        Field = '\u{eb5f}',         -- 
-        Variable = '\u{ea88}',      -- 
-        Class = '\u{eb5b}',         -- 
-        Interface = '\u{eb61}',     -- 
-        Module = '\u{ea8b}',        -- 
-        Property = '\u{eb65}',      -- 
-        Unit = '\u{ea96}',          -- 
-        Value = '\u{ea95}',         -- 
-        Enum = '\u{ea95}',          -- 
-        Keyword = '\u{eb62}',       -- 
-        Snippet = '\u{eb66}',       -- 
-        Color = '\u{eb5c}',         -- 
-        File = '\u{ea7b}',          -- 
-        Reference = '\u{ea74}',     -- 
-        Folder = '\u{ea83}',        -- 
-        EnumMember = '\u{eb5e}',    -- 
-        Constant = '\u{eb5d}',      -- 
-        Struct = '\u{ea91}',        -- 
-        Event = '\u{ea86}',         -- 
-        Operator = '\u{eb64}',      -- 
-        TypeParameter = '\u{ea92}', -- 
+        Text = ui.symbol('String'), Method = ui.symbol('Method'),
+        Function = ui.symbol('Function'), Constructor = ui.symbol('Constructor'),
+        Field = ui.symbol('Field'), Variable = ui.symbol('Variable'),
+        Class = ui.symbol('Class'), Interface = ui.symbol('Interface'),
+        Module = ui.symbol('Module'), Property = ui.symbol('Property'),
+        Unit = ui.symbol('Number'), Value = ui.symbol('Constant'),
+        Enum = ui.symbol('Enum'), Keyword = ui.symbol('Operator'),
+        Snippet = ui.symbol('String'), Color = ui.symbol('Constant'),
+        File = ui.symbol('File'), Reference = ui.symbol('Key'),
+        Folder = ui.symbol('Module'), EnumMember = ui.symbol('EnumMember'),
+        Constant = ui.symbol('Constant'), Struct = ui.symbol('Struct'),
+        Event = ui.symbol('Event'), Operator = ui.symbol('Operator'),
+        TypeParameter = ui.symbol('TypeParameter'),
       }
 
       opts.formatting.format = function(entry, item)
         local kind = item.kind
-        item.kind = kinds[kind] or '\u{ea73}'
+        item.kind = kinds[kind] or ui.icon('file')
         item.kind_hl_group = kinds[kind] and ('CmpItemKind' .. kind) or 'CmpItemKindDefault'
 
         -- Keep the label readable while retaining cmp's match highlighting.

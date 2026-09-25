@@ -6,3 +6,4 @@ vim.env.PATH = vim.fn.stdpath("data") .. "/mason/bin:" .. vim.env.PATH
 -- Bootstrap lazy.nvim and the explicitly configured plugins
 require("config.lazy")
 require("config.pdf").setup()
+require("config.image").setup_commands()

@@ -2,12 +2,16 @@ local M = {}
 local history, dropped, generation, added = {}, 0, 0, 0
 local limit = 500
 local config
+local ui = require("config.ui")
 local function expire(notify, id, delay)
   local epoch = generation
   vim.defer_fn(function() if epoch == generation then notify.remove(id) end end, delay)
 end
 local levels = { [0] = "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "OFF" }
-local icons = { ERROR = "", WARN = "", INFO = "", DEBUG = "", TRACE = "" }
+local icons = {
+  ERROR = ui.icon("error"), WARN = ui.icon("warn"), INFO = ui.icon("info"),
+  DEBUG = ui.icon("hint"), TRACE = ui.icon("hint"),
+}
 
 -- Transform display copies only; the bounded journal stores original messages.
 function M.sort(items)

@@ -1,5 +1,20 @@
 -- Editing tools, quickfix, text objects, and visual utilities.
 return {
+  {
+    '3rd/image.nvim',
+    cmd = { 'ImageView', 'ImageOpenExternal', 'ImageClear', 'ImageInfo' },
+    event = {
+      'BufReadPost *.png', 'BufReadPost *.jpg', 'BufReadPost *.jpeg', 'BufReadPost *.gif',
+      'BufReadPost *.webp', 'BufReadPost *.avif', 'BufReadPost *.tiff',
+      'BufReadPost *.PNG', 'BufReadPost *.JPG', 'BufReadPost *.JPEG', 'BufReadPost *.GIF',
+      'BufReadPost *.WEBP', 'BufReadPost *.AVIF', 'BufReadPost *.TIFF',
+    },
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      local images = require('config.image')
+      images.setup_commands()
+    end,
+  },
   { 'smjonas/inc-rename.nvim', cmd = 'IncRename', opts = {} },
   {
     'stevearc/quicker.nvim',
@@ -122,25 +137,76 @@ return {
       { '<leader>mD', '<cmd>MarkdownReaderDisable<cr>', ft = 'markdown', desc = 'Disable Markdown reader mode' },
     },
     opts = {
+      -- Keep normal mode calm and readable while still rendering in command and
+      -- terminal preview contexts. The file-size guard prevents expensive
+      -- decoration from making generated or vendored Markdown unpleasant.
+      enabled = true,
+      render_modes = { 'n', 'c', 't' },
+      debounce = 120,
+      max_file_size = 10.0,
+      preset = 'none',
       file_types = { 'markdown' },
+      anti_conceal = {
+        enabled = true,
+        above = 0,
+        below = 0,
+        ignore = {
+          code_background = true,
+          indent = true,
+          link = true,
+          sign = true,
+          virtual_lines = true,
+        },
+      },
       heading = {
         enabled = true,
         sign = false,
         icons = {},
         position = 'overlay',
         width = 'block',
-        left_pad = 0,
+        left_pad = 1,
         right_pad = 2,
+        border = false,
+        backgrounds = {
+          'RenderMarkdownH1Bg',
+          'RenderMarkdownH2Bg',
+          'RenderMarkdownH3Bg',
+          'RenderMarkdownH4Bg',
+          'RenderMarkdownH5Bg',
+          'RenderMarkdownH6Bg',
+        },
       },
       code = {
         enabled = true,
         sign = false,
         position = 'left',
-        width = 'block',
+        language = true,
+        language_name = true,
+        language_info = true,
+        width = 'full',
         left_pad = 1,
         right_pad = 2,
+        border = 'hide',
+        disable_background = { 'diff' },
+        inline = true,
       },
-      checkbox = { enabled = true },
+      checkbox = {
+        enabled = true,
+      },
+      quote = {
+        enabled = true,
+        repeat_linebreak = false,
+      },
+      pipe_table = {
+        enabled = true,
+        preset = 'round',
+        style = 'full',
+      },
+      yaml = { enabled = true },
+      win_options = {
+        conceallevel = { default = 2, rendered = 3 },
+        concealcursor = { default = '', rendered = 'n' },
+      },
     },
   },
 }

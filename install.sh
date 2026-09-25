@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 # ============================================================================
-# 1337-session bootstrap — a COMPLETE dev environment on Ubuntu, ZERO sudo.
+# 1337-session bootstrap — a user-local Neovim environment, ZERO sudo.
 # ============================================================================
-# Everything installs into ~/.local from official prebuilt release binaries:
+# Everything this script can install is placed in ~/.local from official
+# prebuilt release binaries.  Desktop integration (xdg-open), a Kitty-capable
+# terminal, and Poppler's pdftotext are checked but are not silently faked:
+# there are no reliable upstream Linux binaries for those dependencies.
 #
 #   font      JetBrainsMono Nerd Font (icons for the whole UI)
 #   editor    Neovim (latest stable) + this repo's config linked in
@@ -32,7 +35,11 @@ for arg in "$@"; do
   case "$arg" in
     --force) FORCE=1 ;;
     --no-sync) NOSYNC=1 ;;
-    *) echo "unknown flag: $arg (known: --force --no-sync)" >&2; exit 2 ;;
+    --help|-h)
+      sed -n '2,22p' "$0"
+      exit 0
+      ;;
+    *) echo "unknown flag: $arg (known: --force --no-sync --help)" >&2; exit 2 ;;
   esac
 done
 
@@ -41,10 +48,17 @@ LOCAL="$HOME/.local"
 BIN="$LOCAL/bin"
 OPT="$LOCAL/opt"
 FONTS="$LOCAL/share/fonts"
+umask 077
 mkdir -p "$BIN" "$OPT" "$FONTS"
 export PATH="$BIN:$PATH" # so later steps see what earlier steps installed
 
-TMP="$(mktemp -d)"
+# Do not use /tmp: it may be shared with other users.  A private, predictable
+# per-process directory under ~/.local is just as useful and remains in $HOME.
+TMP="$LOCAL/var/tmp/1337-session.$$"
+if ! (umask 077 && mkdir "$TMP"); then
+  printf 'could not create private working directory: %s\n' "$TMP" >&2
+  exit 1
+fi
 trap 'rm -rf "$TMP"' EXIT
 
 # ── pretty logging ──────────────────────────────────────────────────────────
@@ -73,9 +87,10 @@ want() { # want <command>
 # ── downloads ───────────────────────────────────────────────────────────────
 fetch() { # fetch <url> <dest-file>
   if have curl; then
-    curl -fL --retry 3 --retry-delay 2 --progress-bar -o "$2" "$1"
+    curl --fail --location --proto '=https' --tlsv1.2 \
+      --retry 3 --retry-delay 2 --progress-bar -o "$2" "$1"
   else
-    wget -q --show-progress --tries=3 -O "$2" "$1"
+    wget --https-only --no-verbose --tries=3 -O "$2" "$1"
   fi
 }
 
@@ -83,7 +98,8 @@ fetch() { # fetch <url> <dest-file>
 # (no API call, so no rate limits)
 gh_tag() { # gh_tag <owner/repo>
   if have curl; then
-    curl -fsSLI -o /dev/null -w '%{url_effective}' \
+    curl --fail --silent --show-error --location --proto '=https' --tlsv1.2 \
+      --head -o /dev/null -w '%{url_effective}' \
       "https://github.com/$1/releases/latest" | sed 's|.*/tag/||'
   else
     wget -q --max-redirect=10 --server-response --spider \
@@ -175,9 +191,9 @@ fi
 have python3 || warn "python3 missing (very unusual for Ubuntu) — mason's pip tools and the unzip/xz shims need it"
 
 # ============================================================================
-step "1/10 · PATH — ~/.local/bin in every future shell"
+step "1/11 · PATH — ~/.local/bin in every future shell"
 # ============================================================================
-PATH_LINE='export PATH="$HOME/.local/bin:$PATH" # 1337-session'
+PATH_LINE="export PATH=\"\$HOME/.local/bin:\$PATH\" # 1337-session"
 for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
   if [ -f "$rc" ] && ! grep -qs '# 1337-session' "$rc"; then
     printf '\n%s\n' "$PATH_LINE" >> "$rc"
@@ -191,7 +207,7 @@ if [ ! -f "$HOME/.bashrc" ]; then
 fi
 
 # ============================================================================
-step "2/10 · JetBrainsMono Nerd Font (the UI's icons)"
+step "2/11 · JetBrainsMono Nerd Font (the UI's icons)"
 # ============================================================================
 if [ -e "$FONTS/JetBrainsMonoNerdFontMono-Regular.ttf" ] \
     && [ -e "$FONTS/JetBrainsMonoNerdFontMono-Bold.ttf" ] \
@@ -214,7 +230,7 @@ else
 fi
 
 # ============================================================================
-step "3/10 · Neovim (latest stable)"
+step "3/11 · Neovim (latest stable)"
 # ============================================================================
 if want nvim; then
   fetch "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${A_NVIM}.tar.gz" "$TMP/nvim.tar.gz"
@@ -225,7 +241,7 @@ if want nvim; then
 fi
 
 # ============================================================================
-step "4/10 · search tools — ripgrep · fd · fzf"
+step "4/11 · search tools — ripgrep · fd · fzf"
 # ============================================================================
 if want rg; then
   RG_TAG="$(gh_tag BurntSushi/ripgrep)" # tags have no v prefix
@@ -250,7 +266,7 @@ if want fzf; then
 fi
 
 # ============================================================================
-step "5/10 · lazygit (<leader>gg)"
+step "5/11 · lazygit (<leader>gg)"
 # ============================================================================
 if want lazygit; then
   LG_TAG="$(gh_tag jesseduffield/lazygit)" # v0.45.0 → asset uses 0.45.0
@@ -261,7 +277,7 @@ if want lazygit; then
 fi
 
 # ============================================================================
-step "6/10 · Node.js LTS (mason/LSP packages that need npm)"
+step "6/11 · Node.js LTS (mason/LSP packages that need npm)"
 # ============================================================================
 if want node; then
   # first row of index.tab whose LTS column isn't "-" = newest LTS
@@ -276,14 +292,22 @@ if want node; then
   done
   ok "node $NODE_V (+ npm, npx)"
 fi
+if have node && have npm && have npx; then
+  ok "node/npm/npx are on PATH for Mason packages"
+elif have node; then
+  warn "Node is installed but npm or npx is missing; Mason npm packages may fail"
+fi
 
 # ============================================================================
-step "7/10 · Python tooling — uv (+ venv capability for mason)"
+step "7/11 · Python tooling — uv (+ venv capability for mason)"
 # ============================================================================
 if want uv; then
   fetch "https://astral.sh/uv/install.sh" "$TMP/uv-install.sh"
-  env UV_NO_MODIFY_PATH=1 UV_INSTALL_DIR="$BIN" sh "$TMP/uv-install.sh" >/dev/null 2>&1 \
-    || sh "$TMP/uv-install.sh" >/dev/null 2>&1 || warn "uv installer failed"
+  if env UV_NO_MODIFY_PATH=1 UV_INSTALL_DIR="$BIN" sh "$TMP/uv-install.sh" >/dev/null 2>&1; then
+    :
+  else
+    warn "uv installer failed"
+  fi
   have uv && ok "uv $(uv --version 2>/dev/null | awk '{print $2}')"
 fi
 # Install the Python language server without sudo; uv places its executable in ~/.local/bin.
@@ -309,13 +333,46 @@ elif have uv; then
   uv python install --default --preview >/dev/null 2>&1 \
     || uv python install --default >/dev/null 2>&1 \
     || warn "couldn't install a managed Python — mason's pip packages may fail (fix: apt install python3-venv)"
-  have python3 && ok "uv-managed Python shimmed into ~/.local/bin"
+  if [ -d "$HOME/.local/share/uv/python" ]; then
+    ok "uv-managed Python installed for user-local tooling"
+  else
+    warn "uv installed but no managed Python was found"
+  fi
 else
   warn "no venv-capable python3 and no uv — mason's pip packages may fail"
 fi
 
 # ============================================================================
-step "8/10 · treesitter toolchain — CLI + C compiler"
+step "8/11 · image/PDF runtime dependencies (checked, never guessed)"
+# ============================================================================
+# image.nvim's Kitty backend requires an actual Kitty-compatible terminal and
+# ImageMagick's `magick` CLI.  PdfRead requires Poppler's `pdftotext`.
+# These are distro/desktop integrations rather than portable release tools:
+# do not install an unrelated binary and pretend it is equivalent.
+if have magick; then
+  ok "ImageMagick magick CLI"
+else
+  warn "Image.nvim image rendering unavailable: install ImageMagick (magick) with your OS package manager"
+fi
+if have pdftotext; then
+  ok "Poppler pdftotext"
+else
+  warn "PDF text reading unavailable: install Poppler (pdftotext) with your OS package manager"
+fi
+if [ "${TERM:-}" = "xterm-kitty" ] || [ -n "${KITTY_WINDOW_ID:-}" ] \
+    || [ "${TERM_PROGRAM:-}" = "kitty" ]; then
+  ok "Kitty terminal image protocol detected"
+else
+  warn "image.nvim will use the external viewer fallback outside Kitty; no terminal can be installed safely from this script"
+fi
+if have xdg-open || have open; then
+  ok "desktop external viewer launcher"
+else
+  warn "no xdg-open/open; ImageOpenExternal and PdfOpen need a desktop launcher"
+fi
+
+# ============================================================================
+step "9/11 · treesitter toolchain — CLI + C compiler"
 # ============================================================================
 if want tree-sitter; then
   TS_TAG="$(gh_tag tree-sitter/tree-sitter)"
@@ -341,7 +398,7 @@ else
 fi
 
 # ============================================================================
-step "9/10 · this repo's Neovim config → ~/.config/nvim"
+step "10/11 · this repo's Neovim config → ~/.config/nvim"
 # ============================================================================
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
 if [ -d "$SCRIPT_DIR/nvim" ]; then
@@ -360,26 +417,30 @@ if [ -e "$HOME/.config/nvim" ] && [ ! -L "$HOME/.config/nvim" ]; then
   warn "existing ~/.config/nvim moved to ${BAK/#$HOME/~}"
 fi
 ln -sfn "$REPO_DIR/nvim" "$HOME/.config/nvim"
-ok "~/.config/nvim → ${REPO_DIR/#$HOME/~}/nvim"
+ok "$HOME/.config/nvim → ${REPO_DIR/#$HOME/~}/nvim"
 
 # ============================================================================
-step "10/10 · preinstall pinned plugins and parsers"
+step "11/11 · preinstall pinned plugins and parsers"
 # ============================================================================
 if [ "$NOSYNC" = 1 ]; then
   printf '%s  ↷ skipped (--no-sync)%s\n' "$C_DIM" "$C_OFF"
 elif have nvim; then
   if have timeout; then
-    timeout 900 nvim --headless "+Lazy! restore" +qa >/dev/null 2>&1 \
-      && ok "plugins installed" \
-      || warn "headless plugin sync didn't finish — first nvim launch will finish it"
+    if timeout 900 nvim --headless "+Lazy! restore" +qa >/dev/null 2>&1; then
+      ok "plugins installed"
+    else
+      warn "headless plugin sync didn't finish — first nvim launch will finish it"
+    fi
+  elif nvim --headless "+Lazy! restore" +qa >/dev/null 2>&1; then
+    ok "plugins installed"
   else
-    nvim --headless "+Lazy! restore" +qa >/dev/null 2>&1 \
-      && ok "plugins installed" \
-      || warn "headless plugin sync didn't finish — first nvim launch will finish it"
+    warn "headless plugin sync didn't finish — first nvim launch will finish it"
   fi
-  nvim --headless "+lua require('nvim-treesitter').install({'python','c','cpp','lua','vim','vimdoc','query','markdown','markdown_inline'}):wait(300000)" +qa >/dev/null 2>&1 \
-    && ok "syntax parsers installed" \
-    || warn "parser setup incomplete — run :TSInstall python c cpp lua vim vimdoc query markdown markdown_inline"
+  if nvim --headless "+lua require('nvim-treesitter').install({'python','c','cpp','lua','vim','vimdoc','query','markdown','markdown_inline'}):wait(300000)" +qa >/dev/null 2>&1; then
+    ok "syntax parsers installed"
+  else
+    warn "parser setup incomplete — run :TSInstall python c cpp lua vim vimdoc query markdown markdown_inline"
+  fi
 fi
 
 # ── clipboard note (informational only — needs no install) ─────────────────
