@@ -99,6 +99,7 @@ function M.highlights()
   groups('BlackDocsParam', { fg = M.accent, fmt = 'bold' })
   groups('BlackDocsType', { fg = M.teal })
   groups('BlackDocsReturn', { fg = '#7FE3C2' })
+  groups('LspSignatureActiveParameter', { fg = '#82AAFF', bg = '#16283D', fmt = 'bold,underline' })
 
   -- Snacks input enhanced
   groups('SnacksInputIcon', { bg = M.panel, fg = M.accent })

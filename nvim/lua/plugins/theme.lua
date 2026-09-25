@@ -434,6 +434,7 @@ return {
         CmpItemAbbrMatch = { fg = "#FFFFFF", fmt = "bold,underline" },
         CmpItemAbbrMatchFuzzy = { fg = "#69AFFF", fmt = "bold" },
         CmpItemMenu = { fg = "$light_grey" },
+        LspSignatureActiveParameter = { fg = "#82AAFF", bg = "#16283D", fmt = "bold,underline" },
         BufferLineFill = { bg = "$bg1" },
         BufferLineBackground = { bg = "$bg1", fg = "$grey" },
         BufferLineBufferSelected = { bg = "$bg2", fg = "$fg", fmt = "bold" },
