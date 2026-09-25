@@ -94,14 +94,13 @@ return {
             return vim.list_extend(dirs, files)
           end,
           prefix = function(fs_entry)
-            if fs_entry.fs_type == 'directory' then
-              return ui.icon('folder') .. ' ', 'MiniFilesDirectory'
-            end
-            -- Use mini.icons for file type detection if available
             local ok_icons, mini_icons = pcall(require, 'mini.icons')
             if ok_icons then
-              local icon, hl = mini_icons.get('file', fs_entry.name)
+              local icon, hl = mini_icons.get(fs_entry.fs_type, fs_entry.name)
               return icon .. ' ', hl
+            end
+            if fs_entry.fs_type == 'directory' then
+              return ui.icon('folder') .. ' ', 'MiniFilesDirectoryIcon'
             end
             local ok, devicons = pcall(require, 'nvim-web-devicons')
             if ok then
