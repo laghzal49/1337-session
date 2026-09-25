@@ -18,9 +18,12 @@ function M.setup()
     if not vim.api.nvim_buf_is_valid(buf) then buffers[buf] = nil; return end
     local lines = {}
     -- One explicit display policy; each source's severity filter is applied at ingestion.
+    local icons = require('config.ui')
     local opts = { severity_sort = true, signs = { priority = 10, text = {
-      [vim.diagnostic.severity.ERROR] = "", [vim.diagnostic.severity.WARN] = "",
-      [vim.diagnostic.severity.INFO] = "", [vim.diagnostic.severity.HINT] = "",
+      [vim.diagnostic.severity.ERROR] = icons.icon('error'),
+      [vim.diagnostic.severity.WARN] = icons.icon('warn'),
+      [vim.diagnostic.severity.INFO] = icons.icon('info'),
+      [vim.diagnostic.severity.HINT] = icons.icon('hint'),
     } } }
     for _, source in pairs(buffers[buf] or {}) do
       for _, diagnostic in ipairs(source.diagnostics) do
