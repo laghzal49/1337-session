@@ -138,7 +138,7 @@ return {
         },
         signature = {
           enabled = true,
-          auto_open = { enabled = false },
+          auto_open = { enabled = true, trigger = true, luasnip = true, throttle = 50 },
           view = 'signature',
         },
         hover = {
@@ -189,8 +189,11 @@ return {
         },
         signature = {
           view = 'popup',
+          relative = 'cursor',
+          position = { row = 2, col = 0 },
+          zindex = 45,
           border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 0, 2 } },
-          size = { max_width = 80, max_height = 14 },
+          size = { max_width = 80, max_height = 12 },
           win_options = { wrap = true, linebreak = true, winblend = 0,
             winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder,FloatTitle:BlackDocsTitle' },
           title = ' 󰅩 Signature Help ',
