@@ -55,8 +55,6 @@ return {
       vim.api.nvim_set_hl(0, 'MiniIconsYellow', { fg = '#FFD166' })
     end,
   },
-  -- Compatibility shim — plugins that require nvim-web-devicons will use mini.icons
-  { 'nvim-tree/nvim-web-devicons', lazy = true, enabled = vim.g.have_nerd_font ~= false },
 
   -- ── Snacks (all features consolidated) ───────────────────────────────
   {

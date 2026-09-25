@@ -150,15 +150,11 @@ return {
     },
     opts = {},
   },
-  { 'mfussenegger/nvim-dap', cmd = { 'DapContinue', 'DapToggleBreakpoint' }, keys = {
-    { '<leader>db', function() require('dap').toggle_breakpoint() end, desc = 'Breakpoint' },
-    { '<leader>dc', function() require('dap').continue() end, desc = 'Continue debugger' },
-  } },
   {
     'MeanderingProgrammer/render-markdown.nvim',
     ft = { 'markdown' },
     init = function() require('config.markdown').setup() end,
-    dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
+    dependencies = { 'nvim-treesitter/nvim-treesitter' },
     keys = {
       { '<leader>um', '<cmd>RenderMarkdown toggle<cr>', ft = 'markdown', desc = 'Toggle Markdown rendering' },
       { '<leader>mr', '<cmd>MarkdownReaderToggle<cr>', ft = 'markdown', desc = 'Toggle Markdown reader mode' },
