@@ -116,6 +116,9 @@ count survives rollover, but older details can age out. History is session-only.
 Requires **Neovim 0.11+**, Git and ripgrep. Select **JetBrainsMono Nerd Font Mono,
 13 pt** in the terminal, with its real Italic face. Terminal fonts are not set by Lua.
 Use the [repository installer](../Readme.md) for the no-sudo workstation setup.
+Run `:IconInfo` to check the configured icon mode. If your terminal cannot use
+Nerd Font glyphs, launch with `NVIM_ASCII_ICONS=1 nvim` for clean text icons
+instead of boxes or corrupted symbols.
 
 For an existing installation, update the repository, then run `:Lazy restore`.
 After checking that the new config works, `:Lazy clean` removes unused plugin

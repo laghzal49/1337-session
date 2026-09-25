@@ -114,3 +114,12 @@ vim.api.nvim_create_user_command('ConfigTools', function()
   end
   vim.notify(table.concat(lines, '\n'), vim.log.levels.INFO, {title='Config tools'})
 end, {})
+
+vim.api.nvim_create_user_command('IconInfo', function()
+  local font = vim.g.have_nerd_font == false and 'ASCII fallback' or 'Nerd Font glyphs'
+  vim.notify(table.concat({
+    'Icon mode: ' .. font,
+    'Expected terminal font: JetBrainsMono Nerd Font Mono',
+    'To use ASCII on the next launch: NVIM_ASCII_ICONS=1 nvim',
+  }, '\n'), vim.log.levels.INFO, { title = 'Neovim icons' })
+end, { desc = 'Show icon font status' })

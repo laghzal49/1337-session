@@ -50,6 +50,10 @@ local M = {
   },
 }
 
+if vim.g.have_nerd_font == nil then
+  vim.g.have_nerd_font = vim.env.NVIM_ASCII_ICONS ~= '1'
+end
+
 function M.icon(name)
   local icon = M.icons[name] or M.icons.file
   return vim.g.have_nerd_font == false and icon.text or icon.nerd
