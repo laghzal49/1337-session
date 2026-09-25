@@ -73,15 +73,16 @@ return {
       end, desc = 'Browse current file (Mini Files)' },
       { '<leader>fM', function() require('mini.files').open(require('config.project').root(), true, require('config.tool_layout').files()) end, desc = 'Browse project (Mini Files)' },
     },
-    opts = {
-      options = { use_as_default_explorer = true },
-      windows = {
-        max_number = 3,
-        preview = false,
-        width_focus = 36,
-        width_nofocus = 16,
-      },
-    },
+    opts = function()
+      local windows = require('config.tool_layout').files().windows
+      return {
+        options = {
+          use_as_default_explorer = true,
+          permanent_delete = false,
+        },
+        windows = windows,
+      }
+    end,
   },
   {
     'stevearc/aerial.nvim',

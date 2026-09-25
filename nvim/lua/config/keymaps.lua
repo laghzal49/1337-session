@@ -4,6 +4,16 @@ end, { desc = "Open your Neovim usage guide" })
 
 local map = function(lhs, rhs, desc) vim.keymap.set('n', lhs, rhs, { silent = true, desc = desc }) end
 
+map('<leader>?', function()
+  local ok, which_key = pcall(require, 'which-key')
+  if ok then
+    which_key.show('<leader>', { mode = 'n', auto = false })
+  else
+    vim.cmd('ConfigGuide')
+  end
+end, 'Show all shortcuts')
+map('<leader>h', '<cmd>ConfigGuide<cr>', 'Open keyboard guide')
+
 -- Clear search highlights and transient notifications immediately on <Esc>
 map('<Esc>', function()
   vim.cmd('nohlsearch')
@@ -15,8 +25,10 @@ map('<C-k>', '<C-w>k', 'Window up')
 map('<C-l>', '<C-w>l', 'Window right')
 map('<S-h>', '<cmd>bprevious<cr>', 'Previous buffer')
 map('<S-l>', '<cmd>bnext<cr>', 'Next buffer')
+map('<leader>bb', function() require('config.pick').open('buffers') end, 'Browse buffers')
 -- Smart buffer close: handles the last-buffer edge case gracefully.
 map('<leader>bd', function()
+  local name = vim.api.nvim_buf_get_name(0)
   local bufs = vim.tbl_filter(function(b)
     return vim.bo[b].buflisted and vim.api.nvim_buf_is_loaded(b)
   end, vim.api.nvim_list_bufs())
@@ -25,6 +37,8 @@ map('<leader>bd', function()
   else
     vim.cmd('bprevious | bdelete #')
   end
+  local label = name ~= '' and vim.fn.fnamemodify(name, ':t') or '[No Name]'
+  vim.notify('Closed buffer: ' .. label, vim.log.levels.INFO)
 end, 'Close buffer')
 map('<leader>ww', '<C-w>w', 'Switch window')
 map('<leader>wv', '<cmd>vsplit<cr>', 'Vertical split')
@@ -35,8 +49,12 @@ map('<leader>uh', function()
   vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({bufnr=0}), {bufnr=0})
 end, 'Toggle native inlay hints')
 map('<leader>uf', function() vim.g.autoformat = vim.g.autoformat == false end, 'Toggle format on save')
+local workspace = require('config.workspace')
+map('<leader>uw', workspace.toggle, 'Toggle workspace mode')
+map('<leader>uW', workspace.exit, 'Exit workspace mode')
 map('<leader>ch', function() require('config.python_help').show() end, 'Python builtin help')
 map('<leader>fp', '<cmd>PdfOpen<cr>', 'Open PDF externally')
+map('<leader>fR', '<cmd>PdfRead<cr>', 'Read PDF text')
 vim.keymap.set({'n','i'}, '<C-s>', '<cmd>write<cr>', {desc='Save'})
 vim.api.nvim_create_autocmd('LspAttach', { callback = function(ev)
   local function lmap(lhs, rhs, desc)

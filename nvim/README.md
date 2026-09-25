@@ -32,8 +32,13 @@ are intentionally no longer presented as current UI.
 ![Python and compact file browser](assets/python-files.png)
 
 Mini Files uses short directory titles, padded columns and an 18-row cap. Open
-with `<leader>e`; `h`/`l` navigate, `a` creates, `r` renames, `d` deletes, `q`
-closes, and `=` synchronizes file edits.
+with `<leader>e` (or `<leader>fm` for the current file). In the tree, `h`/`l`
+move between directories and `a` inserts a new entry. Type `notes.md` for a
+file or `docs/` for a directory, then press `<Esc>` and `=`. The confirmation
+list shows exactly what will happen: press `y`/`<Enter>` to apply or `n`/`<Esc>`
+to cancel. `r` edits the selected name, `d` marks it for deletion, `q` closes,
+and `g?` opens Mini Files' complete help. Changes are not written until `=`
+is confirmed.
 Python has a clearer active line and quiet active-scope guides.
 
 Markdown reader mode is available with `<leader>mr`; it enables rendered Markdown,

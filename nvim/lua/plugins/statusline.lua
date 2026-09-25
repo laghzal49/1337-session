@@ -8,22 +8,45 @@ return {
       local palette = require('onedark.colors')
       local black = '#0A0F16'
       local active = '#172333'
+      local inactive = '#0D131C'
       local focused_win = vim.api.nvim_get_current_win()
       vim.api.nvim_create_autocmd({ 'WinEnter', 'BufEnter' }, {
         group = vim.api.nvim_create_augroup('black_status_focus', { clear = true }),
         callback = function() focused_win = vim.api.nvim_get_current_win() end,
       })
-      local function mode(color)
+      local function focused()
+        return vim.api.nvim_get_current_win() == focused_win
+      end
+      local function mode(color, is_inactive)
+        local background = is_inactive and inactive or black
+        local foreground = is_inactive and palette.grey or palette.fg
         return {
-          a = { bg = active, fg = color, gui = 'bold' },
-          b = { bg = black, fg = palette.fg },
-          c = { bg = black, fg = palette.fg },
-          x = { bg = black, fg = palette.fg },
-          y = { bg = black, fg = palette.fg },
-          z = { bg = black, fg = palette.fg },
+          a = { bg = is_inactive and inactive or active, fg = is_inactive and palette.grey or color, gui = 'bold' },
+          b = { bg = background, fg = foreground },
+          c = { bg = background, fg = foreground },
+          x = { bg = background, fg = foreground },
+          y = { bg = background, fg = foreground },
+          z = { bg = background, fg = foreground },
         }
       end
       local copilot_cache = { at = 0, state = 'unavailable' }
+      local function project_name()
+        local root = vim.fs.root(0, { 'ty.toml', 'pyproject.toml', 'Cargo.toml', 'go.mod', 'Makefile', '.git' })
+          or (vim.uv or vim.loop).cwd()
+        local name = vim.fn.fnamemodify(root, ':t')
+        return name ~= '' and name or root
+      end
+      local function formatter_name()
+        local ok, conform = pcall(require, 'conform')
+        if not ok or type(conform.list_formatters) ~= 'function' then return '' end
+        local ok_formatters, formatters = pcall(conform.list_formatters, 0)
+        if not ok_formatters or not formatters or #formatters == 0 then return '' end
+        local formatter = formatters[1]
+        return formatter.name or formatter
+      end
+      local function reader_mode()
+        return vim.bo.filetype == 'markdown' and vim.wo.wrap and vim.wo.linebreak and vim.wo.conceallevel == 3
+      end
       local function copilot_state()
         local now = (vim.uv or vim.loop).now()
         if now - copilot_cache.at < 250 then return copilot_cache.state end
@@ -55,7 +78,7 @@ return {
         visual = mode(palette.purple),
         replace = mode(palette.red),
         command = mode(palette.yellow),
-        inactive = mode(palette.grey),
+        inactive = mode(palette.grey, true),
       }
       opts.options.ignore_focus = { 'minipick', 'minifiles', 'aerial' }
       opts.options.globalstatus = true
@@ -126,10 +149,17 @@ return {
         lualine_b = {},
         lualine_c = {
           {
+            function() return '󰉋 ' .. project_name() end,
+            color = { fg = palette.light_grey },
+            cond = function() return vim.o.columns >= 100 end,
+          },
+          {
             'filename',
             path = 1,
             icon = '',
-            color = { fg = palette.fg, gui = 'bold' },
+            color = function()
+              return { fg = focused() and palette.fg or palette.grey, gui = 'bold' }
+            end,
             symbols = {
               modified = ' ●',
               readonly = ' 󰌾',
@@ -139,9 +169,9 @@ return {
           {
             'diagnostics',
             sources = { 'nvim_diagnostic' },
-            sections = { 'error', 'warn' },
-            symbols = { error = '  ', warn = '  ' },
-            color = { fg = palette.light_grey },
+            sections = { 'error', 'warn', 'hint', 'info' },
+            symbols = { error = '  ', warn = '  ', hint = '  ', info = '  ' },
+            color = function() return { fg = focused() and palette.light_grey or palette.grey } end,
           },
           -- LSP status spinner/indicator: clean animated braille progress
           {
@@ -156,14 +186,14 @@ return {
               end
               return ''
             end,
-            color = { fg = palette.light_grey },
+            color = function() return { fg = focused() and palette.light_grey or palette.grey } end,
           },
         },
         lualine_x = {
           {
             'branch',
             icon = '',
-            color = { fg = palette.light_grey },
+            color = function() return { fg = focused() and palette.light_grey or palette.grey } end,
             cond = function() return vim.o.columns >= 100 end,
           },
           {
@@ -172,13 +202,34 @@ return {
               if #clients == 0 then return '' end
               return '󰒋 ' .. (#clients == 1 and clients[1].name or (#clients .. ' LSP'))
             end,
-            color = { fg = palette.cyan },
+            color = function() return { fg = focused() and palette.cyan or palette.grey } end,
             cond = function() return vim.o.columns >= 105 end,
+          },
+          {
+            function()
+              local formatter = formatter_name()
+              return formatter ~= '' and '󰉿 ' .. formatter or ''
+            end,
+            color = { fg = palette.green },
+            cond = function() return vim.o.columns >= 115 and formatter_name() ~= '' end,
           },
           {
             'diff',
             symbols = { added = '+', modified = '~', removed = '−' },
-            cond = function() return vim.o.columns >= 115 end,
+            cond = function() return vim.o.columns >= 125 end,
+          },
+          {
+            function() return reader_mode() and '󰗈 READ' or '' end,
+            color = { fg = palette.purple },
+            cond = function() return vim.o.columns >= 105 and reader_mode() end,
+          },
+          {
+            function()
+              local encoding = vim.bo.fileencoding
+              return encoding == '' and vim.o.encoding or encoding
+            end,
+            color = { fg = palette.light_grey },
+            cond = function() return vim.o.columns >= 125 end,
           },
           {
             function()
@@ -192,6 +243,7 @@ return {
             color = function()
               local state = copilot_state()
               if state == 'disabled' or state == 'unavailable' then return { fg = '#555555' } end
+              if not focused() then return { fg = palette.grey } end
               if state == 'working' then return { fg = '#E8D48B' } end
               return { fg = '#82AAFF' }
             end,
@@ -211,7 +263,9 @@ return {
                 or string.format('Ln %d, Col %d', vim.fn.line('.'), vim.fn.virtcol('.'))
             end,
             padding = { left = 1, right = 1 },
-            color = { bg = active, fg = palette.fg },
+            color = function()
+              return { bg = focused() and active or inactive, fg = focused() and palette.fg or palette.grey }
+            end,
           },
           {
             function() return '' end,

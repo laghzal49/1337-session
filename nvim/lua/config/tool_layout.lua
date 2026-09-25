@@ -8,12 +8,22 @@ local border = {
 }
 
 function M.files()
+  local wide = vim.o.columns >= 100
   return { windows = {
-    max_number = vim.o.columns < 100 and 1 or 3,
+    max_number = wide and 3 or 1,
     width_focus = math.max(1, math.min(38, math.floor(vim.o.columns * 0.36), vim.o.columns - 8)),
     width_nofocus = 18,
-    preview = false,
+    width_preview = 36,
+    preview = wide,
   } }
+end
+
+local function syntax_preview(win_id, path)
+  local stat = vim.uv.fs_stat(path)
+  if not stat or stat.type ~= 'file' then return end
+  local buf = vim.api.nvim_win_get_buf(win_id)
+  local ft = vim.filetype.match({ filename = path })
+  if ft and ft ~= '' then vim.bo[buf].syntax = ft end
 end
 
 function M.decorate_files(ev)
@@ -22,11 +32,15 @@ function M.decorate_files(ev)
   local total, before, path = 0, 0, nil
   for _, win in ipairs(state.windows) do
     local width = vim.api.nvim_win_get_width(win.win_id) + 2
-    if win.win_id == ev.data.win_id then path = win.path; before = total end
+    if win.win_id == ev.data.win_id then
+      path = vim.api.nvim_buf_get_name(vim.api.nvim_win_get_buf(win.win_id))
+      before = total
+    end
     total = total + width
   end
   if not path then return end
   local cfg = vim.api.nvim_win_get_config(ev.data.win_id)
+  syntax_preview(ev.data.win_id, path)
   local tab = vim.o.showtabline == 2 or (vim.o.showtabline == 1 and #vim.api.nvim_list_tabpages() > 1)
   local row = (tab and 1 or 0) + (vim.o.lines >= 20 and 2 or 0)
   cfg.row = row
@@ -50,10 +64,19 @@ end
 
 local function create_entry(buf)
   local row = vim.api.nvim_win_get_cursor(0)[1]
+  if not vim.api.nvim_buf_is_valid(buf) or vim.api.nvim_get_current_buf() ~= buf then
+    vim.notify('Mini Files is not focused; reopen it with <Space>e', vim.log.levels.ERROR)
+    return
+  end
   vim.api.nvim_buf_set_lines(buf, row, row, false, { '' })
   vim.api.nvim_win_set_cursor(0, { row + 1, 0 })
   vim.cmd('startinsert')
   vim.notify('New entry: type a filename or folder/ · press = to apply', vim.log.levels.INFO)
+end
+
+local function synchronize()
+  vim.notify('Review the change list, then press y/Enter to apply or n/Esc to cancel', vim.log.levels.INFO)
+  require('mini.files').synchronize()
 end
 
 local function rename_entry()
@@ -76,6 +99,19 @@ local function delete_entry()
     vim.log.levels.WARN)
 end
 
+local function register_file_keys(buf)
+  local ok, which_key = pcall(require, 'which-key')
+  if not ok then return end
+  which_key.add({
+    { 'a', desc = 'Create file or directory', buffer = buf },
+    { 'r', desc = 'Rename entry', buffer = buf },
+    { 'd', desc = 'Delete entry', buffer = buf },
+    { '=', desc = 'Review/apply file changes', buffer = buf },
+    { 'g?', desc = 'Show Mini Files help', buffer = buf },
+    { 'q', desc = 'Close file browser', buffer = buf },
+  })
+end
+
 function M.setup()
   local group = vim.api.nvim_create_augroup('ToolLayout', { clear = true })
   vim.api.nvim_create_autocmd('User', {
@@ -87,6 +123,12 @@ function M.setup()
         vim.tbl_extend('force', opts, { desc = 'Create file or directory' }))
       vim.keymap.set('n', 'r', rename_entry, vim.tbl_extend('force', opts, { desc = 'Rename entry' }))
       vim.keymap.set('n', 'd', delete_entry, vim.tbl_extend('force', opts, { desc = 'Delete entry' }))
+      vim.keymap.set('n', '=', synchronize, vim.tbl_extend('force', opts, {
+        desc = 'Review and apply file changes',
+      }))
+      register_file_keys(ev.data.buf_id)
+      vim.notify('a create · r rename · d delete · = apply · g? help', vim.log.levels.INFO,
+        { title = 'Mini Files' })
     end,
   })
   vim.api.nvim_create_autocmd('VimResized', { group = group, callback = function()
@@ -106,7 +148,11 @@ function M.setup()
         local path = data.to or data.from or ''
         local name = vim.fn.fnamemodify(path, ':t')
         if name == '' then name = path end
-        vim.notify(('%s: %s'):format(action, name), level)
+        local message = ('%s: %s'):format(action, name)
+        if action == 'Delete' and data.to then
+          message = ('Moved to Mini Files trash: %s'):format(name)
+        end
+        vim.notify(message, level)
       end,
     })
   end

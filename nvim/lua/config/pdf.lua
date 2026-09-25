@@ -21,31 +21,70 @@ local function pdf_path(arg)
 end
 
 local function open_external(path)
+  local attempted = {}
   for _, viewer in ipairs(viewers) do
     if vim.fn.executable(viewer) == 1 then
+      attempted[#attempted + 1] = viewer
       local job = vim.fn.jobstart({ viewer, path }, { detach = true })
       if job > 0 then
         vim.notify('Opened PDF with ' .. viewer, vim.log.levels.INFO)
         return true
       end
-      vim.notify('Could not start PDF viewer: ' .. viewer, vim.log.levels.ERROR)
-      return false
     end
   end
-  vim.notify('No PDF viewer found; install zathura or use :PdfRead for text', vim.log.levels.ERROR)
+  if #attempted > 0 then
+    vim.notify('Could not start a PDF viewer (' .. table.concat(attempted, ', ') .. '); use :PdfRead for text',
+      vim.log.levels.ERROR)
+  else
+    vim.notify('No PDF viewer found (tried zathura, sioyek, okular, mupdf, xdg-open); use :PdfRead for text',
+      vim.log.levels.ERROR)
+  end
   return false
+end
+
+local function page_markers(text)
+  if text == '' or text:match('^%s*$') then
+    return {}
+  end
+  local lines = {}
+  local page = 1
+  for line in (text .. '\n'):gmatch('(.-)\n') do
+    local parts = vim.split(line, '\f', { plain = true })
+    for index, part in ipairs(parts) do
+      if index > 1 then
+        page = page + 1
+      end
+      if index == 1 and #lines == 0 then
+        lines[#lines + 1] = string.format('────────── PDF page %d ──────────', page)
+      elseif index > 1 then
+        lines[#lines + 1] = string.format('────────── PDF page %d ──────────', page)
+      end
+      lines[#lines + 1] = part
+    end
+  end
+  while #lines > 0 and lines[#lines] == '' do
+    table.remove(lines)
+  end
+  return lines
 end
 
 local function read_pdf(path)
   if vim.fn.executable('pdftotext') == 0 then
-    vim.notify('Install poppler (pdftotext) to read PDF files', vim.log.levels.ERROR)
-    return
-  end
-  local lines = vim.fn.systemlist({ 'pdftotext', '-layout', '-nopgbrk', path, '-' })
-  if vim.v.shell_error ~= 0 then
-    vim.notify('Could not extract text from ' .. vim.fn.fnamemodify(path, ':t') .. ' (is it encrypted or damaged?)',
+    vim.notify('Cannot read PDF: pdftotext is missing. Install poppler, or use :PdfOpen with a viewer',
       vim.log.levels.ERROR)
     return
+  end
+  local output = vim.fn.system({ 'pdftotext', '-layout', path, '-' })
+  if vim.v.shell_error ~= 0 then
+    vim.notify('Could not extract text from ' .. vim.fn.fnamemodify(path, ':t')
+      .. '; it may be encrypted, scanned, or damaged. Try :PdfOpen',
+      vim.log.levels.ERROR)
+    return
+  end
+  local lines = page_markers(output)
+  if #lines == 0 then
+    lines = { '[PDF contains no extractable text; try :PdfOpen for a visual viewer]' }
+    vim.notify('PDF has no extractable text; try :PdfOpen for a visual viewer', vim.log.levels.WARN)
   end
   vim.bo.filetype = 'pdf'
   vim.bo.buftype = 'nofile'

@@ -51,6 +51,9 @@ return {
         match = '#82AAFF',
         panel = '#0E141D',
         selected = '#1D3B63',
+        selected_text = '#FFFFFF',
+        selected_match = '#9CCBFF',
+        deprecated = '#76839A',
         thumb = '#4FD1C5',
       }
       local function setup_kind_highlights()
@@ -59,12 +62,13 @@ return {
         end
         vim.api.nvim_set_hl(0, 'CmpItemKindDefault', { fg = completion_colors.muted, default = false })
         vim.api.nvim_set_hl(0, 'CmpItemAbbr', { fg = completion_colors.text, default = false })
-        vim.api.nvim_set_hl(0, 'CmpItemAbbrDeprecated', { fg = completion_colors.muted, strikethrough = true, default = false })
+        vim.api.nvim_set_hl(0, 'CmpItemAbbrDeprecated', { fg = completion_colors.deprecated, strikethrough = true, default = false })
         vim.api.nvim_set_hl(0, 'CmpItemAbbrMatch', { fg = completion_colors.match, bold = true, default = false })
         vim.api.nvim_set_hl(0, 'CmpItemAbbrMatchFuzzy', { fg = completion_colors.accent, bold = true, default = false })
         vim.api.nvim_set_hl(0, 'CmpItemMenu', { fg = completion_colors.muted, default = false })
         vim.api.nvim_set_hl(0, 'Pmenu', { bg = completion_colors.panel, fg = completion_colors.text, default = false })
-        vim.api.nvim_set_hl(0, 'PmenuSel', { bg = completion_colors.selected, fg = completion_colors.text, bold = true, default = false })
+        vim.api.nvim_set_hl(0, 'PmenuSel', { bg = completion_colors.selected, fg = completion_colors.selected_text, bold = true, default = false })
+        vim.api.nvim_set_hl(0, 'CmpItemAbbrMatchSelected', { fg = completion_colors.selected_match, bold = true, default = false })
         vim.api.nvim_set_hl(0, 'PmenuSbar', { bg = completion_colors.panel, default = false })
         vim.api.nvim_set_hl(0, 'PmenuThumb', { bg = completion_colors.thumb, default = false })
       end
@@ -92,8 +96,8 @@ return {
           scrollbar = false,
           winblend = ui.blend,
           winhighlight = 'Normal:BlackDocs,NormalFloat:BlackDocs,FloatBorder:BlackDocsBorder,FloatTitle:BlackDocsTitle,FloatFooter:BlackDocsHint,Search:None,EndOfBuffer:BlackDocs',
-          max_width = math.min(68, ui.max_width),
-          max_height = ui.max_height,
+          max_width = math.min(72, ui.max_width),
+          max_height = math.max(8, ui.max_height - 2),
         }),
       }
       opts.view = vim.tbl_deep_extend('force', opts.view or {}, { docs = { auto_open = false } })
@@ -172,11 +176,13 @@ return {
       opts.formatting.format = function(entry, item)
         local kind = item.kind
         item.kind = kinds[kind] or '\u{ea73}'
-        item.kind_hl_group = 'CmpItemKind' .. (kind or 'Default')
+        item.kind_hl_group = kinds[kind] and ('CmpItemKind' .. kind) or 'CmpItemKindDefault'
 
         -- Keep the label readable while retaining cmp's match highlighting.
         item.abbr = truncate(item.abbr, 38)
-        if item.abbr and item.abbr:sub(-3) == '…' then
+        if item.deprecated then
+          item.abbr_hl_group = 'CmpItemAbbrDeprecated'
+        elseif item.abbr and item.abbr:sub(-3) == '…' then
           item.abbr_hl_group = nil
         end
 

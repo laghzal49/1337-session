@@ -1,17 +1,24 @@
 -- Shared tokens for every interactive panel, independent of the code palette.
+local ui = require("config.ui")
+local colors = ui.colors
+
 local M = {
   panel = "#0E141D",
   tree_panel = "#0C1718",
   inset = "#070B10",
-  edge = "#25334A",
-  edge_bright = "#4FD1C5",
-  edge_soft = "#2A5961",
-  selected = "#14263D",
-  selected_bright = "#164B4A",
+  edge = colors.border,
+  edge_bright = colors.teal,
+  edge_soft = colors.border_soft,
+  selected = colors.selection,
+  selected_bright = colors.selection_bright,
   accent = "#69AFFF",
-  panel_accent = "#4FD1C5",
-  text = "#D7E3FF",
+  panel_accent = colors.teal,
+  text = colors.text,
   muted = "#61708A",
+  teal = colors.teal,
+  lilac = colors.lilac,
+  border = colors.border,
+  error = colors.error,
 }
 
 function M.highlights()
