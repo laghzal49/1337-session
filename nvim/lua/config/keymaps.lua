@@ -67,7 +67,8 @@ vim.api.nvim_create_autocmd('LspAttach', { callback = function(ev)
   lmap('<leader>ca', vim.lsp.buf.code_action, 'Code action')
   vim.keymap.set('n', '<leader>cr', function() return ':IncRename ' .. vim.fn.expand('<cword>') end,
     {buffer=ev.buf, expr=true, desc='Rename symbol'})
-  vim.keymap.set('i', '<C-k>', vim.lsp.buf.signature_help, {buffer=ev.buf, desc='Signature help'})
+  -- lsp_signature.nvim owns automatic/insert-mode signature help and <C-k>.
+  -- Keep gK as an explicit native fallback when a manual popup is wanted.
   lmap('gK', vim.lsp.buf.signature_help, 'Signature help')
 end })
 
