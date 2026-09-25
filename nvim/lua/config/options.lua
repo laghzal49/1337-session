@@ -14,6 +14,7 @@ vim.opt.cmdheight = 0
 vim.opt.showmode = false
 vim.opt.showcmd = false
 vim.opt.ruler = false
+vim.opt.shortmess:append({ I = true, W = true, c = true })
 vim.opt.timeoutlen = 350
 vim.opt.updatetime = 250
 vim.opt.winblend = 0
@@ -27,6 +28,7 @@ vim.opt.sidescrolloff = 8
 vim.opt.smoothscroll = true
 vim.opt.cursorline = true
 vim.opt.cursorlineopt = "number,line"
+vim.opt.numberwidth = 2
 vim.opt.list = true
 vim.opt.listchars = { tab = "▸ ", trail = "·", nbsp = "␣" }
 
@@ -44,3 +46,4 @@ vim.opt.splitright = true
 vim.opt.undofile = true
 vim.opt.completeopt = { "menu", "menuone", "noselect" }
 vim.opt.wrap = false
+vim.opt.synmaxcol = 300

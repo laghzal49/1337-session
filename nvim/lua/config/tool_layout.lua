@@ -10,8 +10,8 @@ local border = {
 function M.files()
   return { windows = {
     max_number = vim.o.columns < 100 and 1 or 3,
-    width_focus = math.max(1, math.min(36, vim.o.columns - 8)),
-    width_nofocus = 16,
+    width_focus = math.max(1, math.min(38, math.floor(vim.o.columns * 0.36), vim.o.columns - 8)),
+    width_nofocus = 18,
     preview = false,
   } }
 end
@@ -30,8 +30,8 @@ function M.decorate_files(ev)
   local tab = vim.o.showtabline == 2 or (vim.o.showtabline == 1 and #vim.api.nvim_list_tabpages() > 1)
   local row = (tab and 1 or 0) + (vim.o.lines >= 20 and 2 or 0)
   cfg.row = row
-  cfg.col = math.max(0, math.min(2, vim.o.columns - total)) + before
-  cfg.height = math.max(1, math.min(cfg.height, 18, vim.o.lines - row - 3))
+  cfg.col = math.max(0, math.floor((vim.o.columns - total) / 2)) + before
+  cfg.height = math.max(1, math.min(cfg.height, 20, vim.o.lines - row - 3))
   cfg.border = border
   local name = vim.fn.fnamemodify(path, ':t')
   if name == '' then name = '/' end
@@ -69,8 +69,11 @@ local function rename_entry()
 end
 
 local function delete_entry()
+  local entry = require('mini.files').get_fs_entry()
+  if not entry then return end
   vim.cmd('normal! dd')
-  vim.notify('Entry marked for deletion · press = to apply or <Esc> to undo', vim.log.levels.WARN)
+  vim.notify(('Marked for deletion: %s · press = to apply or <Esc> to undo'):format(entry.name),
+    vim.log.levels.WARN)
 end
 
 function M.setup()
@@ -90,6 +93,23 @@ function M.setup()
     local files = package.loaded['mini.files']
     if files and files.get_explorer_state() then files.refresh(M.files()) end
   end })
+  for action, level in pairs({
+    Create = vim.log.levels.INFO,
+    Delete = vim.log.levels.WARN,
+    Rename = vim.log.levels.INFO,
+  }) do
+    vim.api.nvim_create_autocmd('User', {
+      group = group,
+      pattern = 'MiniFilesAction' .. action,
+      callback = function(ev)
+        local data = ev.data or {}
+        local path = data.to or data.from or ''
+        local name = vim.fn.fnamemodify(path, ':t')
+        if name == '' then name = path end
+        vim.notify(('%s: %s'):format(action, name), level)
+      end,
+    })
+  end
   vim.api.nvim_create_autocmd('User', { group = group, pattern = 'MiniFilesWindowUpdate', callback = M.decorate_files })
 end
 

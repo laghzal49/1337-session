@@ -6,6 +6,8 @@ return {
     opts = function(_, opts)
       opts.options = opts.options or {}
       local palette = require('onedark.colors')
+      local black = '#0A0F16'
+      local active = '#172333'
       local focused_win = vim.api.nvim_get_current_win()
       vim.api.nvim_create_autocmd({ 'WinEnter', 'BufEnter' }, {
         group = vim.api.nvim_create_augroup('black_status_focus', { clear = true }),
@@ -13,24 +15,39 @@ return {
       })
       local function mode(color)
         return {
-          a = { bg = '#172333', fg = color, gui = 'bold' },
-          b = { bg = '#0A0F16', fg = palette.fg },
-          c = { bg = '#0A0F16', fg = palette.fg },
-          x = { bg = '#0A0F16', fg = palette.fg },
-          y = { bg = '#0A0F16', fg = palette.fg },
-          z = { bg = '#0A0F16', fg = palette.fg },
+          a = { bg = active, fg = color, gui = 'bold' },
+          b = { bg = black, fg = palette.fg },
+          c = { bg = black, fg = palette.fg },
+          x = { bg = black, fg = palette.fg },
+          y = { bg = black, fg = palette.fg },
+          z = { bg = black, fg = palette.fg },
         }
       end
+      local copilot_cache = { at = 0, state = 'unavailable' }
       local function copilot_state()
+        local now = (vim.uv or vim.loop).now()
+        if now - copilot_cache.at < 250 then return copilot_cache.state end
+        copilot_cache.at = now
+
         local ok, client = pcall(require, 'copilot.client')
-        if not ok or type(client.is_disabled) ~= 'function' then return 'unavailable' end
+        if not ok or type(client.is_disabled) ~= 'function' then
+          copilot_cache.state = 'unavailable'
+          return copilot_cache.state
+        end
         local ok_disabled, disabled = pcall(client.is_disabled)
-        if not ok_disabled then return 'unavailable' end
-        if disabled then return 'disabled' end
+        if not ok_disabled then
+          copilot_cache.state = 'unavailable'
+          return copilot_cache.state
+        end
+        if disabled then
+          copilot_cache.state = 'disabled'
+          return copilot_cache.state
+        end
 
         local api = package.loaded['copilot.api']
         local status = api and api.status and api.status.data and api.status.data.status
-        return status == 'InProgress' and 'working' or 'ready'
+        copilot_cache.state = status == 'InProgress' and 'working' or 'ready'
+        return copilot_cache.state
       end
       opts.options.theme = {
         normal = mode(palette.blue),
@@ -49,17 +66,15 @@ return {
           {
             function() return '' end,
             padding = 0,
-            color = { fg = '#172333', bg = '#0A0F16' },
+            color = { fg = active, bg = black },
           },
           {
             'mode',
             padding = { left = 1, right = 1 },
             fmt = function(value)
-              local cur_buf = vim.api.nvim_get_current_buf()
-              local cur_ft = vim.bo[cur_buf].filetype
-              local win_buf = vim.api.nvim_win_is_valid(focused_win) and vim.api.nvim_win_get_buf(focused_win) or 0
-              local win_ft = vim.bo[win_buf].filetype
-              local ft = (cur_ft ~= '' and cur_ft) or win_ft
+              local win_buf = vim.api.nvim_win_is_valid(focused_win) and vim.api.nvim_win_get_buf(focused_win)
+                or vim.api.nvim_get_current_buf()
+              local ft = vim.bo[win_buf].filetype
 
               local tool_modes = {
                 minipick = 'SEARCH',
@@ -99,7 +114,7 @@ return {
           {
             function() return '' end,
             padding = 0,
-            color = { fg = '#172333', bg = '#0A0F16' },
+            color = { fg = active, bg = black },
           },
           {
             function() return 'REC @' .. vim.fn.reg_recording() end,
@@ -196,12 +211,12 @@ return {
                 or string.format('Ln %d, Col %d', vim.fn.line('.'), vim.fn.virtcol('.'))
             end,
             padding = { left = 1, right = 1 },
-            color = { bg = '#172333', fg = palette.fg },
+            color = { bg = active, fg = palette.fg },
           },
           {
             function() return '' end,
             padding = 0,
-            color = { fg = '#172333', bg = '#0A0F16' },
+            color = { fg = active, bg = black },
           },
         },
       }

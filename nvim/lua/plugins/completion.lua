@@ -6,7 +6,11 @@ return {
     url = 'https://github.com/iguanacucumber/magazine.nvim.git',
     opts = function(_, opts)
       local cmp = require('cmp')
-      require('config.documentation').setup()
+      -- The documentation decorator is optional so completion still loads when
+      -- running against an unpatched cmp build.
+      pcall(function()
+        require('config.documentation').setup()
+      end)
       opts.mapping = opts.mapping or cmp.mapping.preset.insert({
         ['<C-Space>'] = cmp.mapping.complete(),
         ['<CR>'] = cmp.mapping.confirm({ select = false }),
@@ -71,23 +75,25 @@ return {
       })
 
       -- Window styling: pure deep surfaces, rounded borders, zero background leakage
+      local ui = require('config.ui')
       opts.window = {
         completion = cmp.config.window.bordered({
           border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
           side_padding = 1,
           col_offset = 0,
           scrollbar = false,
-          winblend = require('config.ui').blend,
+          winblend = ui.blend,
+          max_height = ui.max_height,
           winhighlight = 'Normal:BlackDocs,NormalFloat:BlackDocs,FloatBorder:BlackDocsBorder,CursorLine:PmenuSel,Search:None,EndOfBuffer:BlackDocs',
         }),
         documentation = cmp.config.window.bordered({
           border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
           side_padding = 1,
           scrollbar = false,
-          winblend = require('config.ui').blend,
+          winblend = ui.blend,
           winhighlight = 'Normal:BlackDocs,NormalFloat:BlackDocs,FloatBorder:BlackDocsBorder,FloatTitle:BlackDocsTitle,FloatFooter:BlackDocsHint,Search:None,EndOfBuffer:BlackDocs',
-          max_width = 68,
-          max_height = require('config.ui').max_height,
+          max_width = math.min(68, ui.max_width),
+          max_height = ui.max_height,
         }),
       }
       opts.view = vim.tbl_deep_extend('force', opts.view or {}, { docs = { auto_open = false } })
@@ -104,16 +110,35 @@ return {
         end, { 'i', 's' })
       end
 
-      local normalize = require('cmp.utils.keymap').normalize
-      opts.mapping[normalize('<C-b>')] = scroll_docs(-4)
-      opts.mapping[normalize('<C-f>')] = scroll_docs(4)
-      opts.mapping[normalize('<C-e>')] = cmp.mapping.abort()
-      opts.mapping[normalize('<C-d>')] = cmp.mapping(function()
+      -- Keep these as public mapping keys; cmp normalizes them internally and
+      -- this avoids depending on cmp.utils.keymap (a private module).
+      opts.mapping['<C-b>'] = scroll_docs(-4)
+      opts.mapping['<C-f>'] = scroll_docs(4)
+      opts.mapping['<C-e>'] = cmp.mapping.abort()
+      opts.mapping['<C-d>'] = cmp.mapping(function()
         if cmp.visible_docs() then cmp.close_docs() else cmp.open_docs() end
       end, { 'i', 's' })
 
       opts.formatting = opts.formatting or {}
       opts.formatting.fields = { 'kind', 'abbr', 'menu' }
+
+      local source_labels = {
+        nvim_lsp = 'LSP',
+        luasnip = 'Snippet',
+        buffer = 'Buffer',
+        path = 'Path',
+        cmdline = 'Command',
+        spell = 'Spell',
+      }
+      local function truncate(text, max_width)
+        if not text or vim.fn.strdisplaywidth(text) <= max_width then return text end
+        local target = max_width - 1
+        local result = vim.fn.strcharpart(text, 0, target)
+        while vim.fn.strdisplaywidth(result) > target do
+          result = vim.fn.strcharpart(result, 0, vim.fn.strchars(result) - 1)
+        end
+        return result .. '…'
+      end
 
       -- Authentic VS Code Codicon glyphs from JetBrains Mono Nerd Font
       local kinds = {
@@ -149,30 +174,22 @@ return {
         item.kind = kinds[kind] or '\u{ea73}'
         item.kind_hl_group = 'CmpItemKind' .. (kind or 'Default')
 
-        -- Truncate overly long item labels with ellipsis '…'
-        local max_abbr = 38
-        if item.abbr and vim.fn.strdisplaywidth(item.abbr) > max_abbr then
-          local target = max_abbr - 1
-          local text = vim.fn.strcharpart(item.abbr, 0, target)
-          while vim.fn.strdisplaywidth(text) > target do
-            text = vim.fn.strcharpart(text, 0, vim.fn.strchars(text) - 1)
-          end
-          item.abbr = text .. '…'
+        -- Keep the label readable while retaining cmp's match highlighting.
+        item.abbr = truncate(item.abbr, 38)
+        if item.abbr and item.abbr:sub(-3) == '…' then
           item.abbr_hl_group = nil
         end
 
-        -- Clean menu column with truncation bounds
-        local max_menu = 14
-        local menu = kind or ''
-        if vim.fn.strdisplaywidth(menu) > max_menu then
-          local target = max_menu - 1
-          local text = vim.fn.strcharpart(menu, 0, target)
-          while vim.fn.strdisplaywidth(text) > target do
-            text = vim.fn.strcharpart(text, 0, vim.fn.strchars(text) - 1)
-          end
-          menu = text .. '…'
+        -- The right-hand column identifies the source, rather than repeating
+        -- the kind. This creates a useful kind → source hierarchy.
+        local source = entry and entry.source
+        local source_name = source and source.name or ''
+        local source_label = source_labels[source_name] or source_name
+        local detail = item.menu or ''
+        if detail ~= '' and detail ~= source_label and detail ~= ('[' .. source_label .. ']') then
+          source_label = source_label .. ' · ' .. detail
         end
-        item.menu = menu
+        item.menu = truncate(source_label, 18)
         return item
       end
 
@@ -192,7 +209,9 @@ return {
         end
       end
 
-      opts.experimental = { ghost_text = false }
+      opts.experimental = vim.tbl_deep_extend('force', opts.experimental or {}, {
+        ghost_text = false,
+      })
     end,
   },
 }

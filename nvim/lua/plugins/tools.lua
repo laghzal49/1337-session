@@ -113,10 +113,13 @@ return {
   {
     'MeanderingProgrammer/render-markdown.nvim',
     ft = { 'markdown' },
+    init = function() require('config.markdown').setup() end,
     dependencies = { 'nvim-treesitter/nvim-treesitter', 'nvim-tree/nvim-web-devicons' },
     keys = {
       { '<leader>um', '<cmd>RenderMarkdown toggle<cr>', ft = 'markdown', desc = 'Toggle Markdown rendering' },
-      { '<leader>mr', function() require('config.markdown').toggle() end, ft = 'markdown', desc = 'Markdown reader mode' },
+      { '<leader>mr', '<cmd>MarkdownReaderToggle<cr>', ft = 'markdown', desc = 'Toggle Markdown reader mode' },
+      { '<leader>mR', '<cmd>MarkdownReaderEnable<cr>', ft = 'markdown', desc = 'Enable Markdown reader mode' },
+      { '<leader>mD', '<cmd>MarkdownReaderDisable<cr>', ft = 'markdown', desc = 'Disable Markdown reader mode' },
     },
     opts = {
       file_types = { 'markdown' },
