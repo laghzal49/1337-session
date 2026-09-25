@@ -110,11 +110,6 @@ return {
               local ok, icon, hl = pcall(mini_icons.get, 'file', fs_entry.name)
               if ok and icon then return icon .. ' ', hl or 'MiniFilesFileIcon' end
             end
-            local ok, devicons = pcall(require, 'nvim-web-devicons')
-            if ok then
-              local icon, hl = devicons.get_icon(fs_entry.name, fs_entry.ext, { default = true })
-              return (icon or ui.icon('file')) .. ' ', hl or 'MiniFilesFileIcon'
-            end
             return ui.icon('file') .. ' ', 'MiniFilesFileIcon'
           end,
           filter = function(fs_entry)
