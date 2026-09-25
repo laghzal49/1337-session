@@ -3,6 +3,9 @@
 A standalone Neovim configuration: **no LazyVim distribution**. lazy.nvim manages
 36 explicitly configured plugins and dependencies, pinned in `lazy-lock.json`.
 Pure-black code, italic comments, opaque panels, and **ty + Ruff** for Python.
+Ruff provides Flake8-style `E`/`F` diagnostics through its LSP and formats with
+Ruff Format on save; `<leader>cf` runs formatting manually and `<leader>uf`
+toggles format-on-save.
 
 ## Workspace
 
@@ -119,8 +122,11 @@ After checking that the new config works, `:Lazy clean` removes unused plugin
 checkouts. This does not remove project data.
 
 Install Python tools with `uv tool install ty` and `uv tool install ruff`, ensuring
-uv's executable directory is on PATH before opening Neovim. `:ConfigTools` reports
-missing executables. `:Mason` is available for manual tool management.
+uv's executable directory is on PATH before opening Neovim. The bootstrap script
+does this automatically and verifies both versions. Ruff uses the Flake8-style
+`E4`, `E7`, `E9`, and `F` rule families while ignoring line-length `E501`;
+`ruff check` remains available in the terminal for CI/scripts. `:ConfigTools`
+reports missing executables. `:Mason` is available for manual tool management.
 
 Install syntax parsers once (the installer also does this):
 

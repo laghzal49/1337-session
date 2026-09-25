@@ -26,7 +26,8 @@ git clone https://github.com/laghzal49/1337-session.git && ./1337-session/instal
 `install.sh` builds the complete environment into `~/.local` from official
 prebuilt binaries — **never calls sudo, never leaves $HOME**:
 
-- JetBrainsMono **Nerd Font** (the UI's icons)
+- JetBrainsMono **Nerd Font Mono** (regular, bold, italic, and bold-italic faces
+  for the UI's icons and italic comments; select this family in the terminal)
 - **Neovim** latest stable + this repo's config linked to `~/.config/nvim`
   (an existing config is backed up, never deleted)
 - **ripgrep · fd · fzf · lazygit**

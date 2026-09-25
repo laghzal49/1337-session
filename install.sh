@@ -325,6 +325,16 @@ if want ruff; then
     warn "Ruff installation failed — run: uv tool install ruff"
   fi
 fi
+if have ty; then
+  ok "ty $(ty --version 2>/dev/null | head -1)"
+else
+  warn "ty is not on PATH; Python type diagnostics will be unavailable"
+fi
+if have ruff; then
+  ok "ruff $(ruff --version 2>/dev/null | head -1)"
+else
+  warn "Ruff is not on PATH; Python linting and formatting will be unavailable"
+fi
 # mason builds venvs for basedpyright/mypy/debugpy — Ubuntu without sudo
 # often lacks python3-venv, so hand mason a Python that can do it
 if python3 -m venv "$TMP/venv-probe" >/dev/null 2>&1; then
