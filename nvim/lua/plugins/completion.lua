@@ -48,6 +48,10 @@ return {
       sources = {
         default = { 'lsp', 'path', 'snippets', 'buffer' },
       },
+
+      cmdline = {
+        sources = {},
+      },
     },
     config = function(_, opts)
       local function setup_blink_highlights()

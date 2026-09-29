@@ -141,12 +141,10 @@ return {
           ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
           ['vim.lsp.util.stylize_markdown'] = true,
         },
-        signature = { enabled = false },
-        hover = {
-          enabled = true,
-          silent = true,
-          view = 'hover',
-        },
+        -- Let noice handle LSP signature display (replaces lsp_signature plugin)
+        signature = { enabled = true },
+        -- We handle hover manually via keybind; noice should not intercept it
+        hover = { enabled = false },
       },
       notify = { enabled = false },
       cmdline = {
@@ -302,7 +300,10 @@ return {
     },
     keys = {
       { '<leader>xx', '<cmd>Trouble diagnostics toggle<cr>', desc = 'Project diagnostics' },
+      { '<leader>xw', '<cmd>Trouble diagnostics toggle<cr>', desc = 'Workspace diagnostics' },
+      { '<leader>xd', '<cmd>Trouble diagnostics toggle filter.buf=0<cr>', desc = 'Document diagnostics' },
       { '<leader>xq', '<cmd>Trouble qflist toggle<cr>', desc = 'Quickfix diagnostics' },
+      { '<leader>gx', '<cmd>Trouble git toggle<cr>', desc = 'Git items (Trouble)' },
     },
   },
 
@@ -326,10 +327,18 @@ return {
       current_line_blame_formatter = '  <author>, <author_time:%R> · <summary>',
     },
     keys = {
+      { ']g', function() require('gitsigns').next_hunk() end, desc = 'Next git hunk' },
+      { '[g', function() require('gitsigns').prev_hunk() end, desc = 'Prev git hunk' },
       { '<leader>gb', '<cmd>Gitsigns toggle_current_line_blame<cr>', desc = 'Toggle git blame' },
-      { '<leader>gp', '<cmd>Gitsigns preview_hunk<cr>', desc = 'Preview hunk' },
-      { '<leader>gr', '<cmd>Gitsigns reset_hunk<cr>', desc = 'Reset hunk' },
-      { '<leader>gs', '<cmd>Gitsigns stage_hunk<cr>', desc = 'Stage hunk' },
+      { '<leader>gB', function() require('gitsigns').blame_line({ full = true }) end, desc = 'Blame line (full)' },
+      { '<leader>gp', function() require('gitsigns').preview_hunk() end, desc = 'Preview hunk' },
+      { '<leader>gr', function() require('gitsigns').reset_hunk() end, desc = 'Reset hunk' },
+      { '<leader>gs', function() require('gitsigns').stage_hunk() end, desc = 'Stage hunk' },
+      { '<leader>gS', function() require('gitsigns').stage_buffer() end, desc = 'Stage buffer' },
+      { '<leader>gR', function() require('gitsigns').reset_buffer() end, desc = 'Reset buffer' },
+      { '<leader>gd', function() require('gitsigns').diffthis() end, desc = 'Diff this' },
+      { 'ih', function() require('gitsigns').select_hunk() end, mode = { 'o', 'x' }, desc = 'Inner git hunk' },
+      { 'ah', function() require('gitsigns').select_hunk() end, mode = { 'o', 'x' }, desc = 'Around git hunk' },
     },
   },
 

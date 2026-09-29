@@ -60,15 +60,34 @@ return {
   {
     'folke/snacks.nvim',
     keys = {
-      { '<leader>e', function() Snacks.explorer() end, desc = 'Toggle File Explorer' },
+      {
+        '<leader>e',
+        function()
+          local pickers = Snacks.picker.get({ source = 'explorer' })
+          if #pickers > 0 then
+            for _, p in ipairs(pickers) do
+              p:close()
+            end
+            return
+          end
+          Snacks.explorer()
+        end,
+        desc = 'Toggle File Explorer',
+      },
       { '<leader>fe', function() Snacks.explorer() end, desc = 'File Explorer' },
     },
   },
   {
     'stevearc/aerial.nvim',
     cmd = { 'AerialToggle', 'AerialOpen', 'AerialNavToggle' },
-    keys = { { '<leader>cs', '<cmd>AerialToggle float<cr>', desc = 'Code outline (Aerial)' } },
+    keys = {
+      { '<leader>cs', '<cmd>AerialToggle float<cr>', desc = 'Code outline (Aerial)' },
+      { '{', function() require('aerial').prev() end, desc = 'Prev aerial symbol' },
+      { '}', function() require('aerial').next() end, desc = 'Next aerial symbol' },
+    },
     opts = {
+      filter_kind = false,        -- show all symbol kinds (not just a subset)
+      highlight_on_hover = true,  -- highlight the symbol line on cursor hover
       layout = { default_direction = 'right', min_width = 24, max_width = 32 },
       float = {
         border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
@@ -184,7 +203,15 @@ return {
       { 's', mode = { 'n', 'x', 'o' }, function() require('flash').jump() end, desc = 'Flash jump' },
       { 'S', mode = { 'n', 'x', 'o' }, function() require('flash').treesitter() end, desc = 'Flash Treesitter' },
       { 'r', mode = 'o', function() require('flash').remote() end, desc = 'Remote Flash' },
+      { '<C-s>', mode = { 'c' }, function() require('flash').toggle() end, desc = 'Flash search toggle' },
     },
+    config = function(_, opts)
+      require('flash').setup(opts)
+      -- Perfect Black palette: vivid purple label on dark inset background
+      vim.api.nvim_set_hl(0, 'FlashLabel', { bg = '#C7A6FF', fg = '#0D1117', bold = true })
+      vim.api.nvim_set_hl(0, 'FlashMatch', { bg = '#1E2837', fg = '#70D7FF' })
+      vim.api.nvim_set_hl(0, 'FlashCurrent', { bg = '#354357', fg = '#FFFFFF', bold = true })
+    end,
   },
   {
     'nvim-mini/mini.cursorword',
@@ -192,29 +219,30 @@ return {
     opts = { delay = 200 },
     config = function(_, opts)
       require('mini.cursorword').setup(opts)
-      -- Subtle underline, no background — matches the Perfect Black aesthetic
+      -- Subtle underline on matching words; current word is invisible (no distraction)
       vim.api.nvim_set_hl(0, 'MiniCursorword', { underline = true, sp = '#354357' })
-      vim.api.nvim_set_hl(0, 'MiniCursorwordCurrent', { underline = true, sp = '#354357' })
+      vim.api.nvim_set_hl(0, 'MiniCursorwordCurrent', {}) -- invisible: no underline, no bg
     end,
   },
   {
     'nvim-mini/mini.bracketed',
     event = 'VeryLazy',
     opts = {
-      buffer = { suffix = 'b' },
-      comment = { suffix = 'c' },
-      diagnostic = { suffix = 'd' },
-      quickfix = { suffix = 'q' },
+      buffer     = { suffix = 'b' },
+      comment    = { suffix = 'c' },
+      -- Use 'D' for bracketed diagnostics; [d/]d is reserved for LSP diagnostics
+      diagnostic = { suffix = 'D' },
+      quickfix   = { suffix = 'q' },
       treesitter = { suffix = 't' },
-      undo = { suffix = '' },
-      window = { suffix = '' },
-      yank = { suffix = '' },
-      file = { suffix = '' },
-      indent = { suffix = '' },
-      jump = { suffix = '' },
-      location = { suffix = '' },
-      oldfile = { suffix = '' },
-      conflict = { suffix = '' },
+      undo       = { suffix = '' },
+      window     = { suffix = '' },
+      yank       = { suffix = '' },
+      file       = { suffix = '' },
+      indent     = { suffix = '' },
+      jump       = { suffix = '' },
+      location   = { suffix = '' },
+      oldfile    = { suffix = '' },
+      conflict   = { suffix = '' },
     },
   },
   {

@@ -84,18 +84,82 @@ function M.highlights()
   groups('TroubleNormal TroubleNormalNC', { bg = M.panel, fg = M.text })
   groups('TroubleCount', { fg = M.accent, fmt = 'bold' })
   
-  -- Flash jump labels
-  groups('FlashLabel', { bg = M.accent, fg = '#000000', fmt = 'bold' })
-  groups('FlashMatch', { fg = M.panel_accent })
+  -- Flash jump labels — hot pink bg, white fg for maximum contrast
+  groups('FlashLabel', { bg = '#FF8FA3', fg = '#FFFFFF', fmt = 'bold' })
+  groups('FlashMatch', { fg = M.accent })
   groups('FlashCurrent', { fg = M.text, fmt = 'bold' })
   groups('FlashBackdrop', { fg = M.muted })
-  
-  -- WhichKey enhanced
+
+  -- WhichKey full suite
   groups('WhichKeySeparator', { fg = M.edge })
-  groups('WhichKeyValue', { fg = M.muted })
-  
-  -- Treesitter context line
-  groups('TreesitterContextSeparator', { fg = M.edge })
+  groups('WhichKeyValue',     { fg = M.muted })
+  groups('WhichKeyBorder',    { bg = M.panel, fg = M.edge_bright })
+  groups('WhichKeyTitle',     { bg = M.panel, fg = M.accent, fmt = 'bold' })
+  groups('WhichKeyDesc',      { fg = M.text })
+
+  -- TreesitterContext — dark panel bg, subtle italic
+  groups('TreesitterContext',           { bg = M.panel, fmt = 'italic' })
+  groups('TreesitterContextLineNumber', { bg = M.panel, fg = M.muted })
+  groups('TreesitterContextSeparator',  { fg = M.edge })
+  groups('TreesitterContextBottom',     { fmt = 'underline', sp = M.edge })
+
+  -- ── blink.cmp kind highlights (all 25 kinds) ─────────────────────────
+  -- Mapped 1:1 to Perfect Black palette tokens
+  local blink_kinds = {
+    Text          = M.text,
+    Method        = '#69AFFF',
+    Function      = '#69AFFF',
+    Constructor   = '#7FE3C2',
+    Field         = '#70D7FF',
+    Variable      = '#E6B3FF',
+    Class         = '#E8D48B',
+    Interface     = '#7FE3C2',
+    Module        = M.text,
+    Property      = '#70D7FF',
+    Unit          = '#FF9E64',
+    Value         = '#B8E986',
+    Enum          = '#7FE3C2',
+    Keyword       = M.lilac,
+    Snippet       = '#70D7FF',
+    Color         = '#FF8FA3',
+    File          = M.text,
+    Reference     = M.accent,
+    Folder        = M.accent,
+    EnumMember    = '#70D7FF',
+    Constant      = M.text,
+    Struct        = '#7FE3C2',
+    Event         = '#FF9E64',
+    Operator      = '#70D7FF',
+    TypeParameter = '#7FE3C2',
+  }
+  for kind, color in pairs(blink_kinds) do
+    h['BlinkCmpKind' .. kind] = { fg = color }
+  end
+  -- blink.cmp doc/menu chrome
+  groups('BlinkCmpMenu',        { bg = M.panel, fg = M.text })
+  groups('BlinkCmpMenuBorder',  { bg = M.panel, fg = M.edge_bright })
+  groups('BlinkCmpMenuSelection',{ bg = M.selected, fg = M.text, fmt = 'bold' })
+  groups('BlinkCmpDoc',         { bg = M.inset, fg = M.text })
+  groups('BlinkCmpDocBorder',   { bg = M.inset, fg = M.edge })
+  groups('BlinkCmpScrollBar',   { bg = M.inset })
+  groups('BlinkCmpScrollBarThumb', { bg = M.edge })
+  groups('BlinkCmpLabel',       { fg = M.text })
+  groups('BlinkCmpLabelMatch',  { fg = '#FFFFFF', fmt = 'bold,underline' })
+  groups('BlinkCmpSource',      { fg = M.muted })
+  groups('BlinkCmpGhostText',   { fg = M.muted, fmt = 'italic' })
+
+  -- ── Harpoon2 window chrome ────────────────────────────────────────────
+  groups('HarpoonWindow', { bg = M.panel, fg = M.text })
+  groups('HarpoonBorder', { bg = M.panel, fg = M.edge_bright })
+  groups('HarpoonTitle',  { bg = M.panel, fg = M.accent, fmt = 'bold' })
+
+  -- ── Snacks.explorer file tree ─────────────────────────────────────────
+  groups('SnacksExplorerDir',        { fg = M.accent, fmt = 'bold' })
+  groups('SnacksExplorerFile',       { fg = M.text })
+  groups('SnacksExplorerGitAdded',   { fg = '#7FE3C2', fmt = 'bold' })
+  groups('SnacksExplorerGitModified',{ fg = '#FFD166' })
+  groups('SnacksExplorerGitDeleted', { fg = '#FF8FA3', fmt = 'strikethrough' })
+  groups('SnacksExplorerGitIgnored', { fg = M.muted, fmt = 'italic' })
 
   groups('NoiceFormatProgressDone', { bg = M.selected, fg = M.text })
   groups('NoiceFormatProgressTodo', { bg = M.inset, fg = M.muted })
@@ -154,7 +218,8 @@ function M.highlights()
   groups('BlackKey', { bg = '#1E2F47', fg = '#FFFFFF', fmt = 'bold' })
   groups('SnacksDashboardTerminal', { fg = '#61708A' })
   groups('SnacksDashboardFooter', { fg = '#61708A' })
-  
+
+
   return h
 end
 return M

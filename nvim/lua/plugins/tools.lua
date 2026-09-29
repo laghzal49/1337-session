@@ -40,8 +40,42 @@ return {
           }),
           f = ai.gen_spec.treesitter({ a = '@function.outer', i = '@function.inner' }),
           c = ai.gen_spec.treesitter({ a = '@class.outer', i = '@class.inner' }),
+          -- HTML / JSX tag text object (at = around tag, it = inner tag)
+          t = ai.gen_spec.treesitter({ a = '@tag.outer', i = '@tag.inner' }),
+          -- Diagnostic region: around/inner the current diagnostic message
+          d = function(ai_type)
+            local diags = vim.diagnostic.get(0, { lnum = vim.fn.line('.') - 1 })
+            if vim.tbl_isempty(diags) then return end
+            local d = diags[1]
+            local from = { line = d.lnum + 1, col = d.col + 1 }
+            local to   = { line = (d.end_lnum or d.lnum) + 1, col = (d.end_col or d.col) + 1 }
+            return { from = from, to = to }
+          end,
         },
       }
+    end,
+    config = function(_, opts)
+      require('mini.ai').setup(opts)
+      -- Git hunk text objects via gitsigns: gh = around hunk, gH = inner hunk
+      local function hunk_textobj(around)
+        local ok, gs = pcall(require, 'gitsigns')
+        if not ok then return end
+        local hunks = require('gitsigns.hunks')
+        local buf_hunks = hunks and require('gitsigns').get_hunks and require('gitsigns').get_hunks()
+        if not buf_hunks then return end
+        local line = vim.fn.line('.')
+        for _, h in ipairs(buf_hunks) do
+          local start_l = h.added.start
+          local end_l   = h.added.start + math.max(h.added.count - 1, 0)
+          if line >= start_l and line <= end_l then
+            local from = { line = start_l, col = 1 }
+            local to   = { line = end_l,   col = #vim.fn.getline(end_l) }
+            return { from = from, to = to }
+          end
+        end
+      end
+      vim.keymap.set({ 'x', 'o' }, 'gh', function() hunk_textobj(true)  end, { desc = 'Around git hunk' })
+      vim.keymap.set({ 'x', 'o' }, 'gH', function() hunk_textobj(false) end, { desc = 'Inner git hunk' })
     end,
   },
   -- Underrated Gem 2: Ultra-lightweight autopairs with Treesitter skip
@@ -84,15 +118,87 @@ return {
     },
     opts = {},
   },
-  -- Underrated Gem 5: Inline hex color highlighter
+  -- Underrated Gem 5: Inline hex color highlighter + TODO annotations
   {
     'nvim-mini/mini.hipatterns',
     event = { 'BufReadPost', 'BufNewFile' },
     opts = function()
       local hi = require('mini.hipatterns')
+      -- Compute a readable fg for a given bg hex string
+      local function dark_or_light(hex)
+        local r = tonumber(hex:sub(2, 3), 16) or 0
+        local g = tonumber(hex:sub(4, 5), 16) or 0
+        local b = tonumber(hex:sub(6, 7), 16) or 0
+        -- Relative luminance (WCAG formula)
+        local lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+        return lum > 0.45 and '#000000' or '#FFFFFF'
+      end
+
       return {
         highlighters = {
-          hex_color = hi.gen_highlighter.hex_color(),
+          -- ── Standard 6-digit hex colors ──────────────────────────────
+          hex_color = hi.gen_highlighter.hex_color({ priority = 100 }),
+
+          -- ── 8-digit RGBA hex colors (#RRGGBBAA) ───────────────────────
+          hex_color_rgba = {
+            pattern = '#%x%x%x%x%x%x%x%x%f[%W]',
+            group = function(_, match)
+              -- Strip alpha; use first 7 chars as the display color
+              local hex6 = match:sub(1, 7)
+              local fg = dark_or_light(hex6)
+              local hl_name = 'HipatHex_' .. hex6:sub(2)
+              if vim.fn.hlID(hl_name) == 0 then
+                vim.api.nvim_set_hl(0, hl_name, { bg = hex6, fg = fg })
+              end
+              return hl_name
+            end,
+            priority = 110,
+          },
+
+          -- ── TODO: themed keyword annotations ─────────────────────────
+          -- These complement todo-comments.nvim; both can coexist.
+          fix_me = {
+            pattern = '%f[%w]()FIXME()%f[%W]',
+            group = function()
+              vim.api.nvim_set_hl(0, 'HipatFixme', { bg = '#FF8FA3', fg = '#000000', bold = true })
+              return 'HipatFixme'
+            end,
+          },
+          todo = {
+            pattern = '%f[%w]()TODO()%f[%W]',
+            group = function()
+              vim.api.nvim_set_hl(0, 'HipatTodo', { bg = '#FFD166', fg = '#000000', bold = true })
+              return 'HipatTodo'
+            end,
+          },
+          hack = {
+            pattern = '%f[%w]()HACK()%f[%W]',
+            group = function()
+              vim.api.nvim_set_hl(0, 'HipatHack', { bg = '#FF9E64', fg = '#000000', bold = true })
+              return 'HipatHack'
+            end,
+          },
+          note = {
+            pattern = '%f[%w]()NOTE()%f[%W]',
+            group = function()
+              vim.api.nvim_set_hl(0, 'HipatNote', { bg = '#70D7FF', fg = '#000000', bold = true })
+              return 'HipatNote'
+            end,
+          },
+          perf = {
+            pattern = '%f[%w]()PERF()%f[%W]',
+            group = function()
+              vim.api.nvim_set_hl(0, 'HipatPerf', { bg = '#C7A6FF', fg = '#000000', bold = true })
+              return 'HipatPerf'
+            end,
+          },
+          test_kw = {
+            pattern = '%f[%w]()TEST()%f[%W]',
+            group = function()
+              vim.api.nvim_set_hl(0, 'HipatTest', { bg = '#7FE3C2', fg = '#000000', bold = true })
+              return 'HipatTest'
+            end,
+          },
         },
       }
     end,
@@ -128,12 +234,18 @@ return {
   },
   {
     'sindrets/diffview.nvim',
-    cmd = { 'DiffviewOpen', 'DiffviewFileHistory' },
+    cmd = { 'DiffviewOpen', 'DiffviewFileHistory', 'DiffviewClose' },
     keys = {
       { '<leader>gD', '<cmd>DiffviewOpen<cr>', desc = 'Git diff view' },
       { '<leader>gH', '<cmd>DiffviewFileHistory %<cr>', desc = 'Current file history' },
+      { '<leader>gf', '<cmd>DiffviewFileHistory<cr>', mode = { 'n', 'v' }, desc = 'File history (selection)' },
+      { '<leader>gc', '<cmd>DiffviewClose<cr>', desc = 'Close diffview' },
     },
-    opts = {},
+    opts = {
+      default_args = {
+        DiffviewFileHistory = { '--follow' },
+      },
+    },
   },
   {
     'MeanderingProgrammer/render-markdown.nvim',
