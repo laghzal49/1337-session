@@ -13,7 +13,8 @@ and a composed status bar. JetBrains Mono with selective italics. Python uses
 ![Blink completion and documentation](nvim/assets/completion.png)
 
 Completion shows local matches while the language server responds, then favors
-semantic suggestions. Ctrl-N/Ctrl-P navigate; Ctrl-D toggles documentation;
+semantic suggestions. Ctrl-N/Ctrl-P navigate; Ctrl-K shows documentation,
+parameters and usage details; Ctrl-D toggles the completion documentation;
 Tab/Shift-Tab follow snippet placeholders. Exact matches rank first, and the
 native matcher retains typo tolerance and usage history.
 

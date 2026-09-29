@@ -67,7 +67,15 @@ plugin checkouts after updating, then restart Neovim.
 - **Tiny Inline Diagnostic:** wrapped cursor-line errors, quiet during insertion.
 - **Blink completion:** LSP, paths, snippets and buffer words, with documentation
   and signature help. Enter accepts an explicitly selected item; otherwise it
-  inserts a newline. Ctrl-E dismisses completion, Ctrl-K toggles signature help.
+  inserts a newline. Ctrl-E dismisses completion. Ctrl-K opens the selected
+  completion's full documentation, including parameters and usage examples when
+  available. Without a selection, it shows documentation for the symbol at your
+  cursor in insert or normal mode. Python builtins also work without an LSP.
+  Inside a function call, Ctrl-K prefers the signature and active parameter's
+  documentation. Empty server replies fall back to hover and Python builtin help;
+  delayed replies are ignored if you move or edit. Builtin help is cached, and
+  buffer-word suggestions use the full selected name rather than its typed prefix.
+  Use Ctrl-B/Ctrl-F to scroll completion documentation; Ctrl-W K moves up a split.
   Local words from the active buffer appear while the LSP responds; semantic
   suggestions get a ranking boost. Exact matches come first, with the native
   matcher's usage/proximity ranking and typo tolerance retained. Documentation

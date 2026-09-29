@@ -17,7 +17,7 @@ return {
         ['<C-f>'] = { 'scroll_documentation_down', 'show_documentation', 'fallback' },
         ['<C-d>'] = { 'hide_documentation', 'show_documentation', 'fallback' },
         ['<C-e>'] = { 'hide', 'fallback' },
-        ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
+        ['<C-k>'] = { function(cmp) return require('config.symbol_help').completion(cmp) end },
       },
 
       completion = {

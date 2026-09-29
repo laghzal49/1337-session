@@ -23,7 +23,7 @@ map('<Esc>', function()
 end, 'Clear search highlights & popups')
 map('<C-h>', '<C-w>h', 'Window left')
 map('<C-j>', '<C-w>j', 'Window down')
-map('<C-k>', '<C-w>k', 'Window up')
+map('<C-k>', function() require('config.symbol_help').show() end, 'Symbol documentation and usage')
 map('<C-l>', '<C-w>l', 'Window right')
 map('<S-h>', '<cmd>bprevious<cr>', 'Previous buffer')
 map('<S-l>', '<cmd>bnext<cr>', 'Next buffer')
@@ -57,7 +57,7 @@ vim.api.nvim_create_autocmd('LspAttach', { callback = function(ev)
   lmap('<leader>ca', vim.lsp.buf.code_action, 'Code action')
   vim.keymap.set('n', '<leader>cr', function() return ':IncRename ' .. vim.fn.expand('<cword>') end,
     {buffer=ev.buf, expr=true, desc='Rename symbol'})
-  -- Blink owns automatic/insert-mode signature help and <C-k>.
+  -- Blink owns automatic signature help and insert-mode documentation on <C-k>.
   -- Keep gK as an explicit native fallback when a manual popup is wanted.
   lmap('gK', function() vim.lsp.buf.signature_help({ border = require('config.ui').border, max_width = 80, max_height = 16 }) end, 'Signature help')
 end })

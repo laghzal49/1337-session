@@ -165,7 +165,9 @@ for width,height in [(80,24),(140,42)]:
   state=call('nvim_exec_lua',["return {selected=require('blink.cmp').get_selected_item_idx(),line=vim.api.nvim_get_current_line(),native=vim.fn.pumvisible()}",[]])
   assert state=={'selected':index,'line':'    sum','native':0}, (key,state)
  call('nvim_exec_lua',["assert(require('blink.cmp').get_selected_item().label=='summary', 'Review item missing')",[]]);pump(.2)
- call('nvim_input',['<C-b>']);pump(1.8)
+ call('nvim_input',['<C-d>']);pump(.2)
+ call('nvim_input',['<C-k>']);pump(1.8)
+ call('nvim_input',['<C-k>']);pump(.2)
  assert call('nvim_exec_lua',["return require('blink.cmp').is_documentation_visible()",[]]),width
  docs=call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='blink-cmp-documentation' then return {win=w,config=vim.api.nvim_win_get_config(w)} end end",[]])
  c=docs['config'];assert c['width']+2<=width and c['height']+2<=height,(width,c)
@@ -191,6 +193,67 @@ for width,height in [(80,24),(140,42)]:
  print('DOCS / COMMAND',width,height,'open, scroll, close and geometry PASS',flush=True)
 
 call('nvim_exec_lua',["require('blink.cmp.config').sources.default=review_blink_sources",[]])
+
+# Ctrl-K also provides Python builtin documentation without a language server.
+call('nvim_command',['enew!'])
+call('nvim_command',['setfiletype python'])
+for mode in ['normal', 'insert']:
+ call('nvim_exec_lua',["vim.api.nvim_buf_set_lines(0,0,-1,false,{'sum'}); vim.api.nvim_win_set_cursor(0,{1,1})",[]])
+ if mode=='insert':
+  call('nvim_input',['i']);pump(.1)
+  call('nvim_exec_lua',["require('blink.cmp').hide()",[]]);pump(.1)
+ call('nvim_input',['<C-k>']);pump(.6)
+ text=call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.api.nvim_win_get_config(w).relative~='' then local b=vim.api.nvim_win_get_buf(w); local lines=vim.api.nvim_buf_get_lines(b,0,-1,false); local text=table.concat(lines,'\\n'); if text:find('sum%(iterable') then return text end end end",[]])
+ assert text and 'start' in text and 'Return' in text, (mode,text)
+ assert call('nvim_get_current_line',[])=='sum',mode
+ call('nvim_input',['<Esc>']);pump(.2)
+ call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.api.nvim_win_get_config(w).relative~='' then vim.api.nvim_win_close(w,true) end end",[]])
+print('CTRL-K: completion docs and normal/insert Python usage help PASS',flush=True)
+
+# A buffer-only candidate must use its full name without accepting the suggestion.
+call('nvim_command',['enew!'])
+call('nvim_command',['setfiletype python'])
+call('nvim_exec_lua',["require('blink.cmp.config').sources.default={'buffer'}; vim.api.nvim_buf_set_lines(0,0,-1,false,{'print',''}); vim.api.nvim_win_set_cursor(0,{2,0})",[]])
+call('nvim_input',['ipri']);pump(.6)
+call('nvim_input',['<C-n>']);pump(.2)
+item=call('nvim_exec_lua',["return require('blink.cmp').get_selected_item()",[]])
+assert item and item['label']=='print' and item['source_id']=='buffer',item
+call('nvim_input',['<C-k>']);pump(.5)
+text=call('nvim_exec_lua',["local t={} for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.api.nvim_win_get_config(w).relative~='' then vim.list_extend(t,vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(w),0,-1,false)) end end return table.concat(t,'\\n')",[]])
+assert 'print(' in text,text
+assert call('nvim_get_current_line',[])=='pri'
+call('nvim_input',['<Esc>']);pump(.2)
+call('nvim_exec_lua',["require('blink.cmp.config').sources.default=review_blink_sources",[]])
+print('SELECTED BUFFER WORD: full builtin name; typed text unchanged PASS',flush=True)
+
+# Real LSP responses: active parameters, empty-response fallbacks and stale replies.
+call('nvim_exec_lua',["dofile('nvim/tests/symbol_help_review.lua'); require('blink.cmp.config').signature.enabled=false",[]])
+def help_text():
+ return call('nvim_exec_lua',["local lines={} for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.api.nvim_win_get_config(w).relative~='' then vim.list_extend(lines,vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(w),0,-1,false)) end end return table.concat(lines,'\\n')",[]])
+def help_line(line):
+ call('nvim_input',['<Esc>']);pump(.1)
+ call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.api.nvim_win_get_config(w).relative~='' then vim.api.nvim_win_close(w,true) end end; vim.api.nvim_buf_set_lines(0,0,-1,false,{...}); vim.api.nvim_win_set_cursor(0,{1,0})",[line]])
+ call('nvim_input',['A']);pump(.15)
+ call('nvim_exec_lua',["require('blink.cmp').hide()",[]]);pump(.1)
+help_line('analyze([1, 2], ')
+call('nvim_input',['<C-k>']);pump(.4)
+assert 'Maximum number of values' in help_text(),help_text()
+call('nvim_exec_lua',["symbol_help_review.empty_signature=true",[]])
+help_line('analyze([1, 2], ')
+call('nvim_input',['<C-k>']);pump(.5)
+assert 'limit=10' in help_text(),help_text()
+call('nvim_exec_lua',["symbol_help_review.empty_hover=true",[]])
+help_line('sum([1, 2], ')
+call('nvim_input',['<C-k>']);pump(.5)
+assert 'sum(iterable' in help_text(),help_text()
+call('nvim_exec_lua',["symbol_help_review.empty_hover=false",[]])
+help_line('analyze')
+call('nvim_input',['<C-k>'])
+call('nvim_input',['x']);pump(.4)
+assert 'limit=10' not in help_text(),'Stale help appeared after editing'
+call('nvim_input',['<Esc>']);pump(.1)
+call('nvim_exec_lua',["vim.lsp.get_client_by_id(symbol_help_review.client):stop(true); require('blink.cmp.config').signature.enabled=true",[]])
+print('SMART HELP: nested calls, active parameter docs, empty fallbacks and stale replies PASS',flush=True)
 
 # A slow LSP must not delay local matches; semantic matches win when they arrive.
 call('nvim_exec_lua',["dofile('nvim/tests/completion_latency.lua')",[]])

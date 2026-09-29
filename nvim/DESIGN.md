@@ -77,8 +77,15 @@ resolved documentation, snippets and automatic signature help. The obsolete cmp
 shim and its window-decoration adapter are removed. Noice's automatic signature
 help is disabled to avoid duplicate popups.
 
-Documentation opens automatically after selecting an item. Ctrl-D toggles it;
-Ctrl-B/F open or scroll it, and Ctrl-E dismisses completion. Enter inserts a
+Documentation opens automatically after selecting an item. Ctrl-K opens selected
+completion documentation or cursor-symbol help, with isolated Python builtin
+introspection when no hover server is attached. Normal-mode Ctrl-K also opens
+symbol help; native Ctrl-W K still moves to the window above. Ctrl-D toggles docs.
+Inside an unfinished call, signature help takes priority and highlights the active
+parameter. Empty replies fall back to hover, then isolated Python builtin docs.
+Requests track the buffer, cursor, edit count and request generation to discard
+stale responses. Builtin docs are cached; selected buffer words use their full label.
+Ctrl-B/F open or scroll completion docs, and Ctrl-E dismisses completion. Enter inserts a
 newline until an item is explicitly selected. The UI review uses a real Blink
 provider with delayed resolution and tests the actual menu and documentation
 windows at narrow and wide viewport sizes. Local buffer suggestions no longer
