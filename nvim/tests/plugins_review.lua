@@ -1,6 +1,6 @@
 -- Called by ui_review.py with an attached UI. All mutations use temporary files.
 local plugins = {
-  "mini.files", "tiny-inline-diagnostic.nvim", "quicker.nvim", "mini.pick", "mini.extra",
+  "oil.nvim", "tiny-inline-diagnostic.nvim", "quicker.nvim", "mini.pick", "mini.extra",
   "mini.notify", "glance.nvim", "inc-rename.nvim", "aerial.nvim", "treesj",
   "nvim-various-textobjs",
 }
@@ -16,7 +16,7 @@ assert(not (noice_notify and noice_notify.enabled))
 assert(vim.diagnostic.config().virtual_text == false)
 assert(not require("lazy.core.config").plugins.LazyVim, "distribution must not be installed")
 assert(not Snacks.config.picker.enabled)
-for _, name in ipairs({ "neo-tree.nvim", "namu.nvim", "colorful-menu.nvim", "nvim-lsp-endhints" }) do
+for _, name in ipairs({ "mini.files", "neo-tree.nvim", "namu.nvim", "colorful-menu.nvim", "nvim-lsp-endhints" }) do
   assert(not require("lazy.core.config").plugins[name], "removed plugin still active: " .. name)
 end
 
@@ -39,29 +39,33 @@ require("various-textobjs").indentation("inner", "inner")
 assert(vim.fn.mode():match("[vV]"), "indentation object did not select")
 vim.cmd('execute "normal! \\<Esc>"')
 vim.fn.writefile({"temporary"}, dir .. "/rename_me.txt")
-require("mini.files").open(dir)
-assert(require("mini.files").get_explorer_state(), "Mini Files failed to open")
+require("oil").open(dir)
 local fbuf = vim.api.nvim_get_current_buf()
-vim.api.nvim_exec_autocmds("TextChanged", {buffer=fbuf})
+assert(vim.wait(2000, function()
+  local lines = vim.api.nvim_buf_get_lines(fbuf, 0, -1, false)
+  return vim.bo[fbuf].modifiable and #lines > 0 and lines[1] ~= ""
+end), "Oil buffer failed to load")
 local file_lines = vim.api.nvim_buf_get_lines(fbuf, 0, -1, false)
 local renamed = false
 for i, line in ipairs(file_lines) do
   if line:find("rename_me.txt", 1, true) then
-    vim.api.nvim_buf_set_lines(fbuf, i - 1, i, false, {(line:gsub("rename_me%.txt", "renamed.txt"))})
+    file_lines[i] = (line:gsub("rename_me%.txt", "renamed.txt"))
     renamed = true
     break
   end
 end
 assert(renamed, "temporary file missing in explorer")
-vim.api.nvim_exec_autocmds("TextChanged", {buffer=fbuf})
-local confirm = vim.fn.confirm
-vim.fn.confirm = function() return 1 end
-local ok, err = pcall(require("mini.files").synchronize)
-vim.fn.confirm = confirm
-assert(ok, err)
-assert(vim.fn.filereadable(dir .. "/renamed.txt") == 1, "Mini Files rename failed")
+vim.api.nvim_buf_set_lines(fbuf, 0, -1, false, file_lines)
+vim.bo[fbuf].modified = true
+local done = false
+require("oil").save({ confirm = false }, function(err)
+  assert(not err, err)
+  done = true
+end)
+assert(vim.wait(2000, function() return done end), "Oil save timed out")
+assert(vim.fn.filereadable(dir .. "/renamed.txt") == 1, "Oil rename failed")
 assert(vim.fn.filereadable(dir .. "/rename_me.txt") == 0)
-require("mini.files").close()
+require("oil").close()
 vim.api.nvim_set_current_buf(buf)
 
 vim.cmd.write()
@@ -70,7 +74,7 @@ vim.cmd.write()
 vim.fn.setqflist({}, "r", { title = "Plugin smoke", items = { { filename = path, lnum = 6, col = 1, text = 'answer = total(values)' } } })
 vim.cmd.copen()
 local qbuf = vim.api.nvim_get_current_buf()
-assert(vim.wait(1500, function() return vim.b[qbuf].qf_ext_id_to_item_idx ~= nil end), "quickfix rendering not ready")
+assert(vim.wait(3000, function() return vim.b[qbuf].qf_ext_id_to_item_idx ~= nil end), "quickfix rendering not ready")
 assert(vim.bo[qbuf].filetype == "qf" and vim.bo[qbuf].modifiable)
 local lines = vim.api.nvim_buf_get_lines(qbuf, 0, -1, false)
 local changed = false

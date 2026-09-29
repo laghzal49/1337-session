@@ -27,10 +27,9 @@ local function safely(label, callback)
 end
 
 local function open_files()
-  local files = require('mini.files')
   local path = vim.api.nvim_buf_get_name(0)
-  files.open(vim.uv.fs_stat(path) and path or require('config.project').root(), true,
-    require('config.tool_layout').files())
+  local dir = (path ~= '' and vim.uv.fs_stat(path)) and vim.fs.dirname(path) or require('config.project').root()
+  require('oil').open_float(dir)
 end
 
 local function open_dashboard()

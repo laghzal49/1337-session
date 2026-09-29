@@ -58,63 +58,130 @@ return {
     end,
   },
   {
-    'nvim-mini/mini.files',
+    'stevearc/oil.nvim',
     lazy = false,
+    dependencies = { { 'nvim-mini/mini.icons', opts = {} } },
     keys = {
-      { '<leader>e', function()
-        local files = require('mini.files')
-        if files.close() then return end
-        local path = vim.api.nvim_buf_get_name(0)
-        files.open(vim.uv.fs_stat(path) and path or require('config.project').root(), true, require('config.tool_layout').files())
-      end, desc = 'Files (Mini Files)' },
-      { '<leader>fm', function()
-        local path = vim.api.nvim_buf_get_name(0)
-        require('mini.files').open(vim.uv.fs_stat(path) and path or require('config.project').root(), true, require('config.tool_layout').files())
-      end, desc = 'Browse current file (Mini Files)' },
-      { '<leader>fM', function() require('mini.files').open(require('config.project').root(), true, require('config.tool_layout').files()) end, desc = 'Browse project (Mini Files)' },
+      {
+        '<leader>e',
+        function()
+          local oil = require('oil')
+          if vim.bo.filetype == 'oil' then
+            oil.close()
+            return
+          end
+          local path = vim.api.nvim_buf_get_name(0)
+          local dir = (path ~= '' and vim.uv.fs_stat(path)) and vim.fs.dirname(path) or require('config.project').root()
+          oil.open_float(dir)
+        end,
+        desc = 'File Explorer (Oil Float)',
+      },
+      {
+        '-',
+        function()
+          require('oil').open()
+        end,
+        desc = 'Open parent directory (Oil)',
+      },
+      {
+        '<leader>fe',
+        function()
+          local path = vim.api.nvim_buf_get_name(0)
+          local dir = (path ~= '' and vim.uv.fs_stat(path)) and vim.fs.dirname(path) or require('config.project').root()
+          require('oil').open_float(dir)
+        end,
+        desc = 'Browse current directory (Oil)',
+      },
+      {
+        '<leader>fE',
+        function()
+          require('oil').open_float(require('config.project').root())
+        end,
+        desc = 'Browse project root (Oil)',
+      },
+      {
+        '<leader>fm',
+        function()
+          local path = vim.api.nvim_buf_get_name(0)
+          local dir = (path ~= '' and vim.uv.fs_stat(path)) and vim.fs.dirname(path) or require('config.project').root()
+          require('oil').open_float(dir)
+        end,
+        desc = 'Browse current directory (Oil)',
+      },
+      {
+        '<leader>fM',
+        function()
+          require('oil').open_float(require('config.project').root())
+        end,
+        desc = 'Browse project root (Oil)',
+      },
     },
     opts = function()
-      local windows = require('config.tool_layout').files().windows
       local ui = require('config.ui')
       return {
-        options = {
-          use_as_default_explorer = true,
-          permanent_delete = false,
+        default_file_explorer = true,
+        delete_to_trash = true,
+        skip_confirm_for_simple_edits = true,
+        prompt_save_on_select_new_entry = true,
+        cleanup_delay_ms = 2000,
+        lsp_file_methods = {
+          enabled = true,
+          timeout_ms = 1000,
+          autosave_changes = false,
         },
-        windows = windows,
-        content = {
-          -- Sort: directories first, then alphabetical
-          sort = function(entries)
-            local dirs, files = {}, {}
-            for _, e in ipairs(entries) do
-              if e.fs_type == 'directory' then dirs[#dirs + 1] = e else files[#files + 1] = e end
-            end
-            table.sort(dirs, function(a, b) return a.name:lower() < b.name:lower() end)
-            table.sort(files, function(a, b) return a.name:lower() < b.name:lower() end)
-            return vim.list_extend(dirs, files)
+        constrain_cursor = 'editable',
+        watch_for_changes = true,
+        columns = {
+          'icon',
+        },
+        keymaps = {
+          ['g?'] = { 'actions.show_help', mode = 'n' },
+          ['<CR>'] = 'actions.select',
+          ['<C-s>'] = { 'actions.select', opts = { vertical = true } },
+          ['<C-h>'] = { 'actions.select', opts = { horizontal = true } },
+          ['<C-t>'] = { 'actions.select', opts = { tab = true } },
+          ['<C-p>'] = 'actions.preview',
+          ['<C-c>'] = { 'actions.close', mode = 'n' },
+          ['q'] = { 'actions.close', mode = 'n' },
+          ['<Esc>'] = { 'actions.close', mode = 'n' },
+          ['<C-l>'] = 'actions.refresh',
+          ['-'] = { 'actions.parent', mode = 'n' },
+          ['_'] = { 'actions.open_cwd', mode = 'n' },
+          ['`'] = { 'actions.cd', mode = 'n' },
+          ['~'] = { 'actions.tcd', mode = 'n' },
+          ['gs'] = { 'actions.change_sort', mode = 'n' },
+          ['gx'] = 'actions.open_external',
+          ['g.'] = { 'actions.toggle_hidden', mode = 'n' },
+          ['g\\'] = { 'actions.toggle_trash', mode = 'n' },
+        },
+        use_default_keymaps = true,
+        view_options = {
+          show_hidden = false,
+          natural_order = 'fast',
+          case_insensitive = false,
+          sort = {
+            { 'type', 'asc' },
+            { 'name', 'asc' },
+          },
+        },
+        float = {
+          padding = 2,
+          max_width = 90,
+          max_height = 30,
+          border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
+          win_options = {
+            winblend = 0,
+          },
+          get_win_title = function()
+            local current_dir = require('oil').get_current_dir()
+            local title = current_dir and vim.fn.fnamemodify(current_dir, ':~') or 'Files'
+            return ' ' .. ui.icon('folder') .. ' ' .. title .. ' '
           end,
-          prefix = function(fs_entry)
-            if not fs_entry or type(fs_entry.name) ~= 'string' then
-              return '  ', 'MiniFilesFile'
-            end
-            if fs_entry.fs_type == 'directory' then
-              local ok_icons, mini_icons = pcall(require, 'mini.icons')
-              if ok_icons then
-                local ok, icon, hl = pcall(mini_icons.get, 'directory', fs_entry.name)
-                if ok and icon then return icon .. ' ', hl or 'MiniFilesDirectoryIcon' end
-              end
-              return ui.icon('folder') .. ' ', 'MiniFilesDirectoryIcon'
-            end
-            local ok_icons, mini_icons = pcall(require, 'mini.icons')
-            if ok_icons then
-              local ok, icon, hl = pcall(mini_icons.get, 'file', fs_entry.name)
-              if ok and icon then return icon .. ' ', hl or 'MiniFilesFileIcon' end
-            end
-            return ui.icon('file') .. ' ', 'MiniFilesFileIcon'
-          end,
-          filter = function(fs_entry)
-            return fs_entry.name ~= '.DS_Store' and fs_entry.name ~= 'thumbs.db'
-          end,
+          preview_split = 'right',
+        },
+        preview_win = {
+          update_on_cursor_moved = true,
+          preview_method = 'fast_scratch',
         },
       }
     end,

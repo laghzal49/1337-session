@@ -240,13 +240,16 @@ plugin manager: explicit specifications and a pinned lockfile provide reproducib
 installation without an additional package-manager migration. The tradeoff is that
 we now own the LSP setup, completion sources, keymaps and formatting policy.
 
-Mini Files replaces Neo-tree. Mini Pick + Mini Extra replace Snacks picker and
-reuse one compact results/preview window. This gives up simultaneous side-by-side
-preview and content-dependent window shrinking; it reduces custom layout code
-and remains bounded at 80×24. Aerial replaces Namu for structural navigation and
-can derive Python symbols from Tree-sitter before the LSP is ready. Glance retains
-its separate role for reference inspection. Native hints replace Endhints; plain
-completion labels replace Colorful Menu's generic ty formatting.
+Oil.nvim replaces Mini Files for modern, fast, and ergonomic file management.
+Edit the filesystem directly like a regular buffer using Vim motions, operators,
+macros, and batch substitutions, with automatic LSP reference updates on rename,
+live preview (`Ctrl-P`), floating browser (`<leader>e`), and Vinegar parent navigation (`-`).
+Mini Pick + Mini Extra replace Snacks picker and reuse one compact results/preview window.
+This gives up simultaneous side-by-side preview and content-dependent window shrinking;
+it reduces custom layout code and remains bounded at 80×24. Aerial replaces Namu for
+structural navigation and can derive Python symbols from Tree-sitter before the LSP is ready.
+Glance retains its separate role for reference inspection. Native hints replace Endhints;
+plain completion labels replace Colorful Menu's generic ty formatting.
 
 The dashboard and all project/search mappings now call a small owned picker
 adapter. Distribution-specific integrations and their lockfile entries are gone.
@@ -260,9 +263,9 @@ Mason rather than installing silently on every workstation's first launch.
 
 Validation: real configured ty attached and reported errors without LazyVim;
 Mini Pick files/grep/preview passed at 80×24, 100×30 and 140×42; documentation
-open/scroll/close, quickfix writes, native hints toggle, Mini Files, Aerial, Glance
-and incremental rename passed. Cluster cold-cache and desk migration remain
-unverified. Prior benchmark numbers above describe the earlier revision.
+open/scroll/close, quickfix writes, native hints toggle, Oil.nvim browser/rename/geometry,
+Aerial, Glance and incremental rename passed. Cluster cold-cache and desk migration
+remain unverified. Prior benchmark numbers above describe the earlier revision.
 
 Standalone headless startup, five runs with existing caches: 23.920, 25.236,
 27.795, 24.544, 23.662 ms; median 24.544 ms. This excludes deferred plugins and

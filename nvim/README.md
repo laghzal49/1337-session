@@ -55,8 +55,10 @@ and YAML front matter readable.
 
 - **Mini Pick + Mini Extra:** files, live grep, buffers, commands, diagnostics and
   symbols. Ctrl-P switches between results and preview in the same window.
-- **Mini Files:** the only file browser. Edit filenames like a buffer, then press
-  `=` to review/synchronize operations. One column on narrow terminals.
+- **Oil.nvim:** the primary file manager. Edit files and directories directly
+  like a normal buffer; renames, creations, moves, and deletions use standard Vim
+  editing with LSP reference updates, live preview (`Ctrl-P`), floating browser,
+  and Vinegar-style parent navigation (`-`).
 - **Aerial:** on-demand code outline, with Tree-sitter and LSP backends.
 - **Glance:** peek at definitions/references without leaving the source.
 - **Quicker:** editable quickfix with expandable context.
@@ -79,8 +81,9 @@ removed. There are no inherited distribution keymaps or background tool installs
 | Buffers / recent files | `<leader>,` / `<leader>fr` |
 | Commands / keymaps / help | `<leader>sC` / `<leader>sk` / `<leader>sh` |
 | Preview / mark / send marked to quickfix | `Ctrl-P` / `Tab` / `Alt-Enter` in picker |
-| Toggle file browser | `<leader>e` |
-| Browse current file / project | `<leader>fm` / `<leader>fM` |
+| Toggle file explorer (Oil float) | `<leader>e` |
+| Open parent directory (Oil) | `-` |
+| Browse current dir / project | `<leader>fe` (`<leader>fm`) / `<leader>fE` (`<leader>fM`) |
 | Code outline / find file symbol | `<leader>cs` / `<leader>ss` |
 | Find workspace symbol | `<leader>cS` |
 | Peek definition / references | `<leader>cgd` / `<leader>cgr` |
