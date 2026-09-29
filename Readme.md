@@ -17,6 +17,11 @@ fixtures. See the [Neovim guide](nvim/README.md) for command, workspace, and sea
 screenshots, shortcuts, and font setup. [Design notes](nvim/DESIGN.md) explain the
 palette, behavior, and testing limits.
 
+![Makefile target picker](nvim/assets/makefile.png)
+
+Makefile targets run directly from Neovim with `<leader>cm`; `<leader>cM` runs
+Make's default target. DAP and its debugger panels have been removed.
+
 ## One-command dev environment (Ubuntu, zero sudo)
 
 ```sh

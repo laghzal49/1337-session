@@ -51,6 +51,20 @@ then restores the previous window settings when toggled off. Rendering is bounde
 for very large files and keeps links, code languages, checkboxes, tables, quotes,
 and YAML front matter readable.
 
+## Makefile targets
+
+![Makefile target picker in Neovim](assets/makefile.png)
+
+Actual Neovim UI-grid capture of the current configuration. Use `<leader>cm`
+or `:Make` to pick a target, `:Make test` to run one directly, and `<leader>cM`
+to run the Makefile's default target in a terminal. `:MakePick` also opens the
+picker. The picker lists literal targets in the root Makefile; included files,
+variable-generated targets, and pattern rules are not expanded. GNU Make runs
+the recipe with its normal dependencies and variable expansion.
+
+DAP and its debugger UI are removed. Run `:Lazy clean` to remove unused local
+plugin checkouts after updating, then restart Neovim.
+
 ## The smaller workflow
 
 - **Mini Pick + Mini Extra:** files, live grep, buffers, commands, diagnostics and
@@ -90,6 +104,7 @@ removed. There are no inherited distribution keymaps or background tool installs
 | Completion docs toggle / open and scroll | `Ctrl-D` / `Ctrl-B`, `Ctrl-F` in insertion |
 | Native hints / format-on-save toggle | `<leader>uh` / `<leader>uf` |
 | Notification history / dismiss | `<leader>n` / `<leader>un` |
+| Makefile target picker / default target | `<leader>cm` / `<leader>cM` |
 | Terminal / Git UI | `<leader>ft` / `<leader>gg` |
 | Restore session | `<leader>qs` |
 | Save / previous buffer / next buffer | `Ctrl-S` / `Shift-H` / `Shift-L` |
@@ -141,6 +156,7 @@ nvim --headless -u NONE -l nvim/tests/python_environment.lua
 NVIM_TY=/path/to/ty nvim --headless -u NONE -l nvim/tests/real_ty.lua
 nvim --headless '+lua dofile("nvim/tests/standalone.lua")' +qa!
 python3 nvim/tests/startup_bench.py --runs 5
+python3 nvim/tests/capture_makefile.py  # also requires ImageMagick + JetBrainsMono Nerd Font Mono
 ```
 
 Use your installation's `XDG_DATA_HOME`. UI checks cover Mini Pick files/grep/

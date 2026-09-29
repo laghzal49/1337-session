@@ -105,6 +105,13 @@ vim.api.nvim_create_user_command('IconInfo', function()
   }, '\n'), vim.log.levels.INFO, { title = 'Neovim icons' })
 end, { desc = 'Show icon font status' })
 
+-- Register Make commands before their first use.
+require("config.makefile")
+
+-- Makefile target runner
+map('<leader>cm', function() require('config.makefile').pick() end, 'Pick Makefile target')
+map('<leader>cM', function() require('config.makefile').run() end, 'Run default Makefile target')
+
 -- Window resize keymaps
 map('<C-Up>', '<cmd>resize +2<cr>', 'Increase window height')
 map('<C-Down>', '<cmd>resize -2<cr>', 'Decrease window height')
