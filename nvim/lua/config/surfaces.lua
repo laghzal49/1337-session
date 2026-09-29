@@ -3,21 +3,21 @@ local ui = require("config.ui")
 local colors = ui.colors
 
 local M = {
-  panel = "#0E141D",
-  tree_panel = "#0A0F17",
-  inset = "#070B10",
-  edge = "#38557A",
-  edge_bright = "#4FD1C5",
-  edge_soft = "#2A3F5C",
-  selected = "#1B3352",
-  selected_bright = "#1B3352",
-  accent = "#82AAFF",
-  panel_accent = "#4FD1C5",
+  panel = "#0E0E14",
+  tree_panel = "#0A0A0F",
+  inset = "#07070B",
+  edge = "#5C1522",
+  edge_bright = "#FF2E4C",
+  edge_soft = "#3D101A",
+  selected = "#380D14",
+  selected_bright = "#4E121D",
+  accent = "#FF2E4C",
+  panel_accent = "#FF3B56",
   text = colors.text,
-  muted = "#61708A",
+  muted = "#7A5A62",
   teal = colors.teal,
   lilac = colors.lilac,
-  border = "#38557A",
+  border = "#5C1522",
   error = colors.error,
 }
 
@@ -29,12 +29,12 @@ function M.highlights()
   groups("NormalFloat BlackDocs NoiceCmdlinePopup NoicePopupmenu SnacksInputNormal WhichKeyNormal NoicePopup SnacksNotifierHistory", { bg = M.panel, fg = M.text })
   groups("FloatBorder BlackDocsBorder NoiceCmdlinePopupBorder NoicePopupmenuBorder SnacksInputBorder WhichKeyBorder NoicePopupBorder", { bg = M.panel, fg = M.edge_bright })
   groups("FloatTitle BlackDocsTitle NoiceCmdlinePopupTitle SnacksInputTitle", { bg = M.panel, fg = M.accent, fmt = "bold" })
-  groups("BlackRule", { fg = M.edge })
+  groups("BlackRule", { fg = "#8B0018" })
   groups("BufferLineIndicatorSelected", { fg = M.accent, bg = M.selected })
-  groups("BufferLineBufferSelected", { fg = M.text, bg = M.selected, fmt = "bold" })
+  groups("BufferLineBufferSelected", { fg = "#FFFFFF", bg = M.selected, fmt = "bold" })
   groups("BufferLineModifiedSelected", { fg = M.accent, bg = M.selected })
   groups("BlackDocsHint", { bg = M.panel, fg = M.muted })
-  groups("PmenuSel NoicePopupmenuSelected ", { bg = M.selected, fg = M.text })
+  groups("PmenuSel NoicePopupmenuSelected ", { bg = M.selected, fg = "#FFFFFF" })
   local tree_bg = "#080C14"
   local tree_border = "#24364D"
   local tree_cursor = "#18283D"
@@ -154,24 +154,27 @@ function M.highlights()
   groups('HarpoonTitle',  { bg = M.panel, fg = M.accent, fmt = 'bold' })
 
   -- ── Snacks.picker & explorer file tree ─────────────────────────────────
-  groups('SnacksPicker',                  { bg = M.panel, fg = M.text })
-  groups('SnacksPickerBorder',            { bg = M.panel, fg = M.edge_bright })
-  groups('SnacksPickerTitle',             { bg = M.panel, fg = M.accent, fmt = 'bold' })
-  groups('SnacksPickerPrompt',            { fg = M.accent, fmt = 'bold' })
-  groups('SnacksPickerMatch',             { fg = '#FFFFFF', bg = M.selected, fmt = 'bold' })
-  groups('SnacksPickerDirectory',         { fg = M.accent, fmt = 'bold' })
-  groups('SnacksPickerFile',              { fg = M.text })
-  groups('SnacksPickerTree',              { fg = '#4B5A70' })
-  groups('SnacksPickerGitStatusUntracked', { fg = '#70D7FF' })
-  groups('SnacksPickerGitStatusModified',  { fg = '#FFD166' })
+  groups('SnacksPicker',                  { bg = M.panel, fg = '#FFFFFF' })
+  groups('SnacksPickerBorder',            { bg = M.panel, fg = '#5C1522' })
+  groups('SnacksPickerTitle',             { bg = M.panel, fg = '#FF2E4C', fmt = 'bold' })
+  groups('SnacksPickerPrompt',            { fg = '#FF2E4C', fmt = 'bold' })
+  groups('SnacksPickerMatch',             { fg = '#FFFFFF', bg = '#5C0F1D', fmt = 'bold' })
+  groups('SnacksPickerDirectory',         { fg = '#FF4D6D', fmt = 'bold' })
+  groups('SnacksPickerFile',              { fg = '#FFFFFF' })
+  groups('SnacksPickerDir',               { fg = '#C4A0A6' })
+  groups('SnacksPickerPathIgnored',       { fg = '#8A6A72' })
+  groups('SnacksPickerPathHidden',        { fg = '#8A6A72' })
+  groups('SnacksPickerTree',              { fg = '#7A222F' })
+  groups('SnacksPickerGitStatusUntracked', { fg = '#FF4D6D', fmt = 'bold' })
+  groups('SnacksPickerGitStatusModified',  { fg = '#FFD166', fmt = 'bold' })
   groups('SnacksPickerGitStatusStaged',    { fg = '#7FE3C2', fmt = 'bold' })
-  groups('SnacksPickerGitStatusDeleted',   { fg = '#FF8FA3', fmt = 'strikethrough' })
-  groups('SnacksPickerGitStatusIgnored',   { fg = M.muted, fmt = 'italic' })
-  groups('SnacksPickerSelected',          { bg = M.selected, fg = M.text, fmt = 'bold' })
-  groups('SnacksPickerList',              { bg = M.panel, fg = M.text })
-  groups('SnacksPickerInput',             { bg = M.panel, fg = M.text })
-  groups('SnacksExplorerDir',             { fg = M.accent, fmt = 'bold' })
-  groups('SnacksExplorerFile',            { fg = M.text })
+  groups('SnacksPickerGitStatusDeleted',   { fg = '#FF2E4C', fmt = 'strikethrough' })
+  groups('SnacksPickerGitStatusIgnored',   { fg = '#8A6A72', fmt = 'italic' })
+  groups('SnacksPickerSelected',          { bg = '#4A101A', fg = '#FFFFFF', fmt = 'bold' })
+  groups('SnacksPickerList',              { bg = M.panel, fg = '#FFFFFF' })
+  groups('SnacksPickerInput',             { bg = M.panel, fg = '#FFFFFF' })
+  groups('SnacksExplorerDir',             { fg = '#FF4D6D', fmt = 'bold' })
+  groups('SnacksExplorerFile',            { fg = '#FFFFFF' })
 
   groups('NoiceFormatProgressDone', { bg = M.selected, fg = M.text })
   groups('NoiceFormatProgressTodo', { bg = M.inset, fg = M.muted })
@@ -185,7 +188,7 @@ function M.highlights()
   groups('BlackDocsParam', { fg = M.accent, fmt = 'bold' })
   groups('BlackDocsType', { fg = M.teal })
   groups('BlackDocsReturn', { fg = '#7FE3C2' })
-  groups('LspSignatureActiveParameter', { fg = '#FFFFFF', bg = '#1F3F6B', fmt = 'bold,underline' })
+  groups('LspSignatureActiveParameter', { fg = '#FFFFFF', bg = '#4A101A', fmt = 'bold,underline' })
 
   -- Snacks input enhanced
   groups('SnacksInputIcon', { bg = M.panel, fg = M.accent })
@@ -199,7 +202,7 @@ function M.highlights()
   groups('MiniIconsGrey', { fg = '#A9B9D6' })
   groups('MiniIconsOrange', { fg = '#FF9E64' })
   groups('MiniIconsPurple', { fg = '#C7A6FF' })
-  groups('MiniIconsRed', { fg = '#FF8FA3' })
+  groups('MiniIconsRed', { fg = '#FF2E4C' })
   groups('MiniIconsYellow', { fg = '#FFD166' })
 
   -- Lazy plugin manager panel
@@ -222,14 +225,14 @@ function M.highlights()
 
   groups('GitStatusStaged', { fg = '#7FE3C2', fmt = 'bold' })
   groups('GitStatusModified', { fg = '#FFD166', fmt = 'bold' })
-  groups('GitStatusUntracked', { fg = '#70D7FF', fmt = 'bold' })
-  groups('GitStatusDeleted', { fg = '#FF8FA3', fmt = 'bold' })
+  groups('GitStatusUntracked', { fg = '#FF4D6D', fmt = 'bold' })
+  groups('GitStatusDeleted', { fg = '#FF2E4C', fmt = 'bold' })
 
-  groups('BlackBrandIcon', { fg = '#69AFFF' })
-  groups('BlackBrand', { fg = '#C7A6FF', fmt = 'bold' })
-  groups('BlackKey', { bg = '#1E2F47', fg = '#FFFFFF', fmt = 'bold' })
-  groups('SnacksDashboardTerminal', { fg = '#61708A' })
-  groups('SnacksDashboardFooter', { fg = '#61708A' })
+  groups('BlackBrandIcon', { fg = '#FF1744' })
+  groups('BlackBrand', { fg = '#FF2E4C', fmt = 'bold' })
+  groups('BlackKey', { bg = '#4A0E17', fg = '#FF4D6D', fmt = 'bold' })
+  groups('SnacksDashboardTerminal', { fg = '#A8606B' })
+  groups('SnacksDashboardFooter', { fg = '#A8606B' })
 
 
   return h

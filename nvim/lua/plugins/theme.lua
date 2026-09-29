@@ -480,10 +480,10 @@ return {
         SpellRare = { sp = "$cyan", fmt = "undercurl" },
         SpellLocal = { sp = "$green", fmt = "undercurl" },
         Todo = { bg = "$yellow", fg = "$bg0", fmt = "bold" },
-        NonText = { fg = "$bg3" },
-        Whitespace = { fg = "$bg3" },
-        Directory = { fg = "$blue", fmt = "bold" },
-        Title = { fg = "$blue", fmt = "bold" },
+        NonText = { fg = "#61708A" },
+        Whitespace = { fg = "#4A4A5A" },
+        Directory = { fg = "#FF4D6D", fmt = "bold" },
+        Title = { fg = "#FF2E4C", fmt = "bold" },
         Question = { fg = "$green", fmt = "bold" },
         MoreMsg = { fg = "$green", fmt = "bold" },
         WarningMsg = { fg = "$yellow", fmt = "bold" },
@@ -494,7 +494,7 @@ return {
       },
     },
     config = function(_, opts)
-      opts.highlights = vim.tbl_deep_extend("force", require("config.surfaces").highlights(), opts.highlights or {})
+      opts.highlights = vim.tbl_deep_extend("force", opts.highlights or {}, require("config.surfaces").highlights())
       require("onedark").setup(opts)
       require("onedark").load()
     end,

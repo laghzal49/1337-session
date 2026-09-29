@@ -7,9 +7,9 @@ return {
       opts.options = opts.options or {}
       local palette = require('onedark.colors')
       local ui = require('config.ui')
-      local black = '#0A0F16'
-      local active = '#172333'
-      local inactive = '#0D131C'
+      local black = '#0A0A0E'
+      local active = '#3D0D14'
+      local inactive = '#0D0D12'
       local focused_win = vim.api.nvim_get_current_win()
       vim.api.nvim_create_autocmd({ 'WinEnter', 'BufEnter' }, {
         group = vim.api.nvim_create_augroup('black_status_focus', { clear = true }),
@@ -48,7 +48,7 @@ return {
         return vim.bo.filetype == 'markdown' and vim.wo.wrap and vim.wo.linebreak and vim.wo.conceallevel == 3
       end
       opts.options.theme = {
-        normal = mode('#69AFFF'),
+        normal = mode('#FF2E4C'),
         insert = mode('#7FE3C2'),
         visual = mode('#C7A6FF'),
         replace = mode('#FF8FA3'),
@@ -67,8 +67,13 @@ return {
             color = { fg = active, bg = black },
           },
           {
+            function() return 'DEVIL · ' end,
+            padding = { left = 1, right = 0 },
+            color = { fg = '#FF2E4C', bg = active, gui = 'bold' },
+          },
+          {
             'mode',
-            padding = { left = 1, right = 1 },
+            padding = { left = 0, right = 1 },
             fmt = function(value)
               local win_buf = vim.api.nvim_win_is_valid(focused_win) and vim.api.nvim_win_get_buf(focused_win)
                 or vim.api.nvim_get_current_buf()
@@ -319,55 +324,55 @@ return {
       },
       highlights = {
         indicator_selected = {
-          fg = '#69AFFF',
-          bg = '#1E2F47',
+          fg = '#FF2E4C',
+          bg = '#3D0D14',
         },
         buffer_selected = {
           fg = '#FFFFFF',
-          bg = '#1E2F47',
+          bg = '#3D0D14',
           bold = true,
           italic = false,
         },
         modified_selected = {
-          fg = '#69AFFF',
-          bg = '#1E2F47',
+          fg = '#FF2E4C',
+          bg = '#3D0D14',
         },
         buffer_visible = {
-          fg = '#61708A',
-          bg = '#0A0F16',
+          fg = '#7A5A62',
+          bg = '#0A0A0E',
         },
         buffer = {
-          fg = '#61708A',
-          bg = '#0A0F16',
+          fg = '#7A5A62',
+          bg = '#0A0A0E',
         },
         separator = {
-          fg = '#1E2836',
-          bg = '#0A0F16',
+          fg = '#4A1018',
+          bg = '#0A0A0E',
         },
         separator_visible = {
-          fg = '#1E2836',
-          bg = '#0A0F16',
+          fg = '#4A1018',
+          bg = '#0A0A0E',
         },
         separator_selected = {
-          fg = '#1E2836',
-          bg = '#1E2F47',
+          fg = '#4A1018',
+          bg = '#3D0D14',
         },
         offset_separator = {
-          fg = '#354357',
-          bg = '#0A0F16',
+          fg = '#5C1522',
+          bg = '#0A0A0E',
         },
         diagnostic = {
-          fg = '#61708A',
-          bg = '#0A0F16',
+          fg = '#7A5A62',
+          bg = '#0A0A0E',
         },
         diagnostic_selected = {
           fg = '#FFFFFF',
-          bg = '#1E2F47',
+          bg = '#3D0D14',
           bold = true,
         },
-        info = { fg = '#61708A', bg = '#0A0F16' },
-        info_selected = { fg = '#69AFFF', bg = '#1E2F47' },
-        info_diagnostic = { fg = '#61708A', bg = '#0A0F16' },
+        info = { fg = '#7A5A62', bg = '#0A0A0E' },
+        info_selected = { fg = '#FF2E4C', bg = '#3D0D14' },
+        info_diagnostic = { fg = '#7A5A62', bg = '#0A0A0E' },
         info_diagnostic_selected = { fg = '#69AFFF', bg = '#1E2F47' },
         warning = { fg = '#61708A', bg = '#0A0F16' },
         warning_selected = { fg = '#FFD166', bg = '#1E2F47' },

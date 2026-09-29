@@ -117,7 +117,7 @@ return {
       {
         text = {
           { "◆ ", hl = "BlackBrandIcon" },
-          { "1337", hl = "BlackBrand" },
+          { "DEVIL", hl = "BlackBrand" },
           { compact and "  /  WORKSPACE" or "  ·  TARIK'S WORKSPACE", hl = "BlackMuted" },
         },
         padding = 1,
