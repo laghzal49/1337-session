@@ -94,6 +94,7 @@ removed. There are no inherited distribution keymaps or background tool installs
 | Split/join structure | `<leader>cj` |
 | Editable quickfix / expand / collapse | `<leader>xQ` / `>` / `<` |
 | Indentation / subword text objects | `ii`, `ai` / `iS`, `aS` |
+| Next / previous completion | `Ctrl-N` / `Ctrl-P` (also `Tab` / `Shift-Tab`) |
 | Completion docs toggle / open and scroll | `Ctrl-D` / `Ctrl-B`, `Ctrl-F` in insertion |
 | Native hints / format-on-save toggle | `<leader>uh` / `<leader>uf` |
 | Notification history / dismiss | `<leader>n` / `<leader>un` |

@@ -9,6 +9,8 @@ return {
         preset = 'none',
         ['<C-space>'] = { 'show', 'show_documentation', 'hide_documentation' },
         ['<CR>'] = { 'accept', 'fallback' },
+        ['<C-n>'] = { 'select_next', 'show' },
+        ['<C-p>'] = { 'select_prev', 'show' },
         ['<Tab>'] = { 'select_next', 'snippet_forward', 'fallback' },
         ['<S-Tab>'] = { 'select_prev', 'snippet_backward', 'fallback' },
         ['<C-b>'] = { 'scroll_documentation_up', 'show_documentation', 'fallback' },

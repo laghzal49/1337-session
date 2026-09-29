@@ -126,7 +126,7 @@ package.preload['ui_review.blink_source'] = function()
   local source = {}
   function source.new() return setmetatable({}, { __index = source }) end
   function source:get_completions(_, callback)
-    callback({ items = {{ label = 'summary', kind = 3 }}, is_incomplete_forward = false, is_incomplete_backward = false })
+    callback({ items = {{ label = 'summary', kind = 3 }, { label = 'summary_details', kind = 3 }}, is_incomplete_forward = false, is_incomplete_backward = false })
   end
   function source:resolve(item, callback)
     vim.defer_fn(function()
@@ -139,6 +139,8 @@ package.preload['ui_review.blink_source'] = function()
   return source
 end
 require('blink.cmp').add_source_provider('ui_review', { name = 'Review', module = 'ui_review.blink_source' })
+_G.review_blink_sources = require('blink.cmp.config').sources.default
+require('blink.cmp.config').sources.default = { 'ui_review' }
 """,[]])
 for width,height in [(80,24),(140,42)]:
  call('nvim_input',['<Esc>']);pump(.5)
@@ -148,8 +150,16 @@ for width,height in [(80,24),(140,42)]:
  call('nvim_command',['setfiletype python'])
  call('nvim_exec_lua',["vim.api.nvim_buf_set_lines(0,0,-1,false,{'# documentation check','','','',''}); vim.api.nvim_win_set_cursor(0,{5,0})",[]])
  call('nvim_input',['isum']);pump(.3)
- call('nvim_exec_lua',["require('blink.cmp').show({providers={'ui_review'},initial_selected_item_idx=1})",[]]);pump(.4)
- call('nvim_exec_lua',["local c=require('blink.cmp'); assert(c.is_menu_visible(), 'Blink completion menu missing'); assert(c.get_selected_item().label=='summary', 'Review item missing')",[]]);pump(.2)
+ for opening in ['<C-n>', '<C-p>']:
+  call('nvim_exec_lua',["require('blink.cmp').hide()",[]]);pump(.1)
+  call('nvim_input',[opening]);pump(.4)
+  assert call('nvim_exec_lua',["return require('blink.cmp').is_menu_visible() and vim.fn.pumvisible()==0",[]]), opening
+ call('nvim_exec_lua',["local c=require('blink.cmp'); assert(c.is_menu_visible(), 'Blink completion menu missing'); assert(c.get_selected_item_idx()==nil); assert(#c.get_items()==2)",[]])
+ for key, index in [('<C-n>',1),('<C-n>',2),('<C-p>',1)]:
+  call('nvim_input',[key]);pump(.2)
+  state=call('nvim_exec_lua',["return {selected=require('blink.cmp').get_selected_item_idx(),line=vim.api.nvim_get_current_line(),native=vim.fn.pumvisible()}",[]])
+  assert state=={'selected':index,'line':'sum','native':0}, (key,state)
+ call('nvim_exec_lua',["assert(require('blink.cmp').get_selected_item().label=='summary', 'Review item missing')",[]]);pump(.2)
  call('nvim_input',['<C-b>']);pump(1.8)
  assert call('nvim_exec_lua',["return require('blink.cmp').is_documentation_visible()",[]]),width
  docs=call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='blink-cmp-documentation' then return {win=w,config=vim.api.nvim_win_get_config(w)} end end",[]])
@@ -167,6 +177,8 @@ for width,height in [(80,24),(140,42)]:
  assert all(c['width']<=width and c['height']<=height for c in wins),wins
  call('nvim_input',['<Esc>']);pump(.5)
  print('DOCS / COMMAND',width,height,'open, scroll, close and geometry PASS',flush=True)
+
+call('nvim_exec_lua',["require('blink.cmp.config').sources.default=review_blink_sources",[]])
 
 call('nvim_exec_lua',["_G.layoutdir=vim.fn.tempname(); vim.fn.mkdir(layoutdir..'/parent/long_directory_name_for_title','p')",[]])
 for width,height in [(140,42),(80,24),(100,30),(140,42)]:

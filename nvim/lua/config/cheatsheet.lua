@@ -31,6 +31,7 @@ local content_lines = {
   "",
   "## Makefile & Completion",
   "  `<leader>cm` Pick Make target  │ `<leader>cM` Run default target  │ `:Make test` Run a target",
+  "  `<C-n>` / `<C-p>` Next / previous completion (opens Blink when hidden)",
   "  `<C-space>` Completion  │ `<C-d>` Toggle docs  │ `<C-b>` / `<C-f>` Open / scroll docs",
   "  `<C-e>` Dismiss completion  │ `<C-k>` Toggle signature help",
   "",
