@@ -87,64 +87,67 @@ local function rule(width)
 end
 
 return {
-  width = 52,
-  pane_gap = 6,
+  width = 48,
+  pane_gap = 4,
   formats = {
     file = function(item, ctx)
       local name = vim.fn.fnamemodify(item.file, ":t")
       local parent = vim.fn.fnamemodify(item.file, ":h:t")
-      local room = math.max(6, (ctx.width or 36) - vim.fn.strdisplaywidth(name) - 2)
+      local max_name = 22
+      if vim.fn.strdisplaywidth(name) > max_name then
+        name = vim.fn.strcharpart(name, 0, max_name - 1) .. "…"
+      end
+      local room = math.max(4, (ctx.width or 44) - vim.fn.strdisplaywidth(name) - 4)
+      local parent_str = vim.fn.strcharpart(parent, 0, room)
       return {
         { name, hl = "SnacksDashboardFile" },
-        { "  " .. vim.fn.strcharpart(parent, 0, room), hl = "BlackMuted" },
+        { "  " .. parent_str, hl = "BlackMuted" },
       }
     end,
   },
   sections = function()
-    local columns, lines = vim.o.columns, vim.o.lines
-    local wide = columns >= 110 and lines >= 28
+    local columns = vim.o.columns
     local compact = columns < 72
     local cwd = root()
     local git = git_info(cwd)
     local name = project_name(cwd)
-    local label_width = compact and 19 or (wide and 27 or 23)
-    local pane = wide and 2 or 1
+    local label_width = compact and 20 or 24
+
     local sections = {
       {
         text = {
           { "◆ ", hl = "BlackBrandIcon" },
-          { "DEVIL", hl = "BlackBrand" },
-          { compact and "  /  WORKSPACE" or "  /  TARIK'S WORKSPACE", hl = "BlackMuted" },
+          { "1337", hl = "BlackBrand" },
+          { compact and "  /  WORKSPACE" or "  ·  TARIK'S WORKSPACE", hl = "BlackMuted" },
         },
-        padding = compact and 0 or 1,
-      },
-      {
-        text = { { compact and "Make something worth keeping." or "Build something worth keeping.", hl = "BlackMuted" } },
         padding = 1,
       },
-      { text = rule(compact and 28 or 38), padding = 1 },
+      {
+        text = { { "Build something worth keeping.", hl = "BlackMuted" } },
+        padding = 1,
+      },
+      { text = rule(compact and 28 or 42), padding = 1 },
       {
         text = {
           { icon("workspace") .. "  ", hl = "SnacksDashboardIcon" },
           { name, hl = "BlackLabel" },
-          { git and ("  " .. icon("branch") .. " " .. git.name .. (git.dirty and " •" or "")) or "", hl = "BlackMuted" },
+          { git and ("   " .. icon("branch") .. " " .. git.name .. (git.dirty and " •" or "")) or "", hl = "BlackMuted" },
         },
         padding = 1,
       },
       {
         text = { { "WORKSPACE", hl = "BlackLabel" } },
-        pane = pane,
         padding = 1,
       },
       action(icon("file"), "Find a file", "f", ":lua require('config.pick').open('files')", { width = label_width }),
-      action(icon("search"), "Search the project", "g", ":lua require('config.pick').open('grep')", { width = label_width }),
-      action(icon("file"), "Recent files", "r", ":lua require('config.pick').open('oldfiles')", { width = label_width }),
+      action(icon("search"), "Search project", "g", ":lua require('config.pick').open('grep')", { width = label_width }),
+      action(icon("clock"), "Recent files", "r", ":lua require('config.pick').open('oldfiles')", { width = label_width }),
       action(icon("buffer"), "Open buffers", "b", ":lua require('config.pick').open('buffers')", { width = label_width }),
-      action(icon("file"), "New buffer", "n", ":ene | startinsert", { width = label_width }),
+      action(icon("file_new"), "New buffer", "n", ":ene | startinsert", { width = label_width }),
       action(icon("terminal"), "Project terminal", "t",
         ":lua Snacks.terminal(nil, { cwd = require('config.project').root() })", { width = label_width }),
-      action(icon("read"), "Markdown files", "m", M.open_markdown, { width = label_width }),
-      action(icon("command"), "Quit", "q", ":qa", { width = label_width }),
+      action(icon("markdown"), "Markdown files", "m", M.open_markdown, { width = label_width }),
+      action(icon("quit"), "Quit Neovim", "q", ":qa", { width = label_width }),
       {
         section = "session",
         key = "s",
@@ -155,51 +158,18 @@ return {
           { " s ", hl = "BlackKey" },
         },
       },
-    }
-
-    if wide then
-      table.insert(sections, 1, {
-        text = {
-          { "  N E O V I M", hl = "BlackBrand" },
-          { "\n  a calm place to build", hl = "BlackMuted" },
-        },
-        pane = 1,
-        padding = 2,
-      })
-      sections[#sections + 1] = {
-        text = { { icon("file") .. "  PICK UP WHERE YOU LEFT OFF", hl = "BlackLabel" } },
-        pane = 2,
+      {
+        text = { { icon("file") .. "  RECENT FILES", hl = "BlackLabel" } },
         padding = 1,
-      }
-      sections[#sections + 1] = {
+      },
+      {
         section = "recent_files",
         cwd = true,
-        limit = 7,
-        pane = 2,
-        gap = 1,
+        limit = compact and 3 or 5,
         padding = 1,
-      }
-      sections[#sections + 1] = {
-        text = { { "f", hl = "BlackKey" }, { " files   ", hl = "BlackMuted" },
-          { "g", hl = "BlackKey" }, { " grep   ", hl = "BlackMuted" },
-          { "m", hl = "BlackKey" }, { " markdown   ", hl = "BlackMuted" },
-          { "q", hl = "BlackKey" }, { " quit", hl = "BlackMuted" } },
-        pane = 2,
-        padding = 1,
-      }
-    else
-      sections[#sections + 1] = {
-        text = { { icon("file") .. "  PICK UP WHERE YOU LEFT OFF", hl = "BlackLabel" } },
-        padding = 1,
-      }
-      sections[#sections + 1] = { section = "recent_files", cwd = true, limit = compact and 2 or 4, padding = 1 }
-      sections[#sections + 1] = {
-        text = { { "?", hl = "BlackKey" }, { " help   ", hl = "BlackMuted" },
-          { "q", hl = "BlackKey" }, { " quit", hl = "BlackMuted" } },
-        padding = 1,
-      }
-    end
-    sections[#sections + 1] = { section = "startup", padding = 0 }
+      },
+      { section = "startup", padding = 1 },
+    }
     return sections
   end,
 }

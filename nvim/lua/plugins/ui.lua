@@ -65,8 +65,26 @@ return {
       bigfile = { enabled = true },
       quickfile = { enabled = true },
       dashboard = require('config.dashboard'),
-      explorer = { enabled = true },
-      picker = { enabled = true },
+      explorer = {
+        enabled = true,
+        replace_netrw = true,
+      },
+      picker = {
+        enabled = true,
+        sources = {
+          explorer = {
+            title = ' 󰙅 Explorer ',
+            layout = {
+              preset = 'sidebar',
+              preview = false,
+              layout = {
+                width = 34,
+                min_width = 30,
+              },
+            },
+          },
+        },
+      },
       notifier = { enabled = false },
       animate = { enabled = false },
       scroll = {
