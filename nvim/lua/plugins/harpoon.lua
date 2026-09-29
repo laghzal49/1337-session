@@ -15,6 +15,10 @@ return {
       harpoon:setup(opts)
 
       local function add_current_file()
+        if vim.bo.buftype ~= '' then
+          vim.notify('Cannot add special buffer to Harpoon', vim.log.levels.WARN, { title = 'Harpoon' })
+          return
+        end
         local name = vim.fn.expand('%:t')
         if name == '' then
           vim.notify('Cannot add unnamed buffer to Harpoon', vim.log.levels.WARN, { title = 'Harpoon' })
@@ -46,6 +50,7 @@ return {
       vim.keymap.set('n', '<leader>a', add_current_file, { desc = 'Add file to Harpoon' })
       vim.keymap.set('n', '<leader>ha', add_current_file, { desc = 'Add file to Harpoon' })
       vim.keymap.set('n', '<C-e>', toggle_menu, { desc = 'Toggle Harpoon quick menu' })
+      vim.keymap.set('n', '<leader>h', toggle_menu, { desc = 'Toggle Harpoon menu' })
       vim.keymap.set('n', '<leader>hh', toggle_menu, { desc = 'Toggle Harpoon menu' })
       vim.keymap.set('n', '<leader>hm', toggle_menu, { desc = 'Toggle Harpoon menu' })
 

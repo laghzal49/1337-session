@@ -70,34 +70,44 @@ local function action(glyph, label, key, command, opts)
   return {
     text = {
       { glyph .. "  ", hl = "SnacksDashboardIcon" },
-      { label, hl = "SnacksDashboardDesc", width = opts.width or 25 },
+      { label, hl = "SnacksDashboardDesc", width = opts.width or 22 },
       { " " .. key .. " ", hl = "BlackKey" },
     },
     key = key,
     action = command,
-    padding = opts.padding or 1,
+    padding = opts.padding or 0,
+    pane = opts.pane or 1,
   }
 end
 
 local function rule(width)
   return {
-    { "━━", hl = "BlackLabel" },
+    { "━━", hl = "BlackBrandIcon" },
     { string.rep("━", math.max(8, width - 2)), hl = "BlackRule" },
   }
 end
 
+local devil_logo = table.concat({
+  [[██████╗  ███████╗██╗   ██╗██╗██╗     ]],
+  [[██╔══██╗ ██╔════╝██║   ██║██║██║     ]],
+  [[██║  ██║ █████╗  ██║   ██║██║██║     ]],
+  [[██║  ██║ ██╔══╝  ╚██╗ ██╔╝██║██║     ]],
+  [[██████╔╝ ███████╗ ╚████╔╝ ██║███████╗]],
+  [[╚═════╝  ╚══════╝  ╚═══╝  ╚═╝╚══════╝]],
+}, "\n")
+
 return {
-  width = 48,
+  width = 38,
   pane_gap = 4,
   formats = {
     file = function(item, ctx)
       local name = vim.fn.fnamemodify(item.file, ":t")
       local parent = vim.fn.fnamemodify(item.file, ":h:t")
-      local max_name = 22
+      local max_name = 18
       if vim.fn.strdisplaywidth(name) > max_name then
         name = vim.fn.strcharpart(name, 0, max_name - 1) .. "…"
       end
-      local room = math.max(4, (ctx.width or 44) - vim.fn.strdisplaywidth(name) - 4)
+      local room = math.max(4, (ctx.width or 38) - vim.fn.strdisplaywidth(name) - 4)
       local parent_str = vim.fn.strcharpart(parent, 0, room)
       return {
         { name, hl = "SnacksDashboardFile" },
@@ -107,69 +117,144 @@ return {
   },
   sections = function()
     local columns = vim.o.columns
-    local compact = columns < 72
+    local lines = vim.o.lines
+    local two_col = columns >= 84
     local cwd = root()
     local git = git_info(cwd)
     local name = project_name(cwd)
-    local label_width = compact and 20 or 24
+    local label_width = 22
 
-    local sections = {
-      {
+    local sections = {}
+
+    if two_col then
+      -- ── LEFT PANE (pane = 1): DEVIL LOGO & ACTIONS ─────────────────
+      sections[#sections + 1] = {
+        text = devil_logo,
+        hl = "SnacksDashboardHeader",
+        padding = 1,
+        pane = 1,
+      }
+      sections[#sections + 1] = {
         text = {
           { "◆ ", hl = "BlackBrandIcon" },
           { "DEVIL", hl = "BlackBrand" },
-          { compact and "  /  WORKSPACE" or "  ·  TARIK'S WORKSPACE", hl = "BlackMuted" },
+          { "  ·  TARIK'S WORKSPACE", hl = "BlackMuted" },
         },
         padding = 1,
-      },
-      {
-        text = { { "Build something worth keeping.", hl = "BlackMuted" } },
+        pane = 1,
+      }
+      sections[#sections + 1] = {
+        text = rule(38),
         padding = 1,
-      },
-      { text = rule(compact and 28 or 42), padding = 1 },
-      {
+        pane = 1,
+      }
+
+      -- Command Palette (tight 0-gap rows)
+      sections[#sections + 1] = action(icon("file"), "Find a file", "f", ":lua require('config.pick').open('files')", { width = label_width, pane = 1 })
+      sections[#sections + 1] = action(icon("search"), "Search project", "g", ":lua require('config.pick').open('grep')", { width = label_width, pane = 1 })
+      sections[#sections + 1] = action(icon("clock"), "Recent files", "r", ":lua require('config.pick').open('oldfiles')", { width = label_width, pane = 1 })
+      sections[#sections + 1] = action(icon("buffer"), "Open buffers", "b", ":lua require('config.pick').open('buffers')", { width = label_width, pane = 1 })
+      sections[#sections + 1] = action(icon("file_new"), "New buffer", "n", ":ene | startinsert", { width = label_width, pane = 1 })
+      sections[#sections + 1] = action(icon("terminal"), "Project terminal", "t",
+        ":lua Snacks.terminal(nil, { cwd = require('config.project').root() })", { width = label_width, pane = 1 })
+      sections[#sections + 1] = action(icon("markdown"), "Markdown files", "m", M.open_markdown, { width = label_width, pane = 1 })
+      sections[#sections + 1] = {
+        section = "session",
+        key = "s",
+        pane = 1,
+        padding = 0,
+        text = {
+          { icon("session") .. "  ", hl = "SnacksDashboardIcon" },
+          { "Restore session", hl = "SnacksDashboardDesc", width = label_width },
+          { " s ", hl = "BlackKey" },
+        },
+      }
+      sections[#sections + 1] = action(icon("quit"), "Quit Neovim", "q", ":qa", { width = label_width, pane = 1 })
+
+      -- ── RIGHT PANE (pane = 2): WORKSPACE & RECENT FILES ────────────
+      sections[#sections + 1] = {
+        pane = 2,
+        text = {
+          { icon("workspace") .. "  ", hl = "SnacksDashboardIcon" },
+          { "ACTIVE WORKSPACE", hl = "BlackLabel" },
+        },
+        padding = 1,
+      }
+      sections[#sections + 1] = {
+        pane = 2,
+        text = {
+          { name, hl = "BlackBrand" },
+          { git and ("   " .. icon("branch") .. " " .. git.name .. (git.dirty and " •" or "")) or "", hl = "BlackMuted" },
+        },
+        padding = 1,
+      }
+      sections[#sections + 1] = {
+        pane = 2,
+        text = rule(38),
+        padding = 1,
+      }
+      sections[#sections + 1] = {
+        pane = 2,
+        text = {
+          { icon("clock") .. "  ", hl = "SnacksDashboardIcon" },
+          { "RECENT FILES", hl = "BlackLabel" },
+        },
+        padding = 1,
+      }
+      sections[#sections + 1] = {
+        section = "recent_files",
+        pane = 2,
+        cwd = true,
+        limit = 7,
+        padding = 1,
+      }
+      sections[#sections + 1] = {
+        section = "startup",
+        pane = 2,
+        padding = 1,
+      }
+
+    else
+      -- ── SINGLE COMPACT PANE (when window width is under 84 cols) ────
+      sections[#sections + 1] = {
+        text = {
+          { "◆ ", hl = "BlackBrandIcon" },
+          { "DEVIL", hl = "BlackBrand" },
+          { "  ·  TARIK'S WORKSPACE", hl = "BlackMuted" },
+        },
+        padding = 1,
+      }
+      sections[#sections + 1] = { text = rule(36), padding = 1 }
+      sections[#sections + 1] = {
         text = {
           { icon("workspace") .. "  ", hl = "SnacksDashboardIcon" },
           { name, hl = "BlackLabel" },
           { git and ("   " .. icon("branch") .. " " .. git.name .. (git.dirty and " •" or "")) or "", hl = "BlackMuted" },
         },
         padding = 1,
-      },
-      {
-        text = { { "WORKSPACE", hl = "BlackLabel" } },
-        padding = 1,
-      },
-      action(icon("file"), "Find a file", "f", ":lua require('config.pick').open('files')", { width = label_width }),
-      action(icon("search"), "Search project", "g", ":lua require('config.pick').open('grep')", { width = label_width }),
-      action(icon("clock"), "Recent files", "r", ":lua require('config.pick').open('oldfiles')", { width = label_width }),
-      action(icon("buffer"), "Open buffers", "b", ":lua require('config.pick').open('buffers')", { width = label_width }),
-      action(icon("file_new"), "New buffer", "n", ":ene | startinsert", { width = label_width }),
-      action(icon("terminal"), "Project terminal", "t",
-        ":lua Snacks.terminal(nil, { cwd = require('config.project').root() })", { width = label_width }),
-      action(icon("markdown"), "Markdown files", "m", M.open_markdown, { width = label_width }),
-      action(icon("quit"), "Quit Neovim", "q", ":qa", { width = label_width }),
-      {
+      }
+      sections[#sections + 1] = action(icon("file"), "Find a file", "f", ":lua require('config.pick').open('files')", { width = label_width })
+      sections[#sections + 1] = action(icon("search"), "Search project", "g", ":lua require('config.pick').open('grep')", { width = label_width })
+      sections[#sections + 1] = action(icon("clock"), "Recent files", "r", ":lua require('config.pick').open('oldfiles')", { width = label_width })
+      sections[#sections + 1] = action(icon("buffer"), "Open buffers", "b", ":lua require('config.pick').open('buffers')", { width = label_width })
+      sections[#sections + 1] = action(icon("file_new"), "New buffer", "n", ":ene | startinsert", { width = label_width })
+      sections[#sections + 1] = action(icon("terminal"), "Project terminal", "t",
+        ":lua Snacks.terminal(nil, { cwd = require('config.project').root() })", { width = label_width })
+      sections[#sections + 1] = action(icon("markdown"), "Markdown files", "m", M.open_markdown, { width = label_width })
+      sections[#sections + 1] = {
         section = "session",
         key = "s",
-        padding = 1,
+        padding = 0,
         text = {
-          { icon("read") .. "  ", hl = "SnacksDashboardIcon" },
+          { icon("session") .. "  ", hl = "SnacksDashboardIcon" },
           { "Restore session", hl = "SnacksDashboardDesc", width = label_width },
           { " s ", hl = "BlackKey" },
         },
-      },
-      {
-        text = { { icon("file") .. "  RECENT FILES", hl = "BlackLabel" } },
-        padding = 1,
-      },
-      {
-        section = "recent_files",
-        cwd = true,
-        limit = compact and 3 or 5,
-        padding = 1,
-      },
-      { section = "startup", padding = 1 },
-    }
+      }
+      sections[#sections + 1] = action(icon("quit"), "Quit Neovim", "q", ":qa", { width = label_width, padding = 1 })
+      sections[#sections + 1] = { section = "startup", padding = 1 }
+    end
+
     return sections
   end,
 }

@@ -35,23 +35,23 @@ function M.highlights()
   groups("BufferLineModifiedSelected", { fg = M.accent, bg = M.selected })
   groups("BlackDocsHint", { bg = M.panel, fg = M.muted })
   groups("PmenuSel NoicePopupmenuSelected ", { bg = M.selected, fg = "#FFFFFF" })
-  local tree_bg = "#080C14"
-  local tree_border = "#24364D"
-  local tree_cursor = "#18283D"
-  local tree_title_focused = "#1C314C"
+  local tree_bg = "#0A0A0E"
+  local tree_border = "#5C1522"
+  local tree_cursor = "#3D0D14"
+  local tree_title_focused = "#4E121D"
 
   groups("MiniFilesNormal", { bg = tree_bg, fg = "#D7E3FF" })
   groups("MiniFilesBorder", { bg = tree_bg, fg = tree_border })
   groups("MiniFilesBorderModified", { bg = tree_bg, fg = "#FFD166", fmt = "bold" })
   groups("MiniFilesCursorLine", { bg = tree_cursor, fg = "#FFFFFF", fmt = "bold" })
-  groups("MiniFilesTitle", { bg = tree_bg, fg = "#61708A", fmt = "bold" })
-  groups("MiniFilesTitleFocused", { bg = tree_title_focused, fg = "#82AAFF", fmt = "bold" })
-  groups("MiniFilesTitleCount", { bg = tree_bg, fg = "#61708A" })
-  groups("MiniFilesDirectory", { fg = "#D7E3FF", fmt = "bold" })
-  groups("MiniFilesDirectoryIcon", { fg = "#69AFFF" })
-  groups("MiniFilesFile", { fg = "#A9B9D6" })
-  groups("MiniFilesFileIcon", { fg = "#70D7FF" })
-  groups("MiniFilesSymlink", { fg = "#C7A6FF", fmt = "italic" })
+  groups("MiniFilesTitle", { bg = tree_bg, fg = "#A8606B", fmt = "bold" })
+  groups("MiniFilesTitleFocused", { bg = tree_title_focused, fg = "#FF4D6D", fmt = "bold" })
+  groups("MiniFilesTitleCount", { bg = tree_bg, fg = "#A8606B" })
+  groups("MiniFilesDirectory", { fg = "#FF4D6D", fmt = "bold" })
+  groups("MiniFilesDirectoryIcon", { fg = "#FF2E4C" })
+  groups("MiniFilesFile", { fg = "#FFFFFF" })
+  groups("MiniFilesFileIcon", { fg = "#FF8FA3" })
+  groups("MiniFilesSymlink", { fg = "#FF9E64", fmt = "italic" })
   groups("MiniFilesPathSep", { fg = tree_border })
 
 
@@ -74,12 +74,12 @@ function M.highlights()
   end
 
   -- Edgy panel chrome
-  groups('EdgyTitle', { bg = '#0E141D', fg = '#7FE3C2', fmt = 'bold' })
-  groups('EdgyIcon EdgyIconActive', { bg = '#0E141D', fg = '#69AFFF' })
-  groups('EdgyWinBar', { bg = '#0E141D', fg = '#7FE3C2', fmt = 'bold' })
-  groups('EdgyNormal', { bg = '#0E141D', fg = M.text })
-  groups('AerialNormal', { bg = '#0E141D', fg = M.text })
-  groups('AerialLine', { bg = '#1E2F47', fg = '#7FE3C2', fmt = 'bold' })
+  groups('EdgyTitle', { bg = '#0A0A0E', fg = '#FF4D6D', fmt = 'bold' })
+  groups('EdgyIcon EdgyIconActive', { bg = '#0A0A0E', fg = '#FF2E4C' })
+  groups('EdgyWinBar', { bg = '#0A0A0E', fg = '#FF4D6D', fmt = 'bold' })
+  groups('EdgyNormal', { bg = '#0A0A0E', fg = M.text })
+  groups('AerialNormal', { bg = '#0A0A0E', fg = M.text })
+  groups('AerialLine', { bg = '#3D0D14', fg = '#FF4D6D', fmt = 'bold' })
   -- Trouble panel chrome
   groups('TroubleNormal TroubleNormalNC', { bg = M.panel, fg = M.text })
   groups('TroubleCount', { fg = M.accent, fmt = 'bold' })
@@ -230,9 +230,21 @@ function M.highlights()
 
   groups('BlackBrandIcon', { fg = '#FF1744' })
   groups('BlackBrand', { fg = '#FF2E4C', fmt = 'bold' })
+  groups('BlackLabel', { fg = '#FF4D6D', fmt = 'bold' })
+  groups('BlackMuted', { fg = '#A8606B' })
   groups('BlackKey', { bg = '#4A0E17', fg = '#FF4D6D', fmt = 'bold' })
+  groups('BlackRule', { fg = '#8B0018' })
+  groups('CursorLine', { bg = '#180A0E' })
+  groups('CursorLineNr', { fg = '#FF2E4C', fmt = 'bold' })
   groups('SnacksDashboardTerminal', { fg = '#A8606B' })
   groups('SnacksDashboardFooter', { fg = '#A8606B' })
+  groups('SnacksDashboardHeader', { fg = '#FF2E4C', fmt = 'bold' })
+  groups('SnacksDashboardKey', { fg = '#FF4D6D', fmt = 'bold' })
+  groups('SnacksDashboardDesc', { fg = '#D7E3FF' })
+  groups('SnacksDashboardIcon', { fg = '#FF4D6D' })
+  groups('SnacksDashboardSpecial', { fg = '#FF2E4C', fmt = 'bold' })
+  groups('SnacksDashboardDir', { fg = '#A8606B' })
+  groups('SnacksDashboardFile', { fg = '#FFFFFF' })
 
 
   return h

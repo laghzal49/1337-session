@@ -14,7 +14,7 @@ local map = function(lhs, rhs, desc) vim.keymap.set('n', lhs, rhs, { silent = tr
 
 map('<leader>?', function() require('config.cheatsheet').toggle() end, 'Feature & Keymap Guide')
 map('<leader>hk', function() require('config.cheatsheet').toggle() end, 'Help: Keys & Features')
-map('<leader>h', '<cmd>ConfigGuide<cr>', 'Open keyboard guide')
+map('<leader>hg', '<cmd>ConfigGuide<cr>', 'Open keyboard guide')
 
 -- Clear search highlights and transient notifications immediately on <Esc>
 map('<Esc>', function()

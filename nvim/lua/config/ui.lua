@@ -47,6 +47,7 @@ local M = {
     command = { nerd = '󰘳', text = ':' },
     quit = { nerd = '󰅖', text = '[Q]' },
     read = { nerd = '󰍔', text = '[read]' },
+    session = { nerd = '󰗈', text = '[SES]' },
     lock = { nerd = '󰌾', text = '[ro]' },
     modified = { nerd = '●', text = '*' },
     error = { nerd = '󰅚', text = 'E' },
