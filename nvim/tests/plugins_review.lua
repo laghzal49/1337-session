@@ -1,8 +1,8 @@
 -- Called by ui_review.py with an attached UI. All mutations use temporary files.
 local plugins = {
-  "oil.nvim", "tiny-inline-diagnostic.nvim", "quicker.nvim", "mini.pick", "mini.extra",
-  "mini.notify", "glance.nvim", "inc-rename.nvim", "aerial.nvim", "treesj",
-  "nvim-various-textobjs",
+  "harpoon", "nvim-treesitter-textobjects", "tiny-inline-diagnostic.nvim", "quicker.nvim",
+  "mini.pick", "mini.extra", "mini.notify", "glance.nvim", "inc-rename.nvim", "aerial.nvim",
+  "treesj", "nvim-various-textobjs",
 }
 require("lazy").load({ plugins = plugins })
 local ready = false
@@ -15,8 +15,8 @@ local noice_notify = require("noice.config").options.notify
 assert(not (noice_notify and noice_notify.enabled))
 assert(vim.diagnostic.config().virtual_text == false)
 assert(not require("lazy.core.config").plugins.LazyVim, "distribution must not be installed")
-assert(not Snacks.config.picker.enabled)
-for _, name in ipairs({ "mini.files", "neo-tree.nvim", "namu.nvim", "colorful-menu.nvim", "nvim-lsp-endhints" }) do
+assert(Snacks.config.explorer and Snacks.config.explorer.enabled)
+for _, name in ipairs({ "oil.nvim", "mini.files", "neo-tree.nvim", "namu.nvim", "colorful-menu.nvim", "nvim-lsp-endhints" }) do
   assert(not require("lazy.core.config").plugins[name], "removed plugin still active: " .. name)
 end
 
@@ -38,34 +38,19 @@ vim.api.nvim_win_set_cursor(0, {4, 6})
 require("various-textobjs").indentation("inner", "inner")
 assert(vim.fn.mode():match("[vV]"), "indentation object did not select")
 vim.cmd('execute "normal! \\<Esc>"')
-vim.fn.writefile({"temporary"}, dir .. "/rename_me.txt")
-require("oil").open(dir)
-local fbuf = vim.api.nvim_get_current_buf()
-assert(vim.wait(2000, function()
-  local lines = vim.api.nvim_buf_get_lines(fbuf, 0, -1, false)
-  return vim.bo[fbuf].modifiable and #lines > 0 and lines[1] ~= ""
-end), "Oil buffer failed to load")
-local file_lines = vim.api.nvim_buf_get_lines(fbuf, 0, -1, false)
-local renamed = false
-for i, line in ipairs(file_lines) do
-  if line:find("rename_me.txt", 1, true) then
-    file_lines[i] = (line:gsub("rename_me%.txt", "renamed.txt"))
-    renamed = true
-    break
-  end
-end
-assert(renamed, "temporary file missing in explorer")
-vim.api.nvim_buf_set_lines(fbuf, 0, -1, false, file_lines)
-vim.bo[fbuf].modified = true
-local done = false
-require("oil").save({ confirm = false }, function(err)
-  assert(not err, err)
-  done = true
-end)
-assert(vim.wait(2000, function() return done end), "Oil save timed out")
-assert(vim.fn.filereadable(dir .. "/renamed.txt") == 1, "Oil rename failed")
-assert(vim.fn.filereadable(dir .. "/rename_me.txt") == 0)
-require("oil").close()
+
+-- Harpoon 2 verification
+local harpoon = require("harpoon")
+harpoon:list():add()
+assert(harpoon:list():length() >= 1, "Harpoon add failed")
+
+-- Treesitter text objects verification
+local select = require("nvim-treesitter-textobjects.select")
+assert(type(select.select_textobject) == "function", "Treesitter textobjects select missing")
+
+-- Create file for picker verification
+vim.fn.writefile({"temporary"}, dir .. "/renamed.txt")
+assert(vim.fn.filereadable(dir .. "/renamed.txt") == 1)
 vim.api.nvim_set_current_buf(buf)
 
 vim.cmd.write()

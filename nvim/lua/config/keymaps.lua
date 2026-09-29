@@ -2,16 +2,18 @@ vim.api.nvim_create_user_command("ConfigGuide", function()
   vim.cmd.edit(vim.fn.stdpath("config") .. "/README.md")
 end, { desc = "Open your Neovim usage guide" })
 
+vim.api.nvim_create_user_command("Features", function()
+  require("config.cheatsheet").toggle()
+end, { desc = "Neovim feature & keymap guide" })
+
+vim.api.nvim_create_user_command("Cheatsheet", function()
+  require("config.cheatsheet").toggle()
+end, { desc = "Neovim feature & keymap guide" })
+
 local map = function(lhs, rhs, desc) vim.keymap.set('n', lhs, rhs, { silent = true, desc = desc }) end
 
-map('<leader>?', function()
-  local ok, which_key = pcall(require, 'which-key')
-  if ok then
-    which_key.show('<leader>', { mode = 'n', auto = false })
-  else
-    vim.cmd('ConfigGuide')
-  end
-end, 'Show all shortcuts')
+map('<leader>?', function() require('config.cheatsheet').toggle() end, 'Feature & Keymap Guide')
+map('<leader>hk', function() require('config.cheatsheet').toggle() end, 'Help: Keys & Features')
 map('<leader>h', '<cmd>ConfigGuide<cr>', 'Open keyboard guide')
 
 -- Clear search highlights and transient notifications immediately on <Esc>
@@ -109,12 +111,6 @@ map('<C-Down>', '<cmd>resize -2<cr>', 'Decrease window height')
 map('<C-Left>', '<cmd>vertical resize -2<cr>', 'Decrease window width')
 map('<C-Right>', '<cmd>vertical resize +2<cr>', 'Increase window width')
 
--- Quick buffer navigation
-map('<leader>1', '<cmd>BufferLineGoToBuffer 1<cr>', 'Go to buffer 1')
-map('<leader>2', '<cmd>BufferLineGoToBuffer 2<cr>', 'Go to buffer 2')
-map('<leader>3', '<cmd>BufferLineGoToBuffer 3<cr>', 'Go to buffer 3')
-map('<leader>4', '<cmd>BufferLineGoToBuffer 4<cr>', 'Go to buffer 4')
-map('<leader>5', '<cmd>BufferLineGoToBuffer 5<cr>', 'Go to buffer 5')
 
 -- Zen mode toggle
 map('<leader>uz', function() Snacks.zen() end, 'Toggle zen mode')

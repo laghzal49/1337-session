@@ -29,7 +29,9 @@ end
 local function open_files()
   local path = vim.api.nvim_buf_get_name(0)
   local dir = (path ~= '' and vim.uv.fs_stat(path)) and vim.fs.dirname(path) or require('config.project').root()
-  require('oil').open_float(dir)
+  if Snacks and Snacks.explorer then
+    Snacks.explorer({ cwd = dir })
+  end
 end
 
 local function open_dashboard()

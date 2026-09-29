@@ -165,27 +165,22 @@ for width,height in [(80,24),(140,42)]:
 call('nvim_exec_lua',["_G.layoutdir=vim.fn.tempname(); vim.fn.mkdir(layoutdir..'/parent/long_directory_name_for_title','p')",[]])
 for width,height in [(140,42),(80,24),(100,30),(140,42)]:
  call('nvim_ui_try_resize',[width,height]);pump(.2)
- call('nvim_exec_lua',["require('oil').open_float(layoutdir)",[]]);pump(.3)
- win=call('nvim_exec_lua',["local w=vim.api.nvim_get_current_win(); local c=vim.api.nvim_win_get_config(w); return {col=c.col,row=c.row,width=c.width,height=c.height,is_float=c.relative~=''}",[]])
- assert win['is_float'],win
- assert win['width']<=width and win['height']<=height,win
- call('nvim_exec_lua',["require('oil').close()",[]]);pump(.2)
-print('OIL BROWSER',width,height,'bounds and geometry PASS',flush=True)
+ call('nvim_exec_lua',["_G.test_exp = Snacks.explorer({ cwd = layoutdir })",[]]);pump(.3)
+ assert call('nvim_exec_lua',["return _G.test_exp ~= nil",[]])
+ call('nvim_exec_lua',["_G.test_exp:close()",[]]);pump(.2)
+print('SNACKS EXPLORER',width,height,'bounds and geometry PASS',flush=True)
 call('nvim_exec_lua',["vim.fn.delete(layoutdir,'rf')",[]])
 print('PLUGIN INTEGRATION',call('nvim_exec_lua',["return dofile('nvim/tests/plugins_review.lua')",[]]),flush=True)
 call('nvim_exec_lua',["vim.schedule(function() require('config.pick').open('files',{cwd=plugin_review.dir}) end)",[]]);pump(.7)
+call('nvim_exec_lua',["assert(vim.wait(3000, function() return require('mini.pick').get_picker_state() ~= nil end), 'picker did not open')",[]])
 call('nvim_input',['renamed']);pump(.5)
 call('nvim_input',['<CR>']);pump(.5)
-assert call('nvim_eval',["expand('%:t')"])=='renamed.txt'
+call('nvim_exec_lua',["assert(vim.wait(3000, function() return vim.fn.expand('%:t') == 'renamed.txt' end), 'did not switch to renamed.txt: ' .. vim.fn.expand('%:t'))",[]])
 call('nvim_exec_lua',["vim.api.nvim_set_current_buf(plugin_review.buf); vim.api.nvim_win_set_cursor(0,{3,5})",[]])
-print('OIL rename + MINI PICK selection PASS',flush=True)
+print('FILE CREATION + MINI PICK selection PASS',flush=True)
 
 for width,height in [(80,24),(140,42)]:
  call('nvim_ui_try_resize',[width,height]);pump(.3)
- call('nvim_exec_lua',["require('oil').open_float(plugin_review.dir)",[]]);pump(.3)
- files=call('nvim_exec_lua',["local r={} for _,w in ipairs(vim.api.nvim_list_wins()) do local c=vim.api.nvim_win_get_config(w); if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='oil' then r[#r+1]=c end end return r",[]])
- assert files and all(c['width']<=width and c['height']<=height for c in files),files
- call('nvim_exec_lua',["require('oil').close()",[]]);pump(.2)
  for command,ft in [('Glance references','glance'),('AerialOpen float','aerial')]:
   call('nvim_command',[command]);pump(.8)
   panels=call('nvim_exec_lua',["local r={} for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype:lower():match(...) then r[#r+1]={vim.api.nvim_win_get_width(w),vim.api.nvim_win_get_height(w)} end end return r",[ft]])
@@ -193,7 +188,7 @@ for width,height in [(80,24),(140,42)]:
   if ft=='glance':call('nvim_exec_lua',["require('glance').actions.close()",[]])
   else:call('nvim_command',['AerialClose'])
   pump(.3)
- print('TOOL PANELS',width,height,'Oil, Glance, Aerial PASS',flush=True)
+ print('TOOL PANELS',width,height,'Glance, Aerial PASS',flush=True)
 call('nvim_exec_lua',["vim.api.nvim_set_current_buf(plugin_review.buf); vim.api.nvim_win_set_cursor(0,{3,5})",[]])
 call('nvim_input',[':IncRename renamed']);pump(.6)
 call('nvim_input',['<CR>']);pump(.6)

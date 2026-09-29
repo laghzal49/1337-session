@@ -65,8 +65,8 @@ return {
       bigfile = { enabled = true },
       quickfile = { enabled = true },
       dashboard = require('config.dashboard'),
-      explorer = { enabled = false },
-      picker = { enabled = false },
+      explorer = { enabled = true },
+      picker = { enabled = true },
       notifier = { enabled = false },
       animate = { enabled = false },
       scroll = {

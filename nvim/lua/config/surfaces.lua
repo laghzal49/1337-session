@@ -54,16 +54,6 @@ function M.highlights()
   groups("MiniFilesSymlink", { fg = "#C7A6FF", fmt = "italic" })
   groups("MiniFilesPathSep", { fg = tree_border })
 
-  -- Oil highlight groups
-  groups("OilDir", { fg = "#82AAFF", fmt = "bold" })
-  groups("OilDirIcon", { fg = "#69AFFF" })
-  groups("OilLink", { fg = "#70D7FF", fmt = "italic" })
-  groups("OilLinkTarget", { fg = "#61708A", fmt = "italic" })
-  groups("OilCopy", { fg = "#C7A6FF", fmt = "bold" })
-  groups("OilMove", { fg = "#FFD166", fmt = "bold" })
-  groups("OilChange", { fg = "#4FD1C5", fmt = "bold" })
-  groups("OilCreate", { fg = "#7FE3C2", fmt = "bold" })
-  groups("OilDelete", { fg = "#FF8FA3", fmt = "bold" })
 
   groups("MiniNotifyNormal GlanceListNormal MiniPickNormal AerialNormal", { bg = M.panel, fg = M.text })
   groups("MiniNotifyBorder MiniPickBorder AerialBorder GlanceBorderTop GlanceListBorderBottom GlancePreviewBorderBottom", { bg = M.panel, fg = M.edge_bright })

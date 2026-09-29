@@ -1,7 +1,7 @@
 -- Run with the full config: nvim --headless '+lua dofile("nvim/tests/standalone.lua")' +qa!
 local plugins = require('lazy.core.config').plugins
 assert(not plugins.LazyVim and not _G.LazyVim)
-for _, name in ipairs({'mini.pick','mini.extra','nvim-cmp','aerial.nvim','noice.nvim','nvim-lspconfig'}) do
+for _, name in ipairs({'mini.pick','mini.extra','blink.cmp','aerial.nvim','noice.nvim','nvim-lspconfig'}) do
   require('lazy').load({plugins={name}})
 end
 assert(vim.fn.maparg('<leader>e','n') ~= '')

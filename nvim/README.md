@@ -55,10 +55,7 @@ and YAML front matter readable.
 
 - **Mini Pick + Mini Extra:** files, live grep, buffers, commands, diagnostics and
   symbols. Ctrl-P switches between results and preview in the same window.
-- **Oil.nvim:** the primary file manager. Edit files and directories directly
-  like a normal buffer; renames, creations, moves, and deletions use standard Vim
-  editing with LSP reference updates, live preview (`Ctrl-P`), floating browser,
-  and Vinegar-style parent navigation (`-`).
+- **Snacks.explorer:** modern, fast file explorer with tree navigation, git status indicators, LSP integration, floating/sidebar layouts, and built-in file operations.
 - **Aerial:** on-demand code outline, with Tree-sitter and LSP backends.
 - **Glance:** peek at definitions/references without leaving the source.
 - **Quicker:** editable quickfix with expandable context.
@@ -67,8 +64,7 @@ and YAML front matter readable.
 - **TreeSJ, incremental rename, selected text objects:** editing tools with no
   permanent panels. Native inlay hints are off until you toggle them.
 
-Snacks remains for its dashboard, terminal, input, indentation and Git UI; its
-picker and explorer are disabled. Neo-tree, Namu, Colorful Menu and Endhints are
+Snacks provides its explorer, picker, dashboard, terminal, input, indentation and Git UI. Neo-tree, Namu, Colorful Menu and Endhints are
 removed. There are no inherited distribution keymaps or background tool installs.
 
 ## Keys
@@ -81,9 +77,8 @@ removed. There are no inherited distribution keymaps or background tool installs
 | Buffers / recent files | `<leader>,` / `<leader>fr` |
 | Commands / keymaps / help | `<leader>sC` / `<leader>sk` / `<leader>sh` |
 | Preview / mark / send marked to quickfix | `Ctrl-P` / `Tab` / `Alt-Enter` in picker |
-| Toggle file explorer (Oil float) | `<leader>e` |
-| Open parent directory (Oil) | `-` |
-| Browse current dir / project | `<leader>fe` (`<leader>fm`) / `<leader>fE` (`<leader>fM`) |
+| Toggle file explorer (Snacks explorer) | `<leader>e` |
+| Browse current dir / project | `<leader>fe` / `<leader>fE` |
 | Code outline / find file symbol | `<leader>cs` / `<leader>ss` |
 | Find workspace symbol | `<leader>cS` |
 | Peek definition / references | `<leader>cgd` / `<leader>cgr` |

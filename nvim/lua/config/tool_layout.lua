@@ -156,19 +156,6 @@ function M.setup()
     })
   end
   vim.api.nvim_create_autocmd('User', { group = group, pattern = 'MiniFilesWindowUpdate', callback = M.decorate_files })
-  vim.api.nvim_create_autocmd('User', {
-    group = group,
-    pattern = 'OilActionsPost',
-    callback = function(ev)
-      local data = ev.data or {}
-      if data.err then
-        vim.notify(('Oil error: %s'):format(data.err), vim.log.levels.ERROR)
-      elseif data.actions and #data.actions > 0 then
-        local count = #data.actions
-        vim.notify(('Oil: %d file operation%s applied'):format(count, count == 1 and '' or 's'), vim.log.levels.INFO)
-      end
-    end,
-  })
 end
 
 return M

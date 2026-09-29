@@ -33,7 +33,9 @@ return {
       for name, config in pairs(opts.servers or {}) do
         config = vim.deepcopy(config)
         config.enabled, config.mason = nil, nil
-        config.capabilities = vim.tbl_deep_extend('force', require('cmp_nvim_lsp').default_capabilities(), config.capabilities or {})
+        local blink_ok, blink = pcall(require, 'blink.cmp')
+        local base_caps = blink_ok and blink.get_lsp_capabilities() or vim.lsp.protocol.make_client_capabilities()
+        config.capabilities = vim.tbl_deep_extend('force', base_caps, config.capabilities or {})
         vim.lsp.config(name, config)
         local resolved = vim.lsp.config[name]
         if resolved and type(resolved.cmd) == 'table' and vim.fn.executable(resolved.cmd[1]) == 1 then
@@ -47,16 +49,6 @@ return {
       return { timeout_ms = 1500, lsp_format = 'fallback' }
     end,
   }, keys = { { '<leader>cf', function() require('conform').format({ async = true, lsp_format = 'fallback' }) end, desc = 'Format buffer' } } },
-  { 'iguanacucumber/magazine.nvim', name = 'nvim-cmp', event = 'InsertEnter', dependencies = {
-    'hrsh7th/cmp-nvim-lsp', 'hrsh7th/cmp-buffer', 'hrsh7th/cmp-path',
-  }, opts = {
-    snippet = { expand = function(args) vim.snippet.expand(args.body) end },
-    sources = {
-      { name = 'nvim_lsp', priority = 1000, group_index = 1 },
-      { name = 'path', priority = 500, group_index = 1 },
-      { name = 'buffer', priority = 250, group_index = 2 },
-    },
-  }, config = function(_, opts) require('cmp').setup(opts) end },
   { 'mason-org/mason.nvim', cmd = { 'Mason', 'MasonInstall', 'MasonUpdate' }, opts = {
     ui = { border = require('config.ui').border, width = 0.8, height = 0.8 },
   } },
