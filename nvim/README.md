@@ -20,13 +20,13 @@ The dashboard and older editing screenshots below document earlier revisions.
 
 ![Python palette and status bar](assets/python.png)
 
-![Completion documentation](assets/documentation.png)
+![Blink completion and documentation](assets/completion.png)
 
 ![Command bar](assets/command.png)
 
-These are actual UI-grid captures from earlier revisions. Completion now uses
-Blink; the documentation screenshot shows the previous completion engine.
-The Makefile screenshot below is regenerated from the current configuration.
+The completion image is captured from the current Blink UI using a demo source;
+the Python palette and command images are from earlier revisions. The Makefile
+screenshot below is also regenerated from the current configuration.
 
 ## File browser
 
@@ -68,6 +68,12 @@ plugin checkouts after updating, then restart Neovim.
 - **Blink completion:** LSP, paths, snippets and buffer words, with documentation
   and signature help. Enter accepts an explicitly selected item; otherwise it
   inserts a newline. Ctrl-E dismisses completion, Ctrl-K toggles signature help.
+  Local words from the active buffer appear while the LSP responds; semantic
+  suggestions get a ranking boost. Exact matches come first, with the native
+  matcher's usage/proximity ranking and typo tolerance retained. Documentation
+  appears 80 ms after selection. Buffer scanning is bounded to 128 KB, with at
+  most 30 buffer results and 100 total results. Tab/Shift-Tab follow snippet
+  placeholders before navigating the completion menu.
 - **TreeSJ, incremental rename, selected text objects:** editing tools with no
   permanent panels. Native inlay hints are off until you toggle them.
 
@@ -148,6 +154,7 @@ regressions and the configured Python language server. Individual commands:
 
 ```sh
 NVIM_BIN=/path/to/nvim python3 nvim/tests/ui_review.py
+python3 nvim/tests/ui_review.py --screenshot  # refresh completion screenshot; requires ImageMagick + the configured font
 nvim --headless -u NONE -l nvim/tests/python_environment.lua
 NVIM_TY=/path/to/ty nvim --headless -u NONE -l nvim/tests/real_ty.lua
 nvim --headless '+lua dofile("nvim/tests/standalone.lua")' +qa!

@@ -131,7 +131,12 @@ package.preload['ui_review.blink_source'] = function()
   function source:resolve(item, callback)
     vim.defer_fn(function()
       item.documentation = {
-        kind = 'markdown', value = '```python\ndef summary(values: list[int]) -> int\n```\n\n' .. string.rep('Documentation paragraph with a readable explanation.\n\n', 24),
+        kind = 'markdown', value = '```python\ndef summary(values: Iterable[int]) -> int\n```\n\n'
+          .. 'Return the total of a sequence of integers.\n\n'
+          .. '**Parameters**\n\n- `values`: Integer values to add.\n\n'
+          .. '**Returns**\n\nAn integer containing the accumulated total.\n\n'
+          .. '**Example**\n\n```python\nsummary([4, 8, 15])\n# 27\n```\n\n'
+          .. string.rep('Values are consumed once; lists, tuples and generators are supported.\n\n', 24),
       }
       callback(item)
     end, 300)
@@ -148,8 +153,8 @@ for width,height in [(80,24),(140,42)]:
  call('nvim_ui_try_resize',[width,height]);pump(.2)
  call('nvim_command',['enew!'])
  call('nvim_command',['setfiletype python'])
- call('nvim_exec_lua',["vim.api.nvim_buf_set_lines(0,0,-1,false,{'# documentation check','','','',''}); vim.api.nvim_win_set_cursor(0,{5,0})",[]])
- call('nvim_input',['isum']);pump(.3)
+ call('nvim_exec_lua',["vim.api.nvim_buf_set_lines(0,0,-1,false,{'# Python analysis — completion review','from collections.abc import Iterable','','def analyze(values: Iterable[int]) -> int:','    ','    # Inspect the selected completion with Ctrl-D.','    # Ctrl-N / Ctrl-P move through matches.','','def summary(values: Iterable[int]) -> int:','    total = 0','    for value in values:','        total += value','    return total','','result = analyze([4, 8, 15, 16, 23, 42])'}); vim.api.nvim_win_set_cursor(0,{5,4})",[]])
+ call('nvim_input',['Asum']);pump(.3)
  for opening in ['<C-n>', '<C-p>']:
   call('nvim_exec_lua',["require('blink.cmp').hide()",[]]);pump(.1)
   call('nvim_input',[opening]);pump(.4)
@@ -158,19 +163,26 @@ for width,height in [(80,24),(140,42)]:
  for key, index in [('<C-n>',1),('<C-n>',2),('<C-p>',1)]:
   call('nvim_input',[key]);pump(.2)
   state=call('nvim_exec_lua',["return {selected=require('blink.cmp').get_selected_item_idx(),line=vim.api.nvim_get_current_line(),native=vim.fn.pumvisible()}",[]])
-  assert state=={'selected':index,'line':'sum','native':0}, (key,state)
+  assert state=={'selected':index,'line':'    sum','native':0}, (key,state)
  call('nvim_exec_lua',["assert(require('blink.cmp').get_selected_item().label=='summary', 'Review item missing')",[]]);pump(.2)
  call('nvim_input',['<C-b>']);pump(1.8)
  assert call('nvim_exec_lua',["return require('blink.cmp').is_documentation_visible()",[]]),width
  docs=call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='blink-cmp-documentation' then return {win=w,config=vim.api.nvim_win_get_config(w)} end end",[]])
  c=docs['config'];assert c['width']+2<=width and c['height']+2<=height,(width,c)
- call('nvim_input',['<C-f>']);pump(.3)
- assert call('nvim_exec_lua',["return vim.fn.getwininfo(...)[1].topline",[docs['win']]])>1
+ if width==140 and '--screenshot' in __import__('sys').argv:
+  call('nvim_exec_lua',["vim.api.nvim_buf_set_name(0,vim.fn.tempname()..'/analysis.py')",[]]);pump(.2)
+  from ui_capture import save_grid
+  save_grid(grid,attrs,default_fg,default_bg,root/'nvim/assets/completion.png')
+ view_before=call('nvim_exec_lua',["local win=...; return vim.api.nvim_win_call(win,function() return vim.fn.winsaveview() end)",[docs['win']]])
+ for _ in range(3):
+  call('nvim_input',['<C-f>']);pump(.15)
+ view_after=call('nvim_exec_lua',["local win=...; return vim.api.nvim_win_call(win,function() return vim.fn.winsaveview() end)",[docs['win']]])
+ assert (view_after['topline'],view_after['skipcol'],view_after['lnum'])!=(view_before['topline'],view_before['skipcol'],view_before['lnum']), (view_before,view_after,c)
  call('nvim_input',['<C-d>']);pump(.2)
  assert not call('nvim_exec_lua',["return require('blink.cmp').is_documentation_visible()",[]])
  call('nvim_input',['<CR>']);pump(.3)
  accepted=call('nvim_exec_lua',["return {lines=vim.api.nvim_buf_get_lines(0,0,-1,false),cursor=vim.api.nvim_win_get_cursor(0),selected=require('blink.cmp').get_selected_item()}",[]])
- assert accepted['lines'][4]=='summary()', accepted
+ assert accepted['lines'][4]=='    summary()', accepted
  call('nvim_input',['<Esc>']);pump(.5)
  call('nvim_input',[':set number']);pump(.3)
  wins=call('nvim_exec_lua',["local r={} for _,w in ipairs(vim.api.nvim_list_wins()) do local c=vim.api.nvim_win_get_config(w); if c.relative~='' then r[#r+1]=c end end return r",[]])
@@ -179,6 +191,34 @@ for width,height in [(80,24),(140,42)]:
  print('DOCS / COMMAND',width,height,'open, scroll, close and geometry PASS',flush=True)
 
 call('nvim_exec_lua',["require('blink.cmp.config').sources.default=review_blink_sources",[]])
+
+# A slow LSP must not delay local matches; semantic matches win when they arrive.
+call('nvim_exec_lua',["dofile('nvim/tests/completion_latency.lua')",[]])
+call('nvim_input',['isum'])
+pump(.35)
+stats=call('nvim_exec_lua',["return completion_latency_stats",[]])
+assert stats.get('first_source')=='buffer' and stats['first_ms']<600, stats
+pump(.8)
+items=call('nvim_exec_lua',["return require('blink.cmp').get_items()",[]])
+assert items[0]['label']=='summary_lsp' and items[0]['source_id']=='lsp', items
+assert any(item['label']=='summary_local' for item in items), items
+print('COMPLETION LATENCY: local matches %.1f ms; slow LSP updates and ranks first PASS' % stats['first_ms'],flush=True)
+call('nvim_input',['<Esc>']);pump(.2)
+call('nvim_exec_lua',["vim.lsp.get_client_by_id(completion_latency_client):stop(true)",[]])
+
+# Tab and Shift-Tab follow native snippet placeholders before menu selection.
+call('nvim_command',['enew!'])
+call('nvim_input',['i']);pump(.1)
+call('nvim_exec_lua',["vim.snippet.expand('pair(${1:first}, ${2:second})$0')",[]]);pump(.2)
+first=call('nvim_exec_lua',["return vim.api.nvim_win_get_cursor(0)",[]])
+call('nvim_input',['<Tab>']);pump(.2)
+second=call('nvim_exec_lua',["return vim.api.nvim_win_get_cursor(0)",[]])
+assert second[0]==first[0] and second[1]>first[1], (first,second)
+call('nvim_input',['<S-Tab>']);pump(.2)
+assert call('nvim_exec_lua',["return vim.api.nvim_win_get_cursor(0)",[]])==first
+call('nvim_exec_lua',["vim.snippet.stop()",[]])
+call('nvim_input',['<Esc>']);pump(.2)
+print('SNIPPETS: Tab / Shift-Tab placeholders PASS',flush=True)
 
 call('nvim_exec_lua',["_G.layoutdir=vim.fn.tempname(); vim.fn.mkdir(layoutdir..'/parent/long_directory_name_for_title','p')",[]])
 for width,height in [(140,42),(80,24),(100,30),(140,42)]:

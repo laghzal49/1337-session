@@ -81,7 +81,13 @@ Documentation opens automatically after selecting an item. Ctrl-D toggles it;
 Ctrl-B/F open or scroll it, and Ctrl-E dismisses completion. Enter inserts a
 newline until an item is explicitly selected. The UI review uses a real Blink
 provider with delayed resolution and tests the actual menu and documentation
-windows at narrow and wide viewport sizes.
+windows at narrow and wide viewport sizes. Local buffer suggestions no longer
+wait for LSP responses: the semantic source is asynchronous, with a ranking
+boost when its results arrive. Buffer scanning uses only the active file and
+limits size/result counts. The native matcher retains typo tolerance, usage
+history and nearby-word ranking; exact matches sort first without custom Lua
+comparators. A slow simulated LSP regression checks that local suggestions appear
+before its response and semantic results rank first afterward.
 
 ### Command palette and hover
 
