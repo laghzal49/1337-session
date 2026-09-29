@@ -36,8 +36,8 @@ return {
         prompt_prefix = ' 󰍉 ',
         prompt_caret = '▏',
         config = function()
-          local width = math.max(24, math.min(110, math.floor(vim.o.columns * 0.82)))
-          local height = math.max(6, math.min(32, math.floor(vim.o.lines * 0.70)))
+          local width = math.max(1, math.min(110, vim.o.columns - 4, math.floor(vim.o.columns * 0.82)))
+          local height = math.max(1, math.min(32, vim.o.lines - 4, math.floor(vim.o.lines * 0.70)))
           return {
             anchor = 'NW',
             relative = 'editor',

@@ -28,20 +28,8 @@ map('<C-l>', '<C-w>l', 'Window right')
 map('<S-h>', '<cmd>bprevious<cr>', 'Previous buffer')
 map('<S-l>', '<cmd>bnext<cr>', 'Next buffer')
 map('<leader>bb', function() require('config.pick').open('buffers') end, 'Browse buffers')
--- Smart buffer close: handles the last-buffer edge case gracefully.
-map('<leader>bd', function()
-  local name = vim.api.nvim_buf_get_name(0)
-  local bufs = vim.tbl_filter(function(b)
-    return vim.bo[b].buflisted and vim.api.nvim_buf_is_loaded(b)
-  end, vim.api.nvim_list_bufs())
-  if #bufs <= 1 then
-    vim.cmd('enew | bdelete #')
-  else
-    vim.cmd('bprevious | bdelete #')
-  end
-  local label = name ~= '' and vim.fn.fnamemodify(name, ':t') or '[No Name]'
-  vim.notify('Closed buffer: ' .. label, vim.log.levels.INFO)
-end, 'Close buffer')
+-- Preserve splits and prompt before discarding unsaved changes.
+map('<leader>bd', function() Snacks.bufdelete() end, 'Close buffer')
 map('<leader>ww', '<C-w>w', 'Switch window')
 map('<leader>wv', '<cmd>vsplit<cr>', 'Vertical split')
 map('<leader>ws', '<cmd>split<cr>', 'Horizontal split')
@@ -65,13 +53,13 @@ vim.api.nvim_create_autocmd('LspAttach', { callback = function(ev)
   lmap('gr', function() require('config.pick').open('references') end, 'References')
   lmap('gI', vim.lsp.buf.implementation, 'Implementation')
   lmap('gy', vim.lsp.buf.type_definition, 'Type definition')
-  lmap('K', vim.lsp.buf.hover, 'Documentation')
+  lmap('K', function() vim.lsp.buf.hover({ border = require('config.ui').border, max_width = 80, max_height = 24 }) end, 'Documentation')
   lmap('<leader>ca', vim.lsp.buf.code_action, 'Code action')
   vim.keymap.set('n', '<leader>cr', function() return ':IncRename ' .. vim.fn.expand('<cword>') end,
     {buffer=ev.buf, expr=true, desc='Rename symbol'})
-  -- lsp_signature.nvim owns automatic/insert-mode signature help and <C-k>.
+  -- Blink owns automatic/insert-mode signature help and <C-k>.
   -- Keep gK as an explicit native fallback when a manual popup is wanted.
-  lmap('gK', vim.lsp.buf.signature_help, 'Signature help')
+  lmap('gK', function() vim.lsp.buf.signature_help({ border = require('config.ui').border, max_width = 80, max_height = 16 }) end, 'Signature help')
 end })
 
 map('<leader>gg', function()
@@ -131,7 +119,7 @@ vim.keymap.set('v', '>', '>gv', { desc = 'Indent right (keep selection)' })
 map('K', function()
   local clients = vim.lsp.get_clients({ bufnr = 0 })
   if #clients > 0 then
-    vim.lsp.buf.hover()
+    vim.lsp.buf.hover({ border = require('config.ui').border, max_width = 80, max_height = 24 })
   else
     local cword = vim.fn.expand('<cword>')
     if cword ~= '' then
@@ -144,8 +132,8 @@ map('K', function()
 end, 'Documentation (Hover)')
 
 -- Diagnostic navigation keymaps
-map('[d', function() vim.diagnostic.goto_prev() end, 'Previous diagnostic')
-map(']d', function() vim.diagnostic.goto_next() end, 'Next diagnostic')
+map('[d', function() vim.diagnostic.jump({ count = -1, float = true }) end, 'Previous diagnostic')
+map(']d', function() vim.diagnostic.jump({ count = 1, float = true }) end, 'Next diagnostic')
 map('<leader>cd', function()
   vim.diagnostic.open_float({
     border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },

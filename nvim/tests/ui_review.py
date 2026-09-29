@@ -121,20 +121,24 @@ print('LARGE BUFFER: 20k lines, 4k diagnostics, 2k signs',stress,flush=True)
 call('nvim_exec_lua',["vim.diagnostic.reset(review_a,0); vim.diagnostic.reset(review_b,0); vim.api.nvim_buf_set_lines(0,0,-1,false,{'test complete'}); vim.bo.modified=false",[]])
 # Exercise documentation via the real insert-mode mappings at two viewport sizes.
 call('nvim_exec_lua',[r"""
-local cmp = require('cmp')
-cmp.register_source('ui_review', {
-  complete = function(_, _, callback)
-    callback({ items = {{ label = 'summary', kind = 3 }}, isIncomplete = false })
-  end,
-  resolve = function(_, item, callback)
+-- A real Blink provider with a delayed resolve response. No UI/mapping mocks.
+package.preload['ui_review.blink_source'] = function()
+  local source = {}
+  function source.new() return setmetatable({}, { __index = source }) end
+  function source:get_completions(_, callback)
+    callback({ items = {{ label = 'summary', kind = 3 }}, is_incomplete_forward = false, is_incomplete_backward = false })
+  end
+  function source:resolve(item, callback)
     vim.defer_fn(function()
       item.documentation = {
         kind = 'markdown', value = '```python\ndef summary(values: list[int]) -> int\n```\n\n' .. string.rep('Documentation paragraph with a readable explanation.\n\n', 24),
       }
       callback(item)
-    end, 1600)
-  end,
-})
+    end, 300)
+  end
+  return source
+end
+require('blink.cmp').add_source_provider('ui_review', { name = 'Review', module = 'ui_review.blink_source' })
 """,[]])
 for width,height in [(80,24),(140,42)]:
  call('nvim_input',['<Esc>']);pump(.5)
@@ -142,19 +146,21 @@ for width,height in [(80,24),(140,42)]:
  call('nvim_ui_try_resize',[width,height]);pump(.2)
  call('nvim_command',['enew!'])
  call('nvim_command',['setfiletype python'])
- call('nvim_exec_lua',["vim.api.nvim_buf_set_lines(0,0,-1,false,{'# documentation check','','','',''}); vim.api.nvim_win_set_cursor(0,{5,0}); require('cmp').setup.buffer({sources={{name='ui_review'}}})",[]])
+ call('nvim_exec_lua',["vim.api.nvim_buf_set_lines(0,0,-1,false,{'# documentation check','','','',''}); vim.api.nvim_win_set_cursor(0,{5,0})",[]])
  call('nvim_input',['isum']);pump(.3)
- call('nvim_exec_lua',["require('cmp').complete()",[]]);pump(.4)
- call('nvim_exec_lua',["local c=require('cmp'); if not c.get_selected_entry() then c.select_next_item({behavior=c.SelectBehavior.Select}) end",[]]);pump(.2)
+ call('nvim_exec_lua',["require('blink.cmp').show({providers={'ui_review'},initial_selected_item_idx=1})",[]]);pump(.4)
+ call('nvim_exec_lua',["local c=require('blink.cmp'); assert(c.is_menu_visible(), 'Blink completion menu missing'); assert(c.get_selected_item().label=='summary', 'Review item missing')",[]]);pump(.2)
  call('nvim_input',['<C-b>']);pump(1.8)
- assert call('nvim_exec_lua',["return require('cmp').visible_docs()",[]]),width
- docs=call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='cmp_docs' then return {win=w,config=vim.api.nvim_win_get_config(w)} end end",[]])
+ assert call('nvim_exec_lua',["return require('blink.cmp').is_documentation_visible()",[]]),width
+ docs=call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='blink-cmp-documentation' then return {win=w,config=vim.api.nvim_win_get_config(w)} end end",[]])
  c=docs['config'];assert c['width']+2<=width and c['height']+2<=height,(width,c)
- if c['width']>=28: assert 'DOCUMENTATION' in str(c.get('title')),c
  call('nvim_input',['<C-f>']);pump(.3)
  assert call('nvim_exec_lua',["return vim.fn.getwininfo(...)[1].topline",[docs['win']]])>1
  call('nvim_input',['<C-d>']);pump(.2)
- assert not call('nvim_exec_lua',["return require('cmp').visible_docs()",[]])
+ assert not call('nvim_exec_lua',["return require('blink.cmp').is_documentation_visible()",[]])
+ call('nvim_input',['<CR>']);pump(.3)
+ accepted=call('nvim_exec_lua',["return {lines=vim.api.nvim_buf_get_lines(0,0,-1,false),cursor=vim.api.nvim_win_get_cursor(0),selected=require('blink.cmp').get_selected_item()}",[]])
+ assert accepted['lines'][4]=='summary()', accepted
  call('nvim_input',['<Esc>']);pump(.5)
  call('nvim_input',[':set number']);pump(.3)
  wins=call('nvim_exec_lua',["local r={} for _,w in ipairs(vim.api.nvim_list_wins()) do local c=vim.api.nvim_win_get_config(w); if c.relative~='' then r[#r+1]=c end end return r",[]])
@@ -206,3 +212,6 @@ while p.poll() is None and time.time()<deadline:
   try: req('nvim_input',['<CR>'])
   except BrokenPipeError: break  # Neovim closed stdin between poll and write.
 p.wait(timeout=5)
+try: p.stdin.close()
+except BrokenPipeError: pass
+p.stdout.close()

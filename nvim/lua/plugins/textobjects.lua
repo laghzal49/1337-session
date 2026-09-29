@@ -19,109 +19,20 @@ return {
     },
     config = function(_, opts)
       require('nvim-treesitter-textobjects').setup(opts)
-
-      local select = require('nvim-treesitter-textobjects.select')
-      local move = require('nvim-treesitter-textobjects.move')
-
-      -- Select textobjects
-      vim.keymap.set({ 'x', 'o' }, 'af', function()
-        select.select_textobject('@function.outer', 'textobjects')
-      end, { desc = 'Select around function' })
-
-      vim.keymap.set({ 'x', 'o' }, 'if', function()
-        select.select_textobject('@function.inner', 'textobjects')
-      end, { desc = 'Select inner function' })
-
-      vim.keymap.set({ 'x', 'o' }, 'ac', function()
-        select.select_textobject('@class.outer', 'textobjects')
-      end, { desc = 'Select around class' })
-
-      vim.keymap.set({ 'x', 'o' }, 'ic', function()
-        select.select_textobject('@class.inner', 'textobjects')
-      end, { desc = 'Select inner class' })
-
-      vim.keymap.set({ 'x', 'o' }, 'aa', function()
-        select.select_textobject('@parameter.outer', 'textobjects')
-      end, { desc = 'Select around parameter' })
-
-      vim.keymap.set({ 'x', 'o' }, 'ia', function()
-        select.select_textobject('@parameter.inner', 'textobjects')
-      end, { desc = 'Select inner parameter' })
-
-      -- Move motions
-      vim.keymap.set({ 'n', 'x', 'o' }, ']m', function()
-        move.goto_next_start('@function.outer', 'textobjects')
-      end, { desc = 'Next function start' })
-
-      vim.keymap.set({ 'n', 'x', 'o' }, '[m', function()
-        move.goto_previous_start('@function.outer', 'textobjects')
-      end, { desc = 'Prev function start' })
     end,
-    keys = {
-      {
-        'af',
-        mode = { 'x', 'o' },
-        function()
-          require('nvim-treesitter-textobjects.select').select_textobject('@function.outer', 'textobjects')
-        end,
-        desc = 'Select around function',
-      },
-      {
-        'if',
-        mode = { 'x', 'o' },
-        function()
-          require('nvim-treesitter-textobjects.select').select_textobject('@function.inner', 'textobjects')
-        end,
-        desc = 'Select inner function',
-      },
-      {
-        'ac',
-        mode = { 'x', 'o' },
-        function()
-          require('nvim-treesitter-textobjects.select').select_textobject('@class.outer', 'textobjects')
-        end,
-        desc = 'Select around class',
-      },
-      {
-        'ic',
-        mode = { 'x', 'o' },
-        function()
-          require('nvim-treesitter-textobjects.select').select_textobject('@class.inner', 'textobjects')
-        end,
-        desc = 'Select inner class',
-      },
-      {
-        'aa',
-        mode = { 'x', 'o' },
-        function()
-          require('nvim-treesitter-textobjects.select').select_textobject('@parameter.outer', 'textobjects')
-        end,
-        desc = 'Select around parameter',
-      },
-      {
-        'ia',
-        mode = { 'x', 'o' },
-        function()
-          require('nvim-treesitter-textobjects.select').select_textobject('@parameter.inner', 'textobjects')
-        end,
-        desc = 'Select inner parameter',
-      },
-      {
-        ']m',
-        mode = { 'n', 'x', 'o' },
-        function()
-          require('nvim-treesitter-textobjects.move').goto_next_start('@function.outer', 'textobjects')
-        end,
-        desc = 'Next function start',
-      },
-      {
-        '[m',
-        mode = { 'n', 'x', 'o' },
-        function()
-          require('nvim-treesitter-textobjects.move').goto_previous_start('@function.outer', 'textobjects')
-        end,
-        desc = 'Prev function start',
-      },
-    },
+    keys = (function()
+      local keys = {}
+      for key, capture in pairs({ af = '@function.outer', ['if'] = '@function.inner', ac = '@class.outer', ic = '@class.inner', aa = '@parameter.outer', ia = '@parameter.inner' }) do
+        keys[#keys + 1] = { key, mode = { 'x', 'o' }, function()
+          require('nvim-treesitter-textobjects.select').select_textobject(capture, 'textobjects')
+        end, desc = 'Select ' .. capture }
+      end
+      for key, method in pairs({ [']m'] = 'goto_next_start', ['[m'] = 'goto_previous_start' }) do
+        keys[#keys + 1] = { key, mode = { 'n', 'x', 'o' }, function()
+          require('nvim-treesitter-textobjects.move')[method]('@function.outer', 'textobjects')
+        end, desc = key == ']m' and 'Next function start' or 'Previous function start' }
+      end
+      return keys
+    end)(),
   },
 }

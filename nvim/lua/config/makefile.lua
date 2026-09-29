@@ -25,68 +25,39 @@ function M.parse(makefile_path)
   makefile_path = makefile_path or M.find_makefile()
   if not makefile_path then return {} end
 
-  local lines = vim.fn.readfile(makefile_path)
-  local targets = {}
-  local seen = {}
-  local pending_comment = nil
-  local current_target = nil
-
-  local special = {
-    [".PHONY"] = true,
-    [".SUFFIXES"] = true,
-    [".DEFAULT"] = true,
-    [".PRECIOUS"] = true,
-    [".INTERMEDIATE"] = true,
-    [".SECONDARY"] = true,
-    [".SECONDEXPANSION"] = true,
-    [".DELETE_ON_ERROR"] = true,
-    [".IGNORE"] = true,
-    [".LOW_RESOLUTION_TIME"] = true,
-    [".SILENT"] = true,
-    [".EXPORT_ALL_VARIABLES"] = true,
-    [".NOTPARALLEL"] = true,
-    [".ONESHELL"] = true,
-    [".POSIX"] = true,
-  }
-
-  for _, line in ipairs(lines) do
-    -- Comment doc line: ## comment or # comment
-    local doc = line:match("^##%s*(.*)$") or line:match("^#%s*(.*)$")
-    if doc and not line:match("^#[#%s]*$") then
-      pending_comment = doc
-    elseif line:match("^[%s]*$") then
+  local targets, seen, current = {}, {}, {}
+  local pending_comment
+  for _, line in ipairs(vim.fn.readfile(makefile_path)) do
+    if line:match("^\t") then
+      for _, target in ipairs(current) do
+        target.recipes[#target.recipes + 1] = vim.trim(line:sub(2))
+      end
+    elseif line:match("^#") then
+      pending_comment = line:match("^#+%s*(.*)$")
+    elseif line:match("^%s*$") then
       pending_comment = nil
     else
-      -- Check for target definition: name: or name: prereqs or name: ## desc
-      local target_name, inline_desc = line:match("^([%w_%-%./]+)%s*:%s*.*##%s*(.*)$")
-      if line:match("^[^:]+:%s*=") then target_name = nil
-      elseif not target_name then
-        target_name = line:match("^([%w_%-%./]+)%s*:%s*.*$")
-      end
-
-      if target_name and not special[target_name] and not target_name:match("^%%") then
-        local desc = inline_desc or pending_comment or ""
-        pending_comment = nil
-        if not seen[target_name] then
-          seen[target_name] = true
-          current_target = {
-            name = target_name,
-            desc = desc,
-            recipes = {},
-          }
-          table.insert(targets, current_target)
-        else
-          for _, target in ipairs(targets) do
-            if target.name == target_name then current_target = target; break end
+      current = {}
+      local lhs, rhs = line:match("^([^:]+):%s*(.*)$")
+      -- Exclude variable assignments, generated names and pattern rules.
+      if lhs and not lhs:find("[=$%%()]") and not rhs:match("^[:?+!]?=") then
+        local desc = rhs:match("##%s*(.*)$") or pending_comment or ""
+        for name in lhs:gmatch("%S+") do
+          if name:match("^[%w_%-%./]+$") and not name:match("^%.[A-Z_]+$") then
+            local target = seen[name]
+            if not target then
+              target = { name = name, desc = desc, recipes = {} }
+              seen[name], targets[#targets + 1] = target, target
+            elseif desc ~= "" then
+              target.desc = desc
+            end
+            current[#current + 1] = target
+            local inline = rhs:match(";%s*(.-)%s*##") or rhs:match(";%s*(.*)$")
+            if inline and inline ~= "" then target.recipes[#target.recipes + 1] = inline end
           end
         end
-      elseif current_target and line:match("^\t") then
-        local recipe_cmd = vim.trim(line:sub(2))
-        table.insert(current_target.recipes, recipe_cmd)
-      else
-        pending_comment = nil
-        current_target = nil
       end
+      pending_comment = nil
     end
   end
 

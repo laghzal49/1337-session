@@ -13,31 +13,13 @@ return {
     end })
   end },
   { 'nvim-treesitter/nvim-treesitter-context', event = { 'BufReadPost', 'BufNewFile' }, opts = { max_lines = 2, trim_scope = 'outer' } },
-  { 'neovim/nvim-lspconfig', event = { 'BufReadPre', 'BufNewFile' }, dependencies = { 'hrsh7th/cmp-nvim-lsp' },
+  { 'neovim/nvim-lspconfig', event = { 'BufReadPre', 'BufNewFile' }, dependencies = { 'saghen/blink.cmp' },
     config = function(_, opts)
       vim.diagnostic.config(opts.diagnostics or {})
-      local border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }
-      vim.lsp.handlers['textDocument/hover'] = vim.lsp.with(vim.lsp.handlers.hover, {
-        border = border,
-        max_width = 80,
-        max_height = 24,
-        title = ' 󰈙 Documentation ',
-        title_pos = 'center',
-        winblend = 0,
-      })
-      vim.lsp.handlers['textDocument/signatureHelp'] = vim.lsp.with(vim.lsp.handlers.signature_help, {
-        border = border,
-        max_width = 80,
-        max_height = 16,
-        title = ' 󰅩 Signature ',
-        title_pos = 'center',
-        winblend = 0,
-      })
       for name, config in pairs(opts.servers or {}) do
         config = vim.deepcopy(config)
         config.enabled, config.mason = nil, nil
-        local blink_ok, blink = pcall(require, 'blink.cmp')
-        local base_caps = blink_ok and blink.get_lsp_capabilities() or vim.lsp.protocol.make_client_capabilities()
+        local base_caps = require('blink.cmp').get_lsp_capabilities()
         config.capabilities = vim.tbl_deep_extend('force', base_caps, config.capabilities or {})
         vim.lsp.config(name, config)
         local resolved = vim.lsp.config[name]

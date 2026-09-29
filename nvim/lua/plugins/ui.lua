@@ -10,7 +10,7 @@ return {
     lazy = false,
     priority = 1000,
     opts = {
-      style = 'glyph',
+      style = vim.g.have_nerd_font == false and 'ascii' or 'glyph',
       -- Use the Perfect Black palette for file type icon colors
       file = {
         ['.gitignore'] = { glyph = '󰊢', hl = 'MiniIconsGrey' },
@@ -159,8 +159,8 @@ return {
           ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
           ['vim.lsp.util.stylize_markdown'] = true,
         },
-        -- Let noice handle LSP signature display (replaces lsp_signature plugin)
-        signature = { enabled = true },
+        -- Blink owns automatic signature help.
+        signature = { enabled = false },
         -- We handle hover manually via keybind; noice should not intercept it
         hover = { enabled = false },
       },
@@ -321,7 +321,6 @@ return {
       { '<leader>xw', '<cmd>Trouble diagnostics toggle<cr>', desc = 'Workspace diagnostics' },
       { '<leader>xd', '<cmd>Trouble diagnostics toggle filter.buf=0<cr>', desc = 'Document diagnostics' },
       { '<leader>xq', '<cmd>Trouble qflist toggle<cr>', desc = 'Quickfix diagnostics' },
-      { '<leader>gx', '<cmd>Trouble git toggle<cr>', desc = 'Git items (Trouble)' },
     },
   },
 

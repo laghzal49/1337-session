@@ -72,18 +72,16 @@ hide before they crowd small terminals.
 
 ### Completion and documentation
 
-The menu orders information as kind icon, completion text, then a short kind label. Source names are omitted.
-Labels longer than 38 cells are shortened for display; insertion text is
-unmodified. Selected items have a stronger blue fill.
+Blink is the only completion engine. It supplies LSP capabilities, completion,
+resolved documentation, snippets and automatic signature help. The obsolete cmp
+shim and its window-decoration adapter are removed. Noice's automatic signature
+help is disabled to avoid duplicate popups.
 
-Documentation uses a distinct opaque panel with a thin cell border, a
-DOCUMENTATION title, and keyboard hints when its width permits. Ctrl-D toggles
-it. Ctrl-B/F open it from a visible completion menu or scroll it when already
-open. Outside completion, these mappings fall back to their normal behavior.
-The title helper decorates the window immediately after the pinned completion
-plugin renders resolved documentation. It leaves very narrow panels unlabelled
-to avoid crowding. This small adapter uses the plugin’s internal docs-open
-method and must be checked when updating that pinned dependency. Documentation still opens only on request.
+Documentation opens automatically after selecting an item. Ctrl-D toggles it;
+Ctrl-B/F open or scroll it, and Ctrl-E dismisses completion. Enter inserts a
+newline until an item is explicitly selected. The UI review uses a real Blink
+provider with delayed resolution and tests the actual menu and documentation
+windows at narrow and wide viewport sizes.
 
 ### Command palette and hover
 
@@ -104,7 +102,7 @@ stack it below results; wide inspection uses a side-by-side preview. File names
 come first, with muted directories. Search shares the documentation panel fill, outline, heading style, and
 selection color. Its footer keeps preview/close shortcuts visible. When a
 grep preview is open, rows show file locations and the preview shows code;
-when hidden, rows retain matching code so narrow layouts stay informative. Neo-tree is 28 columns and closes after opening a file below 110 columns.
+when hidden, rows retain matching code so narrow layouts stay informative. Snacks Explorer provides the file tree.
 
 ### Workspace
 
@@ -175,7 +173,7 @@ The complete research shortlist is installed, with exact revisions in the lockfi
 Most additions load on a command or key. Mini Notify and Tiny Inline Diagnostic
 load on VeryLazy; Endhints loads on LspAttach; Colorful Menu follows completion.
 
-- Mini Files is on-demand. Neo-tree remains available through its existing mapping.
+- Snacks Explorer is the only file browser; obsolete Mini Files hooks are removed.
 - Namu owns the new symbol-navigation shortcuts; Glance owns explicit peek shortcuts.
   Neither replaces the project search picker or opens a permanent extra sidebar.
 - Incremental rename uses LazyVim's supported extra and Noice integration.
@@ -215,23 +213,21 @@ Changes and tradeoffs:
   preserved deadlines prevent compaction extending transient toast lifetime.
   Older error details can age out; the error summary persists until acknowledged.
   This is an explicit bounded journal, not a permanent audit log.
-- **Panel restraint:** Mini Files shows one column below 100 columns and updates on
-  resize. Namu removes ornamental border/footer and uses proportional dimensions.
+- **Panel restraint:** Snacks Explorer provides the file tree; Mini Pick and Aerial
+  adapt their dimensions to the viewport.
   Glance leaves code context by capping the peek at 12 rows. Terminal-cell geometry
   is used; pixel-radius promises would be misleading in a terminal.
-- **Navigation:** file/text search is the default route; Mini Files manages nearby
-  files, Neo-tree shows hierarchy, Namu navigates symbols, Glance peeks references.
-  Keeping all requested plugins still carries maintenance cost. They remain lazy
-  loaded where appropriate; the README now explains when each earns its place.
+- **Navigation:** Mini Pick handles file/text search, Snacks Explorer manages files,
+  Aerial lists symbols and Glance peeks references. Removed browsers and symbol
+  plugins have no remaining runtime hooks.
 - **Performance evidence:** five headless starts on this workspace, Neovim 0.12.5,
   existing plugin caches: 49.859, 45.365, 51.606, 52.647, 47.133 ms; median 49.859 ms.
   The synthetic 20,000-line/4,000-diagnostic/2,000-sign operation took 143.5 ms in
   the first review run. These are local measurements, not a cluster guarantee.
   A repeatable startup script is included for target-machine measurement.
 
-Still imperfect: Namu is beta, Colorful Menu uses generic ty formatting, terminal
-font rendering varies, and actual cluster cold-start/interactive latency needs
-measurement there. Adding more plugins would not resolve those limits.
+Terminal font rendering varies, and actual cluster cold-start/interactive latency
+needs measurement there. Removed plugins no longer contribute maintenance cost.
 
 ## Standalone revision — supersedes the integration above
 
@@ -289,9 +285,9 @@ selected surface; the label stays bold and readable. The existing raised mode
 indicator remains the only beveled control. These are static highlights and glyphs:
 no animations, new plugins, shadow windows or extra persistent chrome rows.
 
-## Python and browser spacing refinement
+## Historical Python and browser spacing refinement
 
-Mini Files keeps its temporary column-browser model but now uses short directory
+The former Mini Files implementation used its temporary column-browser model with short directory
 names in titles, two-cell outer margins when space permits, and blank side/bottom
 padding. Panels begin below the screen edge and stop at 18 content rows; long
 folders scroll. Narrow screens keep one column. Layout coordinates are derived

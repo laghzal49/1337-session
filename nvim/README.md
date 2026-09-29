@@ -1,9 +1,9 @@
 # Perfect Black Neovim
 
 A standalone Neovim configuration: **no LazyVim distribution**. lazy.nvim manages
-36 explicitly configured plugins and dependencies, pinned in `lazy-lock.json`.
+45 explicitly configured plugins and dependencies, pinned in `lazy-lock.json`.
 Pure-black code, italic comments, opaque panels, and **ty + Ruff** for Python.
-Ruff provides Flake8-style `E`/`F` diagnostics through its LSP and formats with
+Ruff provides diagnostics through its LSP and formats with
 Ruff Format on save; `<leader>cf` runs formatting manually and `<leader>uf`
 toggles format-on-save.
 
@@ -13,8 +13,8 @@ toggles format-on-save.
 
 ![Perfect Black live dashboard](assets/perfect-black-ui.png)
 
-Blue-tipped section rules, matching icons, and a compact layout at 80×24.
-Search and file panels use a single top rule; the active tab has a blue marker.
+The current theme uses blood-red accents over black editing surfaces.
+The dashboard and older editing screenshots below document earlier revisions.
 
 ## Editing surfaces
 
@@ -24,25 +24,16 @@ Search and file panels use a single top rule; the active tab has a blue marker.
 
 ![Command bar](assets/command.png)
 
-These are actual UI-grid captures. The Python and browser images show this
-revision; documentation and command images retain the previous editing surfaces.
-The documentation image uses a demo completion source. The new Mini Pick
-and Aerial layouts are tested at narrow and wide sizes; older Snacks picker images
-are intentionally no longer presented as current UI.
+These are actual UI-grid captures from earlier revisions. Completion now uses
+Blink; the documentation screenshot shows the previous completion engine.
+The Makefile screenshot below is regenerated from the current configuration.
 
-## File browser beside Python
+## File browser
 
-![Python and compact file browser](assets/python-files.png)
-
-Mini Files uses short directory titles, padded columns and an 18-row cap. Open
-with `<leader>e` (or `<leader>fm` for the current file). In the tree, `h`/`l`
-move between directories and `a` inserts a new entry. Type `notes.md` for a
-file or `docs/` for a directory, then press `<Esc>` and `=`. The confirmation
-list shows exactly what will happen: press `y`/`<Enter>` to apply or `n`/`<Esc>`
-to cancel. `r` edits the selected name, `d` marks it for deletion, `q` closes,
-and `g?` opens Mini Files' complete help. Changes are not written until `=`
-is confirmed.
-Python has a clearer active line and quiet active-scope guides.
+Snacks Explorer is the only file browser. Open it with `<leader>e` (toggle)
+or `<leader>fe`. Use `<CR>` to open, `a` to create, `r` to rename, `d` to delete,
+and `?` for its keymap help. Mini Files and its obsolete decoration code are
+removed.
 
 Markdown reader mode is available with `<leader>mr` (or
 `:MarkdownReaderEnable`/`:MarkdownReaderDisable`); it enables rendered Markdown,
@@ -74,7 +65,9 @@ plugin checkouts after updating, then restart Neovim.
 - **Glance:** peek at definitions/references without leaving the source.
 - **Quicker:** editable quickfix with expandable context.
 - **Tiny Inline Diagnostic:** wrapped cursor-line errors, quiet during insertion.
-- **Magazine completion:** plain readable labels, kind icons, on-demand docs.
+- **Blink completion:** LSP, paths, snippets and buffer words, with documentation
+  and signature help. Enter accepts an explicitly selected item; otherwise it
+  inserts a newline. Ctrl-E dismisses completion, Ctrl-K toggles signature help.
 - **TreeSJ, incremental rename, selected text objects:** editing tools with no
   permanent panels. Native inlay hints are off until you toggle them.
 
@@ -92,7 +85,7 @@ removed. There are no inherited distribution keymaps or background tool installs
 | Commands / keymaps / help | `<leader>sC` / `<leader>sk` / `<leader>sh` |
 | Preview / mark / send marked to quickfix | `Ctrl-P` / `Tab` / `Alt-Enter` in picker |
 | Toggle file explorer (Snacks explorer) | `<leader>e` |
-| Browse current dir / project | `<leader>fe` / `<leader>fE` |
+| Open file explorer | `<leader>fe` |
 | Code outline / find file symbol | `<leader>cs` / `<leader>ss` |
 | Find workspace symbol | `<leader>cS` |
 | Peek definition / references | `<leader>cgd` / `<leader>cgr` |
@@ -131,9 +124,9 @@ checkouts. This does not remove project data.
 
 Install Python tools with `uv tool install ty` and `uv tool install ruff`, ensuring
 uv's executable directory is on PATH before opening Neovim. The bootstrap script
-does this automatically and verifies both versions. Ruff uses the Flake8-style
-`E4`, `E7`, `E9`, and `F` rule families while ignoring line-length `E501`;
-`ruff check` remains available in the terminal for CI/scripts. `:ConfigTools`
+does this automatically and verifies both versions. Ruff uses each project's
+Ruff configuration (or Ruff's defaults). `ruff check` remains available for
+CI/scripts. `:ConfigTools`
 reports missing executables. `:Mason` is available for manual tool management.
 
 Install syntax parsers once (the installer also does this):
@@ -148,7 +141,9 @@ with ty. No environment paths tied to a particular desk are hardcoded.
 
 ## Verification
 
-Run from the repository root with installed plugins and Python `msgpack`:
+Run `make check` from the repository root with installed plugins, ty on PATH,
+and Python `msgpack`. It checks the real Blink completion UI, workflow
+regressions and the configured Python language server. Individual commands:
 
 ```sh
 NVIM_BIN=/path/to/nvim python3 nvim/tests/ui_review.py
@@ -161,7 +156,7 @@ python3 nvim/tests/capture_makefile.py  # also requires ImageMagick + JetBrainsM
 
 Use your installation's `XDG_DATA_HOME`. UI checks cover Mini Pick files/grep/
 preview, diagnostics, notifications, documentation controls, quickfix edits,
-Mini Files, Aerial, Glance and rename. The standalone test requires ty on PATH
+Snacks Explorer, Aerial, Glance and rename. The standalone test requires ty on PATH
 and verifies actual attachment and diagnostics through the full config.
 
 Tests use temporary files. Headless startup timings do not measure cluster NFS

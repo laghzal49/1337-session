@@ -56,36 +56,14 @@ return {
     end,
     config = function(_, opts)
       require('mini.ai').setup(opts)
-      -- Git hunk text objects via gitsigns: gh = around hunk, gH = inner hunk
-      local function hunk_textobj(around)
-        local ok, gs = pcall(require, 'gitsigns')
-        if not ok then return end
-        local hunks = require('gitsigns.hunks')
-        local buf_hunks = hunks and require('gitsigns').get_hunks and require('gitsigns').get_hunks()
-        if not buf_hunks then return end
-        local line = vim.fn.line('.')
-        for _, h in ipairs(buf_hunks) do
-          local start_l = h.added.start
-          local end_l   = h.added.start + math.max(h.added.count - 1, 0)
-          if line >= start_l and line <= end_l then
-            local from = { line = start_l, col = 1 }
-            local to   = { line = end_l,   col = #vim.fn.getline(end_l) }
-            return { from = from, to = to }
-          end
-        end
-      end
-      vim.keymap.set({ 'x', 'o' }, 'gh', function() hunk_textobj(true)  end, { desc = 'Around git hunk' })
-      vim.keymap.set({ 'x', 'o' }, 'gH', function() hunk_textobj(false) end, { desc = 'Inner git hunk' })
     end,
   },
-  -- Underrated Gem 2: Ultra-lightweight autopairs with Treesitter skip
+  -- Lightweight autopairs
   {
     'nvim-mini/mini.pairs',
     event = 'InsertEnter',
     opts = {
       modes = { insert = true, command = true, terminal = false },
-      skip_next = [=[[%w%%%'%[%"%.%`%$]]=],
-      skip_ts = { 'string' },
     },
   },
   -- Underrated Gem 3: Fast surround management (sa, sd, sr)
@@ -118,7 +96,7 @@ return {
     },
     opts = {},
   },
-  -- Underrated Gem 5: Inline hex color highlighter + TODO annotations
+  -- Inline hex color highlighter
   {
     'nvim-mini/mini.hipatterns',
     event = { 'BufReadPost', 'BufNewFile' },
@@ -155,50 +133,7 @@ return {
             priority = 110,
           },
 
-          -- ── TODO: themed keyword annotations ─────────────────────────
-          -- These complement todo-comments.nvim; both can coexist.
-          fix_me = {
-            pattern = '%f[%w]()FIXME()%f[%W]',
-            group = function()
-              vim.api.nvim_set_hl(0, 'HipatFixme', { bg = '#FF8FA3', fg = '#000000', bold = true })
-              return 'HipatFixme'
-            end,
-          },
-          todo = {
-            pattern = '%f[%w]()TODO()%f[%W]',
-            group = function()
-              vim.api.nvim_set_hl(0, 'HipatTodo', { bg = '#FFD166', fg = '#000000', bold = true })
-              return 'HipatTodo'
-            end,
-          },
-          hack = {
-            pattern = '%f[%w]()HACK()%f[%W]',
-            group = function()
-              vim.api.nvim_set_hl(0, 'HipatHack', { bg = '#FF9E64', fg = '#000000', bold = true })
-              return 'HipatHack'
-            end,
-          },
-          note = {
-            pattern = '%f[%w]()NOTE()%f[%W]',
-            group = function()
-              vim.api.nvim_set_hl(0, 'HipatNote', { bg = '#70D7FF', fg = '#000000', bold = true })
-              return 'HipatNote'
-            end,
-          },
-          perf = {
-            pattern = '%f[%w]()PERF()%f[%W]',
-            group = function()
-              vim.api.nvim_set_hl(0, 'HipatPerf', { bg = '#C7A6FF', fg = '#000000', bold = true })
-              return 'HipatPerf'
-            end,
-          },
-          test_kw = {
-            pattern = '%f[%w]()TEST()%f[%W]',
-            group = function()
-              vim.api.nvim_set_hl(0, 'HipatTest', { bg = '#7FE3C2', fg = '#000000', bold = true })
-              return 'HipatTest'
-            end,
-          },
+
         },
       }
     end,

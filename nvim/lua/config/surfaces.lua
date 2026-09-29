@@ -35,26 +35,6 @@ function M.highlights()
   groups("BufferLineModifiedSelected", { fg = M.accent, bg = M.selected })
   groups("BlackDocsHint", { bg = M.panel, fg = M.muted })
   groups("PmenuSel NoicePopupmenuSelected ", { bg = M.selected, fg = "#FFFFFF" })
-  local tree_bg = "#0A0A0E"
-  local tree_border = "#5C1522"
-  local tree_cursor = "#3D0D14"
-  local tree_title_focused = "#4E121D"
-
-  groups("MiniFilesNormal", { bg = tree_bg, fg = "#D7E3FF" })
-  groups("MiniFilesBorder", { bg = tree_bg, fg = tree_border })
-  groups("MiniFilesBorderModified", { bg = tree_bg, fg = "#FFD166", fmt = "bold" })
-  groups("MiniFilesCursorLine", { bg = tree_cursor, fg = "#FFFFFF", fmt = "bold" })
-  groups("MiniFilesTitle", { bg = tree_bg, fg = "#A8606B", fmt = "bold" })
-  groups("MiniFilesTitleFocused", { bg = tree_title_focused, fg = "#FF4D6D", fmt = "bold" })
-  groups("MiniFilesTitleCount", { bg = tree_bg, fg = "#A8606B" })
-  groups("MiniFilesDirectory", { fg = "#FF4D6D", fmt = "bold" })
-  groups("MiniFilesDirectoryIcon", { fg = "#FF2E4C" })
-  groups("MiniFilesFile", { fg = "#FFFFFF" })
-  groups("MiniFilesFileIcon", { fg = "#FF8FA3" })
-  groups("MiniFilesSymlink", { fg = "#FF9E64", fmt = "italic" })
-  groups("MiniFilesPathSep", { fg = tree_border })
-
-
   groups("MiniNotifyNormal GlanceListNormal MiniPickNormal AerialNormal", { bg = M.panel, fg = M.text })
   groups("MiniNotifyBorder MiniPickBorder AerialBorder GlanceBorderTop GlanceListBorderBottom GlancePreviewBorderBottom", { bg = M.panel, fg = M.edge_bright })
   groups("GlanceListCursorLine MiniPickMatchCurrent AerialLine", { bg = M.selected, fg = M.text, fmt = "bold" })

@@ -13,6 +13,7 @@ assert(vim.notify == require("config.notifications").notify)
 assert(not (Snacks.config.notifier and Snacks.config.notifier.enabled))
 local noice_notify = require("noice.config").options.notify
 assert(not (noice_notify and noice_notify.enabled))
+assert(require("noice.config").options.lsp.signature.enabled == false, "Duplicate signature UI")
 assert(vim.diagnostic.config().virtual_text == false)
 assert(not require("lazy.core.config").plugins.LazyVim, "distribution must not be installed")
 assert(Snacks.config.explorer and Snacks.config.explorer.enabled)

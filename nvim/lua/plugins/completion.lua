@@ -1,6 +1,5 @@
 -- Blink.cmp completion configuration matching the Perfect Black palette
 return {
-  { 'iguanacucumber/magazine.nvim', enabled = false },
   {
     'saghen/blink.cmp',
     version = 'v1.10.2',
@@ -12,11 +11,15 @@ return {
         ['<CR>'] = { 'accept', 'fallback' },
         ['<Tab>'] = { 'select_next', 'snippet_forward', 'fallback' },
         ['<S-Tab>'] = { 'select_prev', 'snippet_backward', 'fallback' },
-        ['<C-b>'] = { 'scroll_documentation_up', 'fallback' },
-        ['<C-f>'] = { 'scroll_documentation_down', 'fallback' },
+        ['<C-b>'] = { 'scroll_documentation_up', 'show_documentation', 'fallback' },
+        ['<C-f>'] = { 'scroll_documentation_down', 'show_documentation', 'fallback' },
+        ['<C-d>'] = { 'hide_documentation', 'show_documentation', 'fallback' },
+        ['<C-e>'] = { 'hide', 'fallback' },
+        ['<C-k>'] = { 'show_signature', 'hide_signature', 'fallback' },
       },
 
       completion = {
+        list = { selection = { preselect = false, auto_insert = false } },
         menu = {
           border = 'rounded',
           winhighlight = 'Normal:BlinkCmpMenu,FloatBorder:BlinkCmpMenuBorder,CursorLine:BlinkCmpMenuSelection,Search:None',
