@@ -87,7 +87,15 @@ return {
         win = { width = 90, backdrop = { transparent = false, blend = 40 } },
       },
       terminal = {
-        win = { position = 'bottom', height = 0.30, border = 'rounded', wo = { winbar = '  Terminal' } },
+        win = {
+          position = 'float',
+          border = 'rounded',
+          width = 0.85,
+          height = 0.80,
+          backdrop = 60,
+          title = ' 󰞌  Terminal ',
+          title_pos = 'center',
+        },
       },
       input = {
         enabled = true,

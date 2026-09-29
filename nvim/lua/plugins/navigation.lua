@@ -139,7 +139,9 @@ return {
           ['<CR>'] = 'actions.select',
           ['<C-s>'] = { 'actions.select', opts = { vertical = true } },
           ['<C-h>'] = { 'actions.select', opts = { horizontal = true } },
-          ['<C-t>'] = { 'actions.select', opts = { tab = true } },
+          ['<C-t>'] = false,
+          ['<C-w>t'] = { 'actions.select', opts = { tab = true } },
+          ['gt'] = { 'actions.select', opts = { tab = true } },
           ['<C-p>'] = 'actions.preview',
           ['<C-c>'] = { 'actions.close', mode = 'n' },
           ['q'] = { 'actions.close', mode = 'n' },
@@ -153,6 +155,16 @@ return {
           ['gx'] = 'actions.open_external',
           ['g.'] = { 'actions.toggle_hidden', mode = 'n' },
           ['g\\'] = { 'actions.toggle_trash', mode = 'n' },
+          ['gy'] = { 'actions.yank_entry', mode = 'n' },
+        },
+        confirmation = {
+          border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
+          win_options = {
+            winblend = 0,
+          },
+        },
+        keymaps_help = {
+          border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
         },
         use_default_keymaps = true,
         view_options = {
