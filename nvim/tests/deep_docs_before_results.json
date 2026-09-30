@@ -1,0 +1,17 @@
+{
+  "scope": "Five-run offline deep-reference benchmark. No downloads or real LSP work.\nMatched startup cwd and isolated /tmp cache/state; 10k-entry local fixture.\nCold means an invalidated in-process index, not a cold OS filesystem cache.\n",
+  "cwd": "/home/tarik/Projects/1337-session",
+  "config": "/tmp/1337-before-deepdocs",
+  "runs": 5,
+  "startup_ms": [
+    36.757,
+    38.068,
+    37.107,
+    36.671,
+    39.202
+  ],
+  "metrics": {},
+  "errors": [],
+  "startup_first_ms": 61.959,
+  "startup_median_ms": 37.107
+}

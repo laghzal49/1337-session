@@ -1,5 +1,18 @@
 -- Language-specific LSP servers and formatters.
 return {
+  -- Neovim Lua development: injects runtime paths, vim API types, and plugin
+  -- type annotations into lua_ls automatically (replaces deprecated neodev).
+  {
+    'folke/lazydev.nvim',
+    ft = 'lua',
+    opts = {
+      library = {
+        { path = '${3rd}/luv/library', words = { 'vim%.uv' } },
+        { path = 'snacks.nvim', words = { 'Snacks' } },
+        { path = 'lazy.nvim', words = { 'LazyVim' } },
+      },
+    },
+  },
   {
     'stevearc/conform.nvim',
     opts = {
@@ -37,6 +50,7 @@ return {
           },
         },
         ruff = {
+          cmd = { 'ruff', 'server' },
           on_attach = function(client)
             client.server_capabilities.hoverProvider = false
           end,
@@ -47,7 +61,7 @@ return {
           settings = {
             Lua = {
               runtime = { version = 'LuaJIT' },
-              workspace = { checkThirdParty = false, library = vim.api.nvim_get_runtime_file('', true) },
+              workspace = { checkThirdParty = false },
               diagnostics = { globals = { 'vim', 'Snacks' } },
               telemetry = { enable = false },
             },

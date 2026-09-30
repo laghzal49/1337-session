@@ -1,0 +1,40 @@
+{
+  "scope": "300 references (150 Location + 150 LocationLink), actual MiniPick config adapter and Snacks LSP source; 20ms mock response delay included; five warm runs",
+  "cwd": "/home/tarik/Projects/1337-session",
+  "config": "/home/tarik/Projects/1337-session/nvim",
+  "files": 1000,
+  "ui": [
+    140,
+    42
+  ],
+  "runs": 5,
+  "metrics": {
+    "references": {
+      "mini": {
+        "runs_ms": [
+          118.179738,
+          57.443392,
+          61.932072,
+          94.984951,
+          57.545831
+        ],
+        "median_ms": 61.932072
+      },
+      "snacks": {
+        "runs_ms": [
+          47.324983,
+          43.333582,
+          109.959742,
+          112.86071,
+          150.209305
+        ],
+        "median_ms": 109.959742
+      }
+    }
+  },
+  "checks": {},
+  "errors": [],
+  "references": 300,
+  "provider_delay_ms": 20,
+  "messages": ""
+}

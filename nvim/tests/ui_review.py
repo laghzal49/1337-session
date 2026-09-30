@@ -175,8 +175,7 @@ for width,height in [(80,24),(140,42)]:
   assert state=={'selected':index,'line':'    sum','native':0}, (key,state)
  call('nvim_exec_lua',["assert(require('blink.cmp').get_selected_item().label=='summary', 'Review item missing')",[]]);pump(.2)
  call('nvim_input',['<C-d>']);pump(.2)
- call('nvim_input',['<C-k>']);pump(1.8)
- call('nvim_input',['<C-k>']);pump(.2)
+ call('nvim_input',['<C-d>']);pump(1.8)
  assert call('nvim_exec_lua',["return require('blink.cmp').is_documentation_visible()",[]]),width
  docs=call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='blink-cmp-documentation' then return {win=w,config=vim.api.nvim_win_get_config(w)} end end",[]])
  c=docs['config'];assert c['width']+2<=width and c['height']+2<=height,(width,c)
@@ -203,10 +202,10 @@ for width,height in [(80,24),(140,42)]:
 
 call('nvim_exec_lua',["require('blink.cmp.config').sources.default=review_blink_sources",[]])
 
-# Ctrl-K also provides Python builtin documentation without a language server.
+# Normal Ctrl-K retains Python builtin help; Insert Ctrl-K is signature-only.
 call('nvim_command',['enew!'])
 call('nvim_command',['setfiletype python'])
-for mode in ['normal', 'insert']:
+for mode in ['normal']:
  call('nvim_exec_lua',["vim.api.nvim_buf_set_lines(0,0,-1,false,{'sum'}); vim.api.nvim_win_set_cursor(0,{1,1})",[]])
  if mode=='insert':
   call('nvim_input',['i']);pump(.1)
@@ -217,7 +216,7 @@ for mode in ['normal', 'insert']:
  assert call('nvim_get_current_line',[])=='sum',mode
  call('nvim_input',['<Esc>']);pump(.2)
  call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.api.nvim_win_get_config(w).relative~='' then vim.api.nvim_win_close(w,true) end end",[]])
-print('CTRL-K: completion docs and normal/insert Python usage help PASS',flush=True)
+print('COMPLETION DOCS and normal-mode builtin help PASS',flush=True)
 
 # A buffer-only candidate must use its full name without accepting the suggestion.
 call('nvim_command',['enew!'])
@@ -229,11 +228,11 @@ item=call('nvim_exec_lua',["return require('blink.cmp').get_selected_item()",[]]
 assert item and item['label']=='print' and item['source_id']=='buffer',item
 call('nvim_input',['<C-k>']);pump(.5)
 text=call('nvim_exec_lua',["local t={} for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.api.nvim_win_get_config(w).relative~='' then vim.list_extend(t,vim.api.nvim_buf_get_lines(vim.api.nvim_win_get_buf(w),0,-1,false)) end end return table.concat(t,'\\n')",[]])
-assert 'print(' in text,text
+assert 'print(' not in text,'Insert Ctrl-K opened builtin docs for a buffer suggestion'
 assert call('nvim_get_current_line',[])=='pri'
 call('nvim_input',['<Esc>']);pump(.2)
 call('nvim_exec_lua',["require('blink.cmp.config').sources.default=review_blink_sources",[]])
-print('SELECTED BUFFER WORD: full builtin name; typed text unchanged PASS',flush=True)
+print('INSERT SIGNATURE ONLY: buffer suggestion cannot open builtin docs; typed text unchanged PASS',flush=True)
 
 # Real LSP responses: active parameters, empty-response fallbacks and stale replies.
 call('nvim_exec_lua',["dofile('nvim/tests/symbol_help_review.lua'); require('blink.cmp.config').signature.enabled=false",[]])
@@ -250,11 +249,11 @@ assert 'Maximum number of values' in help_text(),help_text()
 call('nvim_exec_lua',["symbol_help_review.empty_signature=true",[]])
 help_line('analyze([1, 2], ')
 call('nvim_input',['<C-k>']);pump(.5)
-assert 'limit=10' in help_text(),help_text()
+assert 'limit=10' not in help_text(),'Insert signature fell back to hover'
 call('nvim_exec_lua',["symbol_help_review.empty_hover=true",[]])
 help_line('sum([1, 2], ')
 call('nvim_input',['<C-k>']);pump(.5)
-assert 'sum(iterable' in help_text(),help_text()
+assert 'sum(iterable' not in help_text(),'Insert signature fell back to builtin docs'
 call('nvim_exec_lua',["symbol_help_review.empty_hover=false",[]])
 help_line('analyze')
 call('nvim_input',['<C-k>'])
@@ -262,7 +261,7 @@ call('nvim_input',['x']);pump(.4)
 assert 'limit=10' not in help_text(),'Stale help appeared after editing'
 call('nvim_input',['<Esc>']);pump(.1)
 call('nvim_exec_lua',["vim.lsp.get_client_by_id(symbol_help_review.client):stop(true); require('blink.cmp.config').signature.enabled=true",[]])
-print('SMART HELP: nested calls, active parameter docs, empty fallbacks and stale replies PASS',flush=True)
+print('SIGNATURE HELP: active parameter docs, no hover/builtin fallback and stale replies PASS',flush=True)
 
 # A slow LSP must not delay local matches; semantic matches win when they arrive.
 call('nvim_exec_lua',["dofile('nvim/tests/completion_latency.lua')",[]])

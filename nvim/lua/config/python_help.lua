@@ -15,10 +15,7 @@ function M.show(word, fallback, is_current)
     if not doc then return fallback() end
     local lines = { "```python", doc.signature, "```", "" }
     vim.list_extend(lines, vim.split(doc.doc, "\n", { plain = true }))
-    vim.lsp.util.open_floating_preview(lines, "markdown", {
-      border = require("config.ui").border, title = " Python builtin help ",
-      max_width = require("config.ui").max_width, max_height = require("config.ui").max_height, focus_id = "python_builtin_help",
-    })
+    require('config.documentation').open(lines, 'Python builtin · ' .. word)
   end
   -- Open after the insert-mode key handler finishes, just like async replies.
   if cache[word] ~= nil then return vim.schedule(function() display(cache[word]) end) end

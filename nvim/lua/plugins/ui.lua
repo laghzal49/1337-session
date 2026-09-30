@@ -14,7 +14,7 @@ return {
       -- Use the Perfect Black palette for file type icon colors
       file = {
         ['.gitignore'] = { glyph = '󰊢', hl = 'MiniIconsGrey' },
-        ['Makefile'] = { glyph = '', hl = 'MiniIconsYellow' },
+        ['Makefile'] = { glyph = '󱁤', hl = 'MiniIconsYellow' },
         ['Dockerfile'] = { glyph = '󰡨', hl = 'MiniIconsCyan' },
         ['docker-compose.yml'] = { glyph = '󰡨', hl = 'MiniIconsCyan' },
       },
@@ -88,8 +88,7 @@ return {
       notifier = { enabled = false },
       animate = { enabled = false },
       scroll = {
-        enabled = true,
-        animate = { duration = { step = 10, total = 100 } },
+        enabled = false, -- Native scrolling keeps destination feedback immediate.
       },
       indent = {
         enabled = true,
@@ -114,6 +113,7 @@ return {
           title = ' 󰞌  Terminal ',
           title_pos = 'center',
           wo = { number = false, relativenumber = false, signcolumn = 'no' },
+          keys = { term_normal = false }, -- Existing EscEsc owns terminal-mode exit.
         },
       },
       input = {
@@ -139,12 +139,12 @@ return {
     keys = {
       { '<leader>ft', function()
         require('config.terminal').toggle()
-      end, desc = 'Project terminal' },
+      end, desc = 'Terminal' },
       { '<leader>gL', function()
         require('config.pick').open('git_commits')
-      end, desc = 'Git commit history' },
-      { '<leader>n', function() require('config.notifications').history() end, desc = 'Notification history drawer' },
-      { '<leader>un', function() require('config.notifications').dismiss() end, desc = 'Dismiss notifications' },
+      end, desc = 'History' },
+      { '<leader>n', function() require('config.notifications').history() end, desc = 'Notifications' },
+      { '<leader>un', function() require('config.notifications').dismiss() end, desc = 'Dismiss Notices' },
     },
   },
 
@@ -154,6 +154,7 @@ return {
     event = 'VeryLazy',
     dependencies = { 'MunifTanjim/nui.nvim' },
     opts = {
+      popupmenu = { enabled = false }, -- Blink owns command suggestions; one menu.
       presets = { inc_rename = true, command_palette = true },
       lsp = {
         override = {
@@ -262,39 +263,11 @@ return {
   {
     'folke/which-key.nvim',
     event = 'VeryLazy',
-    opts = {
-      preset = 'helix',
-      delay = 180,
-      icons = {
-        breadcrumb = '»',
-        separator = '│',
-        group = ' ',
-        mappings = false,
-      },
-      win = {
-        border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
-        padding = { 1, 2 },
-        title = true,
-        title_pos = 'center',
-        wo = { winblend = 0, winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder,FloatTitle:BlackDocsTitle' },
-      },
-      layout = {
-        align = 'center',
-        spacing = 4,
-      },
-      spec = {
-        { '<leader>f', group = ' Find', icon = '󰍉' },
-        { '<leader>s', group = ' Search', icon = '' },
-        { '<leader>c', group = ' Code', icon = '󰅩' },
-        { '<leader>g', group = ' Git', icon = '󰊢' },
-        { '<leader>u', group = ' Toggle', icon = '' },
-        { '<leader>x', group = ' Trouble', icon = '󰅚' },
-        { '<leader>b', group = ' Buffer', icon = '󰓩' },
-        { '<leader>w', group = ' Window', icon = '' },
-        { '<leader>q', group = ' Session', icon = '󰗈' },
-        { '<leader>m', group = ' Markdown', icon = '󰍔' },
-      },
-    },
+    opts = function() return require('config.black_deck').options() end,
+    config = function(_, opts)
+      require('which-key').setup(opts)
+      require('config.black_deck').setup()
+    end,
   },
 
   -- ── Trouble (diagnostics panel) ──────────────────────────────────────
@@ -318,10 +291,10 @@ return {
       },
     },
     keys = {
-      { '<leader>xx', '<cmd>Trouble diagnostics toggle<cr>', desc = 'Project diagnostics' },
-      { '<leader>xw', '<cmd>Trouble diagnostics toggle<cr>', desc = 'Workspace diagnostics' },
-      { '<leader>xd', '<cmd>Trouble diagnostics toggle filter.buf=0<cr>', desc = 'Document diagnostics' },
-      { '<leader>xq', '<cmd>Trouble qflist toggle<cr>', desc = 'Quickfix diagnostics' },
+      { '<leader>xx', '<cmd>Trouble diagnostics toggle<cr>', desc = 'Project Diagnostics' },
+      { '<leader>xw', '<cmd>Trouble diagnostics toggle<cr>', desc = 'Workspace Diagnostics' },
+      { '<leader>xd', '<cmd>Trouble diagnostics toggle filter.buf=0<cr>', desc = 'Buffer Diagnostics' },
+      { '<leader>xq', '<cmd>Trouble qflist toggle<cr>', desc = 'Quickfix' },
     },
   },
 
@@ -347,14 +320,14 @@ return {
     keys = {
       { ']g', function() require('gitsigns').next_hunk() end, desc = 'Next git hunk' },
       { '[g', function() require('gitsigns').prev_hunk() end, desc = 'Prev git hunk' },
-      { '<leader>gb', '<cmd>Gitsigns toggle_current_line_blame<cr>', desc = 'Toggle git blame' },
-      { '<leader>gB', function() require('gitsigns').blame_line({ full = true }) end, desc = 'Blame line (full)' },
+      { '<leader>gb', '<cmd>Gitsigns toggle_current_line_blame<cr>', desc = 'Blame' },
+      { '<leader>gB', function() require('gitsigns').blame_line({ full = true }) end, desc = 'Blame Details' },
       { '<leader>gp', function() require('gitsigns').preview_hunk() end, desc = 'Preview hunk' },
       { '<leader>gr', function() require('gitsigns').reset_hunk() end, desc = 'Reset hunk' },
       { '<leader>gs', function() require('gitsigns').stage_hunk() end, desc = 'Stage hunk' },
       { '<leader>gS', function() require('gitsigns').stage_buffer() end, desc = 'Stage buffer' },
       { '<leader>gR', function() require('gitsigns').reset_buffer() end, desc = 'Reset buffer' },
-      { '<leader>gd', function() require('gitsigns').diffthis() end, desc = 'Diff this' },
+      { '<leader>gd', function() require('gitsigns').diffthis() end, desc = 'Diff' },
       { 'ih', function() require('gitsigns').select_hunk() end, mode = { 'o', 'x' }, desc = 'Inner git hunk' },
       { 'ah', function() require('gitsigns').select_hunk() end, mode = { 'o', 'x' }, desc = 'Around git hunk' },
     },

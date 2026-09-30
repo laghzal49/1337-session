@@ -1,0 +1,49 @@
+{
+  "scope": "Five-run offline deep-reference benchmark. No downloads or real LSP work.\nMatched startup cwd and isolated /tmp cache/state; 10k-entry local fixture.\nCold means an invalidated in-process index, not a cold OS filesystem cache.\n",
+  "cwd": "/home/tarik/Projects/1337-session",
+  "config": "/home/tarik/Projects/1337-session/nvim",
+  "runs": 5,
+  "startup_ms": [],
+  "metrics": {
+    "python_page_first_ms": 148.706613,
+    "python_page": {
+      "runs_ms": [
+        16.359707,
+        15.058312,
+        12.952575,
+        10.690941,
+        10.81579
+      ],
+      "median_ms": 12.952575,
+      "rendered_lines": [
+        23,
+        23,
+        23,
+        23,
+        23
+      ]
+    },
+    "lua_page_first_ms": 33.607623,
+    "lua_page": {
+      "runs_ms": [
+        15.08132,
+        14.473612,
+        13.000736,
+        15.472936,
+        15.204561
+      ],
+      "median_ms": 15.08132,
+      "rendered_lines": [
+        30,
+        30,
+        30,
+        30,
+        30
+      ]
+    }
+  },
+  "errors": [],
+  "module_load_ms": 2.265803,
+  "python_entry_count": 13752,
+  "messages": ""
+}

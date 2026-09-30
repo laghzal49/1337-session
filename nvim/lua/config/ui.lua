@@ -14,8 +14,9 @@ local M = {
     border = "#25334A",
     border_soft = "#2A5961",
     error = "#FF8FA3",
-    cursor = '#69AFFF',
+    cursor = '#FF2E4C',
     cursor_insert = '#7FE3C2',
+    cursor_command = '#FFD166',
   },
   -- Keep glyphs in one place so dashboard, panels, completion, and statusline
   -- do not slowly drift into competing icon sets. Set `vim.g.have_nerd_font`
@@ -69,7 +70,7 @@ local M = {
     clock = { nerd = '󰅐', text = '[TIME]' },
     calendar = { nerd = '󰃭', text = '[DATE]' },
     person = { nerd = '󰀄', text = '[USR]' },
-    debug = { nerd = '', text = '[DBG]' },
+    debug = { nerd = '󰃤', text = '[DBG]' },
     play = { nerd = '󰐊', text = '[>]' },
     stop = { nerd = '󰓛', text = '[X]' },
   },

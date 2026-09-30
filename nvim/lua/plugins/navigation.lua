@@ -5,10 +5,10 @@ return {
     keys = (function()
       local result = {}
       local maps = {
-        { '<leader><space>', 'files', 'Find files' }, { '<leader>ff', 'files', 'Find files' },
-        { '<leader>/', 'grep', 'Search project' }, { '<leader>sg', 'grep', 'Search project' },
+        { '<leader><space>', 'files', 'Files' }, { '<leader>ff', 'files', 'Files' },
+        { '<leader>/', 'grep', 'Project Search' }, { '<leader>sg', 'grep', 'Project Search' },
         { '<leader>,', 'buffers', 'Buffers' }, { '<leader>fb', 'buffers', 'Buffers' },
-        { '<leader>fr', 'oldfiles', 'Recent files' }, { '<leader>:', 'command_history', 'Command history' },
+        { '<leader>fr', 'oldfiles', 'Recent files' }, { '<leader>:', 'command_history', 'Commands' },
         { '<leader>sC', 'commands', 'Commands' }, { '<leader>sk', 'keymaps', 'Keymaps' },
         { '<leader>sh', 'help', 'Help' }, { '<leader>sd', 'diagnostic', 'Diagnostics' },
         { '<leader>ss', 'document_symbol', 'Find document symbol' },
@@ -54,7 +54,7 @@ return {
     },
     config = function(_, opts)
       require('mini.pick').setup(opts)
-      vim.ui.select = require('mini.pick').ui_select
+      vim.ui.select = require('config.lsp_actions').select
     end,
   },
   {
@@ -72,21 +72,23 @@ return {
           end
           Snacks.explorer()
         end,
-        desc = 'Toggle File Explorer',
+        desc = 'Explorer',
       },
-      { '<leader>fe', function() Snacks.explorer() end, desc = 'File Explorer' },
+      { '<leader>fe', function() Snacks.explorer() end, desc = 'Explorer' },
     },
   },
   {
     'stevearc/aerial.nvim',
     cmd = { 'AerialToggle', 'AerialOpen', 'AerialNavToggle' },
     keys = {
-      { '<leader>cs', '<cmd>AerialToggle float<cr>', desc = 'Code outline (Aerial)' },
+      { '<leader>cs', '<cmd>AerialToggle float<cr>', desc = 'Symbols' },
       { '{', function() require('aerial').prev() end, desc = 'Prev aerial symbol' },
       { '}', function() require('aerial').next() end, desc = 'Next aerial symbol' },
     },
     opts = {
       filter_kind = false,        -- show all symbol kinds (not just a subset)
+      post_jump_cmd = "lua vim.cmd('normal! zz'); require('config.cursor_ui').schedule_flash()",
+      highlight_on_jump = false, -- Use the shared beacon instead of a second timer/highlight.
       highlight_on_hover = true,  -- highlight the symbol line on cursor hover
       layout = { default_direction = 'right', min_width = 24, max_width = 32 },
       float = {
@@ -194,6 +196,11 @@ return {
     event = 'VeryLazy',
     opts = {
       labels = 'asdfghjklqwertyuiopzxcvbnm',
+      action = function(match, state)
+        local before = require('config.cursor_ui').snapshot()
+        require('flash.jump').jump(match, state)
+        if vim.api.nvim_get_mode().mode:sub(1, 2) ~= 'no' then require('config.cursor_ui').after(before) end
+      end,
       search = { mode = 'exact' },
       modes = {
         char = { enabled = true }, -- enhance f, F, t, T with multi-line preview
@@ -214,25 +221,14 @@ return {
     end,
   },
   {
-    'nvim-mini/mini.cursorword',
-    event = { 'BufReadPost', 'BufNewFile' },
-    opts = { delay = 200 },
-    config = function(_, opts)
-      require('mini.cursorword').setup(opts)
-      -- Subtle underline on matching words; current word is invisible (no distraction)
-      vim.api.nvim_set_hl(0, 'MiniCursorword', { underline = true, sp = '#354357' })
-      vim.api.nvim_set_hl(0, 'MiniCursorwordCurrent', {}) -- invisible: no underline, no bg
-    end,
-  },
-  {
     'nvim-mini/mini.bracketed',
     event = 'VeryLazy',
     opts = {
       buffer     = { suffix = 'b' },
       comment    = { suffix = 'c' },
-      -- Use 'D' for bracketed diagnostics; [d/]d is reserved for LSP diagnostics
-      diagnostic = { suffix = 'D' },
-      quickfix   = { suffix = 'q' },
+      -- MiniBracketed lowercases suffixes; 'D' would still overwrite [d/]d.
+      diagnostic = { suffix = '' },
+      quickfix   = { suffix = '' }, -- [q/]q owned by cursor_ui, preserving counts.
       treesitter = { suffix = 't' },
       undo       = { suffix = '' },
       window     = { suffix = '' },

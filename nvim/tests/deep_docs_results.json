@@ -1,0 +1,94 @@
+{
+  "scope": "Five-run offline deep-reference benchmark. No downloads or real LSP work.\nMatched startup cwd and isolated /tmp cache/state; 10k-entry local fixture.\nCold means an invalidated in-process index, not a cold OS filesystem cache.\n",
+  "cwd": "/home/tarik/Projects/1337-session",
+  "config": "/home/tarik/Projects/1337-session/nvim",
+  "runs": 5,
+  "startup_ms": [
+    42.412,
+    42.772,
+    44.886,
+    41.623,
+    37.418
+  ],
+  "metrics": {
+    "index_cold": {
+      "runs_ms": [
+        9.997428,
+        11.478491,
+        6.082375,
+        7.18303,
+        6.091094
+      ],
+      "median_ms": 7.18303
+    },
+    "index_warm": {
+      "runs_ms": [
+        0.002118,
+        0.002218,
+        0.002136,
+        0.002187,
+        0.002103
+      ],
+      "median_ms": 0.002136
+    },
+    "exact_page_first_ms": 91.518484,
+    "exact_page": {
+      "runs_ms": [
+        26.862567,
+        15.264482,
+        12.250035,
+        10.855451,
+        10.711284
+      ],
+      "median_ms": 12.250035
+    },
+    "fuzzy_10000_first_ms": 47.91125,
+    "fuzzy_10000": {
+      "runs_ms": [
+        23.402647,
+        22.694092,
+        21.525687,
+        22.5083,
+        23.747358
+      ],
+      "median_ms": 22.694092
+    },
+    "python_index_cold": {
+      "runs_ms": [
+        12.190796,
+        11.392005,
+        16.129908,
+        17.061393,
+        16.275722
+      ],
+      "median_ms": 16.129908
+    },
+    "python_index_warm": {
+      "runs_ms": [
+        0.00221,
+        0.049242,
+        0.053015,
+        0.00273,
+        0.003296
+      ],
+      "median_ms": 0.003296
+    },
+    "python_page_first_ms": 689.452307,
+    "python_page": {
+      "runs_ms": [
+        713.237612,
+        648.552339,
+        686.062141,
+        694.389362,
+        687.045284
+      ],
+      "median_ms": 687.045284
+    }
+  },
+  "errors": [],
+  "startup_first_ms": 64.606,
+  "startup_median_ms": 42.412,
+  "module_load_ms": 5.890458,
+  "python_entry_count": 13752,
+  "messages": ""
+}

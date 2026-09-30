@@ -1,5 +1,5 @@
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
-if not (vim.uv or vim.loop).fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
   local lazyrepo = "https://github.com/folke/lazy.nvim.git"
   local out = vim.fn.system({ "git", "clone", "--filter=blob:none", "--branch=stable", lazyrepo, lazypath })
   if vim.v.shell_error ~= 0 then
@@ -20,7 +20,7 @@ require("lazy").setup({
     { import = "plugins" },
   },
   defaults = { lazy = true, version = false },
-  install = { colorscheme = { "onedark", "habamax" } },
+  install = { colorscheme = { "perfect-black", "habamax" } },
   ui = { border = require("config.ui").border },
   checker = {
     enabled = false, -- check manually with :Lazy check
@@ -33,7 +33,7 @@ require("lazy").setup({
         "gzip",
         -- "matchit",
         -- "matchparen",
-        -- "netrwPlugin",
+        "netrwPlugin",
         "tarPlugin",
         "tohtml",
         "tutor",
@@ -43,5 +43,22 @@ require("lazy").setup({
   },
 })
 
+vim.cmd.colorscheme('perfect-black')
+
 require("config.keymaps")
 require("config.autocmds")
+require('config.cursor_ui').setup()
+-- Context lookup starts after startup; statusline draws only the cached string.
+vim.api.nvim_create_autocmd('User', {
+  group = vim.api.nvim_create_augroup('BlackSpatialInit', { clear = true }),
+  pattern = 'VeryLazy', once = true,
+  callback = function()
+    require('config.symbol_context').setup()
+    require('config.symbol_illumination').setup()
+  end,
+})
+
+-- 1337 Station Mode: non-blocking deferred startup scan
+vim.defer_fn(function()
+  pcall(function() require('config.station').init() end)
+end, 300)

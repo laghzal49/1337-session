@@ -442,6 +442,19 @@ elif have nvim; then
   fi
 fi
 
+# ── offline reference manuals (optional network setup) ────────────────────
+if [ "$NOSYNC" != 1 ]; then
+  if have uv; then
+    if bash "$REPO_DIR/scripts/update-docs" all; then
+      ok "offline reference manuals installed"
+    else
+      warn "offline manuals incomplete — rerun scripts/update-docs all when online"
+    fi
+  else
+    warn "uv unavailable — run scripts/update-docs all after installing uv"
+  fi
+fi
+
 # ── clipboard note (informational only — needs no install) ─────────────────
 if ! have xclip && ! have wl-copy; then
   warn "no xclip/wl-clipboard — Neovim will use OSC52 (works in modern terminals over SSH too)"

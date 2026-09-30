@@ -2,12 +2,15 @@
 local M = {}
 function M.open(command, opts)
   opts = opts or {}
-  local pick, extra = require('mini.pick'), require('mini.extra').pickers
   local config = { source = { cwd = opts.cwd or require("config.project").root() } }
   local aliases = { live_grep = 'grep', recent = 'oldfiles', git_log = 'git_commits',
     lsp_references = 'references', lsp_definitions = 'definition', lsp_implementations = 'implementation',
     lsp_type_definitions = 'type_definition', lsp_symbols = 'document_symbol', lsp_workspace_symbols = 'workspace_symbol_live' }
   command = aliases[command] or command
+  if vim.tbl_contains({ 'references', 'definition', 'declaration', 'implementation', 'type_definition' }, command) then
+    return require('config.lsp_actions').locations(command, command == 'references')
+  end
+  local pick, extra = require('mini.pick'), require('mini.extra').pickers
   if command == 'files' then
     -- Include project dotfiles; keep gitignore and backup exclusions.
     if vim.fn.executable('rg') == 1 then

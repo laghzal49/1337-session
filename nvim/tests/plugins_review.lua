@@ -1,6 +1,6 @@
 -- Called by ui_review.py with an attached UI. All mutations use temporary files.
 local plugins = {
-  "harpoon", "nvim-treesitter-textobjects", "tiny-inline-diagnostic.nvim", "quicker.nvim",
+  "nvim-treesitter-textobjects", "tiny-inline-diagnostic.nvim", "quicker.nvim",
   "mini.pick", "mini.extra", "mini.notify", "glance.nvim", "inc-rename.nvim", "aerial.nvim",
   "treesj", "nvim-various-textobjs",
 }
@@ -17,7 +17,7 @@ assert(require("noice.config").options.lsp.signature.enabled == false, "Duplicat
 assert(vim.diagnostic.config().virtual_text == false)
 assert(not require("lazy.core.config").plugins.LazyVim, "distribution must not be installed")
 assert(Snacks.config.explorer and Snacks.config.explorer.enabled)
-for _, name in ipairs({ "oil.nvim", "mini.files", "neo-tree.nvim", "namu.nvim", "colorful-menu.nvim", "nvim-lsp-endhints" }) do
+for _, name in ipairs({ "harpoon", "oil.nvim", "mini.files", "neo-tree.nvim", "namu.nvim", "colorful-menu.nvim", "nvim-lsp-endhints" }) do
   assert(not require("lazy.core.config").plugins[name], "removed plugin still active: " .. name)
 end
 
@@ -39,11 +39,6 @@ vim.api.nvim_win_set_cursor(0, {4, 6})
 require("various-textobjs").indentation("inner", "inner")
 assert(vim.fn.mode():match("[vV]"), "indentation object did not select")
 vim.cmd('execute "normal! \\<Esc>"')
-
--- Harpoon 2 verification
-local harpoon = require("harpoon")
-harpoon:list():add()
-assert(harpoon:list():length() >= 1, "Harpoon add failed")
 
 -- Treesitter text objects verification
 local select = require("nvim-treesitter-textobjects.select")

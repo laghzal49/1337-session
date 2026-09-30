@@ -5,8 +5,13 @@ return {
     event = 'VeryLazy',
     opts = function(_, opts)
       opts.options = opts.options or {}
-      local palette = require('onedark.colors')
+      local palette = {
+        fg = '#D7E3FF', grey = '#53627A', light_grey = '#A9B9D6',
+        blue = '#69AFFF', green = '#B8E986', purple = '#C7A6FF',
+        red = '#FF8FA3', orange = '#FF9E64', yellow = '#FFD166', cyan = '#70D7FF',
+      }
       local ui = require('config.ui')
+      local symbol_context = require('config.symbol_context')
       local black = '#0A0A0E'
       local active = '#3D0D14'
       local inactive = '#0D0D12'
@@ -31,19 +36,30 @@ return {
         }
       end
       local function project_name()
-        local root = vim.fs.root(0, { 'ty.toml', 'pyproject.toml', 'Cargo.toml', 'go.mod', 'Makefile', '.git' })
-          or (vim.uv or vim.loop).cwd()
+        return vim.b.black_project_name or ''
+      end
+      local function cache_project()
+        local root = require('config.project').root()
         local name = vim.fn.fnamemodify(root, ':t')
-        return name ~= '' and name or root
+        vim.b.black_project_name = name ~= '' and name or root
       end
+      vim.api.nvim_create_autocmd({ 'BufEnter', 'DirChanged' }, {
+        group = vim.api.nvim_create_augroup('BlackStatusProject', { clear = true }), callback = cache_project,
+      })
+      cache_project()
       local function formatter_name()
-        local ok, conform = pcall(require, 'conform')
-        if not ok or type(conform.list_formatters) ~= 'function' then return '' end
-        local ok_formatters, formatters = pcall(conform.list_formatters, 0)
-        if not ok_formatters or not formatters or #formatters == 0 then return '' end
-        local formatter = formatters[1]
-        return formatter.name or formatter
+        return vim.b.black_formatter_name or ''
       end
+      local function cache_formatter()
+        local conform = package.loaded.conform
+        if not conform or type(conform.list_formatters) ~= 'function' then return end
+        local ok, formatters = pcall(conform.list_formatters, 0)
+        local formatter = ok and formatters and formatters[1]
+        vim.b.black_formatter_name = formatter and (formatter.name or formatter) or ''
+      end
+      vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'CursorHold' }, {
+        group = vim.api.nvim_create_augroup('BlackStatusFormatter', { clear = true }), callback = cache_formatter,
+      })
       local function reader_mode()
         return vim.bo.filetype == 'markdown' and vim.wo.wrap and vim.wo.linebreak and vim.wo.conceallevel == 3
       end
@@ -136,7 +152,7 @@ return {
           {
             function()
               local frames = { '●', '○' }
-              local now = (vim.uv or vim.loop).now()
+              local now = vim.uv.now()
               local idx = math.floor(now / 500) % 2 + 1
               return frames[idx] .. ' REC @' .. vim.fn.reg_recording()
             end,
@@ -172,6 +188,11 @@ return {
             },
           },
           {
+            symbol_context.component,
+            cond = function() return vim.o.columns >= 120 end,
+            color = { fg = ui.colors.lilac },
+          },
+          {
             'diagnostics',
             sources = { 'nvim_diagnostic' },
             sections = { 'error', 'warn', 'hint', 'info' },
@@ -186,7 +207,7 @@ return {
           {
             function()
               if vim.v.hlsearch == 0 then return '' end
-              local ok, result = pcall(vim.fn.searchcount, { maxcount = 999 })
+              local ok, result = pcall(vim.fn.searchcount, { maxcount = 999, recompute = 0 })
               if not ok or result.total == 0 then return '' end
               return string.format(' %d/%d', result.current, result.total)
             end,
@@ -198,7 +219,7 @@ return {
               local status = vim.lsp.status()
               if status and status ~= '' then
                 local spinner_frames = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' }
-                local now = (vim.uv or vim.loop).now()
+                local now = vim.uv.now()
                 local idx = math.floor(now / 100) % #spinner_frames + 1
                 local clean = status:gsub('%s+', ' '):gsub('^%s+', ''):gsub('%s+$', '')
                 return spinner_frames[idx] .. ' ' .. vim.fn.strcharpart(clean, 0, 30)
@@ -209,6 +230,29 @@ return {
           },
         },
         lualine_x = {
+          {
+            function()
+              local ok, station = pcall(require, 'config.station')
+              return (ok and station.is_1337()) and station.status_text() or ''
+            end,
+            color = function()
+              local ok, station = pcall(require, 'config.station')
+              if not ok then return { fg = palette.grey } end
+              local problems = station.problem_count()
+              if problems > 0 then
+                return { fg = '#FF4D6D', gui = 'bold' }
+              else
+                return { fg = '#7FE3C2', gui = 'bold' }
+              end
+            end,
+            on_click = function()
+              pcall(function() require('config.station').health() end)
+            end,
+            cond = function()
+              local ok, station = pcall(require, 'config.station')
+              return ok and station.is_1337() and vim.o.columns >= 85
+            end,
+          },
           {
             function()
               local ok, lazy_status = pcall(require, 'lazy.status')

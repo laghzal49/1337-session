@@ -1,10 +1,36 @@
 local M = {}
+local large_folds = {}
+M.max_lines = 5000
+M.max_bytes = 512 * 1024
+function M.large(buf)
+  buf = buf or vim.api.nvim_get_current_buf()
+  if vim.bo[buf].filetype ~= 'markdown' or vim.bo[buf].buftype ~= '' then return false end
+  local lines = vim.api.nvim_buf_line_count(buf)
+  return lines > M.max_lines or vim.api.nvim_buf_get_offset(buf, lines) > M.max_bytes
+end
+function M.guard(buf)
+  if vim.bo[buf].filetype ~= 'markdown' or vim.bo[buf].buftype ~= ''
+    or vim.b[buf].black_markdown_large or not M.large(buf) then return end
+  vim.b[buf].black_markdown_large = true
+  pcall(vim.treesitter.stop, buf)
+  local renderer = package.loaded['render-markdown']
+  if renderer then vim.api.nvim_buf_call(buf, renderer.buf_disable) end
+  local context = package.loaded['treesitter-context']
+  if context and context.enabled() then
+    -- Reevaluate its public on_attach guard once when the threshold is crossed.
+    vim.schedule(function() if context.enabled() then context.enable() end end)
+  end
+  for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+    large_folds[win] = large_folds[win] or vim.wo[win].foldmethod
+    vim.wo[win].foldmethod = 'manual'
+  end
+end
 local states = {}
 local options = {
   'wrap', 'linebreak', 'breakindent', 'breakindentopt', 'number', 'relativenumber',
   'numberwidth', 'signcolumn', 'statuscolumn', 'cursorline', 'cursorcolumn',
   'foldcolumn', 'colorcolumn', 'conceallevel', 'concealcursor', 'spell', 'list',
-  'statusline', 'winbar', 'sidescrolloff', 'scrolloff',
+  'statusline', 'winbar', 'sidescrolloff', 'scrolloff', 'foldmethod', 'foldexpr',
 }
 
 local function save(win)
@@ -23,7 +49,14 @@ end
 
 local function render(action)
   if vim.fn.exists(':RenderMarkdown') ~= 2 then return end
-  local ok, err = pcall(vim.cmd, 'RenderMarkdown ' .. action)
+  local ok, err = pcall(function()
+    local renderer = require('render-markdown')
+    if action == 'enable' then
+      if not M.large(0) then renderer.buf_enable() end
+    else
+      renderer.buf_disable()
+    end
+  end)
   if not ok then vim.notify('Markdown rendering could not be toggled: ' .. err, vim.log.levels.WARN) end
 end
 
@@ -54,7 +87,9 @@ local function set_reader_options(win)
 
   wo.conceallevel = 3
   wo.concealcursor = 'nc'
-  wo.spell = true
+  -- Reading shouldn't invoke dictionary checks or fold-expression parsing.
+  wo.spell = false
+  wo.foldmethod = 'manual'
   wo.list = false
   wo.statusline = ' '
   wo.winbar = ''
@@ -93,9 +128,31 @@ function M.setup()
   vim.api.nvim_create_user_command('MarkdownReaderEnable', M.enable, { desc = 'Enable Markdown reader mode', force = true })
   vim.api.nvim_create_user_command('MarkdownReaderDisable', M.disable, { desc = 'Disable Markdown reader mode', force = true })
   local group = vim.api.nvim_create_augroup('MarkdownReaderMode', { clear = true })
+  vim.api.nvim_create_autocmd({ 'FileType', 'TextChanged', 'TextChangedI' }, {
+    group = group,
+    callback = function(ev) M.guard(ev.buf) end,
+  })
   vim.api.nvim_create_autocmd('WinClosed', {
     group = group,
-    callback = function(ev) states[tonumber(ev.match)] = nil end,
+    callback = function(ev)
+      states[tonumber(ev.match)], large_folds[tonumber(ev.match)] = nil, nil
+    end,
+  })
+  vim.api.nvim_create_autocmd('BufWinEnter', {
+    group = group,
+    callback = function()
+      local win = vim.api.nvim_get_current_win()
+      if states[vim.api.nvim_get_current_win()] and vim.bo.filetype ~= 'markdown' then
+        restore(vim.api.nvim_get_current_win())
+      end
+      if large_folds[win] and not M.large(0) then
+        vim.wo[win].foldmethod = large_folds[win]
+        large_folds[win] = nil
+      elseif M.large(0) then
+        large_folds[win] = large_folds[win] or vim.wo[win].foldmethod
+        vim.wo[win].foldmethod = 'manual'
+      end
+    end,
   })
 end
 

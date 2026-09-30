@@ -51,25 +51,7 @@ vim.opt.synmaxcol = 300
 
 -- Keep the current split visually anchored without making other splits compete
 -- for attention. Preserve window-local highlighting used by floating panels.
-local focus_group = vim.api.nvim_create_augroup("BlackWindowFocus", { clear = true })
-local function update_window_focus()
-  local current = vim.api.nvim_get_current_win()
-  for _, win in ipairs(vim.api.nvim_list_wins()) do
-    if vim.api.nvim_win_is_valid(win) and vim.api.nvim_win_get_config(win).relative == "" then
-      local buf = vim.api.nvim_win_get_buf(win)
-      local is_dashboard = vim.bo[buf].filetype == "snacks_dashboard"
-      vim.wo[win].cursorline = (win == current) and not is_dashboard
-      vim.wo[win].cursorlineopt = (win == current and not is_dashboard) and "number,line" or "number"
-      vim.wo[win].winhighlight = win == current
-        and "Normal:Normal,NormalNC:NormalNC,StatusLine:StatusLine,StatusLineNC:StatusLineNC"
-        or "Normal:NormalNC,NormalNC:NormalNC,StatusLine:StatusLineNC,StatusLineNC:StatusLineNC"
-    end
-  end
-end
-vim.api.nvim_create_autocmd({ "VimEnter", "WinEnter", "WinLeave" }, {
-  group = focus_group,
-  callback = update_window_focus,
-})
+require('config.focus_ui').setup()
 
 -- Session options
 vim.opt.sessionoptions = { 'buffers', 'curdir', 'tabpages', 'winsize', 'help', 'globals', 'skiprtp', 'folds' }

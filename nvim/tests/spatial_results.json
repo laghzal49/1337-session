@@ -1,0 +1,434 @@
+{
+  "date": "2026-09-30",
+  "startup": {
+    "scope": "headless startup, existing caches; excludes deferred UI and LSP readiness",
+    "nvim": "NVIM v0.12.5",
+    "before": {
+      "runs_ms": [
+        48.386,
+        43.288,
+        44.222,
+        42.949,
+        47.732,
+        42.905,
+        44.241
+      ],
+      "median_ms": 44.222
+    },
+    "after": {
+      "runs_ms": [
+        41.297,
+        38.886,
+        40.146,
+        44.14,
+        42.577,
+        39.212,
+        38.949
+      ],
+      "median_ms": 40.146
+    }
+  },
+  "spatial_before": {
+    "scope": "embedded UI Lua batches with queued callback drain and explicit redraw; synthetic unsaved 20k-line buffer; no physical input/LSP/Git/disk latency claim; panels synchronous work only",
+    "config": "/tmp/1337-nvim-before",
+    "nvim": "NVIM v0.12.5",
+    "ui": [
+      140,
+      42
+    ],
+    "lines": 20000,
+    "metrics": {
+      "editing": {
+        "iterations": 200,
+        "runs_ms": [
+          4.162424,
+          6.554748,
+          4.785531,
+          4.707082,
+          7.285043
+        ],
+        "median_ms": 4.785531,
+        "median_per_operation_us": 23.927655
+      },
+      "hjkl": {
+        "iterations": 1000,
+        "runs_ms": [
+          51.300911,
+          35.183992,
+          21.352587,
+          22.724949,
+          41.0523
+        ],
+        "median_ms": 35.183992,
+        "median_per_operation_us": 35.183992
+      },
+      "scrolling": {
+        "iterations": 100,
+        "runs_ms": [
+          1.445173,
+          1.600611,
+          2.036216,
+          1.98513,
+          2.141826
+        ],
+        "median_ms": 1.98513,
+        "median_per_operation_us": 19.851300000000002
+      },
+      "jump_list": {
+        "iterations": 100,
+        "runs_ms": [
+          3.487637,
+          3.045029,
+          4.130545,
+          3.990459,
+          4.448295
+        ],
+        "median_ms": 3.990459,
+        "median_per_operation_us": 39.90459
+      },
+      "mapped_jump_history": {
+        "iterations": 100,
+        "runs_ms": [
+          2.263216,
+          3.568839,
+          1.989687,
+          1.809772,
+          1.723219
+        ],
+        "median_ms": 1.989687,
+        "median_per_operation_us": 19.89687
+      },
+      "split_focus": {
+        "iterations": 200,
+        "runs_ms": [
+          43.965869,
+          44.679388,
+          67.478539,
+          44.262207,
+          34.682704
+        ],
+        "median_ms": 44.262207,
+        "median_per_operation_us": 221.31103499999998
+      },
+      "cached_statusline_redraw": {
+        "iterations": 200,
+        "runs_ms": [
+          19.768072,
+          17.367596,
+          16.482558,
+          23.616296,
+          26.027698
+        ],
+        "median_ms": 19.768072,
+        "median_per_operation_us": 98.84036
+      },
+      "terminal_open": {
+        "first_ms": 14.964928,
+        "runs_ms": [
+          14.964928,
+          23.027499,
+          22.526746,
+          24.627025,
+          27.64594
+        ],
+        "warm_median_ms": 23.827261999999997,
+        "errors": []
+      },
+      "terminal_close": {
+        "runs_ms": [
+          0.808876,
+          1.962073,
+          1.605349,
+          2.194862,
+          2.784528
+        ],
+        "median_ms": 1.962073
+      },
+      "aerial_open": {
+        "first_ms": 34.434259,
+        "runs_ms": [
+          34.434259,
+          20.595959,
+          21.995221,
+          30.502734,
+          17.153214
+        ],
+        "warm_median_ms": 21.29559,
+        "errors": []
+      },
+      "aerial_close": {
+        "runs_ms": [
+          2.044706,
+          2.043847,
+          2.310904,
+          2.557595,
+          1.860147
+        ],
+        "median_ms": 2.044706
+      },
+      "trouble_open": {
+        "first_ms": 18.89298,
+        "runs_ms": [
+          18.89298,
+          5.139974,
+          4.549212,
+          4.330545,
+          4.128967
+        ],
+        "warm_median_ms": 4.4398785,
+        "errors": []
+      },
+      "trouble_close": {
+        "runs_ms": [
+          3.595311,
+          3.557195,
+          3.529098,
+          3.958,
+          4.003173
+        ],
+        "median_ms": 3.595311
+      }
+    },
+    "fixture": "normal unsaved buffer, spatial_bench filetype (no parser or LSP), installed UI plugins",
+    "messages": "",
+    "cwd": "/home/tarik/Projects/1337-session"
+  },
+  "spatial_after": {
+    "scope": "embedded UI Lua batches with queued callback drain and explicit redraw; synthetic unsaved 20k-line buffer; no physical input/LSP/Git/disk latency claim; panels synchronous work only",
+    "config": "/home/tarik/Projects/1337-session/nvim",
+    "nvim": "NVIM v0.12.5",
+    "ui": [
+      140,
+      42
+    ],
+    "lines": 20000,
+    "metrics": {
+      "editing": {
+        "iterations": 200,
+        "runs_ms": [
+          4.975232,
+          7.572933,
+          5.280481,
+          7.257509,
+          5.378877
+        ],
+        "median_ms": 5.378877,
+        "median_per_operation_us": 26.894385000000003
+      },
+      "hjkl": {
+        "iterations": 1000,
+        "runs_ms": [
+          39.627064,
+          44.734197,
+          25.264878,
+          22.737925,
+          24.227911
+        ],
+        "median_ms": 25.264878,
+        "median_per_operation_us": 25.264878
+      },
+      "scrolling": {
+        "iterations": 100,
+        "runs_ms": [
+          2.374714,
+          5.062349,
+          7.521693,
+          7.593911,
+          6.336026
+        ],
+        "median_ms": 6.336026,
+        "median_per_operation_us": 63.36026000000001
+      },
+      "jump_list": {
+        "iterations": 100,
+        "runs_ms": [
+          3.441105,
+          3.004101,
+          2.864803,
+          2.867242,
+          2.695555
+        ],
+        "median_ms": 2.867242,
+        "median_per_operation_us": 28.672420000000002
+      },
+      "mapped_jump_history": {
+        "iterations": 100,
+        "runs_ms": [
+          4.548328,
+          5.416504,
+          5.568113,
+          5.751422,
+          5.414341
+        ],
+        "median_ms": 5.416504,
+        "median_per_operation_us": 54.16504
+      },
+      "beacon_burst": {
+        "iterations": 200,
+        "runs_ms": [
+          2.095611,
+          2.00839,
+          2.050143,
+          4.325949,
+          7.202718
+        ],
+        "median_ms": 2.095611,
+        "median_per_operation_us": 10.478055
+      },
+      "split_focus": {
+        "iterations": 200,
+        "runs_ms": [
+          58.212615,
+          83.753448,
+          55.743208,
+          57.763169,
+          81.862027
+        ],
+        "median_ms": 58.212615,
+        "median_per_operation_us": 291.06307499999997
+      },
+      "cached_statusline_redraw": {
+        "iterations": 200,
+        "runs_ms": [
+          18.973025,
+          16.215893,
+          15.102807,
+          15.32435,
+          14.890777
+        ],
+        "median_ms": 15.32435,
+        "median_per_operation_us": 76.62175
+      },
+      "terminal_open": {
+        "first_ms": 16.225307,
+        "runs_ms": [
+          16.225307,
+          23.815293,
+          14.507871,
+          26.975288,
+          37.169743
+        ],
+        "warm_median_ms": 25.3952905,
+        "errors": []
+      },
+      "terminal_close": {
+        "runs_ms": [
+          0.645386,
+          0.789871,
+          1.545722,
+          1.612228,
+          2.608464
+        ],
+        "median_ms": 1.545722
+      },
+      "aerial_open": {
+        "first_ms": 54.420535,
+        "runs_ms": [
+          54.420535,
+          21.138757,
+          11.717136,
+          17.166582,
+          20.450754
+        ],
+        "warm_median_ms": 18.808667999999997,
+        "errors": []
+      },
+      "aerial_close": {
+        "runs_ms": [
+          1.867021,
+          1.039921,
+          1.8868,
+          0.976252,
+          0.89192
+        ],
+        "median_ms": 1.039921
+      },
+      "trouble_open": {
+        "first_ms": 16.708652,
+        "runs_ms": [
+          16.708652,
+          4.610893,
+          4.429465,
+          2.301674,
+          2.161816
+        ],
+        "warm_median_ms": 3.3655695000000003,
+        "errors": []
+      },
+      "trouble_close": {
+        "runs_ms": [
+          3.928497,
+          3.7824,
+          1.795122,
+          1.77901,
+          2.343461
+        ],
+        "median_ms": 2.343461
+      }
+    },
+    "fixture": "normal unsaved buffer, spatial_bench filetype (no parser or LSP), installed UI plugins",
+    "messages": "",
+    "cwd": "/home/tarik/Projects/1337-session"
+  },
+  "additional_measurements": {
+    "cached_lua_ancestry_1000_idle_updates_ms": 16.783571,
+    "ui_stress_before_ms": 154.73606,
+    "ui_stress_after_ms": 160.416803,
+    "ui_stress_scope": "one sample each of 20k lines, 4k diagnostics, 2k signs; not a trend"
+  },
+  "limits": [
+    "Synthetic batch timings are not physical input latency.",
+    "No actual cluster/NFS or real-project LSP definition/reference latency measurement.",
+    "Separate-process panel results varied strongly; see panel isolation if available.",
+    "First sandbox-blocked startup sample is excluded."
+  ],
+  "controlled_startup": {
+    "original": {
+      "scope": "headless startup, existing cache; not LSP or UI latency",
+      "nvim": "NVIM v0.12.5",
+      "first_ms": 76.576,
+      "runs_ms": [
+        76.576,
+        71.968,
+        85.851,
+        118.234,
+        109.197,
+        80.853,
+        73.418
+      ],
+      "median_ms": 80.853
+    },
+    "docs": {
+      "scope": "headless startup, existing cache; not LSP or UI latency",
+      "nvim": "NVIM v0.12.5",
+      "first_ms": 68.179,
+      "runs_ms": [
+        68.179,
+        69.821,
+        66.975,
+        75.413,
+        106.019,
+        71.829,
+        60.71
+      ],
+      "median_ms": 69.821
+    },
+    "current": {
+      "scope": "headless startup, existing cache; not LSP or UI latency",
+      "nvim": "NVIM v0.12.5",
+      "first_ms": 57.17,
+      "runs_ms": [
+        57.17,
+        59.951,
+        88.168,
+        101.636,
+        101.827,
+        97.329,
+        89.082
+      ],
+      "median_ms": 89.082
+    },
+    "scope": "Sequential seven-run snapshots; same repository cwd and /tmp XDG cache/state; samples vary, no speedup or regression conclusion."
+  },
+  "discarded_comparison": "Earlier spatial batches used different cwd (/tmp versus repository); replaced here by five-run controlled batches. Historical startup above describes spatial phase only, before documentation changes."
+}

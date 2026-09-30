@@ -1,0 +1,326 @@
+{
+  "scope": "Matched startup/idle memory benchmark for BLACKDECK and SmartDocs.\nFive warm runs, existing installed plugin data, same repo cwd, /tmp cache/state.\nNVIM_BLACK_DOCS_AUTO_UPDATE=0 prevents benchmark-triggered network requests.\n",
+  "cwd": "/home/tarik/Projects/1337-session",
+  "config": "/tmp/1337-before-black-deck",
+  "auto_update": false,
+  "runs": 5,
+  "startup_ms": [],
+  "metrics": {
+    "K_offline_with_LSP_first_ms": 66.844455,
+    "K_offline_with_LSP": {
+      "runs_ms": [
+        27.166187,
+        29.858891,
+        26.271,
+        28.952763,
+        26.807354
+      ],
+      "median_ms": 27.166187,
+      "states": [
+        {
+          "lines": 7,
+          "ms": 27.166187,
+          "requests": 1,
+          "offline": false
+        },
+        {
+          "lines": 7,
+          "ms": 29.858891,
+          "requests": 1,
+          "offline": false
+        },
+        {
+          "lines": 7,
+          "ms": 26.271,
+          "requests": 1,
+          "offline": false
+        },
+        {
+          "lines": 7,
+          "ms": 28.952763,
+          "requests": 1,
+          "offline": false
+        },
+        {
+          "lines": 7,
+          "ms": 26.807354,
+          "requests": 1,
+          "offline": false
+        }
+      ]
+    },
+    "K_offline_miss_hover_first_ms": 31.299496,
+    "K_offline_miss_hover": {
+      "runs_ms": [
+        26.456808,
+        26.644398,
+        26.821848,
+        24.947335,
+        25.959604
+      ],
+      "median_ms": 26.456808,
+      "states": [
+        {
+          "lines": 7,
+          "ms": 26.456808,
+          "requests": 1,
+          "offline": false
+        },
+        {
+          "lines": 7,
+          "ms": 26.644398,
+          "requests": 1,
+          "offline": false
+        },
+        {
+          "lines": 7,
+          "ms": 26.821848,
+          "requests": 1,
+          "offline": false
+        },
+        {
+          "lines": 7,
+          "ms": 24.947335,
+          "requests": 1,
+          "offline": false
+        },
+        {
+          "lines": 7,
+          "ms": 25.959604,
+          "requests": 1,
+          "offline": false
+        }
+      ]
+    },
+    "gK_no_LSP_first_ms": 37.259596,
+    "gK_no_LSP": {
+      "runs_ms": [
+        5.831766,
+        6.592596,
+        6.617742,
+        9.680009,
+        8.29325
+      ],
+      "median_ms": 6.617742,
+      "states": [
+        {
+          "lines": 10,
+          "ms": 5.831766,
+          "requests": 0,
+          "offline": true
+        },
+        {
+          "lines": 10,
+          "ms": 6.592596,
+          "requests": 0,
+          "offline": true
+        },
+        {
+          "lines": 10,
+          "ms": 6.617742,
+          "requests": 0,
+          "offline": true
+        },
+        {
+          "lines": 10,
+          "ms": 9.680009,
+          "requests": 0,
+          "offline": true
+        },
+        {
+          "lines": 10,
+          "ms": 8.29325,
+          "requests": 0,
+          "offline": true
+        }
+      ]
+    },
+    "K_no_LSP": {
+      "outcome": "baseline K has no generic offline lookup; benchmark omitted rather than treating a notice as a page"
+    },
+    "fuzzy_20000_first_ms": 53.925175,
+    "fuzzy_20000": {
+      "runs_ms": [
+        40.973425,
+        42.136258,
+        40.464405,
+        41.027015,
+        42.312993
+      ],
+      "median_ms": 41.027015
+    },
+    "python_page_first_ms": 21.730333,
+    "python_page": {
+      "runs_ms": [
+        12.257714,
+        12.745185,
+        19.887928,
+        12.375782,
+        10.336211
+      ],
+      "median_ms": 12.375782,
+      "states": [
+        {
+          "lines": 23,
+          "ms": 12.257714,
+          "requests": 0,
+          "offline": true
+        },
+        {
+          "lines": 23,
+          "ms": 12.745185,
+          "requests": 0,
+          "offline": true
+        },
+        {
+          "lines": 23,
+          "ms": 19.887928,
+          "requests": 0,
+          "offline": true
+        },
+        {
+          "lines": 23,
+          "ms": 12.375782,
+          "requests": 0,
+          "offline": true
+        },
+        {
+          "lines": 23,
+          "ms": 10.336211,
+          "requests": 0,
+          "offline": true
+        }
+      ]
+    },
+    "lua_page_first_ms": 24.508184,
+    "lua_page": {
+      "runs_ms": [
+        13.957274,
+        13.980817,
+        12.739656,
+        26.828364,
+        18.459687
+      ],
+      "median_ms": 13.980817,
+      "states": [
+        {
+          "lines": 30,
+          "ms": 13.957274,
+          "requests": 0,
+          "offline": true
+        },
+        {
+          "lines": 30,
+          "ms": 13.980817,
+          "requests": 0,
+          "offline": true
+        },
+        {
+          "lines": 30,
+          "ms": 12.739656,
+          "requests": 0,
+          "offline": true
+        },
+        {
+          "lines": 30,
+          "ms": 26.828364,
+          "requests": 0,
+          "offline": true
+        },
+        {
+          "lines": 30,
+          "ms": 18.459687,
+          "requests": 0,
+          "offline": true
+        }
+      ]
+    },
+    "c_page_first_ms": 49.948379,
+    "c_page": {
+      "runs_ms": [
+        13.627277,
+        12.774506,
+        12.710912,
+        12.713032,
+        12.376608
+      ],
+      "median_ms": 12.713032,
+      "states": [
+        {
+          "lines": 89,
+          "ms": 13.627277,
+          "requests": 0,
+          "offline": true
+        },
+        {
+          "lines": 89,
+          "ms": 12.774506,
+          "requests": 0,
+          "offline": true
+        },
+        {
+          "lines": 89,
+          "ms": 12.710912,
+          "requests": 0,
+          "offline": true
+        },
+        {
+          "lines": 89,
+          "ms": 12.713032,
+          "requests": 0,
+          "offline": true
+        },
+        {
+          "lines": 89,
+          "ms": 12.376608,
+          "requests": 0,
+          "offline": true
+        }
+      ]
+    }
+  },
+  "errors": [],
+  "idle_memory": {
+    "rss_kib": 25064,
+    "lua_gc_kib": 10174.34375,
+    "live_lua_gc_kib": 6459.7802734375
+  },
+  "modules_at_idle": {
+    "telescope": false,
+    "smart_docs": false,
+    "docs_store": false,
+    "deep_docs": false,
+    "devdocs": false
+  },
+  "backend": "devdocs",
+  "memory_after_fixture": {
+    "rss_kib": 83988,
+    "lua_gc_kib": 34245.23046875,
+    "live_lua_gc_kib": 34184.2880859375
+  },
+  "actual_data": "/home/tarik/.local/share/nvim/devdocs",
+  "actual_indices_preloaded": [
+    "bash",
+    "c",
+    "cmake",
+    "cpp",
+    "lua",
+    "python"
+  ],
+  "memory_after_actual_indices": {
+    "rss_kib": 85076,
+    "lua_gc_kib": 46346.7724609375,
+    "live_lua_gc_kib": 38538.7607421875
+  },
+  "docs_disk": {
+    "files": 9125,
+    "logical_bytes": 38463604,
+    "allocated_bytes": 61833216
+  },
+  "memory_after_actual_docs": {
+    "rss_kib": 108844,
+    "lua_gc_kib": 71320.7666015625,
+    "live_lua_gc_kib": 40243.6396484375
+  },
+  "messages": ""
+}

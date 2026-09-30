@@ -1,0 +1,1349 @@
+{
+  "config": "/tmp/1337-before-black-deck",
+  "cwd": "/home/tarik/Projects/1337-session",
+  "scope": "Attached-UI WhichKey review using public show/input APIs, no plugin patches.\nRun with --config /tmp/1337-before-black-deck to capture the baseline.\n",
+  "auto_update": false,
+  "memory_before": {
+    "rss_kib": 24228,
+    "lua_gc_kib": 7777.1181640625
+  },
+  "screens": {
+    "80": {
+      "root_open_ms": [
+        5.124429,
+        3.896134,
+        3.842798,
+        4.618672,
+        4.857766
+      ],
+      "root_median_ms": 4.618672,
+      "nested_open_ms": [
+        0.940674,
+        0.89067,
+        1.144456,
+        1.24681,
+        1.207482
+      ],
+      "nested_median_ms": 1.144456,
+      "stages": {
+        "root": [
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "win": 1012,
+              "relative": "win",
+              "width": 35,
+              "height": 1,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "style": "minimal",
+              "border": "none",
+              "zindex": 1001,
+              "row": 16,
+              "col": 0
+            },
+            "lines": [
+              " \udb84\udeb7  close  \udb80\udc6e back  \udb81\ude34 D/\udb81\ude34 U scroll"
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          },
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "style": "minimal",
+              "title_pos": "center",
+              "relative": "editor",
+              "width": 35,
+              "height": 17,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "title": [
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  "\udb84\udc50 ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ]
+              ],
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "zindex": 1000,
+              "row": 4,
+              "col": 42
+            },
+            "lines": [
+              "",
+              "  e \u2502 Toggle File Explorer         ",
+              "  l \u2502 Plugin manager               ",
+              "  n \u2502 Notification history drawer  ",
+              "  y \u2502 Yank to clipboard            ",
+              "  Y \u2502 Yank line to clipboard       ",
+              "  , \u2502 Buffers                      ",
+              "  / \u2502 Search project               ",
+              "  : \u2502 Command history              ",
+              "  ? \u2502 Feature & Keymap Guide       ",
+              "  \udb84\udc50 \u2502 Find files                   ",
+              "  1 \u2502   1337 Station               ",
+              "  b \u2502   Buffer                     ",
+              "  c \u2502   Code                       ",
+              "  f \u2502   Find                       ",
+              "  g \u2502   Git                        ",
+              "  h \u2502  2 keymaps                   ",
+              "  q \u2502   Session                    ",
+              "  s \u2502   Search                     ",
+              "  u \u2502   Toggle                     ",
+              "  w \u2502   Window                     ",
+              "  x \u2502   Trouble                    ",
+              "",
+              ""
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          }
+        ],
+        "find": [
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "win": 1012,
+              "relative": "win",
+              "width": 28,
+              "height": 1,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "style": "minimal",
+              "border": "none",
+              "zindex": 1001,
+              "row": 8,
+              "col": 0
+            },
+            "lines": [
+              "      \udb84\udeb7  close  \udb80\udc6e back"
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          },
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "style": "minimal",
+              "title_pos": "center",
+              "relative": "editor",
+              "width": 28,
+              "height": 9,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "title": [
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  "\udb84\udc50 ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  " \u00bb ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  "  Find",
+                  "WhichKeyTitle"
+                ],
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ]
+              ],
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "zindex": 1000,
+              "row": 12,
+              "col": 49
+            },
+            "lines": [
+              "",
+              "  b \u2502 Buffers           ",
+              "  c \u2502 Find config file  ",
+              "  e \u2502 File Explorer     ",
+              "  f \u2502 Find files        ",
+              "  r \u2502 Recent files      ",
+              "  t \u2502 Project terminal  ",
+              "",
+              ""
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          }
+        ],
+        "back": [
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "win": 1012,
+              "relative": "win",
+              "width": 35,
+              "height": 1,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "style": "minimal",
+              "border": "none",
+              "zindex": 1001,
+              "row": 16,
+              "col": 0
+            },
+            "lines": [
+              " \udb84\udeb7  close  \udb80\udc6e back  \udb81\ude34 D/\udb81\ude34 U scroll"
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          },
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "style": "minimal",
+              "title_pos": "center",
+              "relative": "editor",
+              "width": 35,
+              "height": 17,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "title": [
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  "\udb84\udc50 ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ]
+              ],
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "zindex": 1000,
+              "row": 4,
+              "col": 42
+            },
+            "lines": [
+              "",
+              "  e \u2502 Toggle File Explorer         ",
+              "  l \u2502 Plugin manager               ",
+              "  n \u2502 Notification history drawer  ",
+              "  y \u2502 Yank to clipboard            ",
+              "  Y \u2502 Yank line to clipboard       ",
+              "  , \u2502 Buffers                      ",
+              "  / \u2502 Search project               ",
+              "  : \u2502 Command history              ",
+              "  ? \u2502 Feature & Keymap Guide       ",
+              "  \udb84\udc50 \u2502 Find files                   ",
+              "  1 \u2502   1337 Station               ",
+              "  b \u2502   Buffer                     ",
+              "  c \u2502   Code                       ",
+              "  f \u2502   Find                       ",
+              "  g \u2502   Git                        ",
+              "  h \u2502  2 keymaps                   ",
+              "  q \u2502   Session                    ",
+              "  s \u2502   Search                     ",
+              "  u \u2502   Toggle                     ",
+              "  w \u2502   Window                     ",
+              "  x \u2502   Trouble                    ",
+              "",
+              ""
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          }
+        ]
+      }
+    },
+    "100": {
+      "root_open_ms": [
+        6.554284,
+        4.09822,
+        3.698487,
+        3.816072,
+        3.995031
+      ],
+      "root_median_ms": 3.995031,
+      "nested_open_ms": [
+        1.254635,
+        1.181058,
+        1.021972,
+        1.050567,
+        0.963823
+      ],
+      "nested_median_ms": 1.050567,
+      "stages": {
+        "root": [
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "win": 1024,
+              "relative": "win",
+              "width": 35,
+              "height": 1,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "style": "minimal",
+              "border": "none",
+              "zindex": 1001,
+              "row": 21,
+              "col": 0
+            },
+            "lines": [
+              " \udb84\udeb7  close  \udb80\udc6e back  \udb81\ude34 D/\udb81\ude34 U scroll"
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          },
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "style": "minimal",
+              "title_pos": "center",
+              "relative": "editor",
+              "width": 35,
+              "height": 22,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "title": [
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  "\udb84\udc50 ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ]
+              ],
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "zindex": 1000,
+              "row": 5,
+              "col": 62
+            },
+            "lines": [
+              "",
+              "  e \u2502 Toggle File Explorer         ",
+              "  l \u2502 Plugin manager               ",
+              "  n \u2502 Notification history drawer  ",
+              "  y \u2502 Yank to clipboard            ",
+              "  Y \u2502 Yank line to clipboard       ",
+              "  , \u2502 Buffers                      ",
+              "  / \u2502 Search project               ",
+              "  : \u2502 Command history              ",
+              "  ? \u2502 Feature & Keymap Guide       ",
+              "  \udb84\udc50 \u2502 Find files                   ",
+              "  1 \u2502   1337 Station               ",
+              "  b \u2502   Buffer                     ",
+              "  c \u2502   Code                       ",
+              "  f \u2502   Find                       ",
+              "  g \u2502   Git                        ",
+              "  h \u2502  2 keymaps                   ",
+              "  q \u2502   Session                    ",
+              "  s \u2502   Search                     ",
+              "  u \u2502   Toggle                     ",
+              "  w \u2502   Window                     ",
+              "  x \u2502   Trouble                    ",
+              "",
+              ""
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          }
+        ],
+        "find": [
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "win": 1024,
+              "relative": "win",
+              "width": 28,
+              "height": 1,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "style": "minimal",
+              "border": "none",
+              "zindex": 1001,
+              "row": 8,
+              "col": 0
+            },
+            "lines": [
+              "      \udb84\udeb7  close  \udb80\udc6e back"
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          },
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "style": "minimal",
+              "title_pos": "center",
+              "relative": "editor",
+              "width": 28,
+              "height": 9,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "title": [
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  "\udb84\udc50 ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  " \u00bb ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  "  Find",
+                  "WhichKeyTitle"
+                ],
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ]
+              ],
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "zindex": 1000,
+              "row": 18,
+              "col": 69
+            },
+            "lines": [
+              "",
+              "  b \u2502 Buffers           ",
+              "  c \u2502 Find config file  ",
+              "  e \u2502 File Explorer     ",
+              "  f \u2502 Find files        ",
+              "  r \u2502 Recent files      ",
+              "  t \u2502 Project terminal  ",
+              "",
+              ""
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          }
+        ],
+        "back": [
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "win": 1024,
+              "relative": "win",
+              "width": 35,
+              "height": 1,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "style": "minimal",
+              "border": "none",
+              "zindex": 1001,
+              "row": 21,
+              "col": 0
+            },
+            "lines": [
+              " \udb84\udeb7  close  \udb80\udc6e back  \udb81\ude34 D/\udb81\ude34 U scroll"
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          },
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "style": "minimal",
+              "title_pos": "center",
+              "relative": "editor",
+              "width": 35,
+              "height": 22,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "title": [
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  "\udb84\udc50 ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ]
+              ],
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "zindex": 1000,
+              "row": 5,
+              "col": 62
+            },
+            "lines": [
+              "",
+              "  e \u2502 Toggle File Explorer         ",
+              "  l \u2502 Plugin manager               ",
+              "  n \u2502 Notification history drawer  ",
+              "  y \u2502 Yank to clipboard            ",
+              "  Y \u2502 Yank line to clipboard       ",
+              "  , \u2502 Buffers                      ",
+              "  / \u2502 Search project               ",
+              "  : \u2502 Command history              ",
+              "  ? \u2502 Feature & Keymap Guide       ",
+              "  \udb84\udc50 \u2502 Find files                   ",
+              "  1 \u2502   1337 Station               ",
+              "  b \u2502   Buffer                     ",
+              "  c \u2502   Code                       ",
+              "  f \u2502   Find                       ",
+              "  g \u2502   Git                        ",
+              "  h \u2502  2 keymaps                   ",
+              "  q \u2502   Session                    ",
+              "  s \u2502   Search                     ",
+              "  u \u2502   Toggle                     ",
+              "  w \u2502   Window                     ",
+              "  x \u2502   Trouble                    ",
+              "",
+              ""
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          }
+        ]
+      }
+    },
+    "140": {
+      "root_open_ms": [
+        4.528117,
+        4.678448,
+        27.853131,
+        3.988102,
+        4.004967
+      ],
+      "root_median_ms": 4.528117,
+      "nested_open_ms": [
+        1.06696,
+        1.165175,
+        2.776237,
+        0.951768,
+        0.824822
+      ],
+      "nested_median_ms": 1.06696,
+      "stages": {
+        "root": [
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "win": 1036,
+              "relative": "win",
+              "width": 35,
+              "height": 1,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "style": "minimal",
+              "border": "none",
+              "zindex": 1001,
+              "row": 23,
+              "col": 0
+            },
+            "lines": [
+              "         \udb84\udeb7  close  \udb80\udc6e back"
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          },
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "style": "minimal",
+              "title_pos": "center",
+              "relative": "editor",
+              "width": 35,
+              "height": 24,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "title": [
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  "\udb84\udc50 ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ]
+              ],
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "zindex": 1000,
+              "row": 15,
+              "col": 102
+            },
+            "lines": [
+              "",
+              "  e \u2502 Toggle File Explorer         ",
+              "  l \u2502 Plugin manager               ",
+              "  n \u2502 Notification history drawer  ",
+              "  y \u2502 Yank to clipboard            ",
+              "  Y \u2502 Yank line to clipboard       ",
+              "  , \u2502 Buffers                      ",
+              "  / \u2502 Search project               ",
+              "  : \u2502 Command history              ",
+              "  ? \u2502 Feature & Keymap Guide       ",
+              "  \udb84\udc50 \u2502 Find files                   ",
+              "  1 \u2502   1337 Station               ",
+              "  b \u2502   Buffer                     ",
+              "  c \u2502   Code                       ",
+              "  f \u2502   Find                       ",
+              "  g \u2502   Git                        ",
+              "  h \u2502  2 keymaps                   ",
+              "  q \u2502   Session                    ",
+              "  s \u2502   Search                     ",
+              "  u \u2502   Toggle                     ",
+              "  w \u2502   Window                     ",
+              "  x \u2502   Trouble                    ",
+              "",
+              ""
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          }
+        ],
+        "find": [
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "win": 1036,
+              "relative": "win",
+              "width": 28,
+              "height": 1,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "style": "minimal",
+              "border": "none",
+              "zindex": 1001,
+              "row": 8,
+              "col": 0
+            },
+            "lines": [
+              "      \udb84\udeb7  close  \udb80\udc6e back"
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          },
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "style": "minimal",
+              "title_pos": "center",
+              "relative": "editor",
+              "width": 28,
+              "height": 9,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "title": [
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  "\udb84\udc50 ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  " \u00bb ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  "  Find",
+                  "WhichKeyTitle"
+                ],
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ]
+              ],
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "zindex": 1000,
+              "row": 30,
+              "col": 109
+            },
+            "lines": [
+              "",
+              "  b \u2502 Buffers           ",
+              "  c \u2502 Find config file  ",
+              "  e \u2502 File Explorer     ",
+              "  f \u2502 Find files        ",
+              "  r \u2502 Recent files      ",
+              "  t \u2502 Project terminal  ",
+              "",
+              ""
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          }
+        ],
+        "back": [
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "win": 1036,
+              "relative": "win",
+              "width": 35,
+              "height": 1,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "style": "minimal",
+              "border": "none",
+              "zindex": 1001,
+              "row": 23,
+              "col": 0
+            },
+            "lines": [
+              "         \udb84\udeb7  close  \udb80\udc6e back"
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          },
+          {
+            "config": {
+              "focusable": false,
+              "anchor": "NW",
+              "style": "minimal",
+              "title_pos": "center",
+              "relative": "editor",
+              "width": 35,
+              "height": 24,
+              "hide": false,
+              "external": false,
+              "mouse": false,
+              "title": [
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  "\udb84\udc50 ",
+                  "WhichKeyTitle"
+                ],
+                [
+                  " ",
+                  "WhichKeyTitle"
+                ]
+              ],
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "zindex": 1000,
+              "row": 15,
+              "col": 102
+            },
+            "lines": [
+              "",
+              "  e \u2502 Toggle File Explorer         ",
+              "  l \u2502 Plugin manager               ",
+              "  n \u2502 Notification history drawer  ",
+              "  y \u2502 Yank to clipboard            ",
+              "  Y \u2502 Yank line to clipboard       ",
+              "  , \u2502 Buffers                      ",
+              "  / \u2502 Search project               ",
+              "  : \u2502 Command history              ",
+              "  ? \u2502 Feature & Keymap Guide       ",
+              "  \udb84\udc50 \u2502 Find files                   ",
+              "  1 \u2502   1337 Station               ",
+              "  b \u2502   Buffer                     ",
+              "  c \u2502   Code                       ",
+              "  f \u2502   Find                       ",
+              "  g \u2502   Git                        ",
+              "  h \u2502  2 keymaps                   ",
+              "  q \u2502   Session                    ",
+              "  s \u2502   Search                     ",
+              "  u \u2502   Toggle                     ",
+              "  w \u2502   Window                     ",
+              "  x \u2502   Trouble                    ",
+              "",
+              ""
+            ],
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle"
+          }
+        ]
+      }
+    }
+  },
+  "errors": [],
+  "leader_mappings": [
+    {
+      "lhs": "  ",
+      "callback": true,
+      "desc": "Find files",
+      "rhs": ""
+    },
+    {
+      "lhs": " ,",
+      "callback": true,
+      "desc": "Buffers",
+      "rhs": ""
+    },
+    {
+      "lhs": " /",
+      "callback": true,
+      "desc": "Search project",
+      "rhs": ""
+    },
+    {
+      "lhs": " 13",
+      "callback": true,
+      "desc": "1337 Station Health",
+      "rhs": ""
+    },
+    {
+      "lhs": " :",
+      "callback": true,
+      "desc": "Command history",
+      "rhs": ""
+    },
+    {
+      "lhs": " ?",
+      "callback": true,
+      "desc": "Feature & Keymap Guide",
+      "rhs": ""
+    },
+    {
+      "lhs": " Y",
+      "callback": false,
+      "desc": "Yank line to clipboard",
+      "rhs": "\"+Y"
+    },
+    {
+      "lhs": " bb",
+      "callback": true,
+      "desc": "Browse buffers",
+      "rhs": ""
+    },
+    {
+      "lhs": " bd",
+      "callback": true,
+      "desc": "Close buffer",
+      "rhs": ""
+    },
+    {
+      "lhs": " cM",
+      "callback": true,
+      "desc": "Run default Makefile target",
+      "rhs": ""
+    },
+    {
+      "lhs": " cS",
+      "callback": true,
+      "desc": "Find workspace symbol",
+      "rhs": ""
+    },
+    {
+      "lhs": " cd",
+      "callback": true,
+      "desc": "Line diagnostics",
+      "rhs": ""
+    },
+    {
+      "lhs": " cf",
+      "callback": true,
+      "desc": "Format buffer",
+      "rhs": ""
+    },
+    {
+      "lhs": " cgd",
+      "callback": true,
+      "desc": "Peek definition",
+      "rhs": ""
+    },
+    {
+      "lhs": " cgi",
+      "callback": true,
+      "desc": "Peek implementation",
+      "rhs": ""
+    },
+    {
+      "lhs": " cgr",
+      "callback": true,
+      "desc": "Peek references",
+      "rhs": ""
+    },
+    {
+      "lhs": " cgt",
+      "callback": true,
+      "desc": "Peek type definition",
+      "rhs": ""
+    },
+    {
+      "lhs": " ch",
+      "callback": true,
+      "desc": "Python builtin help",
+      "rhs": ""
+    },
+    {
+      "lhs": " cj",
+      "callback": true,
+      "desc": "Split/join code structure",
+      "rhs": ""
+    },
+    {
+      "lhs": " cm",
+      "callback": true,
+      "desc": "Pick Makefile target",
+      "rhs": ""
+    },
+    {
+      "lhs": " cs",
+      "callback": true,
+      "desc": "Code outline (Aerial)",
+      "rhs": ""
+    },
+    {
+      "lhs": " e",
+      "callback": true,
+      "desc": "Toggle File Explorer",
+      "rhs": ""
+    },
+    {
+      "lhs": " fb",
+      "callback": true,
+      "desc": "Buffers",
+      "rhs": ""
+    },
+    {
+      "lhs": " fc",
+      "callback": true,
+      "desc": "Find config file",
+      "rhs": ""
+    },
+    {
+      "lhs": " fe",
+      "callback": true,
+      "desc": "File Explorer",
+      "rhs": ""
+    },
+    {
+      "lhs": " ff",
+      "callback": true,
+      "desc": "Find files",
+      "rhs": ""
+    },
+    {
+      "lhs": " fr",
+      "callback": true,
+      "desc": "Recent files",
+      "rhs": ""
+    },
+    {
+      "lhs": " ft",
+      "callback": true,
+      "desc": "Project terminal",
+      "rhs": ""
+    },
+    {
+      "lhs": " gB",
+      "callback": true,
+      "desc": "Blame line (full)",
+      "rhs": ""
+    },
+    {
+      "lhs": " gD",
+      "callback": true,
+      "desc": "Git diff view",
+      "rhs": ""
+    },
+    {
+      "lhs": " gH",
+      "callback": true,
+      "desc": "Current file history",
+      "rhs": ""
+    },
+    {
+      "lhs": " gL",
+      "callback": true,
+      "desc": "Git commit history",
+      "rhs": ""
+    },
+    {
+      "lhs": " gR",
+      "callback": true,
+      "desc": "Reset buffer",
+      "rhs": ""
+    },
+    {
+      "lhs": " gS",
+      "callback": true,
+      "desc": "Stage buffer",
+      "rhs": ""
+    },
+    {
+      "lhs": " gb",
+      "callback": true,
+      "desc": "Toggle git blame",
+      "rhs": ""
+    },
+    {
+      "lhs": " gc",
+      "callback": true,
+      "desc": "Close diffview",
+      "rhs": ""
+    },
+    {
+      "lhs": " gd",
+      "callback": true,
+      "desc": "Diff this",
+      "rhs": ""
+    },
+    {
+      "lhs": " gf",
+      "callback": true,
+      "desc": "File history (selection)",
+      "rhs": ""
+    },
+    {
+      "lhs": " gg",
+      "callback": true,
+      "desc": "Git UI",
+      "rhs": ""
+    },
+    {
+      "lhs": " gp",
+      "callback": true,
+      "desc": "Preview hunk",
+      "rhs": ""
+    },
+    {
+      "lhs": " gr",
+      "callback": true,
+      "desc": "Reset hunk",
+      "rhs": ""
+    },
+    {
+      "lhs": " gs",
+      "callback": true,
+      "desc": "Stage hunk",
+      "rhs": ""
+    },
+    {
+      "lhs": " hg",
+      "callback": false,
+      "desc": "Open keyboard guide",
+      "rhs": "<Cmd>ConfigGuide<CR>"
+    },
+    {
+      "lhs": " hk",
+      "callback": true,
+      "desc": "Help: Keys & Features",
+      "rhs": ""
+    },
+    {
+      "lhs": " l",
+      "callback": false,
+      "desc": "Plugin manager",
+      "rhs": "<Cmd>Lazy<CR>"
+    },
+    {
+      "lhs": " n",
+      "callback": true,
+      "desc": "Notification history drawer",
+      "rhs": ""
+    },
+    {
+      "lhs": " qS",
+      "callback": true,
+      "desc": "Select session",
+      "rhs": ""
+    },
+    {
+      "lhs": " qd",
+      "callback": true,
+      "desc": "Don't save session",
+      "rhs": ""
+    },
+    {
+      "lhs": " ql",
+      "callback": true,
+      "desc": "Restore last session",
+      "rhs": ""
+    },
+    {
+      "lhs": " qq",
+      "callback": false,
+      "desc": "Quit",
+      "rhs": "<Cmd>qa<CR>"
+    },
+    {
+      "lhs": " qs",
+      "callback": true,
+      "desc": "Restore session",
+      "rhs": ""
+    },
+    {
+      "lhs": " sC",
+      "callback": true,
+      "desc": "Commands",
+      "rhs": ""
+    },
+    {
+      "lhs": " sS",
+      "callback": true,
+      "desc": "Find workspace symbol",
+      "rhs": ""
+    },
+    {
+      "lhs": " sd",
+      "callback": true,
+      "desc": "Diagnostics",
+      "rhs": ""
+    },
+    {
+      "lhs": " sg",
+      "callback": true,
+      "desc": "Search project",
+      "rhs": ""
+    },
+    {
+      "lhs": " sh",
+      "callback": true,
+      "desc": "Help",
+      "rhs": ""
+    },
+    {
+      "lhs": " sk",
+      "callback": true,
+      "desc": "Keymaps",
+      "rhs": ""
+    },
+    {
+      "lhs": " sr",
+      "callback": true,
+      "desc": "Resume search",
+      "rhs": ""
+    },
+    {
+      "lhs": " ss",
+      "callback": true,
+      "desc": "Find document symbol",
+      "rhs": ""
+    },
+    {
+      "lhs": " st",
+      "callback": true,
+      "desc": "Search TODOs",
+      "rhs": ""
+    },
+    {
+      "lhs": " u1",
+      "callback": true,
+      "desc": "1337 Station Health",
+      "rhs": ""
+    },
+    {
+      "lhs": " uW",
+      "callback": true,
+      "desc": "Exit workspace mode",
+      "rhs": ""
+    },
+    {
+      "lhs": " uZ",
+      "callback": true,
+      "desc": "Toggle zoom mode",
+      "rhs": ""
+    },
+    {
+      "lhs": " uf",
+      "callback": true,
+      "desc": "Toggle format on save",
+      "rhs": ""
+    },
+    {
+      "lhs": " uh",
+      "callback": true,
+      "desc": "Toggle native inlay hints",
+      "rhs": ""
+    },
+    {
+      "lhs": " un",
+      "callback": true,
+      "desc": "Dismiss notifications",
+      "rhs": ""
+    },
+    {
+      "lhs": " uw",
+      "callback": true,
+      "desc": "Toggle workspace mode",
+      "rhs": ""
+    },
+    {
+      "lhs": " uz",
+      "callback": true,
+      "desc": "Toggle zen mode",
+      "rhs": ""
+    },
+    {
+      "lhs": " ws",
+      "callback": false,
+      "desc": "Horizontal split",
+      "rhs": "<Cmd>split<CR>"
+    },
+    {
+      "lhs": " wv",
+      "callback": false,
+      "desc": "Vertical split",
+      "rhs": "<Cmd>vsplit<CR>"
+    },
+    {
+      "lhs": " ww",
+      "callback": false,
+      "desc": "Switch window",
+      "rhs": "<C-W>w"
+    },
+    {
+      "lhs": " xQ",
+      "callback": true,
+      "desc": "Editable quickfix (Quicker)",
+      "rhs": ""
+    },
+    {
+      "lhs": " xd",
+      "callback": true,
+      "desc": "Document diagnostics",
+      "rhs": ""
+    },
+    {
+      "lhs": " xq",
+      "callback": true,
+      "desc": "Quickfix diagnostics",
+      "rhs": ""
+    },
+    {
+      "lhs": " xw",
+      "callback": true,
+      "desc": "Workspace diagnostics",
+      "rhs": ""
+    },
+    {
+      "lhs": " xx",
+      "callback": true,
+      "desc": "Project diagnostics",
+      "rhs": ""
+    },
+    {
+      "lhs": " y",
+      "callback": false,
+      "desc": "Yank to clipboard",
+      "rhs": "\"+y"
+    }
+  ],
+  "memory_after": {
+    "rss_kib": 33452,
+    "lua_gc_kib": 10360.4736328125
+  },
+  "messages": ""
+}

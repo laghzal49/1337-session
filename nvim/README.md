@@ -1,7 +1,7 @@
 # Perfect Black Neovim
 
 A standalone Neovim configuration: **no LazyVim distribution**. lazy.nvim manages
-45 explicitly configured plugins and dependencies, pinned in `lazy-lock.json`.
+43 explicitly configured plugins and dependencies, pinned in `lazy-lock.json`.
 Pure-black code, italic comments, opaque panels, and **ty + Ruff** for Python.
 Ruff provides diagnostics through its LSP and formats with
 Ruff Format on save; `<leader>cf` runs formatting manually and `<leader>uf`
@@ -15,6 +15,23 @@ toggles format-on-save.
 
 The current theme uses blood-red accents over black editing surfaces.
 The dashboard and older editing screenshots below document earlier revisions.
+
+Navigation now gives a subtle 180 ms destination beacon for definitions,
+references, diagnostic jumps, jump history, search selection, buffer switching,
+Flash, Aerial and quickfix selection. Ordinary `hjkl` movement stays quiet.
+The physical cursor uses a block in Normal/Visual, a bar in Insert/Command,
+and an underline in Replace; terminal support determines cursor colors.
+
+Split focus keeps inactive windows dim and uses one native red separator anchor.
+Panel highlights are preserved, including Edgy. At 120 columns or wider, the
+existing statusline shows the enclosing function/class from an idle-updated
+cache. Python, C/C++ and Lua use Tree-sitter; other languages can reuse
+already-populated Aerial data. It hides at top level and above 10,000 lines or
+1 MiB. No extra status row or sidebar is added. The overview rail is deferred.
+
+Harpoon has been removed; use the existing buffer picker and `Shift-H`/`Shift-L`.
+Command suggestions use Blink in Noice's command input: Tab selects a suggestion,
+Enter accepts and executes it. Suggestions never replace your input automatically.
 
 ## Editing surfaces
 
@@ -37,10 +54,82 @@ removed.
 
 Markdown reader mode is available with `<leader>mr` (or
 `:MarkdownReaderEnable`/`:MarkdownReaderDisable`); it enables rendered Markdown,
-comfortable wrapping, spelling, concealed syntax, and a distraction-free view,
+comfortable wrapping, concealed syntax, and a distraction-free view,
 then restores the previous window settings when toggled off. Rendering is bounded
 for very large files and keeps links, code languages, checkboxes, tables, quotes,
 and YAML front matter readable.
+
+Markdown above 5,000 lines or 512 KiB uses a plain view with manual folds,
+without Tree-sitter highlighting/context or rendering. These thresholds are
+configurable in `config.markdown`. Reader mode avoids spellchecking and restores
+window options when returning to code. Small files keep normal rendering.
+
+The leader popup is **BLACK DECK**, rendered by the existing Which-Key. Immediate
+commands come first, followed by Code/Docs and project/system groups. `›` marks a
+group. Escape closes; Backspace returns from a nested group. `:BlackDeck` enables
+Which-Key's supported repeating mode. Existing keypaths remain available.
+
+Documentation keys:
+
+- `K`: Smart Docs. Qualified offline reference first, then asynchronous LSP/project
+  hover, then the existing Python builtin fallback or useful local docs search.
+- Insert `Ctrl-K`: compact signature help only; it never opens a reference manual.
+- `gK`: Deep Docs. Exact offline reference or MiniPick search, without LSP content.
+
+Press `K` again to focus the reference surface. Normal Vim scrolling and `/` work
+there; `q` or Escape closes it. Offline pages support `Ctrl-O` history and Enter on
+an exact indexed reference. Blink retains automatic completion docs and `Ctrl-b`,
+`Ctrl-f`, `Ctrl-d` scrolling/toggling. All reference surfaces share Perfect Black
+colors, bounded dimensions and the existing Markdown renderer.
+
+Python 3.14, C, C++, Lua 5.1, Bash and CMake are the default external references.
+They describe those versions, not every dependency or project API. Local manuals
+and prebuilt exact/fuzzy indexes live in `stdpath("data")/perfect-black/docs`,
+outside Git. Lookup never downloads documentation or scans page files.
+
+```vim
+:Docs
+:Docs python Path
+:Docs update python
+:Docs health
+:DocsBrowse
+:DocsBrowse Path
+:DocsBrowse python Path
+:DocsUpdate
+:DocsUpdate python
+:DocsHealth
+```
+
+An already-open session can register these commands without restarting:
+`:lua require('config.docs_lifecycle').setup()`. `:Devdocs` and `:DevdocsUpdate`
+remain aliases for the earlier command names.
+
+The installer attempts the initial download without failing the installation when
+offline. Neovim checks the small manifest and index-file presence five seconds
+after startup and asynchronously updates missing or stale sets. It performs no
+startup network work. Configure before setup:
+
+```lua
+vim.g.black_docs_auto_update = true -- false disables automatic downloads
+vim.g.black_docs_max_age_days = 7
+```
+
+Shell equivalent: `scripts/update-docs all` or `scripts/update-docs python`.
+The launcher uses uv; the stdlib-only Python 3.11+ backend can also run directly:
+`python3 nvim/scripts/update_docs.py all`. Updates publish immutable generations
+through an atomic manifest, with a lock against concurrent updates. Failed updates
+preserve existing manuals. `--catalog FILE` supports additional docsets.
+
+Anchored pages show the actual reference section, with a 200-line display cap and
+an explicit source link; `gx` opens that link only when requested. Pages above
+1 MiB are refused. Ambiguous symbol names go to search, not a guessed namespace.
+
+On idle, supported LSPs underline semantic uses of the cursor symbol within the
+viewport. Moving or entering Insert clears them immediately; unsupported servers
+show no potentially misleading text matches. This replaces Mini Cursorword.
+Multiple LSP locations and code actions use the existing picker; Tab previews
+locations or replacement text already supplied by the server. Glance remains
+the explicit peek tool.
 
 ## Makefile targets
 
@@ -68,15 +157,12 @@ plugin checkouts after updating, then restart Neovim.
 - **Tiny Inline Diagnostic:** wrapped cursor-line errors, quiet during insertion.
 - **Blink completion:** LSP, paths, snippets and buffer words, with documentation
   and signature help. Enter accepts an explicitly selected item; otherwise it
-  inserts a newline. Ctrl-E dismisses completion. Ctrl-K opens the selected
-  completion's full documentation, including parameters and usage examples when
-  available. Without a selection, it shows documentation for the symbol at your
-  cursor in insert or normal mode. Python builtins also work without an LSP.
-  Inside a function call, Ctrl-K prefers the signature and active parameter's
-  documentation. Empty server replies fall back to hover and Python builtin help;
-  delayed replies are ignored if you move or edit. Builtin help is cached, and
-  buffer-word suggestions use the full selected name rather than its typed prefix.
-  Use Ctrl-B/Ctrl-F to scroll completion documentation; Ctrl-W K moves up a split.
+  inserts a newline. Ctrl-E dismisses completion. Insert Ctrl-K opens only the
+  function signature and active parameter documentation, bounded to eight rows.
+  Missing signature responses do not fall back to a large hover or reference page.
+  Smart K provides contextual/reference documentation in Normal mode. Delayed
+  replies are ignored after moving or editing. Use Ctrl-D to toggle completion
+  docs and Ctrl-B/Ctrl-F to scroll them; Ctrl-W K moves up a split.
   Local words from the active buffer appear while the LSP responds; semantic
   suggestions get a ranking boost. Exact matches come first, with the native
   matcher's usage/proximity ranking and typo tolerance retained. Documentation
@@ -167,6 +253,25 @@ Project roots use canonical paths. Activate your environment before opening
 Neovim; restart it after switching environments. Project `.venv` discovery stays
 with ty. No environment paths tied to a particular desk are hardcoded.
 
+## 1337 Station Mode
+
+A dedicated environment manager built specifically for 1337 / 42 cluster machines where `$HOME` is network-mounted (NFS) with limited quotas and `/goinfre` is a fast local NVMe drive unique to each physical workstation.
+
+- **Statusline health indicator:** Shows `1337 ✓` or `1337 ⚠ N problems` in the statusline and dashboard. Clickable or opened via `<leader>13` / `:StationHealth`.
+- **Workstation change detection:** Warns when you sit at a new machine so you can re-link local caches before compiling.
+- **Broken symlink detection:** Identifies dangling `.venv` or cache links pointing to `/goinfre` folders on a previous workstation.
+- **Quota & NFS monitoring:** Tracks HOME quota / inode limits and alerts if heavy caches (`~/.cache/uv`, `~/.cache/pip`, `~/.npm`) or project caches live on NFS.
+- **uv cache manager:** Ensures `UV_CACHE_DIR` points to local SSD (`/goinfre/$USER/.uv_cache`) instead of consuming NFS quota.
+- **Safe repairs (`[f]` / `:StationFix`):** Never deletes files. Automatically creates `/goinfre/$USER`, repairs `~/goinfre` symlinks, points `UV_CACHE_DIR`, and ensures `~/.local/bin` is in PATH.
+- **Python venv builder (`[v]` / `:StationVenv`):** Rebuilds project virtual environments on fast local `/goinfre` storage using `uv venv` and `uv sync`, symlinking `.venv` back into the project.
+- **Tool manager (`[t]` / `:StationTools`):** Verifies and installs core tools (`ty`, `ruff`, `clangd`, `rg`, `lazygit`, `uv`).
+- **Commands:**
+  - `:StationHealth` — Open interactive floating status and repair modal
+  - `:StationFix` — Execute safe automated repairs
+  - `:StationVenv` — Rebuild project `.venv` on `/goinfre` with `uv`
+  - `:StationTools` — Reinstall or update cluster tools
+  - `:StationMode [on|off|toggle]` — Toggle station mode override
+
 ## Verification
 
 Run `make check` from the repository root with installed plugins, ty on PATH,
@@ -181,6 +286,10 @@ NVIM_TY=/path/to/ty nvim --headless -u NONE -l nvim/tests/real_ty.lua
 nvim --headless '+lua dofile("nvim/tests/standalone.lua")' +qa!
 nvim --headless '+lua dofile("nvim/tests/terminal_review.lua")' +qa!
 python3 nvim/tests/startup_bench.py --runs 5
+python3 nvim/tests/spatial_review.py
+make reference
+python3 nvim/tests/markdown_bench.py
+python3 nvim/tests/spatial_bench.py --config nvim --runs 7
 python3 nvim/tests/capture_makefile.py  # also requires ImageMagick + JetBrainsMono Nerd Font Mono
 ```
 

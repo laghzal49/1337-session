@@ -188,6 +188,23 @@ return {
         },
         padding = 1,
       }
+      local ok_st, st = pcall(require, "config.station")
+      if ok_st and st.is_1337() then
+        local st_text = st.status_text()
+        if st_text ~= "" then
+          local has_issues = st.problem_count() > 0
+          sections[#sections + 1] = {
+            pane = 2,
+            text = {
+              { "󰒓  ", hl = "SnacksDashboardIcon" },
+              { "1337 STATION: ", hl = "BlackLabel" },
+              { st_text, hl = has_issues and "DiagnosticWarn" or "MiniIconsGreen" },
+              { "  [<leader>13]", hl = "BlackMuted" },
+            },
+            padding = 1,
+          }
+        end
+      end
       sections[#sections + 1] = {
         pane = 2,
         text = rule(38),
@@ -233,6 +250,22 @@ return {
         },
         padding = 1,
       }
+      local ok_st_s, st_s = pcall(require, "config.station")
+      if ok_st_s and st_s.is_1337() then
+        local st_text = st_s.status_text()
+        if st_text ~= "" then
+          local has_issues = st_s.problem_count() > 0
+          sections[#sections + 1] = {
+            text = {
+              { "󰒓  ", hl = "SnacksDashboardIcon" },
+              { "1337 STATION: ", hl = "BlackLabel" },
+              { st_text, hl = has_issues and "DiagnosticWarn" or "MiniIconsGreen" },
+              { "  [<leader>13]", hl = "BlackMuted" },
+            },
+            padding = 1,
+          }
+        end
+      end
       sections[#sections + 1] = action(icon("file"), "Find a file", "f", ":lua require('config.pick').open('files')", { width = label_width })
       sections[#sections + 1] = action(icon("search"), "Search project", "g", ":lua require('config.pick').open('grep')", { width = label_width })
       sections[#sections + 1] = action(icon("clock"), "Recent files", "r", ":lua require('config.pick').open('oldfiles')", { width = label_width })

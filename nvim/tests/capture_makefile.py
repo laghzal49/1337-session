@@ -87,7 +87,7 @@ for width, height in [(80, 24), (120, 36)]:
  call('nvim_exec_lua', ["vim.schedule(function() require('config.makefile').pick() end)", []])
  pump(.5)
  state = call('nvim_exec_lua', ["local p=require('mini.pick'); local s=p.get_picker_state(); assert(s, 'Make picker did not open'); return {items=#p.get_picker_items(),width=vim.api.nvim_win_get_width(s.windows.main),height=vim.api.nvim_win_get_height(s.windows.main)}", []])
- assert state['items'] == 6 and state['width'] <= width and state['height'] <= height, state
+ assert state['items'] == 8 and state['width'] <= width and state['height'] <= height, state
  screen = '\n'.join(''.join(c for c, h in row) for row in grid)
  assert 'Run Makefile Target' in screen and 'standalone' in screen, screen
  if width == 80:

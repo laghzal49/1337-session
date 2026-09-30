@@ -1,0 +1,1192 @@
+{
+  "config": "/home/tarik/Projects/1337-session/nvim",
+  "cwd": "/home/tarik/Projects/1337-session",
+  "scope": "Attached-UI WhichKey review using public show/input APIs, no plugin patches.\nRun with --config /tmp/1337-before-black-deck to capture the baseline.\n",
+  "auto_update": false,
+  "memory_before": {
+    "rss_kib": 24756,
+    "lua_gc_kib": 7878.6650390625
+  },
+  "screens": {
+    "80": {
+      "root_open_ms": [
+        3.876112,
+        3.61547,
+        6.366309,
+        5.139121,
+        10.160547
+      ],
+      "root_median_ms": 5.139121,
+      "nested_open_ms": [
+        1.161138,
+        1.102346,
+        3.061028,
+        1.744832,
+        2.873757
+      ],
+      "nested_median_ms": 1.744832,
+      "stages": {
+        "root": [
+          {
+            "config": {
+              "zindex": 1001,
+              "style": "minimal",
+              "focusable": false,
+              "mouse": false,
+              "height": 1,
+              "width": 62,
+              "win": 1012,
+              "external": false,
+              "border": "none",
+              "relative": "win",
+              "row": 13,
+              "hide": false,
+              "col": 0,
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "                      Esc close  BS back"
+            ]
+          },
+          {
+            "config": {
+              "zindex": 1000,
+              "style": "minimal",
+              "title_pos": "left",
+              "focusable": false,
+              "mouse": false,
+              "height": 14,
+              "col": 8,
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "external": false,
+              "hide": false,
+              "relative": "editor",
+              "width": 62,
+              "row": 7,
+              "title": [
+                [
+                  " BLACK DECK "
+                ]
+              ],
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "",
+              "       e Explorer                   s \u203a Search                ",
+              "     SPC Files                      w \u203a Windows               ",
+              "       / Project Search             x \u203a Trouble               ",
+              "       , Buffers                    q \u203a Session               ",
+              "       : Commands                   u \u203a UI                    ",
+              "       n Notifications              l LSP                     ",
+              "       f \u203a Files                    1 \u203a Station               ",
+              "       b \u203a Buffers                  h \u203a Help                  ",
+              "       c \u203a Code                     ? Keymap Guide            ",
+              "       d \u203a Docs                     y Yank to clipboard       ",
+              "       g \u203a Git                      Y Yank line to clipboard  ",
+              "",
+              ""
+            ]
+          }
+        ],
+        "find": [
+          {
+            "config": {
+              "zindex": 1001,
+              "style": "minimal",
+              "focusable": false,
+              "mouse": false,
+              "height": 1,
+              "width": 46,
+              "win": 1012,
+              "external": false,
+              "border": "none",
+              "relative": "win",
+              "row": 5,
+              "hide": false,
+              "col": 0,
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "              Esc close  BS back"
+            ]
+          },
+          {
+            "config": {
+              "zindex": 1000,
+              "style": "minimal",
+              "title_pos": "left",
+              "focusable": false,
+              "mouse": false,
+              "height": 6,
+              "col": 16,
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "external": false,
+              "hide": false,
+              "relative": "editor",
+              "width": 46,
+              "row": 15,
+              "title": [
+                [
+                  " BLACK DECK "
+                ]
+              ],
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "",
+              "     b Buffers            f Files             ",
+              "     c Find config file   r Recent files      ",
+              "     e Explorer           t Terminal          ",
+              "",
+              ""
+            ]
+          }
+        ],
+        "back": [
+          {
+            "config": {
+              "zindex": 1001,
+              "style": "minimal",
+              "focusable": false,
+              "mouse": false,
+              "height": 1,
+              "width": 62,
+              "win": 1012,
+              "external": false,
+              "border": "none",
+              "relative": "win",
+              "row": 13,
+              "hide": false,
+              "col": 0,
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "                      Esc close  BS back"
+            ]
+          },
+          {
+            "config": {
+              "zindex": 1000,
+              "style": "minimal",
+              "title_pos": "left",
+              "focusable": false,
+              "mouse": false,
+              "height": 14,
+              "col": 8,
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "external": false,
+              "hide": false,
+              "relative": "editor",
+              "width": 62,
+              "row": 7,
+              "title": [
+                [
+                  " BLACK DECK "
+                ]
+              ],
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "",
+              "       e Explorer                   s \u203a Search                ",
+              "     SPC Files                      w \u203a Windows               ",
+              "       / Project Search             x \u203a Trouble               ",
+              "       , Buffers                    q \u203a Session               ",
+              "       : Commands                   u \u203a UI                    ",
+              "       n Notifications              l LSP                     ",
+              "       f \u203a Files                    1 \u203a Station               ",
+              "       b \u203a Buffers                  h \u203a Help                  ",
+              "       c \u203a Code                     ? Keymap Guide            ",
+              "       d \u203a Docs                     y Yank to clipboard       ",
+              "       g \u203a Git                      Y Yank line to clipboard  ",
+              "",
+              ""
+            ]
+          }
+        ]
+      }
+    },
+    "100": {
+      "root_open_ms": [
+        3.849694,
+        4.006595,
+        3.605364,
+        3.472905,
+        3.569724
+      ],
+      "root_median_ms": 3.605364,
+      "nested_open_ms": [
+        0.881653,
+        0.99922,
+        0.852461,
+        1.066999,
+        0.985254
+      ],
+      "nested_median_ms": 0.985254,
+      "stages": {
+        "root": [
+          {
+            "config": {
+              "zindex": 1001,
+              "style": "minimal",
+              "focusable": false,
+              "mouse": false,
+              "height": 1,
+              "width": 91,
+              "win": 1024,
+              "external": false,
+              "border": "none",
+              "relative": "win",
+              "row": 10,
+              "hide": false,
+              "col": 0,
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "                                    Esc close  BS back"
+            ]
+          },
+          {
+            "config": {
+              "zindex": 1000,
+              "style": "minimal",
+              "title_pos": "left",
+              "focusable": false,
+              "mouse": false,
+              "height": 11,
+              "col": 4,
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "external": false,
+              "hide": false,
+              "relative": "editor",
+              "width": 91,
+              "row": 16,
+              "title": [
+                [
+                  " BLACK DECK "
+                ]
+              ],
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "",
+              "       e Explorer                   c \u203a Code                     l LSP                     ",
+              "     SPC Files                      d \u203a Docs                     1 \u203a Station               ",
+              "       / Project Search             g \u203a Git                      h \u203a Help                  ",
+              "       , Buffers                    s \u203a Search                   ? Keymap Guide            ",
+              "       : Commands                   w \u203a Windows                  y Yank to clipboard       ",
+              "       n Notifications              x \u203a Trouble                  Y Yank line to clipboard  ",
+              "       f \u203a Files                    q \u203a Session                  ",
+              "       b \u203a Buffers                  u \u203a UI                       ",
+              "",
+              ""
+            ]
+          }
+        ],
+        "find": [
+          {
+            "config": {
+              "zindex": 1001,
+              "style": "minimal",
+              "focusable": false,
+              "mouse": false,
+              "height": 1,
+              "width": 67,
+              "win": 1024,
+              "external": false,
+              "border": "none",
+              "relative": "win",
+              "row": 4,
+              "hide": false,
+              "col": 0,
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "                        Esc close  BS back"
+            ]
+          },
+          {
+            "config": {
+              "zindex": 1000,
+              "style": "minimal",
+              "title_pos": "left",
+              "focusable": false,
+              "mouse": false,
+              "height": 5,
+              "col": 16,
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "external": false,
+              "hide": false,
+              "relative": "editor",
+              "width": 67,
+              "row": 22,
+              "title": [
+                [
+                  " BLACK DECK "
+                ]
+              ],
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "",
+              "     b Buffers            e Explorer           r Recent files      ",
+              "     c Find config file   f Files              t Terminal          ",
+              "",
+              ""
+            ]
+          }
+        ],
+        "back": [
+          {
+            "config": {
+              "zindex": 1001,
+              "style": "minimal",
+              "focusable": false,
+              "mouse": false,
+              "height": 1,
+              "width": 91,
+              "win": 1024,
+              "external": false,
+              "border": "none",
+              "relative": "win",
+              "row": 10,
+              "hide": false,
+              "col": 0,
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "                                    Esc close  BS back"
+            ]
+          },
+          {
+            "config": {
+              "zindex": 1000,
+              "style": "minimal",
+              "title_pos": "left",
+              "focusable": false,
+              "mouse": false,
+              "height": 11,
+              "col": 4,
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "external": false,
+              "hide": false,
+              "relative": "editor",
+              "width": 91,
+              "row": 16,
+              "title": [
+                [
+                  " BLACK DECK "
+                ]
+              ],
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "",
+              "       e Explorer                   c \u203a Code                     l LSP                     ",
+              "     SPC Files                      d \u203a Docs                     1 \u203a Station               ",
+              "       / Project Search             g \u203a Git                      h \u203a Help                  ",
+              "       , Buffers                    s \u203a Search                   ? Keymap Guide            ",
+              "       : Commands                   w \u203a Windows                  y Yank to clipboard       ",
+              "       n Notifications              x \u203a Trouble                  Y Yank line to clipboard  ",
+              "       f \u203a Files                    q \u203a Session                  ",
+              "       b \u203a Buffers                  u \u203a UI                       ",
+              "",
+              ""
+            ]
+          }
+        ]
+      }
+    },
+    "140": {
+      "root_open_ms": [
+        4.454774,
+        12.941562,
+        12.756441,
+        7.130118,
+        4.793164
+      ],
+      "root_median_ms": 7.130118,
+      "nested_open_ms": [
+        1.065427,
+        1.659606,
+        3.189522,
+        1.499163,
+        1.26244
+      ],
+      "nested_median_ms": 1.499163,
+      "stages": {
+        "root": [
+          {
+            "config": {
+              "zindex": 1001,
+              "style": "minimal",
+              "focusable": false,
+              "mouse": false,
+              "height": 1,
+              "width": 91,
+              "win": 1036,
+              "external": false,
+              "border": "none",
+              "relative": "win",
+              "row": 10,
+              "hide": false,
+              "col": 0,
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "                                    Esc close  BS back"
+            ]
+          },
+          {
+            "config": {
+              "zindex": 1000,
+              "style": "minimal",
+              "title_pos": "left",
+              "focusable": false,
+              "mouse": false,
+              "height": 11,
+              "col": 24,
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "external": false,
+              "hide": false,
+              "relative": "editor",
+              "width": 91,
+              "row": 28,
+              "title": [
+                [
+                  " BLACK DECK "
+                ]
+              ],
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "",
+              "       e Explorer                   c \u203a Code                     l LSP                     ",
+              "     SPC Files                      d \u203a Docs                     1 \u203a Station               ",
+              "       / Project Search             g \u203a Git                      h \u203a Help                  ",
+              "       , Buffers                    s \u203a Search                   ? Keymap Guide            ",
+              "       : Commands                   w \u203a Windows                  y Yank to clipboard       ",
+              "       n Notifications              x \u203a Trouble                  Y Yank line to clipboard  ",
+              "       f \u203a Files                    q \u203a Session                  ",
+              "       b \u203a Buffers                  u \u203a UI                       ",
+              "",
+              ""
+            ]
+          }
+        ],
+        "find": [
+          {
+            "config": {
+              "zindex": 1001,
+              "style": "minimal",
+              "focusable": false,
+              "mouse": false,
+              "height": 1,
+              "width": 67,
+              "win": 1036,
+              "external": false,
+              "border": "none",
+              "relative": "win",
+              "row": 4,
+              "hide": false,
+              "col": 0,
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "                        Esc close  BS back"
+            ]
+          },
+          {
+            "config": {
+              "zindex": 1000,
+              "style": "minimal",
+              "title_pos": "left",
+              "focusable": false,
+              "mouse": false,
+              "height": 5,
+              "col": 36,
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "external": false,
+              "hide": false,
+              "relative": "editor",
+              "width": 67,
+              "row": 34,
+              "title": [
+                [
+                  " BLACK DECK "
+                ]
+              ],
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "",
+              "     b Buffers            e Explorer           r Recent files      ",
+              "     c Find config file   f Files              t Terminal          ",
+              "",
+              ""
+            ]
+          }
+        ],
+        "back": [
+          {
+            "config": {
+              "zindex": 1001,
+              "style": "minimal",
+              "focusable": false,
+              "mouse": false,
+              "height": 1,
+              "width": 91,
+              "win": 1036,
+              "external": false,
+              "border": "none",
+              "relative": "win",
+              "row": 10,
+              "hide": false,
+              "col": 0,
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "                                    Esc close  BS back"
+            ]
+          },
+          {
+            "config": {
+              "zindex": 1000,
+              "style": "minimal",
+              "title_pos": "left",
+              "focusable": false,
+              "mouse": false,
+              "height": 11,
+              "col": 24,
+              "border": [
+                "\u256d",
+                "\u2500",
+                "\u256e",
+                "\u2502",
+                "\u256f",
+                "\u2500",
+                "\u2570",
+                "\u2502"
+              ],
+              "external": false,
+              "hide": false,
+              "relative": "editor",
+              "width": 91,
+              "row": 28,
+              "title": [
+                [
+                  " BLACK DECK "
+                ]
+              ],
+              "anchor": "NW"
+            },
+            "hl": "Normal:WhichKeyNormal,FloatBorder:WhichKeyBorder,FloatTitle:WhichKeyTitle",
+            "lines": [
+              "",
+              "       e Explorer                   c \u203a Code                     l LSP                     ",
+              "     SPC Files                      d \u203a Docs                     1 \u203a Station               ",
+              "       / Project Search             g \u203a Git                      h \u203a Help                  ",
+              "       , Buffers                    s \u203a Search                   ? Keymap Guide            ",
+              "       : Commands                   w \u203a Windows                  y Yank to clipboard       ",
+              "       n Notifications              x \u203a Trouble                  Y Yank line to clipboard  ",
+              "       f \u203a Files                    q \u203a Session                  ",
+              "       b \u203a Buffers                  u \u203a UI                       ",
+              "",
+              ""
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "errors": [],
+  "leader_mappings": [
+    {
+      "desc": "Files",
+      "callback": true,
+      "rhs": "",
+      "lhs": "  "
+    },
+    {
+      "desc": "Buffers",
+      "callback": true,
+      "rhs": "",
+      "lhs": " ,"
+    },
+    {
+      "desc": "Project Search",
+      "callback": true,
+      "rhs": "",
+      "lhs": " /"
+    },
+    {
+      "desc": "1337 Station Health",
+      "callback": true,
+      "rhs": "",
+      "lhs": " 13"
+    },
+    {
+      "desc": "Commands",
+      "callback": true,
+      "rhs": "",
+      "lhs": " :"
+    },
+    {
+      "desc": "Keymap Guide",
+      "callback": true,
+      "rhs": "",
+      "lhs": " ?"
+    },
+    {
+      "desc": "Yank line to clipboard",
+      "callback": false,
+      "rhs": "\"+Y",
+      "lhs": " Y"
+    },
+    {
+      "desc": "Buffers",
+      "callback": true,
+      "rhs": "",
+      "lhs": " bb"
+    },
+    {
+      "desc": "Close buffer",
+      "callback": true,
+      "rhs": "",
+      "lhs": " bd"
+    },
+    {
+      "desc": "Default Target",
+      "callback": true,
+      "rhs": "",
+      "lhs": " cM"
+    },
+    {
+      "desc": "Find workspace symbol",
+      "callback": true,
+      "rhs": "",
+      "lhs": " cS"
+    },
+    {
+      "desc": "Line diagnostics",
+      "callback": true,
+      "rhs": "",
+      "lhs": " cd"
+    },
+    {
+      "desc": "Format buffer",
+      "callback": true,
+      "rhs": "",
+      "lhs": " cf"
+    },
+    {
+      "desc": "Peek definition",
+      "callback": true,
+      "rhs": "",
+      "lhs": " cgd"
+    },
+    {
+      "desc": "Peek implementation",
+      "callback": true,
+      "rhs": "",
+      "lhs": " cgi"
+    },
+    {
+      "desc": "Peek references",
+      "callback": true,
+      "rhs": "",
+      "lhs": " cgr"
+    },
+    {
+      "desc": "Peek type definition",
+      "callback": true,
+      "rhs": "",
+      "lhs": " cgt"
+    },
+    {
+      "desc": "Python Builtins",
+      "callback": true,
+      "rhs": "",
+      "lhs": " ch"
+    },
+    {
+      "desc": "Split/join code structure",
+      "callback": true,
+      "rhs": "",
+      "lhs": " cj"
+    },
+    {
+      "desc": "Make Targets",
+      "callback": true,
+      "rhs": "",
+      "lhs": " cm"
+    },
+    {
+      "desc": "Symbols",
+      "callback": true,
+      "rhs": "",
+      "lhs": " cs"
+    },
+    {
+      "desc": "Deep Docs",
+      "callback": true,
+      "rhs": "",
+      "lhs": " dK"
+    },
+    {
+      "desc": "Browse Docs",
+      "callback": false,
+      "rhs": "<Cmd>DocsBrowse<CR>",
+      "lhs": " db"
+    },
+    {
+      "desc": "Docs Health",
+      "callback": false,
+      "rhs": "<Cmd>DocsHealth<CR>",
+      "lhs": " dh"
+    },
+    {
+      "desc": "Smart Docs",
+      "callback": true,
+      "rhs": "",
+      "lhs": " dk"
+    },
+    {
+      "desc": "Update Docs",
+      "callback": false,
+      "rhs": "<Cmd>DocsUpdate<CR>",
+      "lhs": " du"
+    },
+    {
+      "desc": "Explorer",
+      "callback": true,
+      "rhs": "",
+      "lhs": " e"
+    },
+    {
+      "desc": "Buffers",
+      "callback": true,
+      "rhs": "",
+      "lhs": " fb"
+    },
+    {
+      "desc": "Find config file",
+      "callback": true,
+      "rhs": "",
+      "lhs": " fc"
+    },
+    {
+      "desc": "Explorer",
+      "callback": true,
+      "rhs": "",
+      "lhs": " fe"
+    },
+    {
+      "desc": "Files",
+      "callback": true,
+      "rhs": "",
+      "lhs": " ff"
+    },
+    {
+      "desc": "Recent files",
+      "callback": true,
+      "rhs": "",
+      "lhs": " fr"
+    },
+    {
+      "desc": "Terminal",
+      "callback": true,
+      "rhs": "",
+      "lhs": " ft"
+    },
+    {
+      "desc": "Blame Details",
+      "callback": true,
+      "rhs": "",
+      "lhs": " gB"
+    },
+    {
+      "desc": "Git diff view",
+      "callback": true,
+      "rhs": "",
+      "lhs": " gD"
+    },
+    {
+      "desc": "Current file history",
+      "callback": true,
+      "rhs": "",
+      "lhs": " gH"
+    },
+    {
+      "desc": "History",
+      "callback": true,
+      "rhs": "",
+      "lhs": " gL"
+    },
+    {
+      "desc": "Reset buffer",
+      "callback": true,
+      "rhs": "",
+      "lhs": " gR"
+    },
+    {
+      "desc": "Stage buffer",
+      "callback": true,
+      "rhs": "",
+      "lhs": " gS"
+    },
+    {
+      "desc": "Blame",
+      "callback": true,
+      "rhs": "",
+      "lhs": " gb"
+    },
+    {
+      "desc": "Close diffview",
+      "callback": true,
+      "rhs": "",
+      "lhs": " gc"
+    },
+    {
+      "desc": "Diff",
+      "callback": true,
+      "rhs": "",
+      "lhs": " gd"
+    },
+    {
+      "desc": "File history (selection)",
+      "callback": true,
+      "rhs": "",
+      "lhs": " gf"
+    },
+    {
+      "desc": "Git UI",
+      "callback": true,
+      "rhs": "",
+      "lhs": " gg"
+    },
+    {
+      "desc": "Preview hunk",
+      "callback": true,
+      "rhs": "",
+      "lhs": " gp"
+    },
+    {
+      "desc": "Reset hunk",
+      "callback": true,
+      "rhs": "",
+      "lhs": " gr"
+    },
+    {
+      "desc": "Stage hunk",
+      "callback": true,
+      "rhs": "",
+      "lhs": " gs"
+    },
+    {
+      "desc": "Config Guide",
+      "callback": false,
+      "rhs": "<Cmd>ConfigGuide<CR>",
+      "lhs": " hg"
+    },
+    {
+      "desc": "Keymap Guide",
+      "callback": true,
+      "rhs": "",
+      "lhs": " hk"
+    },
+    {
+      "desc": "Plugins",
+      "callback": false,
+      "rhs": "<Cmd>Lazy<CR>",
+      "lhs": " l"
+    },
+    {
+      "desc": "Notifications",
+      "callback": true,
+      "rhs": "",
+      "lhs": " n"
+    },
+    {
+      "desc": "Select session",
+      "callback": true,
+      "rhs": "",
+      "lhs": " qS"
+    },
+    {
+      "desc": "Don't save session",
+      "callback": true,
+      "rhs": "",
+      "lhs": " qd"
+    },
+    {
+      "desc": "Restore last session",
+      "callback": true,
+      "rhs": "",
+      "lhs": " ql"
+    },
+    {
+      "desc": "Quit",
+      "callback": false,
+      "rhs": "<Cmd>qa<CR>",
+      "lhs": " qq"
+    },
+    {
+      "desc": "Restore session",
+      "callback": true,
+      "rhs": "",
+      "lhs": " qs"
+    },
+    {
+      "desc": "Commands",
+      "callback": true,
+      "rhs": "",
+      "lhs": " sC"
+    },
+    {
+      "desc": "Find workspace symbol",
+      "callback": true,
+      "rhs": "",
+      "lhs": " sS"
+    },
+    {
+      "desc": "Diagnostics",
+      "callback": true,
+      "rhs": "",
+      "lhs": " sd"
+    },
+    {
+      "desc": "Project Search",
+      "callback": true,
+      "rhs": "",
+      "lhs": " sg"
+    },
+    {
+      "desc": "Help",
+      "callback": true,
+      "rhs": "",
+      "lhs": " sh"
+    },
+    {
+      "desc": "Keymaps",
+      "callback": true,
+      "rhs": "",
+      "lhs": " sk"
+    },
+    {
+      "desc": "Resume search",
+      "callback": true,
+      "rhs": "",
+      "lhs": " sr"
+    },
+    {
+      "desc": "Find document symbol",
+      "callback": true,
+      "rhs": "",
+      "lhs": " ss"
+    },
+    {
+      "desc": "Search TODOs",
+      "callback": true,
+      "rhs": "",
+      "lhs": " st"
+    },
+    {
+      "desc": "1337 Station Health",
+      "callback": true,
+      "rhs": "",
+      "lhs": " u1"
+    },
+    {
+      "desc": "Exit Workspace",
+      "callback": true,
+      "rhs": "",
+      "lhs": " uW"
+    },
+    {
+      "desc": "Zoom",
+      "callback": true,
+      "rhs": "",
+      "lhs": " uZ"
+    },
+    {
+      "desc": "Format on Save",
+      "callback": true,
+      "rhs": "",
+      "lhs": " uf"
+    },
+    {
+      "desc": "Inlay Hints",
+      "callback": true,
+      "rhs": "",
+      "lhs": " uh"
+    },
+    {
+      "desc": "Dismiss Notices",
+      "callback": true,
+      "rhs": "",
+      "lhs": " un"
+    },
+    {
+      "desc": "Workspace",
+      "callback": true,
+      "rhs": "",
+      "lhs": " uw"
+    },
+    {
+      "desc": "Zen Mode",
+      "callback": true,
+      "rhs": "",
+      "lhs": " uz"
+    },
+    {
+      "desc": "Horizontal split",
+      "callback": false,
+      "rhs": "<Cmd>split<CR>",
+      "lhs": " ws"
+    },
+    {
+      "desc": "Vertical split",
+      "callback": false,
+      "rhs": "<Cmd>vsplit<CR>",
+      "lhs": " wv"
+    },
+    {
+      "desc": "Switch window",
+      "callback": false,
+      "rhs": "<C-W>w",
+      "lhs": " ww"
+    },
+    {
+      "desc": "Editable quickfix (Quicker)",
+      "callback": true,
+      "rhs": "",
+      "lhs": " xQ"
+    },
+    {
+      "desc": "Buffer Diagnostics",
+      "callback": true,
+      "rhs": "",
+      "lhs": " xd"
+    },
+    {
+      "desc": "Quickfix",
+      "callback": true,
+      "rhs": "",
+      "lhs": " xq"
+    },
+    {
+      "desc": "Workspace Diagnostics",
+      "callback": true,
+      "rhs": "",
+      "lhs": " xw"
+    },
+    {
+      "desc": "Project Diagnostics",
+      "callback": true,
+      "rhs": "",
+      "lhs": " xx"
+    },
+    {
+      "desc": "Yank to clipboard",
+      "callback": false,
+      "rhs": "\"+y",
+      "lhs": " y"
+    }
+  ],
+  "existing_leader_mappings_preserved": true,
+  "memory_after": {
+    "rss_kib": 33804,
+    "lua_gc_kib": 12199.728515625
+  },
+  "messages": ""
+}

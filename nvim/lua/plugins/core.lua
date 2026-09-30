@@ -9,10 +9,15 @@ return {
   { 'nvim-treesitter/nvim-treesitter', lazy = false, build = ':TSUpdate', opts = {}, config = function(_, opts)
     require('nvim-treesitter').setup(opts)
     vim.api.nvim_create_autocmd('FileType', { callback = function(ev)
-      if vim.bo[ev.buf].buftype == '' then pcall(vim.treesitter.start, ev.buf) end
+      if vim.bo[ev.buf].buftype == '' and not require('config.markdown').large(ev.buf) then
+        pcall(vim.treesitter.start, ev.buf)
+      end
     end })
   end },
-  { 'nvim-treesitter/nvim-treesitter-context', event = { 'BufReadPost', 'BufNewFile' }, opts = { max_lines = 2, trim_scope = 'outer' } },
+  { 'nvim-treesitter/nvim-treesitter-context', event = { 'BufReadPost', 'BufNewFile' }, opts = {
+    max_lines = 2, trim_scope = 'outer',
+    on_attach = function(buf) return not require('config.markdown').large(buf) end,
+  } },
   { 'neovim/nvim-lspconfig', event = { 'BufReadPre', 'BufNewFile' }, dependencies = { 'saghen/blink.cmp' },
     config = function(_, opts)
       vim.diagnostic.config(opts.diagnostics or {})

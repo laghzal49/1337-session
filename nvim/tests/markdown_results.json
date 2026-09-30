@@ -1,0 +1,49 @@
+{
+  "conditions": "Neovim 0.12.5 embedded RGB UI 140x42; unsaved Markdown 12000 lines, 1500 Python fences; installed plugins; /tmp XDG cache/state; 100 normal! j plus explicit redraw per sample, seven samples. Same process sequential variants; no physical input claim. Renderer disable and manual folds do not explain cost; final variant stops both Tree-sitter highlighting and context.",
+  "before_ms": [
+    1165.423208,
+    1291.386061,
+    1253.316282,
+    1274.541736,
+    1246.280274,
+    1252.068162,
+    1230.415064
+  ],
+  "renderer_disabled_ms": [
+    1291.38883,
+    1240.685464,
+    1241.636274,
+    1206.471096,
+    1214.839858,
+    1201.303726,
+    1178.215654
+  ],
+  "reader_ms": [
+    1196.770567,
+    1197.605439,
+    1193.464584,
+    1176.857351,
+    1174.053516,
+    1203.322175,
+    1184.064676
+  ],
+  "highlight_and_context_disabled_ms": [
+    82.760845,
+    35.083198,
+    35.229905,
+    35.316123,
+    36.468395,
+    36.329347,
+    36.625211
+  ],
+  "after_guard_ms": [
+    46.037178,
+    46.321325,
+    48.22798,
+    49.125352,
+    48.73252,
+    48.39463,
+    49.705339
+  ],
+  "after_guard_conditions": "Same 12000-line fixture with configured 5000-line/512KiB automatic rendering/highlighting/context guard; seven 100-move+redraw samples. Separate fresh process."
+}

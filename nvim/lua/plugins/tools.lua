@@ -184,7 +184,7 @@ return {
   },
   {
     'MeanderingProgrammer/render-markdown.nvim',
-    ft = { 'markdown' },
+    ft = { 'markdown', 'blink-cmp-documentation' },
     init = function() require('config.markdown').setup() end,
     dependencies = { 'nvim-treesitter/nvim-treesitter' },
     keys = {
@@ -201,8 +201,13 @@ return {
       render_modes = { 'n', 'c', 't' },
       debounce = 120,
       max_file_size = 10.0,
+      ignore = function(buf) return require('config.markdown').large(buf) end,
       preset = 'none',
-      file_types = { 'markdown' },
+      file_types = { 'markdown', 'blink-cmp-documentation' },
+      overrides = { buftype = { nofile = {
+        render_modes = true, anti_conceal = { enabled = false },
+        sign = { enabled = false }, code = { language = false, border = 'hide' },
+      } } },
       anti_conceal = {
         enabled = true,
         above = 0,

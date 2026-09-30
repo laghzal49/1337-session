@@ -5,6 +5,7 @@ Uses the installed plugins/cache; never clears caches or installs tools itself.
 import argparse, json, os, pathlib, re, shutil, statistics, subprocess, tempfile
 parser = argparse.ArgumentParser()
 parser.add_argument('--runs', type=int, default=5)
+parser.add_argument('--config', type=pathlib.Path, help='configuration snapshot; cwd stays the repository root')
 args = parser.parse_args()
 if not 1 <= args.runs <= 30:
     parser.error('--runs must be between 1 and 30')
@@ -12,14 +13,19 @@ exe = os.environ.get('NVIM_BIN') or shutil.which('nvim')
 if not exe:
     parser.error('set NVIM_BIN or install Neovim')
 root = pathlib.Path(__file__).resolve().parents[2]
-env = dict(os.environ, XDG_CONFIG_HOME=str(root))
 samples = []
 with tempfile.TemporaryDirectory() as tmp:
+    config_home = root
+    if args.config:
+        config_home = pathlib.Path(tmp) / 'config'
+        config_home.mkdir()
+        (config_home / 'nvim').symlink_to(args.config.resolve(), target_is_directory=True)
+    env = dict(os.environ, XDG_CONFIG_HOME=str(config_home))
     for i in range(args.runs):
         log = pathlib.Path(tmp) / str(i)
         run = subprocess.run([exe, '--headless', '--startuptime', str(log), '+qa!'],
                              env=env, cwd=root, capture_output=True, text=True, timeout=30)
-        if run.returncode:
+        if run.returncode or re.search(r'Error in |Failed to load |E\d+:', run.stderr):
             raise SystemExit(run.stderr)
         times = [float(m[1]) for line in log.read_text().splitlines()
                  if (m := re.match(r'^(\d+\.\d+).*NVIM STARTED', line))]

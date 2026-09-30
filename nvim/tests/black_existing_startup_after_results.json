@@ -1,0 +1,13 @@
+{
+  "scope": "headless startup, existing cache; not LSP or UI latency",
+  "nvim": "NVIM v0.12.5",
+  "first_ms": 37.292,
+  "runs_ms": [
+    37.292,
+    37.932,
+    37.657,
+    38.496,
+    37.86
+  ],
+  "median_ms": 37.86
+}

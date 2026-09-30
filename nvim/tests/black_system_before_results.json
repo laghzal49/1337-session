@@ -1,0 +1,30 @@
+{
+  "scope": "Matched startup/idle memory benchmark for BLACKDECK and SmartDocs.\nFive warm runs, existing installed plugin data, same repo cwd, /tmp cache/state.\nNVIM_BLACK_DOCS_AUTO_UPDATE=0 prevents benchmark-triggered network requests.\n",
+  "cwd": "/home/tarik/Projects/1337-session",
+  "config": "/tmp/1337-before-black-deck",
+  "auto_update": false,
+  "runs": 5,
+  "startup_ms": [
+    40.412,
+    38.667,
+    35.244,
+    39.31,
+    37.015
+  ],
+  "metrics": {},
+  "errors": [],
+  "startup_first_ms": 61.535,
+  "startup_median_ms": 38.667,
+  "idle_memory": {
+    "rss_kib": 24952,
+    "lua_gc_kib": 7662.6962890625
+  },
+  "modules_at_idle": {
+    "deep_docs": false,
+    "telescope": false,
+    "smart_docs": false,
+    "docs_store": false,
+    "devdocs": false
+  },
+  "messages": ""
+}
