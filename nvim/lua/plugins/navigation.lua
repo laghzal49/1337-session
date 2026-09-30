@@ -26,10 +26,10 @@ return {
     opts = {
       mappings = {
         stop = '<Esc>',
-        toggle_preview = '<C-p>',
-        move_up = '<C-k>',
-        move_down = '<C-j>',
-        mark = '<Tab>',
+        toggle_preview = '<Tab>',
+        move_up = '<C-p>',
+        move_down = '<C-n>',
+        mark = '<C-x>',
         mark_all = '<C-a>',
       },
       window = {

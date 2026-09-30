@@ -6,6 +6,7 @@ vim.g.maplocalleader = "\\"
 vim.opt.termguicolors = true
 vim.opt.background = "dark"
 vim.opt.number = true
+vim.opt.relativenumber = true
 -- Keep one sign slot; add a second when multiple signs share a line.
 vim.opt.signcolumn = "auto:1-2"
 vim.opt.statuscolumn = "" -- Native rendering honors the dynamic sign width.

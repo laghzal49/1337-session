@@ -67,12 +67,10 @@ map('<leader>gg', function()
   Snacks.lazygit({ cwd = require('config.project').root() })
 end, 'Git UI')
 
--- Toggle floating terminal quickly with Ctrl-t or Ctrl-/ (normal, terminal, and insert modes)
-local function toggle_terminal()
-  Snacks.terminal(nil, { cwd = require('config.project').root() })
-end
-vim.keymap.set({ 'n', 't', 'i' }, '<C-t>', toggle_terminal, { desc = 'Toggle Floating Terminal' })
-vim.keymap.set({ 'n', 't', 'i' }, '<C-/>', toggle_terminal, { desc = 'Toggle Floating Terminal' })
+-- Focus the project terminal, or hide it when it already has focus.
+local toggle_terminal = function() require('config.terminal').toggle() end
+vim.keymap.set({ 'n', 't', 'i' }, '<C-t>', toggle_terminal, { desc = 'Focus or hide project terminal' })
+vim.keymap.set({ 'n', 't', 'i' }, '<C-/>', toggle_terminal, { desc = 'Focus or hide project terminal' })
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 vim.api.nvim_create_user_command('ConfigTools', function()

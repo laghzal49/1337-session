@@ -1,0 +1,20 @@
+-- Run with the full config from the repository root.
+local dir = vim.fn.tempname()
+vim.fn.mkdir(dir, 'p')
+vim.fn.writefile({ '[project]', 'name = "terminal-review"' }, dir .. '/pyproject.toml')
+vim.fn.writefile({ 'print("ready")' }, dir .. '/main.py')
+vim.cmd.edit(dir .. '/main.py')
+
+assert(vim.wo.number and vim.wo.relativenumber)
+local terminal = require('config.terminal')
+assert(terminal.toggle())
+local shell = assert(Snacks.terminal.list()[1])
+assert(vim.b[shell.buf].snacks_terminal.cwd == dir)
+assert(not vim.wo[shell.win].number and not vim.wo[shell.win].relativenumber)
+assert(terminal.toggle(), 'toggle from inside terminal failed')
+assert(not shell:win_valid() and #Snacks.terminal.list() == 1, 'toggle opened another shell')
+
+vim.fn.chansend(vim.b[shell.buf].terminal_job_id, 'exit\n')
+assert(vim.wait(3000, function() return not shell:buf_valid() end, 50), 'shell did not exit')
+vim.fn.delete(dir, 'rf')
+print('TERMINAL: project root, relative numbers, focus/hide, shell exit PASS')

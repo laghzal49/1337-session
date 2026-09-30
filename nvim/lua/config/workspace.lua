@@ -68,7 +68,7 @@ function M.enter()
 
   known = remember_windows()
   safely('terminal', function()
-    Snacks.terminal(nil, { cwd = require('config.project').root() })
+    require('config.terminal').toggle()
   end)
   remember_new_windows(known)
 

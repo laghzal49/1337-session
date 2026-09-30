@@ -156,7 +156,7 @@ return {
       sections[#sections + 1] = action(icon("buffer"), "Open buffers", "b", ":lua require('config.pick').open('buffers')", { width = label_width, pane = 1 })
       sections[#sections + 1] = action(icon("file_new"), "New buffer", "n", ":ene | startinsert", { width = label_width, pane = 1 })
       sections[#sections + 1] = action(icon("terminal"), "Project terminal", "t",
-        ":lua Snacks.terminal(nil, { cwd = require('config.project').root() })", { width = label_width, pane = 1 })
+        ":lua require('config.terminal').toggle()", { width = label_width, pane = 1 })
       sections[#sections + 1] = action(icon("markdown"), "Markdown files", "m", M.open_markdown, { width = label_width, pane = 1 })
       sections[#sections + 1] = {
         section = "session",
@@ -239,7 +239,7 @@ return {
       sections[#sections + 1] = action(icon("buffer"), "Open buffers", "b", ":lua require('config.pick').open('buffers')", { width = label_width })
       sections[#sections + 1] = action(icon("file_new"), "New buffer", "n", ":ene | startinsert", { width = label_width })
       sections[#sections + 1] = action(icon("terminal"), "Project terminal", "t",
-        ":lua Snacks.terminal(nil, { cwd = require('config.project').root() })", { width = label_width })
+        ":lua require('config.terminal').toggle()", { width = label_width })
       sections[#sections + 1] = action(icon("markdown"), "Markdown files", "m", M.open_markdown, { width = label_width })
       sections[#sections + 1] = {
         section = "session",

@@ -113,6 +113,7 @@ return {
           backdrop = 60,
           title = ' 󰞌  Terminal ',
           title_pos = 'center',
+          wo = { number = false, relativenumber = false, signcolumn = 'no' },
         },
       },
       input = {
@@ -137,7 +138,7 @@ return {
     },
     keys = {
       { '<leader>ft', function()
-        Snacks.terminal(nil, { cwd = require('config.project').root() })
+        require('config.terminal').toggle()
       end, desc = 'Project terminal' },
       { '<leader>gL', function()
         require('config.pick').open('git_commits')

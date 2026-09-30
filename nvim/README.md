@@ -59,7 +59,8 @@ plugin checkouts after updating, then restart Neovim.
 ## The smaller workflow
 
 - **Mini Pick + Mini Extra:** files, live grep, buffers, commands, diagnostics and
-  symbols. Ctrl-P switches between results and preview in the same window.
+  symbols. In the picker, Up/Down or Ctrl-P/Ctrl-N moves through results, Tab
+  toggles preview, Ctrl-X marks a result, and Enter opens the selected result.
 - **Snacks.explorer:** modern, fast file explorer with tree navigation, git status indicators, LSP integration, floating/sidebar layouts, and built-in file operations.
 - **Aerial:** on-demand code outline, with Tree-sitter and LSP backends.
 - **Glance:** peek at definitions/references without leaving the source.
@@ -88,6 +89,18 @@ plugin checkouts after updating, then restart Neovim.
 Snacks provides its explorer, picker, dashboard, terminal, input, indentation and Git UI. Neo-tree, Namu, Colorful Menu and Endhints are
 removed. There are no inherited distribution keymaps or background tool installs.
 
+## Lines and terminal
+
+Editing windows show the current line number and relative numbers for nearby
+lines, so `5j` moves down five lines. The floating terminal hides line numbers.
+
+Use `<leader>ft` or `Ctrl-T` to focus the project terminal. Press the same key
+while it has focus to hide it; its shell stays running. `Ctrl-/` is an alternate
+binding when the terminal emulator sends that key combination to Neovim.
+Press `Esc` twice to leave terminal input mode, then `i` to return to it. To
+end the shell, run `exit` inside the terminal. Terminal startup errors are
+shown as a notification instead of interrupting the editor.
+
 ## Keys
 
 `<leader>` is Space.
@@ -97,7 +110,7 @@ removed. There are no inherited distribution keymaps or background tool installs
 | Find files / search text | `<leader><space>` / `<leader>/` |
 | Buffers / recent files | `<leader>,` / `<leader>fr` |
 | Commands / keymaps / help | `<leader>sC` / `<leader>sk` / `<leader>sh` |
-| Preview / mark / send marked to quickfix | `Ctrl-P` / `Tab` / `Alt-Enter` in picker |
+| Move / preview / mark / send marked to quickfix | `Up/Down` or `Ctrl-P/Ctrl-N` / `Tab` / `Ctrl-X` / `Alt-Enter` in picker |
 | Toggle file explorer (Snacks explorer) | `<leader>e` |
 | Open file explorer | `<leader>fe` |
 | Code outline / find file symbol | `<leader>cs` / `<leader>ss` |
@@ -113,7 +126,7 @@ removed. There are no inherited distribution keymaps or background tool installs
 | Native hints / format-on-save toggle | `<leader>uh` / `<leader>uf` |
 | Notification history / dismiss | `<leader>n` / `<leader>un` |
 | Makefile target picker / default target | `<leader>cm` / `<leader>cM` |
-| Terminal / Git UI | `<leader>ft` / `<leader>gg` |
+| Focus or hide project terminal / Git UI | `<leader>ft` or `Ctrl-T` / `<leader>gg` |
 | Restore session | `<leader>qs` |
 | Save / previous buffer / next buffer | `Ctrl-S` / `Shift-H` / `Shift-L` |
 
@@ -166,6 +179,7 @@ python3 nvim/tests/ui_review.py --screenshot  # refresh completion screenshot; r
 nvim --headless -u NONE -l nvim/tests/python_environment.lua
 NVIM_TY=/path/to/ty nvim --headless -u NONE -l nvim/tests/real_ty.lua
 nvim --headless '+lua dofile("nvim/tests/standalone.lua")' +qa!
+nvim --headless '+lua dofile("nvim/tests/terminal_review.lua")' +qa!
 python3 nvim/tests/startup_bench.py --runs 5
 python3 nvim/tests/capture_makefile.py  # also requires ImageMagick + JetBrainsMono Nerd Font Mono
 ```

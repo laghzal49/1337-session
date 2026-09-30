@@ -108,9 +108,18 @@ for width,height in [(80,24),(100,30),(140,42)]:
   call('nvim_input',['notifications' if source=='files' else 'vim.notify']);pump(.7)
   state=call('nvim_exec_lua',["local p=require('mini.pick'); local s=p.get_picker_state(); return {items=#p.get_picker_items(),width=vim.api.nvim_win_get_width(s.windows.main),height=vim.api.nvim_win_get_height(s.windows.main)}",[]])
   assert state['items']>0 and state['width']<=width and state['height']<=height,state
-  call('nvim_input',['<C-p>']);pump(.3)
+  if state['items']>1:
+   first=call('nvim_exec_lua',["return require('mini.pick').get_picker_matches().current_ind",[]])
+   call('nvim_input',['<Down>']);pump(.2)
+   assert call('nvim_exec_lua',["return require('mini.pick').get_picker_matches().current_ind",[]])!=first
+   call('nvim_input',['<C-p>']);pump(.2)
+   assert call('nvim_exec_lua',["return require('mini.pick').get_picker_matches().current_ind",[]])==first
+   call('nvim_input',['<C-n>']);pump(.2)
+   call('nvim_input',['<Up>']);pump(.2)
+   assert call('nvim_exec_lua',["return require('mini.pick').get_picker_matches().current_ind",[]])==first
+  call('nvim_input',['<Tab>']);pump(.3)
   assert call('nvim_exec_lua',["local s=require('mini.pick').get_picker_state(); return s.buffers.preview~=nil and vim.api.nvim_win_get_buf(s.windows.main)==s.buffers.preview",[]])
-  call('nvim_input',['<C-p>']);pump(.2)
+  call('nvim_input',['<Tab>']);pump(.2)
   call('nvim_input',['<Esc>']);pump(.3)
   assert call('nvim_exec_lua',["return require('mini.pick').get_picker_state()==nil",[]])
  print('MINI PICK',width,height,'files, live grep, previews, close PASS',flush=True)
