@@ -47,6 +47,9 @@ function M.render(buf, win)
 end
 
 function M.open(lines, title, options)
+  -- Load the renderer before creating Markdown floats. Loading it from that
+  -- float's FileType event makes Lazy replay native ftplugin cleanup twice.
+  pcall(require, 'render-markdown')
   local cmp = package.loaded['blink.cmp']
   if cmp then cmp.hide_documentation(); cmp.hide_signature() end
   local opts = M.options(title)

@@ -43,8 +43,9 @@ reference:
 	$(PYTHON) nvim/tests/terminal_escape_review.py
 	$(PYTHON) nvim/tests/documentation_review.py
 
-## Run strict upgrade regressions in fresh Neovim processes (requires debugpy)
+## Run strict upgrade regressions in fresh Neovim processes (requires debugpy, ty and Ruff)
 upgrade:
+	$(NVIM) --headless -u NONE -l nvim/tests/python_environment.lua
 	$(PYTHON) nvim/tests/installer_review.py
 	$(PYTHON) nvim/tests/download_integrity_review.py
 	$(PYTHON) nvim/tests/runner_review.py

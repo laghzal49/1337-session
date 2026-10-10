@@ -1,7 +1,38 @@
 -- Resolve standalone-script user packages without blocking Neovim's UI.
 local M = {}
 local cache, waiting, roots = {}, {}, {}
-local markers = { "ty.toml", "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", ".git" }
+local overrides = {}
+local markers = { "ty.toml", "pyproject.toml", "setup.py", "setup.cfg", "requirements.txt", "pytest.ini", "Pipfile", "poetry.lock", "uv.lock", ".git" }
+
+function M.project_root(buf)
+  local project = vim.fs.root(buf, markers)
+  local root = project or vim.fn.getcwd()
+  return vim.uv.fs_realpath(root) or root, project
+end
+
+function M.ruff_root_dir(buf, on_dir) on_dir(M.project_root(buf)) end
+
+function M.interpreter(root)
+  root = root or M.project_root(0)
+  if overrides[root] then return overrides[root], 'project override' end
+  if type(vim.g.python_lsp_python) == 'string' and vim.g.python_lsp_python ~= '' then
+    return vim.g.python_lsp_python, 'configured override'
+  end
+  -- Match ty's native precedence; do not override a project's ty.toml settings.
+  for _, entry in ipairs({ { vim.env.VIRTUAL_ENV, 'active virtualenv' }, { vim.env.CONDA_PREFIX, 'active Conda' },
+    { root .. '/.venv', 'project .venv' } }) do
+    if entry[1] and vim.fn.executable(entry[1] .. '/bin/python') == 1 then
+      return entry[1] .. '/bin/python', entry[2]
+    end
+  end
+  return vim.fn.exepath('python3'), 'PATH (ty may override this from project configuration)'
+end
+
+function M.set_interpreter(root, path)
+  if path and vim.fn.executable(path) ~= 1 then return false, 'Python interpreter is not executable: ' .. path end
+  overrides[root] = path
+  return true
+end
 
 function M.user_site(done)
   local executable = vim.fn.exepath("python3")
@@ -25,9 +56,9 @@ function M.user_site(done)
 end
 
 function M.root_dir(buf, on_dir)
-  local project = vim.fs.root(buf, markers)
-  local root = project or vim.fn.getcwd()
-  root = vim.uv.fs_realpath(root) or root
+  local root, project = M.project_root(buf)
+  local name = vim.api.nvim_buf_get_name(buf)
+  local cwd = vim.fn.getcwd()
   if (project and project ~= vim.fn.expand("~")) or vim.env.VIRTUAL_ENV or vim.env.CONDA_PREFIX
     or vim.fn.isdirectory(root .. "/.venv") == 1 then
     roots[root] = false
@@ -35,13 +66,23 @@ function M.root_dir(buf, on_dir)
     return
   end
   M.user_site(function(path)
-    if not vim.api.nvim_buf_is_valid(buf) then return end
+    if not vim.api.nvim_buf_is_valid(buf) or vim.api.nvim_buf_get_name(buf) ~= name
+      or (not project and vim.fn.getcwd() ~= cwd) then return end
     roots[root] = path or false
     on_dir(root)
   end)
 end
 
 function M.before_init(_, config)
+  config.settings = vim.deepcopy(config.settings or {})
+  config._python_base_settings = vim.deepcopy(config.settings)
+  local explicit = overrides[config.root_dir] or vim.g.python_lsp_python
+  if type(explicit) == 'string' and explicit ~= '' then
+    config.settings.ty = vim.tbl_deep_extend('force', config.settings.ty or {}, {
+      configuration = { environment = { python = explicit } },
+    })
+    return
+  end
   local path = roots[config.root_dir]
   if path then
     config.settings = config.settings or {}

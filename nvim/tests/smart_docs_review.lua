@@ -39,6 +39,13 @@ source({'def sum(values):','    return 42','sum([])'},3,'sum')
 local local_result=resolve(); assert(local_result.project_local and local_result.allow_literal==false and #local_result.candidates==0,'project builtin shadow stole external identity')
 source({'from pathlib import Path','def work(Path):','    Path.exists()'},3,'exists')
 assert(resolve().project_local,'parameter shadow stole imported identity')
+-- Async definitions and parameters must retain project identity as well.
+source({'async def sum(values):','    return 42','sum([])'},3,'sum')
+assert(resolve().project_local,'async builtin shadow stole external documentation')
+source({'from pathlib import Path','async def work(Path):','    Path.exists()'},3,'exists')
+assert(resolve().project_local,'async parameter shadow stole imported identity')
+source({'from pathlib import Path','async def work(p: Path):','    p.exists()'},3,'exists')
+assert(resolve().candidates[1]=='pathlib.Path.exists','async typed parameter identity unresolved')
 -- Existing hover is consumed once on an offline miss, without another request.
 source({'def sum(values):','    return 42','sum([])'},3,'sum')
 vim.lsp.get_clients=function() return {client} end
