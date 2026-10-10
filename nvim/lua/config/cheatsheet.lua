@@ -25,6 +25,26 @@ local function setup_highlights()
 end
 
 local content_lines = {
+  "## Debugger (Python / C / C++)",
+  "  `<F5>` Continue/start │ `<F10>` Over │ `<F11>` Into │ `<F12>` Out",
+  "  `<leader>Db` Breakpoint │ `<leader>DB` Conditional breakpoint",
+  "  `<leader>Du` Panels │ `<leader>De` Evaluate │ `<leader>Dt` Stop",
+  "  `<leader>DL` Logpoint │ `<leader>Dp` Pause │ `<leader>Dl` Last session │ `<leader>Dx` Clear",
+  "  Setup: debugpy for Python; GDB 14+ for C/C++. See :ConfigGuide.",
+  "",
+  "## Project Tasks & Workspace",
+  "  `<leader>rt` Project tasks │ `<leader>rr` Repeat │ `<leader>rs` Stop │ `<leader>ro` Output",
+  "  Auto-detects Make targets, package scripts, Cargo, Go and Python tests/lint",
+  "  Failed builds open quickfix or raw output; `<leader>xn` / `<leader>xp` navigate errors",
+  "  `<leader>uw` Adaptive workspace │ `<leader>uW` Exit while preserving editing windows",
+  "  `<leader>uy` Copy relative file path │ Visual `<A-j>` / `<A-k>` Move selected lines",
+  "",
+  "## Everyday Controls",
+  "  `<leader>ud` Buffer diagnostics │ `<leader>uv` Line wrap",
+  "  `<leader>ul` Line numbers       │ `<leader>ur` Relative numbers",
+  "  `<leader>bo` Close other buffers (prompts for unsaved changes)",
+  "  `j` / `k` Move by displayed lines; add a count for logical lines",
+  "",
   "## 📁 File Explorer (`Snacks.explorer`)",
   "  `<leader>e`   Toggle file tree             │ `<leader>fe`  Focus file tree",
   "  Inside: `<CR>` open · `a` create · `d` trash · `r` rename · `c` copy · `m` move · `.` hidden · `q` close",
@@ -135,8 +155,8 @@ function M.show()
   local target_h = 32
 
   -- Clamp dimensions to fit current terminal size gracefully
-  local width = math.min(target_w, math.max(20, vim.o.columns - 4))
-  local height = math.min(target_h, math.max(10, vim.o.lines - 4))
+  local width = math.max(1, math.min(target_w, vim.o.columns - 4))
+  local height = math.max(1, math.min(target_h, vim.o.lines - 4))
   local row = math.max(0, math.floor((vim.o.lines - height) / 2))
   local col = math.max(0, math.floor((vim.o.columns - width) / 2))
 

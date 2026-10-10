@@ -1,7 +1,7 @@
 -- Called by ui_review.py with an attached UI. All mutations use temporary files.
 local plugins = {
   "nvim-treesitter-textobjects", "tiny-inline-diagnostic.nvim", "quicker.nvim",
-  "mini.pick", "mini.extra", "mini.notify", "glance.nvim", "inc-rename.nvim", "aerial.nvim",
+  "mini.pick", "mini.notify", "glance.nvim", "inc-rename.nvim", "aerial.nvim",
   "treesj", "nvim-various-textobjs",
 }
 require("lazy").load({ plugins = plugins })

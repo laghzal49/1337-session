@@ -1,6 +1,8 @@
 """Five-run installed MiniPick/Snacks comparison with identical files and UI.
 
-Uses /tmp fixture/cache/state and real picker APIs. Polling resolution is 2ms;
+Uses /tmp fixture/cache/state and real picker APIs. Main navigation uses Snacks;
+MiniPick uses direct builtins and raw lists for recent files/history as a baseline.
+Polling resolution is 2ms;
 elapsed open/filter times include asynchronous finder and rendering readiness.
 No external LSP server or physical keyboard latency is measured.
 """
@@ -59,10 +61,24 @@ def wait(code, limit=5):
 
 rpc('nvim_ui_attach', [140, 42, {'rgb': True, 'ext_linegrid': True}])
 time.sleep(.3)
-lua("require('lazy').load({plugins={'mini.pick','mini.extra'}}); _G.pb_dir=...; "
+lua("require('lazy').load({plugins={'mini.pick'}}); _G.pb_dir=...; "
     "local old={}; for i=0,19 do old[i+1]=pb_dir..string.format('/module_%04d.py',i); "
     "vim.fn.histadd(':','edit '..old[i+1]) end; vim.v.oldfiles=old; "
     "for i=0,4 do local b=vim.fn.bufadd(pb_dir..string.format('/module_%04d.py',i)); vim.bo[b].buflisted=true end", [str(fixture)])
+lua("""
+_G.pb_open_mini = function(source)
+  local p=require('mini.pick')
+  local config={source={cwd=pb_dir}}
+  if source=='files' then return p.builtin.files({tool='rg'},config)
+  elseif source=='grep' then return p.builtin.grep_live({tool='rg'},config)
+  elseif source=='buffers' then return p.builtin.buffers(nil,config)
+  elseif source=='oldfiles' then return p.start({source={items=vim.v.oldfiles,cwd=pb_dir,name='Recent files'}})
+  elseif source=='command_history' then
+    local items={}; for i=1,vim.fn.histnr(':') do local item=vim.fn.histget(':',i); if item~='' then items[#items+1]=item end end
+    return p.start({source={items=items,cwd=pb_dir,name='Command history'}})
+  end
+end
+""")
 result = {'scope': __doc__, 'cwd': str(root), 'config': str(args.config.resolve()),
           'files': 1000, 'ui': [140,42], 'runs': 5, 'metrics': {}, 'checks': {}, 'errors': []}
 if args.references_only:
@@ -125,7 +141,8 @@ for source in sources:
                     lua("pb_items={}; for i=1,... do pb_items[i]=string.format('module_%05d.py',i) end", [n])
                 if kind == 'mini':
                     opening = ("require('mini.pick').start({source={items=pb_items,cwd=pb_dir}})" if source.startswith('filter')
-                               else "require('config.pick').open(...,{cwd=pb_dir})")
+                               else "require('config.pick').open(...,{cwd=pb_dir})" if source == 'references'
+                               else "pb_open_mini(...)")
                     lua("local source=...; pb_start=vim.uv.hrtime(); vim.schedule(function() " +
                         opening.replace('...', 'source') + " end)", [source])
                     if source == 'grep':
@@ -162,7 +179,7 @@ for width,height in (() if args.references_only else ((80,24),(140,42))):
         key=kind+'_'+str(width)
         try:
             if kind=='mini':
-                lua("pb_start=vim.uv.hrtime(); vim.schedule(function() require('config.pick').open('files',{cwd=pb_dir}) end)")
+                lua("pb_start=vim.uv.hrtime(); vim.schedule(function() pb_open_mini('files') end)")
                 ready(kind,1000)
                 rpc('nvim_input',['<C-x><C-n><C-x><Tab>']); time.sleep(.05)
                 checked=lua("local p=require('mini.pick'); local s=p.get_picker_state(); local w=s.windows.main; "

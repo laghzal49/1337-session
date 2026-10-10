@@ -97,7 +97,7 @@ def reset(line='analyze', insert=False):
 
 call('nvim_ui_attach', [140,42,{'rgb':True,'ext_linegrid':True}])
 pump(0.7)
-lua("dofile('nvim/tests/documentation_fixture.lua'); require('lazy').load({plugins={'mini.pick','mini.extra','render-markdown.nvim'}})")
+lua("dofile('nvim/tests/documentation_fixture.lua'); require('lazy').load({plugins={'mini.pick','render-markdown.nvim'}})")
 pump(0.2)
 
 for width,height in [(80,24),(100,30),(140,42)]:

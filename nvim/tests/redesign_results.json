@@ -1,0 +1,270 @@
+{
+  "baseline_commit": "5c5fdbabd43a8c35d2a1c307c8b0d35ca619bfdc",
+  "nvim": "0.11.5",
+  "before": {
+    "scope": "Matched startup/idle memory benchmark for BLACKDECK and SmartDocs.\nFive warm runs, existing installed plugin data, same repo cwd, /tmp cache/state.\nNVIM_BLACK_DOCS_AUTO_UPDATE=0 prevents benchmark-triggered network requests.\n",
+    "cwd": "/workspace/1337-session",
+    "config": "/workspace/scratch/before/nvim",
+    "auto_update": false,
+    "runs": 5,
+    "startup_ms": [
+      20.78,
+      20.763,
+      19.806,
+      22.049,
+      24.084
+    ],
+    "metrics": {},
+    "errors": [],
+    "startup_first_ms": 39.827,
+    "startup_median_ms": 20.78,
+    "idle_memory": {
+      "rss_kib": 21956,
+      "lua_gc_kib": 7793.7236328125,
+      "live_lua_gc_kib": 5891.3701171875
+    },
+    "modules_at_idle": {
+      "smart_docs": false,
+      "docs_store": false,
+      "deep_docs": false,
+      "devdocs": false,
+      "telescope": false
+    },
+    "messages": ""
+  },
+  "after": {
+    "scope": "Matched startup/idle memory benchmark for BLACKDECK and SmartDocs.\nFive warm runs, existing installed plugin data, same repo cwd, /tmp cache/state.\nNVIM_BLACK_DOCS_AUTO_UPDATE=0 prevents benchmark-triggered network requests.\n",
+    "cwd": "/workspace/1337-session",
+    "config": "/workspace/1337-session/nvim",
+    "auto_update": false,
+    "runs": 5,
+    "startup_ms": [
+      15.275,
+      21.305,
+      14.856,
+      14.758,
+      14.717
+    ],
+    "metrics": {},
+    "errors": [],
+    "startup_first_ms": 27.872,
+    "startup_median_ms": 14.856,
+    "idle_memory": {
+      "rss_kib": 21012,
+      "lua_gc_kib": 6271.96484375,
+      "live_lua_gc_kib": 5377.083984375
+    },
+    "modules_at_idle": {
+      "devdocs": false,
+      "telescope": false,
+      "smart_docs": false,
+      "docs_store": false,
+      "deep_docs": false
+    },
+    "messages": ""
+  },
+  "treesitter_compatibility_pin": "4d9916e477e5d4e3b245845dfd285edf429f3252",
+  "picker_tradeoff_results": {
+    "scope": "Five-run installed MiniPick/Snacks comparison with identical files and UI.\n\nUses /tmp fixture/cache/state and real picker APIs. Main navigation uses Snacks;\nMiniPick is benchmarked directly as the retained specialized picker baseline. Polling resolution is 2ms;\nelapsed open/filter times include asynchronous finder and rendering readiness.\nNo external LSP server or physical keyboard latency is measured.\n",
+    "cwd": "/workspace/1337-session",
+    "config": "/workspace/1337-session/nvim",
+    "files": 1000,
+    "ui": [
+      140,
+      42
+    ],
+    "runs": 5,
+    "metrics": {
+      "files": {
+        "mini": {
+          "runs_ms": [
+            13.383793,
+            18.657066,
+            14.677886,
+            13.213999,
+            10.480599
+          ],
+          "median_ms": 13.383793
+        },
+        "snacks": {
+          "runs_ms": [
+            23.694419,
+            8.21753,
+            30.320081,
+            30.948448,
+            25.421277
+          ],
+          "median_ms": 25.421277
+        }
+      },
+      "grep": {
+        "mini": {
+          "runs_ms": [
+            23.873046,
+            10.676651,
+            11.876923,
+            10.792684,
+            11.42557
+          ],
+          "median_ms": 11.42557
+        },
+        "snacks": {
+          "runs_ms": [
+            27.05058,
+            25.793042,
+            27.763314,
+            36.043046,
+            36.041774
+          ],
+          "median_ms": 27.763314
+        }
+      },
+      "buffers": {
+        "mini": {
+          "runs_ms": [
+            4.444697,
+            4.49399,
+            5.462095,
+            6.051275,
+            3.979753
+          ],
+          "median_ms": 4.49399
+        },
+        "snacks": {
+          "runs_ms": [
+            21.319092,
+            22.987182,
+            15.468145,
+            15.237992,
+            14.620511
+          ],
+          "median_ms": 15.468145
+        }
+      },
+      "oldfiles": {
+        "mini": {
+          "runs_ms": [
+            5.538299,
+            8.901541,
+            6.747574,
+            4.512148,
+            4.164638
+          ],
+          "median_ms": 5.538299
+        },
+        "snacks": {
+          "runs_ms": [
+            18.246725,
+            19.082652,
+            22.780644,
+            15.768574,
+            17.622513
+          ],
+          "median_ms": 18.246725
+        }
+      },
+      "command_history": {
+        "mini": {
+          "runs_ms": [
+            4.157137,
+            5.156268,
+            5.09047,
+            5.161517,
+            5.098744
+          ],
+          "median_ms": 5.098744
+        },
+        "snacks": {
+          "runs_ms": [
+            10.155624,
+            11.16434,
+            11.695292,
+            22.381748,
+            14.916251
+          ],
+          "median_ms": 11.695292
+        }
+      },
+      "filter_1000": {
+        "mini": {
+          "runs_ms": [
+            1.929351,
+            1.221524,
+            1.443946,
+            1.117328,
+            1.112891
+          ],
+          "median_ms": 1.221524
+        },
+        "snacks": {
+          "runs_ms": [
+            2.207887,
+            3.52263,
+            1.686959,
+            3.637762,
+            7.294081
+          ],
+          "median_ms": 3.52263
+        }
+      },
+      "filter_20000": {
+        "mini": {
+          "runs_ms": [
+            3.876778,
+            3.340347,
+            3.311034,
+            3.197554,
+            3.20768
+          ],
+          "median_ms": 3.311034
+        },
+        "snacks": {
+          "runs_ms": [
+            10.559797,
+            12.338403,
+            9.760393,
+            10.084227,
+            24.639399
+          ],
+          "median_ms": 10.559797
+        }
+      }
+    },
+    "checks": {
+      "mini_80": {
+        "root": "/tmp/picker-bench-z3xv5yqk/fixture",
+        "selected": 2,
+        "preview": true,
+        "width": 65,
+        "height": 16,
+        "fits": true
+      },
+      "snacks_80": {
+        "root": "/tmp/picker-bench-z3xv5yqk/fixture",
+        "selected": 2,
+        "preview": true,
+        "width": 70,
+        "height": 9,
+        "fits": true
+      },
+      "mini_140": {
+        "root": "/tmp/picker-bench-z3xv5yqk/fixture",
+        "selected": 2,
+        "preview": true,
+        "width": 110,
+        "height": 29,
+        "fits": true
+      },
+      "snacks_140": {
+        "root": "/tmp/picker-bench-z3xv5yqk/fixture",
+        "selected": 2,
+        "preview": true,
+        "width": 60,
+        "height": 30,
+        "fits": true
+      }
+    },
+    "errors": [],
+    "messages": ""
+  }
+}

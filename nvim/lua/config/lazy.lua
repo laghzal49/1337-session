@@ -53,6 +53,8 @@ vim.api.nvim_create_autocmd('User', {
   group = vim.api.nvim_create_augroup('BlackSpatialInit', { clear = true }),
   pattern = 'VeryLazy', once = true,
   callback = function()
+    require('config.workspace_info').setup()
+    require('config.editor_ui').setup()
     require('config.symbol_context').setup()
     require('config.symbol_illumination').setup()
   end,

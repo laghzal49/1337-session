@@ -3,8 +3,11 @@ return {
   {
     'saghen/blink.cmp',
     version = 'v1.10.2',
-    lazy = false,
+    event = { 'InsertEnter', 'CmdlineEnter' },
     opts = {
+      enabled = function()
+        return vim.bo.buftype ~= 'prompt' and not require('config.performance').large(0)
+      end,
       keymap = {
         preset = 'none',
         ['<C-space>'] = { 'show', 'show_documentation', 'hide_documentation' },
@@ -31,7 +34,7 @@ return {
         },
         documentation = {
           auto_show = true,
-          auto_show_delay_ms = 80,
+          auto_show_delay_ms = 180,
           draw = function(opts) require('config.documentation').completion_draw(opts) end,
           window = {
             desired_min_width = 40,
@@ -70,7 +73,8 @@ return {
             max_items = 30,
             opts = {
               get_bufnrs = function()
-                return vim.bo.buftype == '' and { vim.api.nvim_get_current_buf() } or {}
+                return vim.bo.buftype == '' and not require('config.performance').large(0)
+                  and { vim.api.nvim_get_current_buf() } or {}
               end,
               max_sync_buffer_size = 16000,
               max_async_buffer_size = 128000,

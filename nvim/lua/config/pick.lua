@@ -10,20 +10,30 @@ function M.open(command, opts)
   if vim.tbl_contains({ 'references', 'definition', 'declaration', 'implementation', 'type_definition' }, command) then
     return require('config.lsp_actions').locations(command, command == 'references')
   end
-  local pick, extra = require('mini.pick'), require('mini.extra').pickers
+  local sources = { files = 'files', grep = 'grep', buffers = 'buffers', oldfiles = 'recent',
+    help = 'help', resume = 'resume', command_history = 'command_history', commands = 'commands',
+    keymaps = 'keymaps', diagnostic = 'diagnostics', git_commits = 'git_log',
+    document_symbol = 'lsp_symbols', workspace_symbol_live = 'lsp_workspace_symbols' }
+  if sources[command] then
+    local options = { cwd = config.source.cwd }
+    if command == 'files' or command == 'grep' then
+      options.hidden = true
+      options.exclude = { '.git', '*.bak-*' }
+    end
+    return Snacks.picker[sources[command]](options)
+  end
+  vim.notify('Unknown picker: ' .. tostring(command), vim.log.levels.WARN)
+end
+-- Lightweight search reuses the documentation picker when preview is unnecessary.
+function M.fast(command)
+  local pick = require('mini.pick')
+  local config = { source = { cwd = require('config.project').root() } }
   if command == 'files' then
-    -- Include project dotfiles; keep gitignore and backup exclusions.
     if vim.fn.executable('rg') == 1 then
       return pick.builtin.cli({ command = { 'rg', '--files', '--hidden', '-g', '!.git', '-g', '!*.bak-*' } }, config)
     end
     return pick.builtin.files(nil, config)
-  elseif command == 'grep' then return pick.builtin.grep_live({ tool = 'rg', globs = { '!.git', '!*.bak-*' } }, config)
-  elseif command == 'buffers' or command == 'help' or command == 'resume' then return pick.builtin[command](nil, config)
-  elseif command == 'command_history' then return extra.history({ scope = ':' }, config)
-  elseif vim.tbl_contains({ 'references', 'definition', 'declaration', 'implementation', 'type_definition', 'document_symbol', 'workspace_symbol_live' }, command) then
-    return extra.lsp({ scope = command }, config)
-  elseif extra[command] then return extra[command](nil, config)
   end
-  vim.notify('No Mini picker for: ' .. tostring(command), vim.log.levels.WARN)
+  if command == 'grep' then return pick.builtin.grep_live({ tool = 'rg', globs = { '!.git', '!*.bak-*' } }, config) end
 end
 return M

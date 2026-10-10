@@ -1,432 +1,65 @@
--- Statusline and bufferline: compact information hierarchy.
+-- Two clear information levels: buffer navigation above, editor state below.
 return {
   {
-    'nvim-lualine/lualine.nvim',
-    event = 'VeryLazy',
-    opts = function(_, opts)
-      opts.options = opts.options or {}
-      local palette = {
-        fg = '#D7E3FF', grey = '#53627A', light_grey = '#A9B9D6',
-        blue = '#69AFFF', green = '#B8E986', purple = '#C7A6FF',
-        red = '#FF8FA3', orange = '#FF9E64', yellow = '#FFD166', cyan = '#70D7FF',
-      }
-      local ui = require('config.ui')
-      local symbol_context = require('config.symbol_context')
-      local black = '#0A0A0E'
-      local active = '#3D0D14'
-      local inactive = '#0D0D12'
-      local focused_win = vim.api.nvim_get_current_win()
-      vim.api.nvim_create_autocmd({ 'WinEnter', 'BufEnter' }, {
-        group = vim.api.nvim_create_augroup('black_status_focus', { clear = true }),
-        callback = function() focused_win = vim.api.nvim_get_current_win() end,
-      })
-      local function focused()
-        return vim.api.nvim_get_current_win() == focused_win
+    'nvim-lualine/lualine.nvim', event = 'VeryLazy',
+    opts = function()
+      local s, ui = require('config.surfaces'), require('config.ui')
+      local function mode(accent)
+        return { a = { fg = '#000000', bg = accent, gui = 'bold' },
+          b = { fg = s.text, bg = s.inset }, c = { fg = s.text, bg = s.tree_panel } }
       end
-      local function mode(color, is_inactive)
-        local background = is_inactive and inactive or black
-        local foreground = is_inactive and palette.grey or palette.fg
-        return {
-          a = { bg = is_inactive and inactive or active, fg = is_inactive and palette.grey or color, gui = 'bold' },
-          b = { bg = background, fg = foreground },
-          c = { bg = background, fg = foreground },
-          x = { bg = background, fg = foreground },
-          y = { bg = background, fg = foreground },
-          z = { bg = background, fg = foreground },
-        }
-      end
-      local function project_name()
-        return vim.b.black_project_name or ''
-      end
-      local function cache_project()
-        local root = require('config.project').root()
-        local name = vim.fn.fnamemodify(root, ':t')
-        vim.b.black_project_name = name ~= '' and name or root
-      end
-      vim.api.nvim_create_autocmd({ 'BufEnter', 'DirChanged' }, {
-        group = vim.api.nvim_create_augroup('BlackStatusProject', { clear = true }), callback = cache_project,
-      })
-      cache_project()
-      local function formatter_name()
-        return vim.b.black_formatter_name or ''
-      end
-      local function cache_formatter()
-        local conform = package.loaded.conform
-        if not conform or type(conform.list_formatters) ~= 'function' then return end
-        local ok, formatters = pcall(conform.list_formatters, 0)
-        local formatter = ok and formatters and formatters[1]
-        vim.b.black_formatter_name = formatter and (formatter.name or formatter) or ''
-      end
-      vim.api.nvim_create_autocmd({ 'BufEnter', 'BufWritePost', 'CursorHold' }, {
-        group = vim.api.nvim_create_augroup('BlackStatusFormatter', { clear = true }), callback = cache_formatter,
-      })
-      local function reader_mode()
-        return vim.bo.filetype == 'markdown' and vim.wo.wrap and vim.wo.linebreak and vim.wo.conceallevel == 3
-      end
-      opts.options.theme = {
-        normal = mode('#FF2E4C'),
-        insert = mode('#7FE3C2'),
-        visual = mode('#C7A6FF'),
-        replace = mode('#FF8FA3'),
-        command = mode('#FFD166'),
-        inactive = mode(palette.grey, true),
-      }
-      opts.options.ignore_focus = { 'minipick', 'minifiles', 'snacks_picker_list', 'snacks_picker_input', 'aerial' }
-      opts.options.globalstatus = true
-      opts.options.component_separators = { left = '', right = '' }
-      opts.options.section_separators = { left = '', right = '' }
-      opts.sections = {
-        lualine_a = {
-          {
-            function() return '' end,
-            padding = 0,
-            color = { fg = active, bg = black },
+      local function wide(n) return function() return vim.o.columns >= n end end
+      local function info() return require('config.workspace_info').get() end
+      return {
+        options = { globalstatus = true, component_separators = '', section_separators = '',
+          disabled_filetypes = { statusline = { 'snacks_dashboard' } },
+          refresh = { statusline = 250, tabline = 1000, winbar = 1000 },
+          theme = { normal = mode(s.accent), insert = mode(s.teal), visual = mode(s.lilac),
+            replace = mode('#FFB86B'), command = mode('#E9C46A'), inactive = mode(s.muted) } },
+        sections = {
+          lualine_a = { { 'mode', fmt = function(value) return vim.o.columns < 90 and value:sub(1, 1) or value end } },
+          lualine_b = { { function() return info().name end, cond = wide(100) },
+            { function() return info().branch .. (info().dirty and ' •' or '') end,
+              icon = ui.icon('branch'), cond = function() return vim.o.columns >= 100 and info().branch ~= '' end } },
+          lualine_c = { { 'filename', path = 1, symbols = { modified = ' ●', readonly = ' [RO]', unnamed = 'Untitled' } },
+            { require('config.symbol_context').component, cond = wide(130), color = { fg = s.lilac } },
+            { 'diagnostics', sources = { 'nvim_diagnostic' }, sections = { 'error', 'warn' },
+              symbols = { error = 'E ', warn = 'W ' } } },
+          lualine_x = {
+            { 'searchcount', maxcount = 9999, timeout = 50, cond = wide(85), color = { fg = '#E9C46A' } },
+            { function() local task = package.loaded['config.tasks']; return task and task.running and ('▶ ' .. (vim.o.columns >= 110 and task.running.task.name or 'TASK')) or '' end, color = { fg = '#E9C46A' } },
+            { function() local dap = package.loaded.dap; return dap and dap.session() and '● DEBUG' or '' end, color = { fg = s.teal } },
+            { function() local reg = vim.fn.reg_recording(); return reg ~= '' and '● REC @' .. reg or '' end, color = { fg = s.accent } },
+            { function() return vim.b.bigfile and 'LARGE FILE' or '' end, color = { fg = '#E9C46A' } },
+            { function() return vim.lsp.status() end, cond = wide(120), color = { fg = s.muted } },
+            { 'filetype', icon_only = false, cond = wide(85) },
           },
-          {
-            function() return 'DEVIL · ' end,
-            padding = { left = 1, right = 0 },
-            color = { fg = '#FF2E4C', bg = active, gui = 'bold' },
-          },
-          {
-            'mode',
-            padding = { left = 0, right = 1 },
-            fmt = function(value)
-              local win_buf = vim.api.nvim_win_is_valid(focused_win) and vim.api.nvim_win_get_buf(focused_win)
-                or vim.api.nvim_get_current_buf()
-              local ft = vim.bo[win_buf].filetype
-
-              local tool_modes = {
-                minipick = 'SEARCH',
-                minifiles = 'FILES',
-                snacks_picker_list = 'FILES',
-                snacks_picker_input = 'SEARCH',
-                aerial = 'SYMBOLS',
-                trouble = 'DIAGNOSTICS',
-                qf = 'RESULTS',
-                help = 'HELP',
-              }
-              if tool_modes[ft] then
-                local m = tool_modes[ft]
-                return vim.o.columns < 90 and m:sub(1, 1) or m
-              end
-
-              local mode_names = {
-                ['NORMAL'] = 'NORMAL',
-                ['O-PENDING'] = 'NORMAL',
-                ['INSERT'] = 'INSERT',
-                ['VISUAL'] = 'VISUAL',
-                ['V-LINE'] = 'VISUAL',
-                ['V-BLOCK'] = 'VISUAL',
-                ['SELECT'] = 'SELECT',
-                ['S-LINE'] = 'SELECT',
-                ['S-BLOCK'] = 'SELECT',
-                ['REPLACE'] = 'REPLACE',
-                ['V-REPLACE'] = 'REPLACE',
-                ['COMMAND'] = 'COMMAND',
-                ['EX'] = 'COMMAND',
-                ['MORE'] = 'COMMAND',
-                ['CONFIRM'] = 'COMMAND',
-                ['TERMINAL'] = 'TERMINAL',
-              }
-              local name = mode_names[value] or value
-              return vim.o.columns < 90 and name:sub(1, 1) or name
-            end,
-          },
-          {
-            function() return '' end,
-            padding = 0,
-            color = { fg = active, bg = black },
-          },
-          {
-            function() return ' ' end,
-            cond = function() return vim.fn.reg_recording() ~= '' end,
-            padding = 0,
-            color = { bg = black },
-          },
-          {
-            function() return '' end,
-            cond = function() return vim.fn.reg_recording() ~= '' end,
-            padding = 0,
-            color = { fg = palette.red, bg = black },
-          },
-          {
-            function()
-              local frames = { '●', '○' }
-              local now = vim.uv.now()
-              local idx = math.floor(now / 500) % 2 + 1
-              return frames[idx] .. ' REC @' .. vim.fn.reg_recording()
-            end,
-            cond = function() return vim.fn.reg_recording() ~= '' end,
-            color = { fg = '#000000', bg = '#FF8FA3', gui = 'bold' },
-            padding = { left = 1, right = 1 },
-          },
-          {
-            function() return '' end,
-            cond = function() return vim.fn.reg_recording() ~= '' end,
-            padding = 0,
-            color = { fg = palette.red, bg = black },
-          },
+          lualine_y = { { 'progress', cond = wide(100) } }, lualine_z = { 'location' },
         },
-        lualine_b = {},
-        lualine_c = {
-          {
-            function() return ui.icon('workspace') .. ' ' .. project_name() end,
-            color = { fg = palette.light_grey },
-            cond = function() return vim.o.columns >= 100 end,
-          },
-          {
-            'filename',
-            path = 1,
-            icon = ui.icon('file'),
-            color = function()
-              return { fg = focused() and palette.fg or palette.grey, gui = 'bold' }
-            end,
-            symbols = {
-              modified = ' ' .. ui.icon('modified'),
-              readonly = ' ' .. ui.icon('lock'),
-              unnamed = 'Untitled',
-            },
-          },
-          {
-            symbol_context.component,
-            cond = function() return vim.o.columns >= 120 end,
-            color = { fg = ui.colors.lilac },
-          },
-          {
-            'diagnostics',
-            sources = { 'nvim_diagnostic' },
-            sections = { 'error', 'warn', 'hint', 'info' },
-            symbols = {
-              error = ' ' .. ui.icon('error') .. ' ',
-              warn = ' ' .. ui.icon('warn') .. ' ',
-              hint = ' ' .. ui.icon('hint') .. ' ',
-              info = ' ' .. ui.icon('info') .. ' ',
-            },
-            color = function() return { fg = focused() and palette.light_grey or palette.grey } end,
-          },
-          {
-            function()
-              if vim.v.hlsearch == 0 then return '' end
-              local ok, result = pcall(vim.fn.searchcount, { maxcount = 999, recompute = 0 })
-              if not ok or result.total == 0 then return '' end
-              return string.format(' %d/%d', result.current, result.total)
-            end,
-            color = { fg = palette.yellow, gui = 'bold' },
-          },
-          -- LSP status spinner/indicator: clean animated braille progress
-          {
-            function()
-              local status = vim.lsp.status()
-              if status and status ~= '' then
-                local spinner_frames = { '⠋', '⠙', '⠹', '⠸', '⠼', '⠴', '⠦', '⠧', '⠇', '⠏' }
-                local now = vim.uv.now()
-                local idx = math.floor(now / 100) % #spinner_frames + 1
-                local clean = status:gsub('%s+', ' '):gsub('^%s+', ''):gsub('%s+$', '')
-                return spinner_frames[idx] .. ' ' .. vim.fn.strcharpart(clean, 0, 30)
-              end
-              return ''
-            end,
-            color = function() return { fg = focused() and palette.light_grey or palette.grey } end,
-          },
-        },
-        lualine_x = {
-          {
-            function()
-              local ok, station = pcall(require, 'config.station')
-              return (ok and station.is_1337()) and station.status_text() or ''
-            end,
-            color = function()
-              local ok, station = pcall(require, 'config.station')
-              if not ok then return { fg = palette.grey } end
-              local problems = station.problem_count()
-              if problems > 0 then
-                return { fg = '#FF4D6D', gui = 'bold' }
-              else
-                return { fg = '#7FE3C2', gui = 'bold' }
-              end
-            end,
-            on_click = function()
-              pcall(function() require('config.station').health() end)
-            end,
-            cond = function()
-              local ok, station = pcall(require, 'config.station')
-              return ok and station.is_1337() and vim.o.columns >= 85
-            end,
-          },
-          {
-            function()
-              local ok, lazy_status = pcall(require, 'lazy.status')
-              if ok and lazy_status.has_updates() then return '↑ ' .. lazy_status.updates() end
-              return ''
-            end,
-            color = { fg = palette.orange },
-            cond = function()
-              local ok, lazy_status = pcall(require, 'lazy.status')
-              return ok and lazy_status.has_updates() and vim.o.columns >= 110
-            end,
-          },
-          {
-            'branch',
-            icon = ui.icon('branch'),
-            color = function() return { fg = focused() and palette.light_grey or palette.grey } end,
-            cond = function() return vim.o.columns >= 100 end,
-          },
-          {
-            function()
-              local clients = vim.lsp.get_clients({ bufnr = 0 })
-              if #clients == 0 then return '' end
-              return ui.icon('symbols') .. ' ' .. (#clients == 1 and clients[1].name or (#clients .. ' LSP'))
-            end,
-            color = function() return { fg = focused() and palette.cyan or palette.grey } end,
-            cond = function() return vim.o.columns >= 105 end,
-          },
-          {
-            function()
-              local formatter = formatter_name()
-              return formatter ~= '' and ui.icon('command') .. ' ' .. formatter or ''
-            end,
-            color = { fg = palette.green },
-            cond = function() return vim.o.columns >= 115 and formatter_name() ~= '' end,
-          },
-          {
-            'diff',
-            symbols = { added = '+', modified = '~', removed = '−' },
-            cond = function() return vim.o.columns >= 125 end,
-          },
-          {
-            function()             return reader_mode() and (ui.icon('read') .. ' READ') or '' end,
-            color = { fg = palette.purple },
-            cond = function() return vim.o.columns >= 105 and reader_mode() end,
-          },
-          {
-            function()
-              local encoding = vim.bo.fileencoding
-              return encoding == '' and vim.o.encoding or encoding
-            end,
-            color = { fg = palette.light_grey },
-            cond = function() return vim.o.columns >= 125 end,
-          },
-        },
-        lualine_y = {},
-        lualine_z = {
-          {
-            function() return '' end,
-            padding = 0,
-            color = { fg = active, bg = black },
-          },
-          {
-            function()
-              return vim.o.columns < 90 and string.format('%d:%d', vim.fn.line('.'), vim.fn.virtcol('.'))
-                or string.format('Ln %d, Col %d', vim.fn.line('.'), vim.fn.virtcol('.'))
-            end,
-            padding = { left = 1, right = 1 },
-            color = function()
-              return { bg = focused() and active or inactive, fg = focused() and palette.fg or palette.grey }
-            end,
-          },
-          {
-            function() return '' end,
-            padding = 0,
-            color = { fg = active, bg = black },
-          },
-        },
+        extensions = { 'quickfix', 'fugitive', 'lazy', 'mason', 'nvim-dap-ui' },
       }
     end,
   },
   {
-    'akinsho/bufferline.nvim',
-    event = 'VeryLazy',
-    opts = {
-      options = {
-        mode = 'buffers',
-        separator_style = 'thin',
-        show_close_icon = false,
-        show_buffer_close_icons = false,
-        indicator = {
-          style = 'icon',
-          icon = '▎',
-        },
-        modified_icon = '●',
-        max_name_length = 26,
-        tab_size = 20,
-        enforce_regular_tabs = false,
-        always_show_bufferline = false,
-        diagnostics = 'nvim_lsp',
-        diagnostics_indicator = function(count, level)
-          local icon = level:match('error') and require('config.ui').icon('error')
-            or level:match('warning') and require('config.ui').icon('warn') or ''
-          return icon .. ' ' .. count
-        end,
-        offsets = {
-          {
-            filetype = 'aerial',
-            text = ' 󰅩  SYMBOLS',
-            text_align = 'left',
-            separator = true,
-          },
-        },
-      },
-      highlights = {
-        indicator_selected = {
-          fg = '#FF2E4C',
-          bg = '#3D0D14',
-        },
-        buffer_selected = {
-          fg = '#FFFFFF',
-          bg = '#3D0D14',
-          bold = true,
-          italic = false,
-        },
-        modified_selected = {
-          fg = '#FF2E4C',
-          bg = '#3D0D14',
-        },
-        buffer_visible = {
-          fg = '#7A5A62',
-          bg = '#0A0A0E',
-        },
-        buffer = {
-          fg = '#7A5A62',
-          bg = '#0A0A0E',
-        },
-        separator = {
-          fg = '#4A1018',
-          bg = '#0A0A0E',
-        },
-        separator_visible = {
-          fg = '#4A1018',
-          bg = '#0A0A0E',
-        },
-        separator_selected = {
-          fg = '#4A1018',
-          bg = '#3D0D14',
-        },
-        offset_separator = {
-          fg = '#5C1522',
-          bg = '#0A0A0E',
-        },
-        diagnostic = {
-          fg = '#7A5A62',
-          bg = '#0A0A0E',
-        },
-        diagnostic_selected = {
-          fg = '#FFFFFF',
-          bg = '#3D0D14',
-          bold = true,
-        },
-        info = { fg = '#7A5A62', bg = '#0A0A0E' },
-        info_selected = { fg = '#FF2E4C', bg = '#3D0D14' },
-        info_diagnostic = { fg = '#7A5A62', bg = '#0A0A0E' },
-        info_diagnostic_selected = { fg = '#FF4D6D', bg = '#3D0D14' },
-        warning = { fg = '#A8606B', bg = '#0A0A0E' },
-        warning_selected = { fg = '#FFD166', bg = '#3D0D14' },
-        warning_diagnostic = { fg = '#A8606B', bg = '#0A0A0E' },
-        warning_diagnostic_selected = { fg = '#FFD166', bg = '#3D0D14' },
-        error = { fg = '#FF4D6D', bg = '#0A0A0E' },
-        error_selected = { fg = '#FF2E4C', bg = '#3D0D14' },
-        error_diagnostic = { fg = '#FF4D6D', bg = '#0A0A0E' },
-        error_diagnostic_selected = { fg = '#FF2E4C', bg = '#3D0D14' },
-      },
-    },
+    'akinsho/bufferline.nvim', event = 'VeryLazy',
+    opts = function()
+      local s = require('config.surfaces')
+      local h = {}
+      for _, key in ipairs({ 'background', 'buffer', 'buffer_visible', 'separator', 'separator_visible', 'fill' }) do
+        h[key] = { fg = s.muted, bg = s.tree_panel }
+      end
+      for _, key in ipairs({ 'buffer_selected', 'separator_selected' }) do
+        h[key] = { fg = s.text, bg = s.selected, bold = true, italic = false }
+      end
+      h.indicator_selected = { fg = s.accent, bg = s.selected }
+      h.modified_selected = { fg = s.teal, bg = s.selected }
+      return { options = { mode = 'buffers', separator_style = 'thin', always_show_bufferline = false,
+        show_close_icon = false, show_buffer_close_icons = false, indicator = { style = 'icon', icon = '▎' },
+        modified_icon = '●', max_name_length = 24, tab_size = 20, diagnostics = false,
+        offsets = { { filetype = 'snacks_layout_box', text = 'EXPLORER', text_align = 'left', separator = true },
+          { filetype = 'aerial', text = 'SYMBOLS', text_align = 'left', separator = true },
+          { filetype = 'dapui_scopes', text = 'DEBUG', text_align = 'left', separator = true } },
+      }, highlights = h }
+    end,
   },
 }

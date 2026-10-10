@@ -1,11 +1,157 @@
-# Perfect Black Neovim
+# Perfect Black II — Neovim
 
 A standalone Neovim configuration: **no LazyVim distribution**. lazy.nvim manages
-43 explicitly configured plugins and dependencies, pinned in `lazy-lock.json`.
+45 explicitly configured plugins and dependencies, pinned in `lazy-lock.json`.
 Pure-black code, italic comments, opaque panels, and **ty + Ruff** for Python.
 Ruff provides diagnostics through its LSP and formats with
 Ruff Format on save; `<leader>cf` runs formatting manually and `<leader>uf`
 toggles format-on-save.
+
+## A complete workspace refresh
+
+![New project dashboard](assets/redesign-dashboard.png)
+![New editor hierarchy](assets/redesign-editor.png)
+![Project files with live preview](assets/redesign-picker.png)
+![Actual Python breakpoint and variables](assets/redesign-debugger.png)
+
+The new design uses a black editor canvas, charcoal tool surfaces, restrained
+crimson focus accents, readable secondary text and semantic colors for code.
+The project home replaces the giant logo with a useful launch surface, recent
+project files, editing shortcuts and debugger controls. The branch is fetched
+asynchronously; `tracked clean` deliberately excludes untracked files.
+
+Native titles show the path and modified state above each editor split. The
+statusline gives mode, cached project/branch, filename, diagnostics, search count,
+debug/recording state and position in a clear hierarchy. Narrow terminals keep
+only the essential state. Buffer tabs use one selection marker and no duplicated
+diagnostic badges. Borders and guides are quiet; active split focus is visible.
+
+Everyday files, grep, buffers, diagnostics and symbols now use **Snacks Picker**:
+side-by-side live preview on wide screens, stacked preview on smaller ones,
+Ctrl-P/Ctrl-N navigation, Escape to close and `?` for actions. Mini Pick remains
+for specialized offline documentation, Make targets and code-action previews;
+the now-unused Mini Extra plugin and unreachable navigation fallback are removed.
+For a minimal search popup, `<leader>fF` opens fast files and `<leader>sG` fast
+grep using the existing lightweight picker. The preview-rich picker measured
+~25 ms to first files results versus ~13 ms for the compact picker on this machine;
+the richer UI trades a little latency for a visible preview.
+
+The old disabled theme spec and duplicate text-object ownership are also removed.
+
+Workspace mode (`<leader>uw`) opens only panels that fit and have useful content,
+returns focus to your editor, and preserves windows you repurpose while working.
+It no longer automatically opens a terminal. Project tasks run in the background:
+
+| Key | Action |
+| --- | --- |
+| `<leader>rt` | Discover and run a project build/test/script |
+| `<leader>rr` | Rerun the last task |
+| `<leader>rs` | Stop the current task |
+| `<leader>ro` | Review task output |
+
+Tasks recognize Make, package.json scripts, Cargo, Go and Python projects. Tool
+output stays available; failures with parseable file locations populate quickfix.
+Tools/packages are installed explicitly, never by opening a project.
+
+Performance changes extend beyond startup: cached root lookups, one asynchronous
+Git probe per project, no dashboard filesystem walk, no duplicate bufferline
+LSP diagnostic pass, bounded large-buffer guards even after edits, and a 500 ms
+format-on-save cap. Files over 1 MiB or 20,000 lines switch to a conservative
+plain editing mode; close/reopen after reducing them to restore semantic features.
+
+Matched five-run benchmarks on this machine: cached headless startup median
+**20.78 → 14.86 ms** (~29% lower); attached idle RSS **21.4 → 20.5 MiB**.
+These are local measurements, not promises of LSP or interactive latency.
+Raw results are in `tests/redesign_results.json`; screenshots are rendered from
+Neovim's actual attached UI grid, not mockups.
+
+## Responsiveness and everyday controls
+
+Completion loads on first Insert/Command mode entry (or when an LSP needs its
+capabilities); the parser manager loads on the first file. The debugger and its two UI dependencies are loaded only on demand.
+Files above 1 MiB, or averaging more than 1,000 bytes per line, use Snacks' plain
+big-file view: manual folds, no Tree-sitter highlighting/context, no completion,
+and no format-on-save. Explicit `<leader>cf` still formats on request. The existing
+stricter Markdown line/size limits continue to apply.
+
+Comments, inactive buffer labels and panel hints have brighter contrast while
+keeping the pure-black canvas and crimson accents. The statusline removes secondary details in narrow terminals. Flash labels use dark text on pink for readability.
+
+| Key | Action |
+| --- | --- |
+| `<leader>ud` | Toggle diagnostics for the current buffer |
+| `<leader>uv` | Toggle wrapping in the current window |
+| `<leader>ul` / `<leader>ur` | Toggle absolute / relative line numbers |
+| `<leader>bo` | Close other buffers, prompting for unsaved changes |
+| `j` / `k` | Move by displayed lines; counts use logical lines |
+
+Reopened files restore their last cursor position unless a position was already
+selected. Writes keep a temporary backup until they succeed. Station Mode detects
+cluster filesystem/hostname/login signals; a repository name alone no longer
+activates cluster scans. Use `STATION_1337=1` or `:StationMode on` to opt in elsewhere.
+The inode quota parser also handles `df` output without a Lua multiple-return error.
+
+Validation on Neovim 0.11.5: five cached headless launches per config had median
+startup **20.78 ms before → 14.86 ms after**. These numbers describe this test
+machine, exclude first-install costs, and do not measure LSP readiness or UI latency.
+Run `NVIM_BIN=/path/to/nvim python3 nvim/tests/startup_bench.py --runs 5`
+and `nvim --headless '+lua dofile("nvim/tests/responsiveness_review.lua")' +qa!`
+from the repository root with `XDG_CONFIG_HOME` pointing to the repository.
+The responsiveness review expects a non-cluster host with no Station Mode override.
+
+## Debugger and yank feedback
+
+Yanking briefly highlights exactly the copied text for 180 ms, including Visual
+selections. There is no popup for each copy.
+
+Debugging uses nvim-dap with scope, watch, stack, breakpoint and console panels
+in the existing black/crimson UI. It loads only when a debug key is pressed.
+Panels open when a session starts and close when it ends.
+
+| Key | Action |
+| --- | --- |
+| `F5` / `<leader>Dc` | Start or continue |
+| `F10` / `<leader>Do` | Step over |
+| `F11` / `<leader>Di` | Step into |
+| `F12` / `<leader>DO` | Step out |
+| `<leader>Db` / `<leader>DB` | Breakpoint / conditional breakpoint |
+| `<leader>Du` / `<leader>De` | Toggle panels / evaluate expression or selection |
+| `<leader>Dr` / `<leader>Dt` | Console / terminate |
+
+For Python, install debugpy once in an isolated environment:
+
+```sh
+# Linux; default Neovim data directory. Adjust if XDG_DATA_HOME is customized.
+uv venv ~/.local/share/nvim/debugpy
+uv pip install --python ~/.local/share/nvim/debugpy/bin/python debugpy
+```
+
+Alternatively install debugpy in the project environment, or set
+`vim.g.debugpy_python` to an interpreter that contains it. The debuggee uses the
+project `.venv/bin/python`, then the active `VIRTUAL_ENV`, then `python3` on PATH.
+Open a Python file, set a breakpoint, and press F5. Choose a file launch with
+arguments, module launch, or local attach when needed. Attach requires an existing
+`python -m debugpy --listen 127.0.0.1:5678 --wait-for-client script.py` process.
+`<leader>DL` adds a logpoint; `<leader>Dp` pauses; `<leader>Dl` reruns; `<leader>Dx`
+clears breakpoints. Live attach was configured but not exercised in this environment.
+
+For C/C++, install **GDB 14+ with Python/DAP support**, build with debug symbols
+(e.g. `cc -g -O0 main.c -o main`), open the source, and press F5. Supply the compiled
+executable at the prompt. Debugger packages are not installed automatically.
+Missing adapters show setup guidance. Python breakpoints, variable evaluation,
+step-over and clean session/panel exit were tested against real debugpy 1.8.22;
+C/C++ launch/attach configuration is provided but an actual GDB session was not tested
+in this environment.
+
+Cleanup removed the disabled onedark spec and stale Mini Files status labels.
+Function/class text objects are now owned only by nvim-treesitter-textobjects;
+Mini AI retains its other useful objects. Most existing pins are retained. Aerial uses its `nvim-0.11` branch
+(`c5e56945d9703f7079ccff484b35d0e4c231dd6c`) so the outline works on the
+advertised Neovim version. Tree-sitter is pinned for the same reason: its old pin requires Neovim 0.12,
+so it is explicitly pinned to the last pre-vim.list main snapshot compatible with
+0.11 (`4d9916e477e5d4e3b245845dfd285edf429f3252`). The compatible parser
+installer and real Python text-object queries were checked on 0.11.5. The three
+debugger dependencies are added and unused Mini Extra is removed from the lockfile.
 
 ## Workspace
 
@@ -23,7 +169,7 @@ The physical cursor uses a block in Normal/Visual, a bar in Insert/Command,
 and an underline in Replace; terminal support determines cursor colors.
 
 Split focus keeps inactive windows dim and uses one native red separator anchor.
-Panel highlights are preserved, including Edgy. At 120 columns or wider, the
+Panel highlights are preserved, including Edgy. At 130 columns or wider, the
 existing statusline shows the enclosing function/class from an idle-updated
 cache. Python, C/C++ and Lua use Tree-sitter; other languages can reuse
 already-populated Aerial data. It hides at top level and above 10,000 lines or
@@ -142,14 +288,14 @@ picker. The picker lists literal targets in the root Makefile; included files,
 variable-generated targets, and pattern rules are not expanded. GNU Make runs
 the recipe with its normal dependencies and variable expansion.
 
-DAP and its debugger UI are removed. Run `:Lazy clean` to remove unused local
-plugin checkouts after updating, then restart Neovim.
+The debugger is optional and loads on its first keypress. Run `:Lazy clean` to
+remove unused local plugin checkouts after updating, then restart Neovim.
 
-## The smaller workflow
+## Everyday workflow
 
-- **Mini Pick + Mini Extra:** files, live grep, buffers, commands, diagnostics and
-  symbols. In the picker, Up/Down or Ctrl-P/Ctrl-N moves through results, Tab
-  toggles preview, Ctrl-X marks a result, and Enter opens the selected result.
+- **Snacks Picker:** files, live grep, buffers, commands, diagnostics and
+  symbols. Up/Down or Ctrl-P/Ctrl-N moves through results; Alt-P toggles preview,
+  Tab selects a result, Ctrl-Q sends results to quickfix, and Enter opens it.
 - **Snacks.explorer:** modern, fast file explorer with tree navigation, git status indicators, LSP integration, floating/sidebar layouts, and built-in file operations.
 - **Aerial:** on-demand code outline, with Tree-sitter and LSP backends.
 - **Glance:** peek at definitions/references without leaving the source.
@@ -196,7 +342,7 @@ shown as a notification instead of interrupting the editor.
 | Find files / search text | `<leader><space>` / `<leader>/` |
 | Buffers / recent files | `<leader>,` / `<leader>fr` |
 | Commands / keymaps / help | `<leader>sC` / `<leader>sk` / `<leader>sh` |
-| Move / preview / mark / send marked to quickfix | `Up/Down` or `Ctrl-P/Ctrl-N` / `Tab` / `Ctrl-X` / `Alt-Enter` in picker |
+| Move / preview / mark / send marked to quickfix | `Up/Down` or `Ctrl-P/Ctrl-N` / `Alt-P` / `Tab` / `Ctrl-Q` in Snacks picker |
 | Toggle file explorer (Snacks explorer) | `<leader>e` |
 | Open file explorer | `<leader>fe` |
 | Code outline / find file symbol | `<leader>cs` / `<leader>ss` |
@@ -257,7 +403,7 @@ with ty. No environment paths tied to a particular desk are hardcoded.
 
 A dedicated environment manager built specifically for 1337 / 42 cluster machines where `$HOME` is network-mounted (NFS) with limited quotas and `/goinfre` is a fast local NVMe drive unique to each physical workstation.
 
-- **Statusline health indicator:** Shows `1337 ✓` or `1337 ⚠ N problems` in the statusline and dashboard. Clickable or opened via `<leader>13` / `:StationHealth`.
+- **Station health:** Open `<leader>13` / `:StationHealth` for the full health and repair view.
 - **Workstation change detection:** Warns when you sit at a new machine so you can re-link local caches before compiling.
 - **Broken symlink detection:** Identifies dangling `.venv` or cache links pointing to `/goinfre` folders on a previous workstation.
 - **Quota & NFS monitoring:** Tracks HOME quota / inode limits and alerts if heavy caches (`~/.cache/uv`, `~/.cache/pip`, `~/.npm`) or project caches live on NFS.
@@ -293,7 +439,7 @@ python3 nvim/tests/spatial_bench.py --config nvim --runs 7
 python3 nvim/tests/capture_makefile.py  # also requires ImageMagick + JetBrainsMono Nerd Font Mono
 ```
 
-Use your installation's `XDG_DATA_HOME`. UI checks cover Mini Pick files/grep/
+Use your installation's `XDG_DATA_HOME`. New UI checks cover Snacks files/preview and responsive chrome; older checks cover Mini Pick docs/
 preview, diagnostics, notifications, documentation controls, quickfix edits,
 Snacks Explorer, Aerial, Glance and rename. The standalone test requires ty on PATH
 and verifies actual attachment and diagnostics through the full config.

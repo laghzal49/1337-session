@@ -3,21 +3,21 @@ local ui = require("config.ui")
 local colors = ui.colors
 
 local M = {
-  panel = "#0E0E14",
-  tree_panel = "#0A0A0F",
-  inset = "#07070B",
-  edge = "#5C1522",
-  edge_bright = "#FF2E4C",
-  edge_soft = "#3D101A",
-  selected = "#380D14",
-  selected_bright = "#4E121D",
+  panel = "#101116",
+  tree_panel = "#08090D",
+  inset = "#08090D",
+  edge = "#303440",
+  edge_bright = "#606777",
+  edge_soft = "#252934",
+  selected = "#24212C",
+  selected_bright = "#352B3B",
   accent = "#FF2E4C",
   panel_accent = "#FF3B56",
   text = colors.text,
-  muted = "#7A5A62",
+  muted = "#9299A9",
   teal = colors.teal,
   lilac = colors.lilac,
-  border = "#5C1522",
+  border = "#303440",
   error = colors.error,
 }
 
@@ -26,6 +26,15 @@ function M.highlights()
   local function groups(names, value)
     for name in names:gmatch("%S+") do h[name] = vim.deepcopy(value) end
   end
+  groups('DapUIFloatNormal', { bg = M.panel, fg = M.text })
+  groups('DapUIFloatBorder DapUIWinSelect', { fg = M.accent, bg = M.panel })
+  groups('DapUIScope DapUIType', { fg = M.lilac })
+  groups('DapUIValue DapUIDecoration', { fg = M.text })
+  groups('DapUIStoppedThread DapUIThread', { fg = M.teal })
+  groups('BlackPath', { fg = M.muted, bg = M.tree_panel })
+  groups('BlackFileTitle', { fg = M.text, bg = M.tree_panel, fmt = 'bold' })
+  groups('BlackModified', { fg = M.teal, bg = M.tree_panel })
+  groups('BlackYank', { bg = '#4E121D', fg = '#FFFFFF' })
   groups('BlackBeacon', { bg = M.selected })
   groups('BlackBeaconNumber', { fg = M.accent, fmt = 'bold' })
   groups('BlackActiveSeparator', { fg = M.accent, bg = '#000000' })
@@ -75,7 +84,7 @@ function M.highlights()
   groups('TroubleCount', { fg = M.accent, fmt = 'bold' })
   
   -- Flash jump labels — hot pink bg, white fg for maximum contrast
-  groups('FlashLabel', { bg = '#FF8FA3', fg = '#FFFFFF', fmt = 'bold' })
+  groups('FlashLabel', { bg = '#FF8FA3', fg = '#000000', fmt = 'bold' })
   groups('FlashMatch', { fg = M.accent })
   groups('FlashCurrent', { fg = M.text, fmt = 'bold' })
   groups('FlashBackdrop', { fg = M.muted })
@@ -146,16 +155,16 @@ function M.highlights()
 
   -- ── Snacks.picker & explorer file tree ─────────────────────────────────
   groups('SnacksPicker',                  { bg = M.panel, fg = '#FFFFFF' })
-  groups('SnacksPickerBorder',            { bg = M.panel, fg = '#5C1522' })
+  groups('SnacksPickerBorder',            { bg = M.panel, fg = M.edge })
   groups('SnacksPickerTitle',             { bg = M.panel, fg = '#FF2E4C', fmt = 'bold' })
   groups('SnacksPickerPrompt',            { fg = '#FF2E4C', fmt = 'bold' })
   groups('SnacksPickerMatch',             { fg = '#FFFFFF', bg = '#5C0F1D', fmt = 'bold' })
-  groups('SnacksPickerDirectory',         { fg = '#FF4D6D', fmt = 'bold' })
+  groups('SnacksPickerDirectory',         { fg = M.muted })
   groups('SnacksPickerFile',              { fg = '#FFFFFF' })
   groups('SnacksPickerDir',               { fg = '#C4A0A6' })
   groups('SnacksPickerPathIgnored',       { fg = '#8A6A72' })
   groups('SnacksPickerPathHidden',        { fg = '#8A6A72' })
-  groups('SnacksPickerTree',              { fg = '#7A222F' })
+  groups('SnacksPickerTree',              { fg = M.edge })
   groups('SnacksPickerGitStatusUntracked', { fg = '#FF4D6D', fmt = 'bold' })
   groups('SnacksPickerGitStatusModified',  { fg = '#FFD166', fmt = 'bold' })
   groups('SnacksPickerGitStatusStaged',    { fg = '#7FE3C2', fmt = 'bold' })
@@ -229,10 +238,10 @@ function M.highlights()
   groups('BlackBrandIcon', { fg = '#FF1744' })
   groups('BlackBrand', { fg = '#FF2E4C', fmt = 'bold' })
   groups('BlackLabel', { fg = '#FF4D6D', fmt = 'bold' })
-  groups('BlackMuted', { fg = '#A8606B' })
-  groups('BlackKey', { bg = '#4A0E17', fg = '#FF4D6D', fmt = 'bold' })
+  groups('BlackMuted', { fg = M.muted })
+  groups('BlackKey', { bg = M.selected, fg = '#FFFFFF', fmt = 'bold' })
   groups('BlackRule', { fg = '#8B0018' })
-  groups('CursorLine', { bg = '#180A0E' })
+  groups('CursorLine', { bg = '#111218' })
   groups('CursorLineNr', { fg = '#FF2E4C', fmt = 'bold' })
   groups('SnacksDashboardTerminal', { fg = '#A8606B' })
   groups('SnacksDashboardFooter', { fg = '#A8606B' })

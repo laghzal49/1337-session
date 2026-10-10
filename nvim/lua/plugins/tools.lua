@@ -38,12 +38,12 @@ return {
             a = { '@block.outer', '@conditional.outer', '@loop.outer' },
             i = { '@block.inner', '@conditional.inner', '@loop.inner' },
           }),
-          f = ai.gen_spec.treesitter({ a = '@function.outer', i = '@function.inner' }),
-          c = ai.gen_spec.treesitter({ a = '@class.outer', i = '@class.inner' }),
+          -- Dedicated Tree-sitter textobjects own af/if/ac/ic.
+          f = false, c = false,
           -- HTML / JSX tag text object (at = around tag, it = inner tag)
           t = ai.gen_spec.treesitter({ a = '@tag.outer', i = '@tag.inner' }),
           -- Diagnostic region: around/inner the current diagnostic message
-          d = function(ai_type)
+          d = function()
             local diags = vim.diagnostic.get(0, { lnum = vim.fn.line('.') - 1 })
             if vim.tbl_isempty(diags) then return end
             local d = diags[1]
@@ -73,6 +73,9 @@ return {
       { 'sa', desc = 'Add surrounding', mode = { 'n', 'v' } },
       { 'sd', desc = 'Delete surrounding' },
       { 'sf', desc = 'Find surrounding' },
+      { 'sF', desc = 'Find surrounding left' },
+      { 'sh', desc = 'Highlight surrounding' },
+      { 'sn', desc = 'Set surround search lines' },
       { 'sr', desc = 'Replace surrounding' },
     },
     opts = {

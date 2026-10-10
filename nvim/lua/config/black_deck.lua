@@ -30,8 +30,8 @@ function M.options()
     },
     layout = { width = { min = 27, max = 38 }, spacing = 3, align = 'left' },
     spec = {
-      { '<leader>f', group = 'Files' }, { '<leader>b', group = 'Buffers' },
-      { '<leader>c', group = 'Code' }, { '<leader>d', group = 'Docs' },
+      { '<leader>r', group = 'Tasks' }, { '<leader>f', group = 'Files' }, { '<leader>b', group = 'Buffers' },
+      { '<leader>D', group = 'Debug' }, { '<leader>c', group = 'Code' }, { '<leader>d', group = 'Docs' },
       { '<leader>m', group = 'Markdown' }, { '<leader>g', group = 'Git' },
       { '<leader>s', group = 'Search' }, { '<leader>w', group = 'Windows' },
       { '<leader>x', group = 'Trouble' }, { '<leader>q', group = 'Session' },

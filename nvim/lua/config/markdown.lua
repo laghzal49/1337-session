@@ -97,6 +97,8 @@ local function set_reader_options(win)
   wo.sidescrolloff = 12
 end
 
+function M.reader_active(win) return states[win or vim.api.nvim_get_current_win()] ~= nil end
+
 function M.enable()
   if not ensure_markdown() then return false end
   local win = vim.api.nvim_get_current_win()
