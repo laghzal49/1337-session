@@ -245,6 +245,7 @@ function M.menu()
     add('Validate project profiles', function() vim.cmd.DebugProjectCheck() end)
   end
   add('Toggle debugger panels  ·  Space Du', function() require('config.debug_panels').toggle() end)
+  add('How to debug / key guide  ·  Space D?', function() require('config.debug_help').show() end)
   local state = session and ((session.stopped_thread_id and 'Paused' or 'Running') .. ' · ' .. session.config.name)
     or ('Ready · ' .. vim.fs.basename(require('config.project').root()))
   if vim.o.columns < 80 then state = session and (session.stopped_thread_id and 'Paused' or 'Running') or 'Ready' end

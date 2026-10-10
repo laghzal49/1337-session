@@ -15,6 +15,11 @@ local map = function(lhs, rhs, desc) vim.keymap.set('n', lhs, rhs, { silent = tr
 map('<leader>?', function() require('config.cheatsheet').toggle() end, 'Keymap Guide')
 map('<leader>hk', function() require('config.cheatsheet').toggle() end, 'Keymap Guide')
 map('<leader>hg', '<cmd>ConfigGuide<cr>', 'Config Guide')
+vim.api.nvim_create_user_command('DebugHelp', function() require('config.debug_help').show() end,
+  { desc = 'Debugger tutorial and keyboard guide' })
+vim.api.nvim_create_user_command('DebugExample', function() require('config.debug_help').example() end,
+  { desc = 'Open a temporary Python debugger practice project' })
+map('<leader>D?', '<cmd>DebugHelp<cr>', 'How to use the debugger')
 
 -- Clear search highlights and transient notifications immediately on <Esc>
 map('<Esc>', function()

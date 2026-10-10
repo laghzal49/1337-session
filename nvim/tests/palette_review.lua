@@ -46,7 +46,7 @@ assert(vim.api.nvim_get_hl(0,{name='DiagnosticUnderlineError',link=false}).under
 print(('PALETTE PASS: syntax/diagnostics on five backgrounds, minimum %.2f:1; LSP parity and error undercurl'):format(lowest))
 
 -- Catch lazy plugin setup and theme reloads reverting the chosen colors/weight.
-require('lazy').load({plugins={'mini.icons','flash.nvim','nvim-dap','todo-comments.nvim','render-markdown.nvim','blink.cmp','aerial.nvim','which-key.nvim','lualine.nvim','bufferline.nvim'}})
+require('lazy').load({plugins={'mini.icons','flash.nvim','nvim-dap','neogen','todo-comments.nvim','render-markdown.nvim','blink.cmp','aerial.nvim','which-key.nvim','lualine.nvim','bufferline.nvim'}})
 assert(vim.wait(1000,function() return require('todo-comments.config').loaded end))
 local function check_runtime()
   for kind, expected in pairs(p.kinds) do

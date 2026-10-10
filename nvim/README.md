@@ -1,7 +1,7 @@
 # Perfect Black II — Neovim
 
 A standalone Neovim configuration: **no LazyVim distribution**. lazy.nvim manages
-45 explicitly configured plugins and dependencies, pinned in `lazy-lock.json`.
+46 explicitly configured plugins and dependencies, pinned in `lazy-lock.json`.
 Pure-black code surfaces, regular font weight, readable comments, opaque panels, and **ty + Ruff** for Python.
 On Python save, Ruff applies **safe fixes → organizes imports → formats**.
 It respects project rules, ignores and excludes; unsafe fixes remain disabled.
@@ -232,10 +232,18 @@ Panels open when a session starts and close when it ends.
 Type to filter, Enter to select, Escape to close. The menu stays compact on
 narrow terminals and scrolls to additional actions.
 
+New to debugging? Press `Space D?` or run `:DebugHelp` for an in-editor tutorial.
+It explains breakpoints, stepping, variables, watches, targets and troubleshooting.
+Press `t` in the guide (or run `:DebugExample`) to open a temporary Python practice
+project in a new tab, with a breakpoint already set. Press F5 to start, then F10
+to see a value change. The guide opens without loading a debugger, and the
+example preserves your editing buffers. See the [full debugger guide](DEBUGGING.md).
+
 | Key | Action |
 | --- | --- |
 | `F5` / `<leader>Dc` | Start the project / continue the active session |
 | `<leader>DD` / `:Debug` | Contextual debugger action menu |
+| `<leader>D?` / `:DebugHelp` | Tutorial and keyboard guide; `t` opens the practice project |
 | `<leader>Df` / `:DebugTarget` | Choose target, arguments, module, attach, or detected pytest file |
 | `<leader>DR` / `:DebugRestart` | Restart active session / rerun this project |
 | `<leader>DC` | Run to cursor while paused |
@@ -541,9 +549,33 @@ open files rather than scanning the entire workspace for errors.
 | `[s` / `]s` in focused signature help | Previous / next overload |
 | `<leader>cI` / `:PythonOrganizeImports` | Organize imports using Ruff |
 | `<leader>cF` / `:PythonFixAll` | Apply Ruff's configured fixes to the buffer |
+| `<leader>cD` / `:PythonDocstring` | Generate an editable docstring for the enclosing definition |
 | `<leader>cp` / `:PythonLspInfo` | Show project, interpreter candidate and attached servers |
 | `:PythonInterpreter /path/to/python` | Set a session-local interpreter override for this project |
 | `:PythonInterpreter auto` | Clear that project override and resume environment discovery |
+
+### Generate Python docstrings
+
+Put the cursor on a function or class and press **Space cD** (capital D).
+Neogen reads the syntax tree and inserts a docstring using
+[PEP 257's structure](https://peps.python.org/pep-0257/): triple double quotes,
+a summary ending in a period, and a blank line before additional sections.
+Google-style `Args`, `Returns`, `Yields`, `Raises` and `Attributes` sections are
+included when detected. PEP 257 defines structure, not a particular section style.
+
+Type over the selected summary, then use **Tab / Shift-Tab** to move between
+editable descriptions; Escape returns to Normal mode. Fill in the actual behavior
+and check the detected fields before saving. The generator supplies a scaffold,
+not an explanation of what your code does. Ruff's existing save pipeline still applies.
+
+`:PythonDocstring func`, `:PythonDocstring class` and `:PythonDocstring file`
+explicitly choose a function, class or module. Existing docstrings are preserved;
+the cursor moves to them. Inline bodies are expanded, shebangs and encoding
+comments are kept, and invalid definitions are left untouched. Nothing is saved
+or executed by docstring generation. Neogen loads only on first use; the Python
+Tree-sitter parser comes from the installer (`:TSInstall python` to repair it).
+
+### Signature help and environment selection
 
 Overload counts appear in the signature title; active parameter documentation
 precedes general documentation so it is visible in compact help. UTF-16 label

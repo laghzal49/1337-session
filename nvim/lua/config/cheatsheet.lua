@@ -18,12 +18,14 @@ end
 
 local content_lines = {
   "## Debugger (Python / C / C++)",
+  "  `<leader>D?` / `:DebugHelp` Tutorial │ `:DebugExample` Practice project",
+  "  `<leader>DD` Actions │ `<leader>DR` Restart │ `<leader>DC` Run to cursor │ `<leader>Dw` Add watch",
   "  `<F5>` Continue/start │ `<F10>` Over │ `<F11>` Into │ `<F12>` Out",
   "  `<leader>Db` Breakpoint │ `<leader>DB` Conditional breakpoint",
   "  `<leader>Du` Panels │ `<leader>De` Evaluate │ `<leader>Dt` Stop",
   "  `<leader>Dv` Watch expressions │ `<leader>DS` Call stack │ `<leader>Dr` Console",
   "  `<leader>DL` Logpoint │ `<leader>Dp` Pause │ `<leader>Dl` Last session │ `<leader>Dx` Clear",
-  "  `<leader>Df` Project launch │ `<leader>Dg` Generate │ `<leader>Dj` Edit │ `<leader>Dh` Check",
+  "  `<leader>Df` Choose target │ `<leader>Dg` Generate │ `<leader>Dj` Edit │ `<leader>Dh` Check",
   "  Setup: debugpy for Python; GDB 14+ for C/C++. See :ConfigGuide.",
   "",
   "## Project Tasks & Workspace",
@@ -76,6 +78,7 @@ local content_lines = {
   "  `[d`  / `]d`  Previous / next diagnostic error",
   "  Insert `<C-k>` Signature + parameter docs │ focus with `K`, `[s` / `]s` overloads",
   "  Python: `<leader>cI` Imports │ `<leader>cF` Ruff fixes │ `<leader>cp` LSP/environment",
+  "  Python: `<leader>cD` / `:PythonDocstring` Generate docstring │ Tab / Shift-Tab Edit fields",
   "  `:PythonInterpreter /path/to/python` Set project interpreter │ `auto` Restore discovery",
   "",
   "## TODO Comments",

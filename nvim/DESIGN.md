@@ -221,3 +221,24 @@ DAP capability is detected, but native C/C++ debugging still needs a newer GDB.
 A separate legacy Markdown reader test passed its behavior assertions but reports
 `E31: No such mapping` when run under the stricter smoke wrapper; it is not part
 of the 30-case suite above. No Markdown reader behavior was changed in this pass.
+
+## Python docstrings and debugger tutorial
+
+Neogen loads on demand and supplies a PEP 257 scaffold with Google-style sections
+and native snippet fields. The Python wrapper preserves existing docstrings,
+handles inline suites and module headers, and never saves or executes source.
+Parameter extraction preserves signature order, including typed variadic arguments,
+and excludes bound method receivers. Users supply the actual behavior descriptions.
+
+The debugger guide is a read-only, responsive float that shares the existing popup
+colors. It loads independently of the adapters. Its optional temporary practice
+project opens in a separate tab, sets a breakpoint and waits for F5; it refuses
+to replace an active debug session.
+
+Verification: six focused strict regressions passed, plus `make test workflow`.
+The docstring test checks Python AST equivalence and Ruff docstring rules; the
+practice test launches real debugpy, evaluates total = 0, steps to total = 4,
+and terminates while preserving an unsaved editing buffer. Attached UI checks
+verified first-use generation, typing, Tab/Shift-Tab, Escape, single-step undo,
+and guide scrolling/closing at 140, 80 and 40 columns with no bold text or errors.
+Both new regression files are included in the default smoke suite.

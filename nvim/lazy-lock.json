@@ -95,6 +95,10 @@
     "branch": "main",
     "commit": "33a2ebe5df8eb4751828fcba133e18ed0fbbdfab"
   },
+  "neogen": {
+    "branch": "main",
+    "commit": "23e7e9f883d01289ebd90e98025acc860ea26366"
+  },
   "noice.nvim": {
     "branch": "main",
     "commit": "7bfd942445fb63089b59f97ca487d605e715f155"
