@@ -6,17 +6,17 @@ return {
     { '<leader>qd', function() require('persistence').stop() end, desc = "Don't save session" },
     { '<leader>ql', function() require('persistence').load({ last = true }) end, desc = 'Restore last session' },
   } },
-  { 'nvim-treesitter/nvim-treesitter', lazy = false, build = ':TSUpdate', opts = {}, config = function(_, opts)
+  { 'nvim-treesitter/nvim-treesitter', event = { 'BufReadPost', 'BufNewFile' }, build = ':TSUpdate', opts = {}, config = function(_, opts)
     require('nvim-treesitter').setup(opts)
     vim.api.nvim_create_autocmd('FileType', { callback = function(ev)
-      if vim.bo[ev.buf].buftype == '' and not require('config.markdown').large(ev.buf) then
+      if vim.bo[ev.buf].buftype == '' and vim.bo[ev.buf].filetype ~= 'bigfile' and not require('config.markdown').large(ev.buf) then
         pcall(vim.treesitter.start, ev.buf)
       end
     end })
   end },
   { 'nvim-treesitter/nvim-treesitter-context', event = { 'BufReadPost', 'BufNewFile' }, opts = {
     max_lines = 2, trim_scope = 'outer',
-    on_attach = function(buf) return not require('config.markdown').large(buf) end,
+    on_attach = function(buf) return vim.bo[buf].filetype ~= 'bigfile' and not require('config.markdown').large(buf) end,
   } },
   { 'neovim/nvim-lspconfig', event = { 'BufReadPre', 'BufNewFile' }, dependencies = { 'saghen/blink.cmp' },
     config = function(_, opts)
@@ -36,6 +36,7 @@ return {
   { 'stevearc/conform.nvim', event = 'BufWritePre', cmd = 'ConformInfo', opts = {
     format_on_save = function(buf)
       if vim.b[buf].autoformat == false or vim.g.autoformat == false then return end
+      if vim.b[buf].bigfile or vim.bo[buf].filetype == 'bigfile' then return end
       return { timeout_ms = 1500, lsp_format = 'fallback' }
     end,
   }, keys = { { '<leader>cf', function() require('conform').format({ async = true, lsp_format = 'fallback' }) end, desc = 'Format buffer' } } },

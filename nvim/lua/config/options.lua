@@ -76,7 +76,7 @@ vim.opt.incsearch = true
 -- Backup/swap improvements
 vim.opt.swapfile = false
 vim.opt.backup = false
-vim.opt.writebackup = false
+vim.opt.writebackup = true -- Keep a recovery copy until a write succeeds.
 
 -- Split animation smoothness
 vim.opt.splitkeep = 'screen'  -- Reduce visual noise when splitting

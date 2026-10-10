@@ -36,12 +36,9 @@ function M.is_1337()
   local user = vim.env.USER or ''
   if user == 'tlaghzal' then detected_station = true; return true end
 
-  -- Check if config repo or active workspace is 1337-session
-  local config_dir = vim.fn.stdpath('config')
-  if config_dir:find('1337') then detected_station = true; return true end
-
-  local ok, remote = pcall(vim.fn.system, { 'git', '-C', config_dir, 'remote', '-v' })
-  detected_station = ok and type(remote) == 'string' and remote:find('1337%-session') ~= nil or false
+  -- Installing this config does not imply a cluster filesystem.
+  -- Non-cluster hosts can opt in with STATION_1337=1 or :StationMode on.
+  detected_station = false
   return detected_station
 end
 
@@ -159,7 +156,7 @@ function M.check(callback)
             if #ilines >= 2 then
               local iparts = vim.split(ilines[2], '%s+')
               if #iparts >= 6 and iparts[5] ~= '-' then
-                local ipct = tonumber(iparts[5]:gsub('%%', '')) or 0
+                local ipct = tonumber((iparts[5]:gsub('%%', ''))) or 0
                 if ipct >= 90 then
                   quota_status = 'error'
                   quota_details = quota_details .. ' · Inodes ' .. ipct .. '%!'

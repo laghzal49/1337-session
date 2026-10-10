@@ -25,6 +25,12 @@ local function setup_highlights()
 end
 
 local content_lines = {
+  "## Everyday Controls",
+  "  `<leader>ud` Buffer diagnostics │ `<leader>uv` Line wrap",
+  "  `<leader>ul` Line numbers       │ `<leader>ur` Relative numbers",
+  "  `<leader>bo` Close other buffers (prompts for unsaved changes)",
+  "  `j` / `k` Move by displayed lines; add a count for logical lines",
+  "",
   "## 📁 File Explorer (`Snacks.explorer`)",
   "  `<leader>e`   Toggle file tree             │ `<leader>fe`  Focus file tree",
   "  Inside: `<CR>` open · `a` create · `d` trash · `r` rename · `c` copy · `m` move · `.` hidden · `q` close",

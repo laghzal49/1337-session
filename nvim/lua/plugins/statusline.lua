@@ -83,7 +83,7 @@ return {
             color = { fg = active, bg = black },
           },
           {
-            function() return 'DEVIL · ' end,
+            function() return vim.o.columns >= 100 and 'DEVIL · ' or '' end,
             padding = { left = 1, right = 0 },
             color = { fg = '#FF2E4C', bg = active, gui = 'bold' },
           },
@@ -382,11 +382,11 @@ return {
           bg = '#3D0D14',
         },
         buffer_visible = {
-          fg = '#7A5A62',
+          fg = '#A9949B',
           bg = '#0A0A0E',
         },
         buffer = {
-          fg = '#7A5A62',
+          fg = '#A9949B',
           bg = '#0A0A0E',
         },
         separator = {
@@ -406,7 +406,7 @@ return {
           bg = '#0A0A0E',
         },
         diagnostic = {
-          fg = '#7A5A62',
+          fg = '#A9949B',
           bg = '#0A0A0E',
         },
         diagnostic_selected = {
@@ -414,9 +414,9 @@ return {
           bg = '#3D0D14',
           bold = true,
         },
-        info = { fg = '#7A5A62', bg = '#0A0A0E' },
+        info = { fg = '#A9949B', bg = '#0A0A0E' },
         info_selected = { fg = '#FF2E4C', bg = '#3D0D14' },
-        info_diagnostic = { fg = '#7A5A62', bg = '#0A0A0E' },
+        info_diagnostic = { fg = '#A9949B', bg = '#0A0A0E' },
         info_diagnostic_selected = { fg = '#FF4D6D', bg = '#3D0D14' },
         warning = { fg = '#A8606B', bg = '#0A0A0E' },
         warning_selected = { fg = '#FFD166', bg = '#3D0D14' },

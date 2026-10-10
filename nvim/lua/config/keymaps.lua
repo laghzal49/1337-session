@@ -185,3 +185,16 @@ end, 'Line diagnostics')
 -- Yank to system clipboard helpers
 vim.keymap.set({ 'n', 'v' }, '<leader>y', '"+y', { desc = 'Yank to clipboard' })
 map('<leader>Y', '"+Y', 'Yank line to clipboard')
+
+-- Display-line movement makes wrapped prose usable; counts retain logical lines.
+vim.keymap.set({ 'n', 'x' }, 'j', function() return vim.v.count == 0 and 'gj' or 'j' end,
+  { expr = true, silent = true, desc = 'Down (display line)' })
+vim.keymap.set({ 'n', 'x' }, 'k', function() return vim.v.count == 0 and 'gk' or 'k' end,
+  { expr = true, silent = true, desc = 'Up (display line)' })
+map('<leader>ud', function()
+  vim.diagnostic.enable(not vim.diagnostic.is_enabled({ bufnr = 0 }), { bufnr = 0 })
+end, 'Toggle buffer diagnostics')
+map('<leader>ul', function() vim.wo.number = not vim.wo.number end, 'Toggle line numbers')
+map('<leader>ur', function() vim.wo.relativenumber = not vim.wo.relativenumber end, 'Toggle relative numbers')
+map('<leader>uv', function() vim.wo.wrap = not vim.wo.wrap end, 'Toggle line wrap')
+map('<leader>bo', function() Snacks.bufdelete.other() end, 'Close other buffers')

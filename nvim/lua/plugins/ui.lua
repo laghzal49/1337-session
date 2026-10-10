@@ -62,7 +62,7 @@ return {
     lazy = false,
     priority = 900,
     opts = {
-      bigfile = { enabled = true },
+      bigfile = { enabled = true, size = 1024 * 1024 },
       quickfile = { enabled = true },
       dashboard = require('config.dashboard'),
       explorer = {

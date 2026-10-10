@@ -7,6 +7,41 @@ Ruff provides diagnostics through its LSP and formats with
 Ruff Format on save; `<leader>cf` runs formatting manually and `<leader>uf`
 toggles format-on-save.
 
+## Responsiveness and everyday controls
+
+Completion loads on first Insert/Command mode entry (or when an LSP needs its
+capabilities); the parser manager loads on the first file. No plugins were added.
+Files above 1 MiB, or averaging more than 1,000 bytes per line, use Snacks' plain
+big-file view: manual folds, no Tree-sitter highlighting/context, no completion,
+and no format-on-save. Explicit `<leader>cf` still formats on request. The existing
+stricter Markdown line/size limits continue to apply.
+
+Comments, inactive buffer labels and panel hints have brighter contrast while
+keeping the pure-black canvas and crimson accents. The statusline hides its brand
+label in narrow terminals. Flash labels use dark text on pink for readability.
+
+| Key | Action |
+| --- | --- |
+| `<leader>ud` | Toggle diagnostics for the current buffer |
+| `<leader>uv` | Toggle wrapping in the current window |
+| `<leader>ul` / `<leader>ur` | Toggle absolute / relative line numbers |
+| `<leader>bo` | Close other buffers, prompting for unsaved changes |
+| `j` / `k` | Move by displayed lines; counts use logical lines |
+
+Reopened files restore their last cursor position unless a position was already
+selected. Writes keep a temporary backup until they succeed. Station Mode detects
+cluster filesystem/hostname/login signals; a repository name alone no longer
+activates cluster scans. Use `STATION_1337=1` or `:StationMode on` to opt in elsewhere.
+The inode quota parser also handles `df` output without a Lua multiple-return error.
+
+Validation on Neovim 0.11.5: five cached headless launches per config had median
+startup **22.24 ms before → 14.63 ms after**. These numbers describe this test
+machine, exclude first-install costs, and do not measure LSP readiness or UI latency.
+Run `NVIM_BIN=/path/to/nvim python3 nvim/tests/startup_bench.py --runs 5`
+and `nvim --headless '+lua dofile("nvim/tests/responsiveness_review.lua")' +qa!`
+from the repository root with `XDG_CONFIG_HOME` pointing to the repository.
+The responsiveness review expects a non-cluster host with no Station Mode override.
+
 ## Workspace
 
 ![Decorated workspace dashboard](assets/workspace.png)

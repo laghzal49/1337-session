@@ -3,7 +3,7 @@ return {
   {
     'saghen/blink.cmp',
     version = 'v1.10.2',
-    lazy = false,
+    event = { 'InsertEnter', 'CmdlineEnter' },
     opts = {
       keymap = {
         preset = 'none',

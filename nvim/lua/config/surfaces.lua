@@ -14,7 +14,7 @@ local M = {
   accent = "#FF2E4C",
   panel_accent = "#FF3B56",
   text = colors.text,
-  muted = "#7A5A62",
+  muted = "#A9949B",
   teal = colors.teal,
   lilac = colors.lilac,
   border = "#5C1522",
@@ -75,7 +75,7 @@ function M.highlights()
   groups('TroubleCount', { fg = M.accent, fmt = 'bold' })
   
   -- Flash jump labels — hot pink bg, white fg for maximum contrast
-  groups('FlashLabel', { bg = '#FF8FA3', fg = '#FFFFFF', fmt = 'bold' })
+  groups('FlashLabel', { bg = '#FF8FA3', fg = '#000000', fmt = 'bold' })
   groups('FlashMatch', { fg = M.accent })
   groups('FlashCurrent', { fg = M.text, fmt = 'bold' })
   groups('FlashBackdrop', { fg = M.muted })
