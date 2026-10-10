@@ -88,5 +88,33 @@ buffer({ 'def unchanged():', '    pass' })
 vim.bo.modifiable = false
 before = text(); assert(not generate() and text() == before, 'read-only buffer modified')
 vim.bo.modifiable = true
+
+-- The third quote replaces the empty first statement created by quote pairing.
+local virtualedit = vim.o.virtualedit
+vim.o.virtualedit = 'onemore'
+for _, definition in ipairs({
+  { 'def fresh(name: str) -> str:', '    ""' },
+  { 'def existing(value: int) -> int:', '    ""', '    return value' },
+  { 'class Settings:', '    ""', '    enabled = True' },
+}) do
+  buffer(definition, 2, 6)
+  before = text()
+  local mapping = vim.fn.maparg('"', 'i', false, true)
+  assert(mapping.buffer == 1 and mapping.callback():find('expand_quotes', 1, true), 'third quote did not trigger')
+  require('config.docstrings').expand_quotes()
+  assert(vim.snippet.active(), 'automatic docstring has no editable fields')
+  valid(before)
+end
+for _, definition in ipairs({
+  { 'value = ""' },
+  { 'def f():', '    value = 1', '    ""' },
+  { 'def f():', '    """Existing description.', '    ""', '    """' },
+}) do
+  local row = #definition == 4 and 3 or #definition
+  buffer(definition, row, #definition[row])
+  assert(not vim.fn.maparg('"', 'i', false, true).callback():find('expand_quotes', 1, true),
+    'ordinary string or existing documentation triggered generation')
+end
+vim.o.virtualedit = virtualedit
 vim.cmd.enew({ bang = true })
-print('DOCSTRINGS PASS: first-use lazy command, native fields, PEP formatting, AST equivalence, async/multiline/decorators/classes/inline suites/tabs/shebangs and existing-doc protection')
+print('DOCSTRINGS PASS: lazy command, automatic triple quotes, native fields, PEP formatting, AST equivalence, async/multiline/decorators/classes/inline suites/tabs/shebangs and existing-doc protection')

@@ -242,3 +242,11 @@ and terminates while preserving an unsaved editing buffer. Attached UI checks
 verified first-use generation, typing, Tab/Shift-Tab, Escape, single-step undo,
 and guide scrolling/closing at 140, 80 and 40 columns with no bold text or errors.
 Both new regression files are included in the default smoke suite.
+
+Typing `"""` as the first indented statement now expands directly into the same
+Google-style snippet. A Python buffer mapping cooperates with MiniPairs and checks
+the syntax tree before replacing its empty quote pair. Ordinary strings and
+existing documentation are preserved. The generator still loads on first use.
+Regression checks cover AST equivalence after quote expansion; attached input
+checks cover real quote typing, lazy loading, Tab/Shift-Tab, empty bodies, async
+functions, methods, classes, comments, ordinary strings and filetype cleanup.

@@ -556,8 +556,14 @@ open files rather than scanning the entire workspace for errors.
 
 ### Generate Python docstrings
 
-Put the cursor on a function or class and press **Space cD** (capital D).
-Neogen reads the syntax tree and inserts a docstring using
+Inside a Python function or class, type **`"""`** on its first indented line.
+The third quote automatically expands into a Google-style docstring with editable
+descriptions. This also works immediately after writing a definition, before
+adding its body. You can fill in the summary, arguments and other detected fields.
+See [Google's docstring conventions](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings).
+
+For an existing definition, **Space cD** (capital D) also generates its docstring.
+Neogen reads the syntax tree and uses
 [PEP 257's structure](https://peps.python.org/pep-0257/): triple double quotes,
 a summary ending in a period, and a blank line before additional sections.
 Google-style `Args`, `Returns`, `Yields`, `Raises` and `Attributes` sections are
@@ -574,6 +580,9 @@ the cursor moves to them. Inline bodies are expanded, shebangs and encoding
 comments are kept, and invalid definitions are left untouched. Nothing is saved
 or executed by docstring generation. Neogen loads only on first use; the Python
 Tree-sitter parser comes from the installer (`:TSInstall python` to repair it).
+Automatic expansion only applies to the empty first statement of a function or
+class; quotes in assignments, later statements and existing documentation keep
+their normal behavior.
 
 ### Signature help and environment selection
 
