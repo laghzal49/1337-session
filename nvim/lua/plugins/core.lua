@@ -12,8 +12,24 @@ return {
   { 'nvim-treesitter/nvim-treesitter', commit = '4d9916e477e5d4e3b245845dfd285edf429f3252',
     event = { 'BufReadPost', 'BufNewFile' }, build = ':TSUpdate', opts = {}, config = function(_, opts)
     require('nvim-treesitter').setup(opts)
+    local warned = {}
     vim.api.nvim_create_autocmd('FileType', { callback = function(ev)
       if vim.bo[ev.buf].buftype == '' and not performance.large(ev.buf) and not require('config.markdown').large(ev.buf) then
+        local filetype = vim.bo[ev.buf].filetype
+        local language = vim.treesitter.language.get_lang(filetype) or filetype
+        if language == '' then return end
+        -- A newer highlights query with an older parser can start successfully
+        -- and then fail later in the decoration provider on every redraw.
+        local query_ok, query_err = pcall(vim.treesitter.query.get, language, 'highlights')
+        if not query_ok then
+          if not warned[language] and tostring(query_err):find('Query error', 1, true) then
+            warned[language] = true
+            vim.schedule(function()
+              vim.notify(('Tree-sitter %s highlights are incompatible with its parser. Run :TSUpdate %s.'):format(language, language), vim.log.levels.WARN)
+            end)
+          end
+          return
+        end
         pcall(vim.treesitter.start, ev.buf)
       end
     end })

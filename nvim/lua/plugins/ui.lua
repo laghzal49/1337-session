@@ -8,7 +8,7 @@ return {
   {
     'nvim-mini/mini.icons',
     lazy = false,
-    priority = 1000,
+    priority = 1100,
     opts = {
       style = vim.g.have_nerd_font == false and 'ascii' or 'glyph',
       -- Use the Perfect Black palette for file type icon colors
@@ -60,7 +60,7 @@ return {
   {
     'folke/snacks.nvim',
     lazy = false,
-    priority = 900,
+    priority = 1000,
     opts = {
       bigfile = { enabled = true, size = 1024 * 1024,
         setup = function(ctx) require('config.performance').guard(ctx.buf) end },

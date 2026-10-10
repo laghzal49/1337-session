@@ -10,8 +10,8 @@
 #   search    ripgrep, fd, fzf
 #   git ui    lazygit  (<leader>gg)
 #   node      Node.js LTS (LSP servers / mason packages that need npm)
-#   python    uv (+ a managed Python if the system one can't make venvs —
-#             mason needs `python3 -m venv` for basedpyright/mypy/debugpy)
+#   python    uv, ty, Ruff, and isolated debugpy for the Python debugger
+#             (+ a managed Python if the system one can't make venvs)
 #   parsers   tree-sitter CLI + a `cc` shim via zig if no C compiler exists
 #             (nvim-treesitter's main branch compiles grammars with cc)
 #   c/c++     clangd language server for C and C++
@@ -375,7 +375,7 @@ if have ruff; then
 else
   warn "Ruff is not on PATH; Python linting and formatting will be unavailable"
 fi
-# mason builds venvs for basedpyright/mypy/debugpy — Ubuntu without sudo
+# mason builds venvs for its Python packages — Ubuntu without sudo
 # often lacks python3-venv, so hand mason a Python that can do it
 if python3 -m venv "$TMP/venv-probe" >/dev/null 2>&1; then
   ok "system python3 can create venvs"
@@ -392,6 +392,30 @@ else
   warn "no venv-capable python3 and no uv — mason's pip packages may fail"
 fi
 
+# The DAP adapter looks in Neovim's data directory first. Keep its Python
+# separate from projects and honor XDG_DATA_HOME like vim.fn.stdpath('data').
+DEBUGPY_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/debugpy"
+DEBUGPY_PYTHON="$DEBUGPY_DIR/bin/python"
+if [ "$FORCE" = 0 ] && [ -x "$DEBUGPY_PYTHON" ] \
+    && "$DEBUGPY_PYTHON" -c 'import debugpy.adapter' >/dev/null 2>&1; then
+  skip "debugpy (isolated Neovim debugger adapter)"
+elif have uv; then
+  DEBUGPY_PIP_FLAGS=(--no-cache --link-mode copy)
+  if [ "$FORCE" = 1 ]; then DEBUGPY_PIP_FLAGS+=(--reinstall-package debugpy --upgrade); fi
+  if uv venv --allow-existing "$DEBUGPY_DIR" >"$TMP/debugpy-install.log" 2>&1 \
+      && uv pip install "${DEBUGPY_PIP_FLAGS[@]}" --python "$DEBUGPY_PYTHON" debugpy >>"$TMP/debugpy-install.log" 2>&1 \
+      && "$DEBUGPY_PYTHON" -c 'import debugpy.adapter' >>"$TMP/debugpy-install.log" 2>&1; then
+    ok "debugpy adapter → ${DEBUGPY_DIR/#$HOME/~}"
+  else
+    tail -n 12 "$TMP/debugpy-install.log" >&2
+    warn "debugpy installation failed; Python debugging needs: uv venv --allow-existing '$DEBUGPY_DIR' && uv pip install --python '$DEBUGPY_PYTHON' debugpy"
+    INSTALL_FAILED=1
+  fi
+else
+  warn "uv is unavailable; cannot install the default Python debugger adapter"
+  INSTALL_FAILED=1
+fi
+
 # ============================================================================
 step "8/10 · treesitter & C/C++ toolchain — tree-sitter · cc · clangd"
 # ============================================================================
@@ -404,8 +428,12 @@ if want tree-sitter; then
 fi
 # grammars compile with `cc` — if the box has none, shim one from zig
 # (a single user-space tarball that bundles a full C compiler, no sudo)
-if have cc || have gcc || have clang; then
-  ok "C compiler present ($(command -v cc || command -v gcc || command -v clang))"
+if have cc; then
+  ok "C compiler present ($(command -v cc))"
+elif have gcc || have clang; then
+  COMPILER="$(command -v gcc || command -v clang)"
+  ln -sfn "$COMPILER" "$BIN/cc"
+  ok "no cc command — linked compiler $COMPILER as ~/.local/bin/cc"
 else
   ZIG_V="0.14.0" # pinned: 0.14.x is the last release with this asset naming
   if fetch "https://ziglang.org/download/index.json" "$TMP/zig-index.json" \

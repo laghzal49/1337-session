@@ -16,8 +16,8 @@ local function run()
     -- Install missing parsers, then refresh older ones to match current queries.
     -- update() alone skips languages that have never been installed.
     local treesitter = require('nvim-treesitter')
-    treesitter.install(languages):wait(300000)
-    treesitter.update(languages):wait(300000)
+    assert(treesitter.install(languages):wait(300000) ~= false, 'one or more parsers failed to install')
+    assert(treesitter.update(languages):wait(300000) ~= false, 'one or more parsers failed to update')
     for _, language in ipairs(languages) do
       assert(vim.treesitter.language.add(language), 'parser unavailable: ' .. language)
       local ok, err = pcall(vim.treesitter.query.get, language, 'highlights')

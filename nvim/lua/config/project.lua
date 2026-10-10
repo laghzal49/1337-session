@@ -7,7 +7,14 @@ function M.root()
   local name, cwd = vim.api.nvim_buf_get_name(buf), vim.fn.getcwd()
   local key = name .. '\0' .. (cwd or '')
   if not cache[key] then
-    cache[key] = vim.fs.root(name ~= '' and name or cwd, markers) or cwd
+    if name ~= '' then
+      cache[key] = vim.fs.root(name, markers) or cwd
+    else
+      -- vim.fs.root treats its argument as a file. For an unnamed buffer,
+      -- search from the cwd itself so markers in a window-local cwd count.
+      local found = vim.fs.find(markers, { path = cwd, upward = true, limit = 1 })
+      cache[key] = found[1] and vim.fs.dirname(found[1]) or cwd
+    end
   end
   return cache[key]
 end

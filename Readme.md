@@ -26,7 +26,7 @@ See the [Neovim guide](nvim/README.md) for shortcuts and setup, and the
 ![Makefile target picker](nvim/assets/makefile.png)
 
 Makefile targets run directly from Neovim with `<leader>cm`; `<leader>cM` runs
-Make's default target. DAP and its debugger panels have been removed.
+Make's default target. The Python debugger and its panels load on demand.
 
 ## One-command dev environment (Ubuntu, zero sudo)
 
@@ -46,6 +46,7 @@ temporary directory that is removed when installation exits. It installs:
 - **Node.js LTS** (for LSP/mason packages that need npm)
 - **uv**, plus a managed Python if the system one can't create venvs
 - **ty** and **Ruff** installed through uv's user tool directory
+- **debugpy** in an isolated Neovim data directory for Python debugging
 - **tree-sitter CLI**, and a `cc` shim via zig if the box has no C compiler
 - **clangd** language server for C and C++
 - plugins preinstalled headlessly, so the first launch is instant

@@ -26,15 +26,11 @@ function M.is_1337()
 
   -- Cluster local scratch filesystems
   if vim.fn.isdirectory('/goinfre') == 1 or vim.fn.isdirectory('/sgoinfre') == 1 then detected_station = true; return true end
-  if vim.uv.fs_lstat(vim.fn.expand('~/goinfre')) ~= nil then detected_station = true; return true end
+  if vim.fn.isdirectory(vim.fn.expand('~/goinfre')) == 1 then detected_station = true; return true end
 
   -- Cluster hostname naming conventions (e.g. c1r2p3, f2r4p1, 1337-*, 42-*)
   local host = (vim.uv.os_gethostname() or ''):lower()
   if host:match('^[cbfzer]%d+r%d+p%d+') or host:match('1337') or host:match('42') then detected_station = true; return true end
-
-  -- User login matching 1337 cluster usernames
-  local user = vim.env.USER or ''
-  if user == 'tlaghzal' then detected_station = true; return true end
 
   -- Installing this config does not imply a cluster filesystem.
   -- Non-cluster hosts can opt in with STATION_1337=1 or :StationMode on.

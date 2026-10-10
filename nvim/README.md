@@ -130,8 +130,8 @@ keeping the pure-black canvas and crimson accents. The statusline removes second
 
 Reopened files restore their last cursor position unless a position was already
 selected. Writes keep a temporary backup until they succeed. Station Mode detects
-cluster filesystem/hostname/login signals; a repository name alone no longer
-activates cluster scans. Use `STATION_1337=1` or `:StationMode on` to opt in elsewhere.
+cluster filesystem and hostname signals; a repository name or login alone does not
+activate cluster scans. Use `STATION_1337=1` or `:StationMode on` to opt in elsewhere.
 The inode quota parser also handles `df` output without a Lua multiple-return error.
 
 Validation on Neovim 0.11.5: five cached headless launches per config had median
@@ -161,7 +161,8 @@ Panels open when a session starts and close when it ends.
 | `<leader>Du` / `<leader>De` | Toggle panels / evaluate expression or selection |
 | `<leader>Dr` / `<leader>Dt` | Console / terminate |
 
-For Python, install debugpy once in an isolated environment:
+The installer sets up debugpy in an isolated environment for Python debugging.
+If you skipped that step, install it manually:
 
 ```sh
 # Linux; default Neovim data directory. Adjust if XDG_DATA_HOME is customized.
