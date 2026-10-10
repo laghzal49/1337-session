@@ -1,5 +1,6 @@
 -- Shared UI constants and design tokens for borders, sizes, and blending.
 -- Referenced by options.lua, lazy.lua, and every plugin that draws a panel.
+local palette = require('config.palette')
 local M = {
   border = "rounded",
   blend = 0,
@@ -14,7 +15,7 @@ local M = {
     border = "#25334A",
     border_soft = "#2A5961",
     error = "#FF8FA3",
-    cursor = '#FF2E4C',
+    cursor = palette.focus,
     cursor_insert = '#7FE3C2',
     cursor_command = '#FFD166',
   },

@@ -43,7 +43,7 @@ local function highlights(startup)
     set(name,{italic=false},vim.api.nvim_get_hl(0,{name=name,link=true}))
   end
   for name in pairs(vim.api.nvim_get_hl(0, {})) do
-    if name:match('^@comment') or name:match('^@string%.documentation') then
+    if name:match('^@comment') or name:match('^@string%.documentation') or name:match('^@lsp%.type%.comment') then
       set(name, {italic=false}, vim.api.nvim_get_hl(0, {name=name,link=true}))
     end
   end

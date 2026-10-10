@@ -1,20 +1,21 @@
 -- Shared tokens for every interactive panel, independent of the code palette.
 local ui = require("config.ui")
 local colors = ui.colors
+local c = require('config.palette')
 
 local M = {
-  panel = "#101116",
-  tree_panel = "#08090D",
-  inset = "#08090D",
+  panel = c.panel,
+  tree_panel = c.inset,
+  inset = c.inset,
   edge = "#303440",
   edge_bright = "#606777",
   edge_soft = "#252934",
-  selected = "#24212C",
+  selected = c.selection,
   selected_bright = "#352B3B",
-  accent = "#FF2E4C",
-  panel_accent = "#FF3B56",
+  accent = c.focus,
+  panel_accent = c.focus,
   text = colors.text,
-  muted = "#9299A9",
+  muted = c.muted,
   teal = colors.teal,
   lilac = colors.lilac,
   border = "#303440",
@@ -39,7 +40,8 @@ function M.highlights(accessible)
   end
   groups('DapUIFloatNormal', { bg = M.panel, fg = M.text })
   groups('DapUIFloatBorder DapUIWinSelect', { fg = M.accent, bg = M.panel })
-  groups('DapUIScope DapUIType', { fg = M.lilac })
+  groups('DapUIScope', { fg = c.callable })
+  groups('DapUIType', { fg = c.type })
   groups('DapUIValue DapUIDecoration', { fg = M.text })
   groups('DapUIStoppedThread DapUIThread', { fg = M.teal })
   groups('BlackPath', { fg = M.muted, bg = M.tree_panel })
@@ -69,7 +71,7 @@ function M.highlights(accessible)
   groups("MiniNotifyBorder MiniPickBorder AerialBorder GlanceBorderTop GlanceListBorderBottom GlancePreviewBorderBottom", { bg = M.panel, fg = M.edge_bright })
   groups("GlanceListCursorLine MiniPickMatchCurrent AerialLine", { bg = M.selected, fg = M.text, fmt = "bold" })
   groups("GlancePreviewNormal GlanceWinBarFilename GlanceWinBarFilepath MiniPickPreviewNormal", { bg = M.inset, fg = M.text })
-  groups("GlanceListMatch GlancePreviewMatch MiniPickMatchRanges AerialGuide AerialClass AerialFunction AerialMethod AerialVariable", { fg = M.panel_accent, fmt = "bold" })
+  groups("GlanceListMatch GlancePreviewMatch MiniPickMatchRanges", { fg = M.panel_accent, fmt = "bold" })
   groups("MiniPickPrompt MiniPickPromptPrefix MiniPickPromptCaret MiniPickBorderText MiniPickHeader", { bg = M.panel, fg = M.panel_accent, fmt = "bold" })
   groups("MiniPickPreviewBorder", { bg = M.inset, fg = M.edge_soft })
   groups("MiniPickPreviewLine", { bg = M.selected, fg = M.text })
@@ -84,12 +86,16 @@ function M.highlights(accessible)
   end
 
   -- Edgy panel chrome
-  groups('EdgyTitle', { bg = '#0A0A0E', fg = '#FF4D6D', fmt = 'bold' })
-  groups('EdgyIcon EdgyIconActive', { bg = '#0A0A0E', fg = '#FF2E4C' })
-  groups('EdgyWinBar', { bg = '#0A0A0E', fg = '#FF4D6D', fmt = 'bold' })
+  groups('EdgyTitle', { bg = '#0A0A0E', fg = c.focus, fmt = 'bold' })
+  groups('EdgyIcon EdgyIconActive', { bg = '#0A0A0E', fg = c.focus })
+  groups('EdgyWinBar', { bg = '#0A0A0E', fg = c.focus, fmt = 'bold' })
   groups('EdgyNormal', { bg = '#0A0A0E', fg = M.text })
   groups('AerialNormal', { bg = '#0A0A0E', fg = M.text })
-  groups('AerialLine', { bg = '#3D0D14', fg = '#FF4D6D', fmt = 'bold' })
+  groups('AerialLine', { bg = M.selected, fg = c.text, fmt = 'bold' })
+  groups('AerialClass AerialStruct AerialInterface AerialEnum', {fg=c.type})
+  groups('AerialFunction AerialMethod', {fg=c.callable})
+  groups('AerialVariable', {fg=c.variable, fmt='bold'})
+  groups('AerialProperty AerialField', {fg=c.member})
   -- Trouble panel chrome
   groups('TroubleNormal TroubleNormalNC', { bg = M.panel, fg = M.text })
   groups('TroubleCount', { fg = M.accent, fmt = 'bold' })
@@ -123,31 +129,13 @@ function M.highlights(accessible)
   -- ── blink.cmp kind highlights (all 25 kinds) ─────────────────────────
   -- Mapped 1:1 to Perfect Black palette tokens
   local blink_kinds = {
-    Text          = M.text,
-    Method        = '#69AFFF',
-    Function      = '#69AFFF',
-    Constructor   = '#7FE3C2',
-    Field         = '#70D7FF',
-    Variable      = '#E6B3FF',
-    Class         = '#E8D48B',
-    Interface     = '#7FE3C2',
-    Module        = M.text,
-    Property      = '#70D7FF',
-    Unit          = '#FF9E64',
-    Value         = '#B8E986',
-    Enum          = '#7FE3C2',
-    Keyword       = M.lilac,
-    Snippet       = '#70D7FF',
-    Color         = '#FF8FA3',
-    File          = M.text,
-    Reference     = M.accent,
-    Folder        = '#70D7FF',
-    EnumMember    = '#70D7FF',
-    Constant      = M.text,
-    Struct        = '#7FE3C2',
-    Event         = '#FF9E64',
-    Operator      = '#70D7FF',
-    TypeParameter = '#7FE3C2',
+    Text=c.text, Method=c.callable, Function=c.callable, Constructor=c.type,
+    Field=c.member, Variable=c.variable, Class=c.type, Interface=c.type,
+    Module=c.type, Property=c.member, Unit=c.literal, Value=c.literal,
+    Enum=c.type, Keyword=c.keyword, Snippet=c.info, Color=c.member,
+    File=c.text, Reference=c.info, Folder=c.folder, EnumMember=c.literal,
+    Constant=c.type, Struct=c.type, Event=c.literal, Operator=c.punctuation,
+    TypeParameter=c.type,
   }
   for kind, color in pairs(blink_kinds) do
     h['BlinkCmpKind' .. kind] = { fg = color }
@@ -171,20 +159,20 @@ function M.highlights(accessible)
   -- ── Snacks.picker & explorer file tree ─────────────────────────────────
   groups('SnacksPicker',                  { bg = M.panel, fg = '#FFFFFF' })
   groups('SnacksPickerBorder',            { bg = M.panel, fg = M.edge })
-  groups('SnacksPickerTitle',             { bg = M.panel, fg = '#FF2E4C', fmt = 'bold' })
-  groups('SnacksPickerPrompt',            { fg = '#FF2E4C', fmt = 'bold' })
+  groups('SnacksPickerTitle',             { bg = M.panel, fg = c.focus, fmt = 'bold' })
+  groups('SnacksPickerPrompt',            { fg = c.focus, fmt = 'bold' })
   groups('SnacksPickerMatch',             { fg = '#FFFFFF', bg = '#5C0F1D', fmt = 'bold' })
   groups('SnacksPickerDirectory',         { fg = '#70D7FF', fmt = 'bold' })
   groups('SnacksPickerFile',              { fg = '#FFFFFF' })
-  groups('SnacksPickerDir',               { fg = '#8FB9D0' })
-  groups('SnacksPickerPathIgnored',       { fg = '#8A6A72' })
-  groups('SnacksPickerPathHidden',        { fg = '#8A6A72' })
+  groups('SnacksPickerDir',               { fg = c.path })
+  groups('SnacksPickerPathIgnored',       { fg = c.muted })
+  groups('SnacksPickerPathHidden',        { fg = c.muted })
   groups('SnacksPickerTree',              { fg = M.edge })
-  groups('SnacksPickerGitStatusUntracked', { fg = '#FF4D6D', fmt = 'bold' })
+  groups('SnacksPickerGitStatusUntracked', { fg = c.info, fmt = 'bold' })
   groups('SnacksPickerGitStatusModified',  { fg = '#FFD166', fmt = 'bold' })
   groups('SnacksPickerGitStatusStaged',    { fg = '#7FE3C2', fmt = 'bold' })
-  groups('SnacksPickerGitStatusDeleted',   { fg = '#FF2E4C', fmt = 'strikethrough' })
-  groups('SnacksPickerGitStatusIgnored',   { fg = '#8A6A72', fmt = 'italic' })
+  groups('SnacksPickerGitStatusDeleted',   { fg = c.focus, fmt = 'strikethrough' })
+  groups('SnacksPickerGitStatusIgnored',   { fg = c.muted, fmt = 'italic' })
   groups('SnacksPickerSelected',          { bg = '#4A101A', fg = '#FFFFFF', fmt = 'bold' })
   groups('SnacksPickerList',              { bg = M.panel, fg = '#FFFFFF' })
   groups('SnacksPickerInput',             { bg = M.panel, fg = '#FFFFFF' })
@@ -247,12 +235,12 @@ function M.highlights(accessible)
 
   groups('GitStatusStaged', { fg = '#7FE3C2', fmt = 'bold' })
   groups('GitStatusModified', { fg = '#FFD166', fmt = 'bold' })
-  groups('GitStatusUntracked', { fg = '#FF4D6D', fmt = 'bold' })
-  groups('GitStatusDeleted', { fg = '#FF2E4C', fmt = 'bold' })
+  groups('GitStatusUntracked', { fg = c.info, fmt = 'bold' })
+  groups('GitStatusDeleted', { fg = c.focus, fmt = 'bold' })
 
   groups('BlackBrandIcon', { fg = '#FF1744' })
-  groups('BlackBrand', { fg = '#FF2E4C', fmt = 'bold' })
-  groups('BlackLabel', { fg = '#FF4D6D', fmt = 'bold' })
+  groups('BlackBrand', { fg = c.focus, fmt = 'bold' })
+  groups('BlackLabel', { fg = c.focus, fmt = 'bold' })
   groups('BlackMuted', { fg = M.muted })
   groups('BlackKey', { bg = M.selected, fg = '#FFFFFF', fmt = 'bold' })
   groups('BlackDashboardKey', { fg = M.teal, fmt = 'bold' })
@@ -261,15 +249,15 @@ function M.highlights(accessible)
   groups('BlackDashboardPath', { fg = M.text })
   groups('BlackRule', { fg = '#8B0018' })
   groups('CursorLine', { bg = '#111218' })
-  groups('CursorLineNr', { fg = '#FF2E4C', fmt = 'bold' })
-  groups('SnacksDashboardTerminal', { fg = '#A8606B' })
-  groups('SnacksDashboardFooter', { fg = '#A8606B' })
-  groups('SnacksDashboardHeader', { fg = '#FF2E4C', fmt = 'bold' })
-  groups('SnacksDashboardKey', { fg = '#FF4D6D', fmt = 'bold' })
+  groups('CursorLineNr', { fg = c.focus, fmt = 'bold' })
+  groups('SnacksDashboardTerminal', { fg = c.muted })
+  groups('SnacksDashboardFooter', { fg = c.muted })
+  groups('SnacksDashboardHeader', { fg = c.focus, fmt = 'bold' })
+  groups('SnacksDashboardKey', { fg = c.focus, fmt = 'bold' })
   groups('SnacksDashboardDesc', { fg = '#D7E3FF' })
-  groups('SnacksDashboardIcon', { fg = '#FF4D6D' })
-  groups('SnacksDashboardSpecial', { fg = '#FF2E4C', fmt = 'bold' })
-  groups('SnacksDashboardDir', { fg = '#A8606B' })
+  groups('SnacksDashboardIcon', { fg = c.focus })
+  groups('SnacksDashboardSpecial', { fg = c.focus, fmt = 'bold' })
+  groups('SnacksDashboardDir', { fg = c.muted })
   groups('SnacksDashboardFile', { fg = '#FFFFFF' })
 
 

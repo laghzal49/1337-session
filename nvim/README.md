@@ -9,6 +9,11 @@ toggles format-on-save.
 
 ## A complete workspace refresh
 
+See the [full UI upgrade checklist](UI_UPGRADE_TODO.md) and
+[color role map, critique and research](DESIGN.md). Syntax, LSP, completion and
+outline colors now share one palette; measured foreground contrast is at least
+4.61:1 across the tested canvas, panel and default selection backgrounds.
+
 ![New project dashboard](assets/redesign-dashboard.png)
 ![Black Deck command guide](assets/redesign-deck.png)
 ![New editor hierarchy](assets/redesign-editor.png)

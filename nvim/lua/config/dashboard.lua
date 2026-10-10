@@ -8,9 +8,11 @@ local function fit(value, width)
 end
 local function action(icon, label, key, callback, pane)
   local icon_width = vim.g.have_nerd_font == false and 8 or 4
+  local role = ({file='Blue', search='Cyan', clock='Blue', file_new='Green',
+    session='Purple', terminal='Green', code='Yellow', help='Blue', quit='Grey'})[icon] or 'Grey'
   return { pane = pane or 1, key = key, action = callback,
     text = { { key .. '  ', hl = 'BlackDashboardKey', width = 3 },
-      { ui.icon(icon) .. '  ', hl = 'SnacksDashboardIcon', width = icon_width },
+      { ui.icon(icon) .. '  ', hl = 'MiniIcons' .. role, width = icon_width },
       { label, hl = 'SnacksDashboardDesc', width = 25 } } }
 end
 local function recent_files(root)
