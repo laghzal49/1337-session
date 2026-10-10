@@ -2,6 +2,7 @@
 return {
   {
     'mfussenegger/nvim-dap',
+    cmd = { 'DebugProjectLaunch', 'DebugProjectEdit', 'DebugProjectCheck' },
     dependencies = { 'rcarriga/nvim-dap-ui', 'nvim-neotest/nvim-nio' },
     keys = {
       { '<F5>', function() require('dap').continue() end, desc = 'Debug continue / start' },
@@ -18,6 +19,9 @@ return {
       { '<leader>Do', function() require('dap').step_over() end, desc = 'Step over' },
       { '<leader>Di', function() require('dap').step_into() end, desc = 'Step into' },
       { '<leader>DO', function() require('dap').step_out() end, desc = 'Step out' },
+      { '<leader>Df', function() require('config.debug_projects').launch() end, desc = 'Project launch configuration' },
+      { '<leader>Dj', function() require('config.debug_projects').edit() end, desc = 'Edit project launch.json' },
+      { '<leader>Dh', '<cmd>DebugProjectCheck<CR>', desc = 'Check project launch.json' },
       { '<leader>Dl', function() require('dap').run_last() end, desc = 'Run last debug configuration' },
       { '<leader>Dp', function() require('dap').pause() end, desc = 'Pause execution' },
       { '<leader>Dx', function() require('dap').clear_breakpoints() end, desc = 'Clear all breakpoints' },

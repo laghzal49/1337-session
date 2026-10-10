@@ -34,11 +34,76 @@ local function capture(stream, data)
   if #data > remaining then stream.truncated = true end
 end
 
+local function clean_output(output)
+  return output:gsub('\27%[[%d;]*[%a]', '')
+end
+
+-- Parse familiar runner output without changing compiler options or editor cwd.
+function M.parse_errors(task, output, efm)
+  local root = task.cwd or require('config.project').root()
+  local runner = task.runner or (task.name or ''):match('^([^:]+):')
+  local lines, items, seen, handled = vim.split(clean_output(output), '\n'), {}, {}, {}
+  local function severity(message)
+    message = (message or ''):lower()
+    if message:match('^warning[%s:]') then return 'W' end
+    if message:match('^note[%s:]') or message:match('^hint[%s:]') then return 'I' end
+    return 'E'
+  end
+  local function add(path, line, col, message, kind)
+    if not path or not line then return end
+    if not path:match('^[/\\]') and not path:match('^%a:[/\\]') then path = root .. '/' .. path end
+    path = vim.fs.normalize(path)
+    local key = path .. ':' .. line .. ':' .. (col or 0)
+    if seen[key] then return seen[key] end
+    local item = { filename = path, lnum = tonumber(line), col = tonumber(col) or 0,
+      text = message or '', type = kind or severity(message), valid = 1 }
+    seen[key], items[#items + 1] = item, item
+    return item
+  end
+  local pending, eslint_file, traceback
+  for row, line in ipairs(lines) do
+    local common_path, common_line, common_col, common_message = line:match('^%s*(.-):(%d+):(%d+):%s*(.+)$')
+    if not common_path then common_path, common_line, common_message = line:match('^%s*(.-):(%d+):%s*(.+)$') end
+    if common_path and not line:match('^%s*%-%->') and not line:match(':%d+%s+%-%s') then add(common_path, common_line, common_col, common_message); handled[row] = true end
+    if runner == 'cargo' then
+      local kind, message = line:match('^(error[^:]*):%s*(.+)')
+      if not kind then kind, message = line:match('^(warning):%s*(.+)') end
+      if kind then pending = { message = message, kind = kind == 'warning' and 'W' or 'E' } end
+      local path, lnum, col = line:match('^%s*%-%->%s*(.-):(%d+):(%d+)%s*$')
+      if path then add(path, lnum, col, pending and pending.message or 'Rust diagnostic', pending and pending.kind); handled[row] = true end
+    elseif runner == 'npm' or runner == 'pnpm' or runner == 'yarn' then
+      local path, lnum, col, message = line:match('^(.-)%((%d+),(%d+)%)%s*:%s*(.+)$')
+      if not path then path, lnum, col, message = line:match('^(.-):(%d+):(%d+)%s+%-%s+(.+)$') end
+      if path then add(path, lnum, col, message); handled[row] = true end
+      if line:match('^[^%s].-%.[jt]sx?$') then eslint_file = line end
+      local eline, ecol, severity, msg = line:match('^%s+(%d+):(%d+)%s+(%a+)%s+(.+)$')
+      if eslint_file and eline then add(eslint_file, eline, ecol, msg, severity == 'warning' and 'W' or 'E'); handled[row] = true end
+    elseif runner == 'python' then
+      local path, lnum = line:match('^%s*File "(.-)", line (%d+)')
+      if not path then path, lnum = line:match('^E%s+File "(.-)", line (%d+)') end
+      if path then traceback = add(path, lnum, 0, 'Python traceback'); handled[row] = true end
+      local message = line:match('^E%s+(.+)') or line:match('^([%w_.]*Error:.*)')
+      if traceback and message and not message:match('^File ') then traceback.text = message end
+    end
+  end
+  -- Common compiler / Go / pytest locations retain the buffer's own errorformat.
+  local fallback = { '__TASK_CWD__:' .. root }
+  for row, line in ipairs(lines) do if not handled[row] then fallback[#fallback + 1] = line end end
+  local parsed = vim.fn.getqflist({ lines = fallback,
+    efm = '%D__TASK_CWD__:%f,' .. (task.efm or efm or vim.bo.errorformat) .. ',%f:%l:%c: %m,%f:%l: %m' }).items
+  for _, item in ipairs(parsed) do
+    if item.valid == 1 and item.bufnr > 0 and item.lnum > 0 then
+      add(vim.api.nvim_buf_get_name(item.bufnr), item.lnum, item.col, item.text, item.type ~= '' and item.type:upper() or nil)
+    end
+  end
+  return items
+end
+
 function M.discover(root)
   root = root or require('config.project').root()
   local tasks = {}
   local function add(name, argv)
-    tasks[#tasks + 1] = { name = name, argv = argv, cwd = root }
+    tasks[#tasks + 1] = { name = name, argv = argv, cwd = root, runner = name:match('^([^:]+):') }
   end
   local function exists(path) return vim.fn.filereadable(root .. '/' .. path) == 1 end
   if exists('Makefile') or exists('makefile') or exists('GNUmakefile') then
@@ -70,11 +135,14 @@ function M.discover(root)
 end
 
 function M.show_output()
+  if M.running and M.running.refresh then M.running.refresh() end
   if not M.output then vim.notify('No task output yet', vim.log.levels.INFO); return end
   local buf = M.output_buf
   if not buf or not vim.api.nvim_buf_is_valid(buf) then
     buf = vim.api.nvim_create_buf(false, true)
     M.output_buf = buf
+    vim.api.nvim_create_autocmd('BufWipeout', { buffer = buf, once = true, group = 'ProjectTaskLifecycle',
+      callback = function() if M.output_buf == buf then M.output_buf = nil end end })
     vim.bo[buf].bufhidden = 'wipe'
     vim.bo[buf].filetype = 'log'
   end
@@ -86,6 +154,7 @@ function M.show_output()
   end
   vim.cmd('botright 12split')
   vim.api.nvim_win_set_buf(0, buf)
+  vim.api.nvim_win_set_cursor(0, { #M.output, 0 })
   vim.keymap.set('n', 'q', '<cmd>close<cr>', { buffer = buf, desc = 'Close task output' })
 end
 
@@ -102,29 +171,54 @@ function M.run(task)
   local token = { task = task, stopped = false, group = posix, efm = vim.bo.errorformat, tab = vim.api.nvim_get_current_tabpage() }
   local stdout, stderr = { chunks = {}, bytes = 0 }, { chunks = {}, bytes = 0 }
   M.running = token
+  local function output_text()
+    local output = table.concat(stdout.chunks) .. '\n' .. table.concat(stderr.chunks)
+    if stdout.truncated or stderr.truncated then output = output .. '\n[Task output truncated at 1 MiB / 5000 lines per stream]' end
+    return clean_output(output)
+  end
+  local function refresh_output()
+    M.output = { '$ ' .. table.concat(task.argv, ' '), 'cwd: ' .. task.cwd, '' }
+    vim.list_extend(M.output, vim.split(output_text(), '\n', { trimempty = false }))
+    local buf = M.output_buf
+    if buf and vim.api.nvim_buf_is_valid(buf) then
+      local end_windows = {}
+      for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+        if vim.api.nvim_win_get_cursor(win)[1] >= math.max(1, vim.api.nvim_buf_line_count(buf) - 1) then end_windows[#end_windows + 1] = win end
+      end
+      vim.bo[buf].modifiable = true
+      vim.api.nvim_buf_set_lines(buf, 0, -1, false, M.output)
+      vim.bo[buf].modifiable = false
+      for _, win in ipairs(end_windows) do
+        if vim.api.nvim_win_is_valid(win) then vim.api.nvim_win_set_cursor(win, { #M.output, 0 }) end
+      end
+    end
+  end
+  token.refresh = refresh_output
+  local function stream_capture(stream, data)
+    local previous_bytes, previous_truncated = stream.bytes, stream.truncated
+    capture(stream, data)
+    if stream.bytes == previous_bytes and stream.truncated == previous_truncated then return end
+    -- BufWipeout clears output_buf; the uv callback cannot call Neovim APIs.
+    if not data or not M.output_buf or token.refresh_pending then return end
+    token.refresh_pending = true
+    vim.defer_fn(function()
+      token.refresh_pending = false
+      if M.running == token and M.output_buf and vim.api.nvim_buf_is_valid(M.output_buf) then refresh_output() end
+    end, 120)
+  end
+  refresh_output()
   vim.notify('Running ' .. task.name, vim.log.levels.INFO, { title = 'Project tasks' })
   local ok, job = pcall(vim.system, task.argv, { cwd = task.cwd, text = true, detach = posix,
-    stdout = function(_, data) capture(stdout, data) end,
-    stderr = function(_, data) capture(stderr, data) end,
+    stdout = function(_, data) stream_capture(stdout, data) end,
+    stderr = function(_, data) stream_capture(stderr, data) end,
   }, function(result)
     vim.schedule(function()
       if M.running ~= token then return end
       M.running = nil
-      local output = table.concat(stdout.chunks) .. '\n' .. table.concat(stderr.chunks)
-      if stdout.truncated or stderr.truncated then output = output .. '\n[Task output truncated at 1 MiB / 5000 lines per stream]' end
-      output = output:gsub('\27%[[%d;]*[%a]', '')
-      M.output = { '$ ' .. table.concat(task.argv, ' '), 'cwd: ' .. task.cwd, '' }
-      vim.list_extend(M.output, vim.split(output, '\n', { trimempty = false }))
-      -- Compiler paths are relative to the task root, not the active editor cwd.
-      local lines = vim.split(output, '\n')
-      table.insert(lines, 1, '__TASK_CWD__:' .. task.cwd)
-      vim.fn.setqflist({}, ' ', { title = task.name, lines = lines,
-        efm = '%D__TASK_CWD__:%f,' .. token.efm })
-      local items = vim.fn.getqflist()
-      if items[1] and items[1].text == '__TASK_CWD__:' .. task.cwd then table.remove(items, 1) end
-      vim.fn.setqflist(items, 'r')
-      local valid = 0
-      for _, item in ipairs(items) do if item.valid == 1 then valid = valid + 1 end end
+      refresh_output()
+      local items = M.parse_errors(task, output_text(), token.efm)
+      vim.fn.setqflist({}, ' ', { title = task.name, items = items })
+      local valid = #items
       local status = token.stopped and 'stopped' or (result.code == 0 and 'passed' or ('failed (' .. result.code .. ')'))
       vim.notify(('%s %s · %.2fs'):format(task.name, status, (vim.uv.hrtime() - started) / 1e9),
         result.code == 0 and vim.log.levels.INFO or vim.log.levels.WARN, { title = 'Project tasks' })

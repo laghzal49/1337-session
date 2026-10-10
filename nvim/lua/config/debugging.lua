@@ -136,6 +136,7 @@ function M.setup()
     cwd = function() return require('config.project').root() end }
   dap.configurations.c = compiled
   dap.configurations.cpp = vim.deepcopy(compiled)
+  require('config.debug_projects').setup()
 end
 
 return M

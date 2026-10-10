@@ -44,6 +44,7 @@ require("lazy").setup({
 })
 
 vim.cmd.colorscheme('perfect-black')
+require('config.accessibility').setup()
 
 require("config.keymaps")
 require("config.autocmds")

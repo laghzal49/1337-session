@@ -54,6 +54,44 @@ assert(vim.wait(15000, function() local active = dap.session(); return active an
 dap.continue()
 assert(vim.wait(5000, function() return dap.session() == nil end), 'module debuggee did not finish')
 vim.wait(100)
+-- Project JSON is loaded by source-buffer root, never leaked into global defaults.
+local projects = require('config.debug_projects')
+local second = dir .. '/other'
+vim.fn.mkdir(dir .. '/.git', 'p')
+vim.fn.mkdir(dir .. '/.vscode', 'p')
+vim.fn.mkdir(second .. '/.git', 'p')
+vim.fn.mkdir(second .. '/.vscode', 'p')
+local launch_path = dir .. '/.vscode/launch.json'
+local function write_project(path, name)
+  vim.fn.writefile({ vim.json.encode({ version = '0.2.0', configurations = {
+    { name = name, type = 'debugpy', request = 'launch', program = '${workspaceFolder}/main.py',
+      args = { 'hello world', '42' }, console = 'internalConsole' },
+  } }) }, path)
+end
+write_project(launch_path, 'Project one')
+write_project(second .. '/.vscode/launch.json', 'Project two')
+vim.cmd.edit(file)
+local first = dap.providers.configs['dap.launch.json']()
+assert(#first == 1 and first[1].name == 'Project one' and first[1].cwd == dir and first[1].type == 'python',
+  'source-root launch resolution failed')
+vim.cmd.edit(second .. '/other.py')
+local next_project = dap.providers.configs['dap.launch.json']()
+assert(#next_project == 1 and next_project[1].name == 'Project two', 'previous project launch leaked')
+assert(#dap.configurations.python == 4, 'project launches mutated built-ins')
+vim.fn.writefile({ '{ broken json' }, second .. '/.vscode/launch.json')
+local rejected, validation_error = projects.read()
+assert(#rejected == 0 and validation_error, 'malformed launch.json accepted')
+vim.fn.writefile({ '{"configurations":[{"name":"bad","type":"python","request":"launch","program":"main.py","args":"unsafe"}]}' }, second .. '/.vscode/launch.json')
+assert(select(2, projects.read()), 'invalid argument schema accepted')
+vim.fn.writefile({ '{"configurations":{"not":"an array"}}' }, second .. '/.vscode/launch.json')
+assert(select(2, projects.read()), 'non-array configurations accepted')
+vim.cmd.edit(file)
+dap.run(projects.read()[1])
+assert(vim.wait(15000, function() local active = dap.session(); return active and active.stopped_thread_id ~= nil end),
+  'real project JSON launch did not stop')
+dap.continue()
+assert(vim.wait(5000, function() return dap.session() == nil end), 'project debuggee did not finish')
+vim.wait(100)
 -- A live attach server chooses a disposable loopback port; no fixed-port conflicts.
 local port, output, server_done = nil, '', false
 local adapter_python = vim.fn.stdpath('data') .. '/debugpy/bin/python'
@@ -95,4 +133,4 @@ vim.wait(250)
 assert(#vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, {}) == 0, 'yank highlight did not clear')
 vim.cmd.enew()
 vim.fn.delete(dir, 'rf')
-print('DEBUGGING: quoted arguments/cancellation/configurations, real debugpy file/module/attach arguments/breakpoint/evaluation/step/exit, abrupt-close panel cleanup, timed yank PASS')
+print('DEBUGGING: quoted arguments/cancellation/configurations, project JSON validation/isolation, real debugpy file/module/project/attach arguments/breakpoint/evaluation/step/exit, abrupt-close panel cleanup, timed yank PASS')

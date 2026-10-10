@@ -47,10 +47,14 @@ It no longer automatically opens a terminal. Project tasks run in the background
 | `<leader>rt` | Discover and run a project build/test/script |
 | `<leader>rr` | Rerun the last task |
 | `<leader>rs` | Stop the current task |
-| `<leader>ro` | Review task output |
+| `<leader>ro` | Open live or completed task output |
 
 Tasks recognize Make, package.json scripts, Cargo, Go and Python projects. Tool
 output stays available; failures with parseable file locations populate quickfix.
+Live logs update in batches without taking editor focus. They follow new lines
+while you are at the bottom and preserve your position when you scroll upward.
+Quickfix parsing covers Cargo, TypeScript/ESLint, Go/compiler and Python outputs,
+with the current buffer's compiler settings as a fallback.
 Output retention is capped at 1 MiB or 5,000 lines per stream, with a visible
 truncation notice. Stopping a task sends SIGTERM, then SIGKILL after one second
 if needed. POSIX cancellation stops the task's process group, including ordinary
@@ -64,18 +68,45 @@ action discover tasks across supported projects. Root discovery respects local
 working directories and recognizes standalone Node and Python projects. TODO
 navigation and selected-line Git history retain their intended keybindings.
 
+The additional project controls are available without adding plugins:
+
+| Control | Feature |
+| --- | --- |
+| `<leader>ua` / `:UIAccessibility` | Toggle plain core icons, stronger borders and simpler decoration |
+| `<leader>uB` / `:BufferPerformanceRestore` | Restore features after shrinking a large buffer, preserving unsaved edits |
+| `<leader>Df` / `:DebugProjectLaunch` | Choose a project debugger profile |
+| `<leader>Dj` / `:DebugProjectEdit` | Create or edit `.vscode/launch.json` |
+| `<leader>Dh` / `:DebugProjectCheck` | Validate project debugger profiles |
+| `gsa` / `gsd` / `gsr` | Add, delete or replace surrounding characters |
+| `gsf` / `gsF` / `gsh` / `gsn` | Find, highlight or change surround search width |
+| `:StationVenvMigrate` | Move a real project environment to local storage while retaining its original backup |
+
+Flash uses `s` immediately; surround shortcuts now start with `gs`. Start with
+`NVIM_UI_PRESET=accessible` to make the accessible preset your default. Explicit
+`vim.g.black_ui_preset` takes precedence. Live preset changes preserve custom
+highlights and the current theme; some third-party hardcoded glyphs may remain.
+
 Performance changes extend beyond startup: cached root lookups, one asynchronous
 Git probe per project, no dashboard filesystem walk, no duplicate bufferline
 LSP diagnostic pass, bounded large-buffer guards even after edits, and a 500 ms
 format-on-save cap. Files over 1 MiB or 20,000 lines switch to a conservative
-plain editing mode. After reducing them, save, wipe the buffer (`:bwipeout`), and
-reopen it to restore semantic features; a plain reload retains the guard flags.
+plain editing mode. After reducing them, use `<leader>uB` to restore the prior
+features without wiping the buffer or changing unsaved edits. Recovery refuses
+buffers still above the size or Markdown/minified-file budgets. Existing disabled
+diagnostic/decorative preferences are retained.
 
 Matched five-run benchmarks on this machine: cached headless startup median
-**20.78 → 15.38 ms** (~26% lower); attached idle RSS **21.4 → 20.3 MiB**.
+**20.78 → 19.08 ms** (~8% lower); attached idle RSS **21.4 → 20.0 MiB**.
 These are local measurements, not promises of LSP or interactive latency.
+The final upgrade run supersedes the earlier 15.38 ms audit measurement.
 Raw results are in `tests/redesign_results.json`; screenshots are rendered from
 Neovim's actual attached UI grid, not mockups.
+
+The bounded typing benchmark (`tests/typing_results.json`) measured median
+input/buffer/redraw RPC roundtrips of 4.41 ms for 2,000-line Lua, 4.75 ms for C,
+and 51.81 ms for Markdown. Guarded 22,001-line Lua improved from 17.38 ms to
+0.54 ms after preventing filetype plugins from restarting its parser. These
+measurements exclude LSP and physical display latency; Markdown remains slower.
 
 ## Responsiveness and everyday controls
 
@@ -104,7 +135,7 @@ activates cluster scans. Use `STATION_1337=1` or `:StationMode on` to opt in els
 The inode quota parser also handles `df` output without a Lua multiple-return error.
 
 Validation on Neovim 0.11.5: five cached headless launches per config had median
-startup **20.78 ms before → 15.38 ms after**. These numbers describe this test
+startup **20.78 ms before → 19.08 ms after**. These numbers describe this test
 machine, exclude first-install costs, and do not measure LSP readiness or UI latency.
 Run `NVIM_BIN=/path/to/nvim python3 nvim/tests/startup_bench.py --runs 5`
 and `nvim --headless '+lua dofile("nvim/tests/responsiveness_review.lua")' +qa!`
@@ -146,6 +177,12 @@ arguments, module launch, or local attach when needed. Attach requires an existi
 `python -m debugpy --listen 127.0.0.1:5678 --wait-for-client script.py` process.
 `<leader>DL` adds a logpoint; `<leader>Dp` pauses; `<leader>Dl` reruns; `<leader>Dx`
 clears breakpoints. Live local attach was verified with a disposable debugpy server.
+
+Project profiles use `.vscode/launch.json`; F5 includes them alongside built-ins.
+The provider reads the current buffer's project, resolves `${workspaceFolder}`,
+and accepts JSON/JSON comments with static arguments. VSCode prompted inputs and
+`preLaunchTask`/`postDebugTask` are rejected with guidance; run project tasks
+explicitly. Project profiles do not modify the global built-in configurations.
 
 For C/C++, install **GDB 14+ with Python/DAP support**, build with debug symbols
 (e.g. `cc -g -O0 main.c -o main`), open the source, and press F5. Supply the compiled
@@ -430,8 +467,19 @@ A dedicated environment manager built specifically for 1337 / 42 cluster machine
   - `:StationHealth` — Open interactive floating status and repair modal
   - `:StationFix` — Execute safe automated repairs
   - `:StationVenv` — Rebuild project `.venv` on `/goinfre` with `uv`
+  - `:StationVenvMigrate` — Copy an existing real `.venv` to its project-specific local target, retaining the original backup
   - `:StationTools` — Reinstall or update cluster tools
   - `:StationMode [on|off|toggle]` — Toggle station mode override
+
+Migration previews its paths and runs only after you select it. It needs Python3
+and available local storage, refuses existing destinations or symlink sources,
+and restores the original directory if link publication fails. The original is
+retained as `.venv.backup-<id>` after success; restart Python language/debug sessions.
+
+Installer tool archives are checked against official SHA256 release metadata or
+published checksum files before extraction. Missing, malformed or mismatched
+checksums block installation. UV also uses a verified archive. Python3 is required
+for verification; existing installed tools are skipped unless `--force` is used.
 
 ## Verification
 

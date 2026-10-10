@@ -24,6 +24,12 @@ Critical regression coverage includes literal statusline labels, exact diagnosti
 text-object deletion, task subprocess cancellation, failed environment creation,
 and debugger panels after abrupt session closure. Runner timeout tests verify
 cleanup of disposable descendant processes.
+Authorized upgrade coverage includes reversible accessibility preferences,
+large-buffer recovery without lost edits, immediate Flash/surround shortcuts,
+streaming task logs and runner diagnostics, real project-JSON debugpy launches,
+and backup-preserving migration of disposable virtual environments. Download
+checks use tiny fixtures to verify that mismatches block extraction; official
+metadata was checked without running a full first-time installer.
 
 For attached UI checks and grid screenshots:
 

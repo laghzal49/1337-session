@@ -3,10 +3,14 @@ import os, subprocess, time, select, msgpack
 from pathlib import Path
 import shutil, atexit
 root=Path(__file__).resolve().parents[2]
+capture_dir=Path(os.environ.get('NVIM_CAPTURE_DIR',str(root/'nvim/assets')))
+capture_dir.mkdir(parents=True,exist_ok=True)
+capture_prefix=os.environ.get('NVIM_CAPTURE_PREFIX','redesign')
+expected_branch=subprocess.check_output(['git','branch','--show-current'],cwd=root,text=True).strip()
 exe=os.environ.get('NVIM_BIN') or shutil.which('nvim')
 if not exe: raise SystemExit('Neovim is required; set NVIM_BIN if it is not on PATH.')
 env=os.environ.copy()
-env.update(XDG_CONFIG_HOME=str(root), TERM='xterm-256color')
+env.update(NVIM_APPNAME='nvim',XDG_CONFIG_HOME=str(root),TERM='xterm-256color',NVIM_BLACK_DOCS_AUTO_UPDATE='0')
 p=subprocess.Popen([exe,'--embed'],stdin=subprocess.PIPE,stdout=subprocess.PIPE,stderr=subprocess.DEVNULL,env=env,cwd=str(root))
 atexit.register(lambda: p.terminate() if p.poll() is None else None)
 u=msgpack.Unpacker(raw=False)
@@ -92,10 +96,10 @@ def save_grid(grid,attrs,fg,bg,output):
    d.text((x*10,y*22+2),char,font=font,fill=f'#{f:06x}',stroke_width=0)
  im.save(output)
 
-save_grid(grid,attrs,default_fg,default_bg,root/'nvim/assets/redesign-dashboard.png')
+save_grid(grid,attrs,default_fg,default_bg,capture_dir/(capture_prefix+'-dashboard.png'))
 call('nvim_command',['edit nvim/lua/config/debugging.lua']);pump(.5)
 call('nvim_command',['vsplit nvim/lua/plugins/debugging.lua']);pump(.3)
-save_grid(grid,attrs,default_fg,default_bg,root/'nvim/assets/redesign-editor.png')
+save_grid(grid,attrs,default_fg,default_bg,capture_dir/(capture_prefix+'-editor.png'))
 call('nvim_command',['only']);pump(.1)
 for width,height in [(140,42),(80,24)]:
  call('nvim_ui_try_resize',[width,height]);pump(.2)
@@ -107,10 +111,10 @@ for width,height in [(140,42),(80,24)]:
   if config.get('relative'):
    row,col=call('nvim_win_get_position',[win]);w=call('nvim_win_get_width',[win]);h=call('nvim_win_get_height',[win])
    assert row>=0 and col>=0 and row+h<=height and col+w<=width,(row,col,w,h,width,height)
- if width==140: save_grid(grid,attrs,default_fg,default_bg,root/'nvim/assets/redesign-picker.png')
+ if width==140: save_grid(grid,attrs,default_fg,default_bg,capture_dir/(capture_prefix+'-picker.png'))
  call('nvim_input',['<Esc>']);pump(.3)
  assert call('nvim_exec_lua',["return #Snacks.picker.get()",[]])==0
-assert call('nvim_exec_lua',["return require('config.workspace_info').get().branch",[]])=='codex/nvim-performance-ui'
+assert call('nvim_exec_lua',["return require('config.workspace_info').get().branch",[]])==(expected_branch or 'HEAD (no branch)')
 messages=call('nvim_exec_lua',["return vim.api.nvim_exec2('messages',{output=true}).output",[]])
 assert 'Error executing' not in messages and 'Failed to load' not in messages,messages
 print('REDESIGN UI: dashboard, split editor, async branch, responsive preview picker and Escape PASS')

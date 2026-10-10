@@ -8,7 +8,7 @@ local function fit(value, width)
 end
 local function action(icon, label, key, callback, pane)
   return { pane = pane or 1, key = key, action = callback,
-    text = { { ui.icon(icon) .. '  ', hl = 'SnacksDashboardIcon' },
+    text = { { ui.icon(icon) .. '  ', hl = 'SnacksDashboardIcon', width = vim.g.have_nerd_font == false and 8 or 4 },
       { label, hl = 'SnacksDashboardDesc', width = 25 }, { ' ' .. key .. ' ', hl = 'BlackKey' } } }
 end
 return {
@@ -22,7 +22,8 @@ return {
     local branch_text
     if info.branch ~= '' then
       local prefix = ui.icon('branch') .. ' '
-      local status = info.dirty and '  • tracked changes' or '  • tracked clean'
+      local separator = ui.accessible and '  | ' or '  • '
+      local status = separator .. (info.dirty and 'tracked changes' or 'tracked clean')
       local room = width - vim.fn.strdisplaywidth(prefix .. status)
       branch_text = room >= 1 and (prefix .. fit(info.branch, room) .. status)
         or fit(info.dirty and 'tracked changes' or 'tracked clean', width)
@@ -30,7 +31,7 @@ return {
       branch_text = fit(vim.fn.fnamemodify(info.root, ':~'), width)
     end
     local sections = {
-      { text = { { tall and 'P E R F E C T\nB L A C K   /   I I' or fit('PERFECT BLACK / II', width), hl = 'SnacksDashboardHeader' } }, padding = 1 },
+      { text = { { tall and not ui.accessible and 'P E R F E C T\nB L A C K   /   I I' or fit('PERFECT BLACK / II', width), hl = 'SnacksDashboardHeader' } }, padding = 1 },
       { text = fit('CODE  /  BUILD  /  DEBUG', width), hl = 'BlackMuted', padding = 1 },
       { text = { { 'WORKSPACE  ', hl = 'BlackLabel' }, { fit(info.name, math.max(1, width - 11)), hl = 'BlackBrand' } }, padding = 1 },
       { text = branch_text, hl = 'BlackMuted', padding = 1 },
@@ -46,8 +47,8 @@ return {
     }
     for _, section in ipairs(sections) do
       if section.action then
-        section.text[2][1] = fit(section.text[2][1], math.max(1, width - 8))
-        section.text[2].width = math.min(25, math.max(1, width - 8))
+        section.text[2][1] = fit(section.text[2][1], math.max(1, width - section.text[1].width - 3))
+        section.text[2].width = math.min(25, math.max(1, width - section.text[1].width - 3))
       end
       if size.height < 24 then section.padding = nil end
     end
@@ -58,7 +59,7 @@ return {
       sections[#sections + 1] = { pane = 2, text = 'Space  commands    Ctrl-S  save\nSpace e  explorer  Ctrl-T  terminal\nK  documentation  gK  deep reference', hl = 'BlackMuted', padding = 2 }
       sections[#sections + 1] = { pane = 2, text = 'DEBUGGING', hl = 'BlackLabel', padding = 1 }
       sections[#sections + 1] = { pane = 2, text = 'F5  start / continue   F10  step over\nSpace Db  breakpoint   Space Du  panels', hl = 'BlackMuted', padding = 2 }
-      sections[#sections + 1] = { pane = 2, section = 'startup' }
+      sections[#sections + 1] = { pane = 2, section = 'startup', enabled = not ui.accessible }
     end
     return sections
   end,

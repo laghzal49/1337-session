@@ -646,6 +646,10 @@ function M.rebuild_venv()
   end
 end
 
+function M.migrate_venv()
+  require('config.venv_migration').open()
+end
+
 -- ── Tool Installer ([t] / :StationTools) ─────────────────────────────────────
 function M.install_tools()
   local installer = vim.fn.expand('~/Projects/1337-session/install.sh')

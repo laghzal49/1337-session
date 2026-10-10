@@ -5,7 +5,7 @@ export NVIM_APPNAME := nvim
 export XDG_CONFIG_HOME := $(CURDIR)
 export NVIM_BLACK_DOCS_AUTO_UPDATE := 0
 
-.PHONY: all test review bench check workflow spatial reference upgrade
+.PHONY: all test review bench check workflow spatial reference upgrade integrity-metadata
 all: test
 
 ## Run standalone test suite
@@ -46,5 +46,11 @@ reference:
 ## Run strict upgrade regressions in fresh Neovim processes (requires debugpy)
 upgrade:
 	$(PYTHON) nvim/tests/installer_review.py
+	$(PYTHON) nvim/tests/download_integrity_review.py
 	$(PYTHON) nvim/tests/runner_review.py
+	$(PYTHON) nvim/tests/migration_review.py
 	$(PYTHON) nvim/tests/smoke.py
+
+## Inspect official checksum metadata for both Linux architectures (no archives downloaded)
+integrity-metadata:
+	$(PYTHON) nvim/tests/download_metadata_review.py

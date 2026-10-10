@@ -59,7 +59,7 @@ local M = {
     close = { nerd = '󰅖', text = 'x' },
     arrow_right = { nerd = '󰅂', text = '->' },
     arrow_down = { nerd = '󰅀', text = 'v' },
-    dot = { nerd = '●', text = '·' },
+    dot = { nerd = '●', text = '.' },
     ellipsis = { nerd = '…', text = '...' },
     star = { nerd = '󰓎', text = '*' },
     lightning = { nerd = '⚡', text = '!' },
@@ -88,6 +88,19 @@ local M = {
 if vim.g.have_nerd_font == nil then
   vim.g.have_nerd_font = vim.env.NVIM_ASCII_ICONS ~= '1'
 end
+
+local original_font, original_border = vim.g.have_nerd_font, M.border
+M.accessible = false
+function M.set_accessible(enabled)
+  enabled = enabled == true
+  if enabled == M.accessible then return end
+  if enabled then original_font, original_border = vim.g.have_nerd_font, M.border end
+  M.accessible = enabled
+  vim.g.black_ui_preset = enabled and 'accessible' or 'default'
+  if enabled then vim.g.have_nerd_font = false else vim.g.have_nerd_font = original_font end
+  M.border = enabled and 'single' or original_border
+end
+M.set_accessible((vim.g.black_ui_preset or vim.env.NVIM_UI_PRESET) == 'accessible')
 
 function M.icon(name)
   local icon = M.icons[name] or M.icons.file
