@@ -85,6 +85,30 @@ vim.fn.writefile({ '{"configurations":[{"name":"bad","type":"python","request":"
 assert(select(2, projects.read()), 'invalid argument schema accepted')
 vim.fn.writefile({ '{"configurations":{"not":"an array"}}' }, second .. '/.vscode/launch.json')
 assert(select(2, projects.read()), 'non-array configurations accepted')
+local generated = dir .. '/generated'
+vim.fn.mkdir(generated .. '/.git', 'p')
+vim.fn.writefile({ 'print("generated")' }, generated .. '/main.py')
+vim.cmd.edit(generated .. '/main.py')
+vim.cmd.DebugProjectGenerate()
+local generated_path = generated .. '/.vscode/launch.json'
+assert(vim.fn.filereadable(generated_path) == 1, 'Python profile command did not generate launch.json')
+local generated_configs, generated_err = projects.read()
+assert(not generated_err and #generated_configs == 1 and generated_configs[1].program == '${file}',
+  'generated Python profile is invalid')
+local original = table.concat(vim.fn.readfile(generated_path), '\n')
+assert(not select(2, projects.ensure()) and table.concat(vim.fn.readfile(generated_path), '\n') == original,
+  'existing launch.json was overwritten')
+local c_project = dir .. '/c-project'
+vim.fn.mkdir(c_project .. '/.git', 'p')
+vim.fn.writefile({ 'int main(void) { return 0; }' }, c_project .. '/main.c')
+vim.fn.writefile({ '#!/bin/sh', 'exit 0' }, c_project .. '/a.out')
+vim.fn.setfperm(c_project .. '/a.out', 'rwxr-xr-x')
+vim.cmd.edit(c_project .. '/main.c')
+vim.cmd.DebugProjectCheck()
+assert(vim.fn.filereadable(c_project .. '/.vscode/launch.json') == 1, 'check did not generate C profile')
+local c_configs, c_err = projects.read()
+assert(not c_err and #c_configs == 1 and c_configs[1].program == c_project .. '/a.out',
+  'generated C profile did not select existing executable')
 vim.cmd.edit(file)
 dap.run(projects.read()[1])
 assert(vim.wait(15000, function() local active = dap.session(); return active and active.stopped_thread_id ~= nil end),

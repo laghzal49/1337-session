@@ -69,9 +69,10 @@ function M.setup()
       end)
     end
   end
-  vim.fn.sign_define('DapBreakpoint', { text = '●', texthl = 'DiagnosticError' })
-  vim.fn.sign_define('DapBreakpointCondition', { text = '◆', texthl = 'DiagnosticWarn' })
-  vim.fn.sign_define('DapStopped', { text = '▶', texthl = 'DiagnosticOk', linehl = 'CursorLine' })
+  local icon = require('config.ui').icon
+  vim.fn.sign_define('DapBreakpoint', { text = icon('breakpoint'), texthl = 'DiagnosticError' })
+  vim.fn.sign_define('DapBreakpointCondition', { text = icon('breakpoint_condition'), texthl = 'DiagnosticWarn' })
+  vim.fn.sign_define('DapStopped', { text = icon('debug_stopped'), texthl = 'DiagnosticOk', linehl = 'CursorLine' })
 
   dap.adapters.python = function(callback, config)
     if config.request == 'attach' and config.connect then

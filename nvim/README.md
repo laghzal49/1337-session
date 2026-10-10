@@ -75,6 +75,7 @@ The additional project controls are available without adding plugins:
 | `<leader>ua` / `:UIAccessibility` | Toggle plain core icons, stronger borders and simpler decoration |
 | `<leader>uB` / `:BufferPerformanceRestore` | Restore features after shrinking a large buffer, preserving unsaved edits |
 | `<leader>Df` / `:DebugProjectLaunch` | Choose a project debugger profile |
+| `<leader>Dg` / `:DebugProjectGenerate` | Generate a profile for the current Python or C/C++ project |
 | `<leader>Dj` / `:DebugProjectEdit` | Create or edit `.vscode/launch.json` |
 | `<leader>Dh` / `:DebugProjectCheck` | Validate project debugger profiles |
 | `gsa` / `gsd` / `gsr` | Add, delete or replace surrounding characters |
@@ -180,6 +181,11 @@ arguments, module launch, or local attach when needed. Attach requires an existi
 clears breakpoints. Live local attach was verified with a disposable debugpy server.
 
 Project profiles use `.vscode/launch.json`; F5 includes them alongside built-ins.
+On first use, the editor creates a language-specific profile for the current
+Python or C/C++ file when none exists. `:DebugProjectGenerate` creates it
+explicitly; `:DebugProjectCheck` creates a missing profile and validates it.
+Existing launch files are never overwritten. For C/C++, the generated profile
+uses an existing project-named or `a.out` executable when found; build first.
 The provider reads the current buffer's project, resolves `${workspaceFolder}`,
 and accepts JSON/JSON comments with static arguments. VSCode prompted inputs and
 `preLaunchTask`/`postDebugTask` are rejected with guidance; run project tasks

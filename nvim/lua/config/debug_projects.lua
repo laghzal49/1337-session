@@ -15,6 +15,53 @@ function M.path(root)
   return (root or require('config.project').root()) .. '/.vscode/launch.json'
 end
 
+local function template(root)
+  local ft = vim.bo.filetype
+  if ft == 'python' then
+    return { name = 'Python: current file', type = 'python', request = 'launch',
+      program = '${file}', cwd = '${workspaceFolder}', args = {}, console = 'integratedTerminal' }
+  end
+  if ft == 'c' or ft == 'cpp' then
+    local executable = 'a.out'
+    for _, candidate in ipairs({ vim.fs.basename(root), 'build/' .. vim.fs.basename(root), 'a.out' }) do
+      if vim.fn.executable(root .. '/' .. candidate) == 1 then executable = candidate; break end
+    end
+    return { name = 'C/C++: project executable', type = 'gdb', request = 'launch',
+      program = '${workspaceFolder}/' .. executable, cwd = '${workspaceFolder}', args = {},
+      stopAtBeginningOfMainSubprogram = true }
+  end
+end
+
+-- Create once. Exclusive open keeps an existing user file intact even if another
+-- editor creates it between the check and the write.
+function M.ensure(root, allow_empty)
+  root = root or require('config.project').root()
+  local path = M.path(root)
+  if vim.uv.fs_lstat(path) then return path, false end
+  local config = template(root)
+  if not config and not allow_empty then return path, false, 'Open a Python, C or C++ file to generate a debugger profile' end
+  local directory = vim.fs.dirname(path)
+  if vim.fn.mkdir(directory, 'p') == 0 and vim.fn.isdirectory(directory) == 0 then
+    return path, false, 'Cannot create ' .. directory
+  end
+  local fd, err = vim.uv.fs_open(path, 'wx', 420)
+  if not fd then
+    if vim.uv.fs_lstat(path) then return path, false end
+    return path, false, 'Cannot create ' .. path .. ': ' .. tostring(err)
+  end
+  local lines = { '{', '  "version": "0.2.0",', '  "configurations": [' }
+  if config then
+    local encoded = vim.json.encode(config)
+    lines[#lines + 1] = '    ' .. encoded
+  end
+  lines[#lines + 1] = '  ]'
+  lines[#lines + 1] = '}'
+  local written, write_err = vim.uv.fs_write(fd, table.concat(lines, '\n') .. '\n', 0)
+  vim.uv.fs_close(fd)
+  if not written then vim.uv.fs_unlink(path); return path, false, 'Cannot write ' .. path .. ': ' .. tostring(write_err) end
+  return path, true
+end
+
 function M.read(root)
   root = root or require('config.project').root()
   local path = M.path(root)
@@ -74,51 +121,31 @@ function M.read(root)
 end
 
 function M.list()
+  local _, _, create_err = M.ensure()
+  if create_err then return {} end
   local configs, err = M.read()
   if err then vim.notify('Project debugger: ' .. err, vim.log.levels.WARN) end
   return configs
 end
 
 function M.launch()
+  local _, created, create_err = M.ensure()
+  if create_err then vim.notify('Project debugger: ' .. create_err, vim.log.levels.WARN); return end
   local configs, err, path = M.read()
   if err then vim.notify('Project debugger: ' .. err, vim.log.levels.WARN); return end
   if #configs == 0 then
     vim.notify('No project launch configurations in ' .. path .. '; use :DebugProjectEdit', vim.log.levels.INFO)
     return
   end
+  if created then vim.notify('Created debugger profile: ' .. path, vim.log.levels.INFO) end
   vim.ui.select(configs, { prompt = 'Project debugger', format_item = function(config) return config.name end }, function(config)
     if config then require('dap').run(config) end
   end)
 end
 
 function M.edit()
-  local path = M.path()
-  if not vim.uv.fs_stat(path) then
-    vim.fn.mkdir(vim.fs.dirname(path), 'p')
-    vim.fn.writefile(vim.split([=[{
-  "version": "0.2.0",
-  "configurations": [
-    {
-      "name": "Python: project file",
-      "type": "python",
-      "request": "launch",
-      "program": "${file}",
-      "cwd": "${workspaceFolder}",
-      "args": [],
-      "console": "integratedTerminal"
-    },
-    {
-      "name": "C/C++: project executable",
-      "type": "gdb",
-      "request": "launch",
-      "program": "${workspaceFolder}/a.out",
-      "cwd": "${workspaceFolder}",
-      "args": [],
-      "stopAtBeginningOfMainSubprogram": true
-    }
-  ]
-}]=], '\n'), path)
-  end
+  local path, _, err = M.ensure(nil, true)
+  if err then vim.notify('Project debugger: ' .. err, vim.log.levels.WARN); return end
   vim.cmd.edit(vim.fn.fnameescape(path))
   vim.bo.filetype = 'json'
 end
@@ -127,9 +154,18 @@ function M.setup()
   require('dap').providers.configs['dap.launch.json'] = M.list
   vim.api.nvim_create_user_command('DebugProjectLaunch', M.launch, { desc = 'Select a project launch.json configuration' })
   vim.api.nvim_create_user_command('DebugProjectEdit', M.edit, { desc = 'Create or edit project .vscode/launch.json' })
+  vim.api.nvim_create_user_command('DebugProjectGenerate', function()
+    local path, created, err = M.ensure()
+    vim.notify(err and ('Project debugger: ' .. err) or
+      (created and ('Created debugger profile: ' .. path) or ('Debugger profile already exists: ' .. path)),
+      err and vim.log.levels.WARN or vim.log.levels.INFO)
+  end, { desc = 'Generate a debugger profile for the current project' })
   vim.api.nvim_create_user_command('DebugProjectCheck', function()
+    local _, created, create_err = M.ensure()
+    if create_err then vim.notify('Project debugger: ' .. create_err, vim.log.levels.WARN); return end
     local configs, err, path = M.read()
-    vim.notify(err and ('Project debugger: ' .. err) or (#configs .. ' project configurations: ' .. path),
+    vim.notify(err and ('Project debugger: ' .. err) or
+      ((created and 'Created and checked ' or 'Checked ') .. #configs .. ' project configurations: ' .. path),
       err and vim.log.levels.WARN or vim.log.levels.INFO)
   end, { desc = 'Validate project debug configurations' })
 end

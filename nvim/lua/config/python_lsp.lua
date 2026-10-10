@@ -106,7 +106,7 @@ function M.set_interpreter(path)
       -- notification has no handler. Restart only this project's Ty client.
       local config = vim.deepcopy(client.config)
       config.settings = vim.deepcopy(config._python_base_settings or config.settings)
-      local buffers = vim.lsp.get_buffers_by_client_id(client.id)
+      local buffers = vim.tbl_keys(client.attached_buffers)
       pending = { config = config, buffers = buffers, generation = generation }
       pending_restarts[root] = pending
       client:stop(true)

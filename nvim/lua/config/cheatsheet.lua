@@ -30,7 +30,7 @@ local content_lines = {
   "  `<leader>Db` Breakpoint │ `<leader>DB` Conditional breakpoint",
   "  `<leader>Du` Panels │ `<leader>De` Evaluate │ `<leader>Dt` Stop",
   "  `<leader>DL` Logpoint │ `<leader>Dp` Pause │ `<leader>Dl` Last session │ `<leader>Dx` Clear",
-  "  `<leader>Df` Project launch │ `<leader>Dj` Edit launch.json │ `<leader>Dh` Check launch.json",
+  "  `<leader>Df` Project launch │ `<leader>Dg` Generate │ `<leader>Dj` Edit │ `<leader>Dh` Check",
   "  Setup: debugpy for Python; GDB 14+ for C/C++. See :ConfigGuide.",
   "",
   "## Project Tasks & Workspace",

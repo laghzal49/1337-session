@@ -3,6 +3,10 @@ assert(vim.fn.executable('ty')==1,'Install ty or add it to PATH before this revi
 local dir=vim.fn.tempname()
 vim.fn.mkdir(dir,'p')
 local buf, client
+-- This review checks Ty's project .venv discovery. A test runner such as
+-- `uv run` may export its own active environment, which takes precedence.
+local active_venv, active_conda = vim.env.VIRTUAL_ENV, vim.env.CONDA_PREFIX
+vim.env.VIRTUAL_ENV, vim.env.CONDA_PREFIX = nil, nil
 local ok, err=xpcall(function()
   vim.fn.writefile({'[project]','name="python-lsp-review"','version="0.1.0"'},dir..'/pyproject.toml')
   local venv=vim.system({'python3','-m','venv','--without-pip',dir..'/.venv'},{text=true}):wait()
@@ -65,5 +69,6 @@ end,debug.traceback)
 if client then client:stop(true); vim.wait(1000,function() return client:is_stopped() end) end
 if buf and vim.api.nvim_buf_is_valid(buf) then vim.api.nvim_buf_delete(buf,{force=true}) end
 vim.fn.delete(dir,'rf')
+vim.env.VIRTUAL_ENV, vim.env.CONDA_PREFIX = active_venv, active_conda
 if not ok then error(err) end
 print('REAL PYTHON LSP PASS: configured Ty, active parameter docs/signature UI, project docstring, actual type mismatch, .venv import')

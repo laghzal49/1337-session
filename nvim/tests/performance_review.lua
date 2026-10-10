@@ -29,16 +29,16 @@ local function local_rpc(dispatchers)
       terminate = function() rpc_closed = true; dispatchers.on_exit(0, 0) end,
     }
 end
-local client_id = vim.lsp.start_client({
+local client_id = vim.lsp.start({
   name = 'performance-guard-review',
   cmd = local_rpc,
-})
+}, { bufnr = buf })
 assert(client_id, 'LSP fixture did not start')
 assert(vim.wait(5000, function()
   local client = vim.lsp.get_client_by_id(client_id)
   return client and client.initialized
 end), 'LSP fixture did not initialize')
-assert(vim.lsp.buf_attach_client(buf, client_id), 'normal buffer rejected LSP fixture')
+assert(vim.lsp.buf_is_attached(buf, client_id), 'normal buffer rejected LSP fixture')
 vim.wo.foldmethod = 'expr'
 vim.wo.spell = true
 vim.wo.cursorcolumn = true
@@ -123,7 +123,8 @@ assert(vim.lsp.buf_is_attached(buf, client_id), 'pending guard detached a restor
 assert(vim.tbl_contains(hipatterns.get_enabled_buffers(), buf), 'pattern decorations did not reattach')
 if had_treesitter then assert(vim.treesitter.highlighter.active[buf], 'parser highlighting did not restart') end
 assert(not performance.restore(buf), 'unguarded buffer was restored twice')
-vim.lsp.stop_client(client_id, true)
+local client = vim.lsp.get_client_by_id(client_id)
+if client then client:stop(true) end
 -- Preserve deliberately disabled user preferences, even after large-file mode.
 local disabled = vim.api.nvim_create_buf(true, false)
 vim.api.nvim_set_current_buf(disabled)
