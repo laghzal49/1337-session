@@ -418,6 +418,43 @@ Notification history retains the latest 500 messages, capped at 16 KiB each, and
 reports discarded records. Errors stay visible until acknowledged; their aggregate
 count survives rollover, but older details can age out. History is session-only.
 
+## Python language tools and richer signatures
+
+Python uses **ty for types, completion, hover, signatures and navigation**, with
+**Ruff for lint diagnostics and source fixes**. Both use the same physical project
+root. Completion offers auto-imports and function-call snippets; Tab advances
+through snippet placeholders. Diagnostics stay out of Insert mode and ty checks
+open files rather than scanning the entire workspace for errors.
+
+| Control | Action |
+| --- | --- |
+| Insert `Ctrl-K` | Show active signature with parameter documentation first |
+| `K` with documentation visible | Focus the documentation window |
+| `[s` / `]s` in focused signature help | Previous / next overload |
+| `<leader>cI` / `:PythonOrganizeImports` | Organize imports using Ruff |
+| `<leader>cF` / `:PythonFixAll` | Apply Ruff's configured fixes to the buffer |
+| `<leader>cp` / `:PythonLspInfo` | Show project, interpreter candidate and attached servers |
+| `:PythonInterpreter /path/to/python` | Set a session-local interpreter override for this project |
+| `:PythonInterpreter auto` | Clear that project override and resume environment discovery |
+
+Overload counts appear in the signature title; active parameter documentation
+precedes general documentation so it is visible in compact help. UTF-16 label
+ranges highlight Unicode parameters correctly. Manual documentation requests
+have a 1.5-second deadline and cancel superseded work; replies from a different
+window or changed buffer cannot replace your current documentation. Builtin
+fallbacks use isolated Python without importing project code, and coalesce
+identical requests. Async Python definitions retain their project documentation
+identity instead of accidentally opening builtin references.
+
+Ruff follows project configuration; these actions edit the current buffer and
+leave saving to you. Formatting stays with Conform's `ruff_format`, avoiding
+competing LSP formatters. ty's project configuration and normal environment
+discovery remain authoritative unless you explicitly set an interpreter override.
+Changing an interpreter restarts only this project's ty clients asynchronously,
+keeping their eligible buffers attached; Ruff and other projects continue running.
+The information panel reports a candidate, not an assertion about the server's
+resolved interpreter. Python tools must be on PATH before opening Neovim.
+
 ## Setup / update
 
 Requires **Neovim 0.11+**, Git and ripgrep. Select **JetBrainsMono Nerd Font Mono,
@@ -484,7 +521,7 @@ for verification; existing installed tools are skipped unless `--force` is used.
 ## Verification
 
 Run `make check` from the repository root with installed plugins, ty on PATH,
-debugpy installed as above, and Python `msgpack`. Use `make upgrade` for the
+debugpy installed as above, ty and Ruff on PATH, and Python `msgpack`. Use `make upgrade` for the
 strict upgrade regression suite (or `make upgrade NVIM=/path/to/nvim`).
 It checks the real Blink completion UI, workflow
 regressions and the configured Python language server. Individual commands:

@@ -90,7 +90,8 @@ local function python_context(saved)
         end
       end
     end
-    local name, parameters = line:match('^%s*def%s+([%w_]+)%s*%((.-)%)')
+    local definition = line:gsub('^(%s*)async%s+def%s+', '%1def ')
+    local name, parameters = definition:match('^%s*def%s+([%w_]+)%s*%((.-)%)')
     name = name or line:match('^%s*class%s+([%w_]+)')
     if name then
       add(name)
@@ -185,6 +186,7 @@ local function candidates(saved, work)
     if py then
       for fence in text:gmatch('```[^\n]*\n(.-)\n```') do
         for line in fence:gmatch('[^\n]+') do
+          line = line:gsub('^(%s*)async%s+def%s+', '%1def ')
           local name = line:match('^%s*bound method%s+([%w_%.]+)%s*%(') or line:match('^%s*def%s+([%w_%.]+)%s*%(')
             or line:match('^%s*class%s+([%w_%.]+)') or line:match("^%s*<class '([%w_%.]+)'>%s*$")
             or line:match('^%s*([%a_][%w_%.]*)%s*$')

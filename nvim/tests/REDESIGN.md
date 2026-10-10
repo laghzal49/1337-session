@@ -54,3 +54,12 @@ both the debugger and external debugpy server exit. Manual C/C++ debugging
 requires GDB 14+ with Python/DAP support; a live GDB session remains untested.
 Background project tasks are
 noninteractive; interactive jobs can use the existing Make/project terminal.
+
+The Python/docs follow-up adds strict cases for real configured ty project
+docstrings, active-parameter documentation, .venv dependency navigation and type
+diagnostics; dual ty/Ruff root/provider ownership, import sorting and fixes,
+function-call snippets and scoped interpreter restart/reset; and Unicode
+signature formatting, overload cycling, deadlines, cancellation and same-buffer
+window staleness. Builtin subprocess tests verify coalescing, failure recovery
+and isolation from project Python modules. Python environment discovery also
+runs independently under `-u NONE`. These cases require ty and Ruff on PATH.

@@ -57,6 +57,11 @@ vim.api.nvim_create_autocmd('LspAttach', { callback = function(ev)
   lmap('<leader>ca', function() require('config.lsp_actions').code_action() end, 'Code Actions')
   vim.keymap.set('n', '<leader>cr', function() return ':IncRename ' .. vim.fn.expand('<cword>') end,
     {buffer=ev.buf, expr=true, desc='Rename'})
+  if vim.bo[ev.buf].filetype == 'python' then
+    lmap('<leader>cI', function() require('config.python_lsp').source_action('source.organizeImports') end, 'Organize Python imports')
+    lmap('<leader>cF', function() require('config.python_lsp').source_action('source.fixAll') end, 'Apply Ruff fixes')
+    lmap('<leader>cp', function() require('config.python_lsp').info() end, 'Python LSP environment')
+  end
   -- Ctrl-K retains contextual signatures; gK lazily opens external references.
 end })
 
