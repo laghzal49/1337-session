@@ -361,6 +361,9 @@ for width,height in [(140,42),(80,24),(40,20),(140,42)]:
  call('nvim_ui_try_resize',[width,height]);pump(.3)
  frames=check_bounds(width,height)
  assert any(f['ft']=='noice' for f in frames),frames
+ if width==140:
+  prompts=[f for f in frames if f['ft']=='noice' and any('echo' in line for line in f['lines'])]
+  assert prompts and all(f['width']<=34 and f['height']<=3 for f in prompts),prompts
  assert call('nvim_eval',['getcmdline()'])=='echo '
  assert call('nvim_exec_lua',["return require('blink.cmp').get_selected_item().label",[]])==selected
 call('nvim_exec_lua',["require('config.accessibility').set(true)",[]]);pump(.4)
@@ -371,6 +374,12 @@ assert 'Suggestions' in str(menus[0]['title']) and 'Enter accept' in str(menus[0
 assert all(not any(0xe000<=ord(c)<=0xf8ff or 0xf0000<=ord(c)<=0x10ffff for c in line) for line in menus[0]['lines'])
 call('nvim_input',['<Esc>']);pump(.3)
 call('nvim_exec_lua',["require('config.accessibility').set(false)",[]])
+# Long commands scroll within the same one-row prompt and retain their full text.
+long_command='echo "'+('abcdef '*24)+'"'
+call('nvim_input',[':'+long_command]);pump(.4)
+check_bounds(40,20)
+assert call('nvim_eval',['getcmdline()'])==long_command
+call('nvim_input',['<Esc>']);pump(.2)
 for width,height in [(140,42),(40,20)]:
  call('nvim_ui_try_resize',[width,height]);pump(.2)
  call('nvim_exec_lua',["_G.polish_input={count=0}; vim.ui.input({prompt='Rename symbol',default='project_name'},function(value) polish_input.count=polish_input.count+1; polish_input.cancelled=value==nil end)",[]]);pump(.2)

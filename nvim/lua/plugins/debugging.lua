@@ -2,28 +2,33 @@
 return {
   {
     'mfussenegger/nvim-dap',
-    cmd = { 'DebugProjectLaunch', 'DebugProjectEdit', 'DebugProjectGenerate', 'DebugProjectCheck' },
+    cmd = { 'Debug', 'DebugStart', 'DebugTarget', 'DebugRestart', 'DebugWatch', 'DebugProjectLaunch', 'DebugProjectEdit', 'DebugProjectGenerate', 'DebugProjectCheck' },
     dependencies = { 'rcarriga/nvim-dap-ui', 'nvim-neotest/nvim-nio' },
     keys = {
-      { '<F5>', function() require('dap').continue() end, desc = 'Debug continue / start' },
-      { '<F10>', function() require('dap').step_over() end, desc = 'Debug step over' },
-      { '<F11>', function() require('dap').step_into() end, desc = 'Debug step into' },
-      { '<F12>', function() require('dap').step_out() end, desc = 'Debug step out' },
-      { '<leader>Dc', function() require('dap').continue() end, desc = 'Continue / start' },
+      { '<F5>', function() require('config.debug_launch').start() end, desc = 'Debug continue / start' },
+      { '<F10>', function() require('config.debug_launch').step('step_over') end, desc = 'Debug step over' },
+      { '<F11>', function() require('config.debug_launch').step('step_into') end, desc = 'Debug step into' },
+      { '<F12>', function() require('config.debug_launch').step('step_out') end, desc = 'Debug step out' },
+      { '<leader>Dc', function() require('config.debug_launch').start() end, desc = 'Continue / start' },
       { '<leader>Db', function() require('dap').toggle_breakpoint() end, desc = 'Breakpoint' },
       { '<leader>DB', function()
         vim.ui.input({ prompt = 'Breakpoint condition: ' }, function(value)
           if value and value ~= '' then require('dap').set_breakpoint(value) end
         end)
       end, desc = 'Conditional breakpoint' },
-      { '<leader>Do', function() require('dap').step_over() end, desc = 'Step over' },
-      { '<leader>Di', function() require('dap').step_into() end, desc = 'Step into' },
-      { '<leader>DO', function() require('dap').step_out() end, desc = 'Step out' },
-      { '<leader>Df', function() require('config.debug_projects').launch() end, desc = 'Project launch configuration' },
+      { '<leader>Do', function() require('config.debug_launch').step('step_over') end, desc = 'Step over' },
+      { '<leader>Di', function() require('config.debug_launch').step('step_into') end, desc = 'Step into' },
+      { '<leader>DO', function() require('config.debug_launch').step('step_out') end, desc = 'Step out' },
+      { '<leader>Df', function() require('config.debug_launch').pick() end, desc = 'Choose debug target / arguments' },
+      { '<leader>DD', '<cmd>Debug<CR>', desc = 'Debugger actions' },
+      { '<leader>DR', function() require('config.debug_launch').rerun() end, desc = 'Restart / rerun project' },
+      { '<leader>DC', function() require('config.debug_launch').step('run_to_cursor') end, desc = 'Run to cursor' },
+      { '<leader>Dw', function() require('config.debug_launch').watch() end, desc = 'Add watch expression' },
+      { '<S-F5>', function() require('dap').terminate() end, desc = 'Stop debugging' },
       { '<leader>Dg', '<cmd>DebugProjectGenerate<CR>', desc = 'Generate project debugger profile' },
       { '<leader>Dj', function() require('config.debug_projects').edit() end, desc = 'Edit project launch.json' },
       { '<leader>Dh', '<cmd>DebugProjectCheck<CR>', desc = 'Check project launch.json' },
-      { '<leader>Dl', function() require('dap').run_last() end, desc = 'Run last debug configuration' },
+      { '<leader>Dl', function() require('config.debug_launch').rerun() end, desc = 'Run last debug configuration' },
       { '<leader>Dp', function() require('dap').pause() end, desc = 'Pause execution' },
       { '<leader>Dx', function() require('dap').clear_breakpoints() end, desc = 'Clear all breakpoints' },
       { '<leader>DL', function()

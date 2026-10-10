@@ -57,7 +57,7 @@ return {
     format_on_save = function(buf)
       if vim.b[buf].autoformat == false or vim.g.autoformat == false then return end
       if performance.large(buf) then return end
-      return { timeout_ms = 500, lsp_format = 'fallback' }
+      return { timeout_ms = vim.bo[buf].filetype == 'python' and 1500 or 500, lsp_format = 'fallback' }
     end,
   }, keys = { { '<leader>cf', function() require('conform').format({ async = true, lsp_format = 'fallback' }) end, desc = 'Format buffer' } } },
   { 'mason-org/mason.nvim', cmd = { 'Mason', 'MasonInstall', 'MasonUpdate' }, opts = {

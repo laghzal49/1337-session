@@ -28,10 +28,11 @@ return {
         list = { max_items = 100, selection = { preselect = false, auto_insert = false } },
         menu = {
           min_width = 28,
-          -- Noice's padded command input extends one row below the cursor.
+          max_height = 6,
+          -- One input row, then the command border, then completion.
           cmdline_position = function()
             local pos = vim.g.ui_cmdline_pos
-            if pos then return {pos[1] + 1, pos[2]} end
+            if pos then return {pos[1], pos[2]} end
             return {vim.o.lines-math.max(1,vim.o.cmdheight),0}
           end,
           border = 'rounded',
@@ -59,6 +60,9 @@ return {
               },
               label = { text = function(ctx) return ctx.label end, width = { max = function()
                 local width = vim.o.columns
+                if vim.api.nvim_get_mode().mode == 'c' then
+                  return math.max(4, math.min(48, width - (vim.g.have_nerd_font == false and 20 or 8)))
+                end
                 local kind = (width >= 100 or vim.g.have_nerd_font == false) and 16 or 0
                 local source = width >= 80 and 10 or 0
                 local description = width >= 100 and 21 or 0
@@ -148,7 +152,10 @@ return {
         end,
         completion = {
           list = { selection = { preselect = false, auto_insert = false } },
-          menu = { auto_show = true },
+          menu = { auto_show = true, draw = { columns = function()
+            return vim.g.have_nerd_font == false and { { 'kind_icon' }, { 'label' }, { 'kind' } }
+              or { { 'kind_icon' }, { 'label' } }
+          end } },
           ghost_text = { enabled = false },
         },
       },

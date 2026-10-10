@@ -1,20 +1,22 @@
--- IBM/Carbon swatches with role assignments for a code editor.
+-- Shared semantic palette: cool neutral surfaces and balanced Oklch accents.
 -- Source, adaptations and contrast measurements: nvim/DESIGN.md.
 local c = {
-  canvas = '#000000', inset = '#080A0C', panel = '#121619', selection = '#202327',
-  popup_selection = '#111F2D',
-  text = '#DDE1E6', muted = '#A2A9B0', punctuation = '#A2A9B0', path = '#C1C7CD',
-  gutter = '#7F8A96', guide = '#23292E',
-  border = '#4D5358', border_strong = '#697077', border_soft = '#343A3F',
-  focus = '#78A9FF', variable = '#FA4D56', parameter = '#FFD7D9', member = '#FF7EB6',
-  callable = '#33B1FF', keyword = '#BE95FF', type = '#3DDBD9',
-  string = '#42BE65', literal = '#FF832B', comment = '#A2A9B0',
-  folder = '#78A9FF', error = '#FF8389', warning = '#F1C21B',
-  info = '#78A9FF', hint = '#3DDBD9', success = '#42BE65',
-  on_accent = '#000000', strong = '#F2F4F8',
-  error_bg = '#2D0709', warning_bg = '#302400', success_bg = '#071908',
-  focus_bg = '#001D6C', search_bg = '#1C0F30', search_text = '#D4BBFF',
+  canvas = '#000000', inset = '#090B0F', panel = '#111419', selection = '#1B222D',
+  text = '#D0D4DB', muted = '#999FA8', punctuation = '#9299A4', path = '#B3B8BF',
+  gutter = '#89909A', guide = '#1F2227',
+  border = '#4C5057', border_strong = '#686F7B', border_soft = '#2D3137', focus_border = '#667B9E',
+  focus = '#8BB5FA', variable = '#FA4D56', parameter = '#E0B9B8', member = '#E89BAC',
+  callable = '#6EC3EB', keyword = '#C6A0F2', type = '#71CBB9',
+  string = '#84C485', literal = '#EFA464',
+  error = '#FD8A8C', warning = '#EBBD57',
+  on_accent = '#000000', strong = '#E8EBF1',
+  error_bg = '#291414', warning_bg = '#201A0D', success_bg = '#131E13',
+  focus_bg = '#1E2B42', search_bg = '#231B2D', search_text = '#D5B9F7',
 }
+c.folder, c.info, c.hint = c.focus, c.focus, c.type
+c.success, c.comment, c.popup_selection = c.string, c.muted, c.selection
+-- A heading hierarchy in one cool family, shared by native and rendered Markdown.
+c.headings = { c.focus, c.callable, c.text, c.path, c.path, c.muted }
 c.icons = {
   Red=c.error, Orange=c.literal, Yellow=c.warning, Green=c.success,
   Cyan=c.type, Azure=c.callable, Blue=c.folder, Purple=c.keyword, Grey=c.muted,

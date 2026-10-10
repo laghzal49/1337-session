@@ -272,8 +272,8 @@ return {
         cmdline_popup = {
           win_options = { winblend = 0, winhighlight = 'Normal:BlackPrompt,FloatBorder:BlackPromptBorder,FloatTitle:BlackPromptTitle' },
           position = { row = '30%', col = '50%' },
-          size = { width = '60%', height = 'auto' },
-          border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 1, 2 },
+          size = { width = 'auto', min_width = 28, height = 1 },
+          border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 0, 1 },
             text = { top_align='left', bottom=' Enter apply · Esc close ', bottom_align='right' } },
         },
         popupmenu = {

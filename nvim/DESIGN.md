@@ -12,10 +12,14 @@ families, and readable comments. Vivid red variables remain a user preference.
   dark status bar. The canvas stays pure black at the user’s explicit request.
   Large bright mode blocks were removed.
 - [IBM's color specifications](https://www.ibm.com/design/language/color/)
-  supply the cool neutrals and red, blue, cyan, purple, teal, green and magenta
-  swatches. [Carbon's semantic tokens](https://www.carbondesignsystem.com/building-blocks/foundations/color/tokens)
-  supply the warning yellow and orange. These are source swatches; the editor's
-  syntax assignments are our design choices, not IBM recommendations for code.
+  informed the original hue families and vivid red variable accent. [Carbon's semantic tokens](https://www.carbondesignsystem.com/building-blocks/foundations/color/tokens)
+  informed warning and numeric roles. Supporting colors are now custom-balanced;
+  syntax assignments are design choices, not IBM recommendations for code.
+- [W3C CSS Color 4](https://www.w3.org/TR/css-color-4/#ok-lab) describes Oklab
+  and its perceptual lightness/chroma model. Supporting syntax accents use Oklch
+  lightness 0.76–0.78 and chroma 0.09–0.12, with deliberate exceptions for vivid
+  red variables and warning/error signals. This balances their visual intensity;
+  it does not establish an objectively best palette. Hex values are precomputed.
 - [Atlassian's color roles](https://atlassian.design/foundations/color/)
   separate neutral, informational, success, warning and danger states. Here,
   navigation is blue, warnings yellow, additions green, and errors red with
@@ -42,40 +46,43 @@ semantic token, icon, debugger and completion definitions consume these roles.
 | Role | Value | Applied to |
 | --- | --- | --- |
 | Canvas | `#000000` | Active and inactive editor splits, normal message area |
-| Inset | `#080A0C` | Status bar, sidebar, code preview, stopped debug line |
-| Panel | `#121619` | Current line, picker input and larger tool panels |
-| Popup | `#080A0C` | Completion, documentation, commands, prompts and notifications |
-| Popup selection | `#111F2D` | Subtle blue tint for the selected result |
-| Selection | `#202327` | Visual selection, focused rows, active tabs |
-| Text | `#DDE1E6` | Prose, filenames, normal labels |
-| Strong text | `#F2F4F8` | Matched text and small emphasized labels; regular weight |
-| Secondary / comments | `#A2A9B0` | Comments, hints, inactive information |
-| Structure | `#A2A9B0` | Operators, punctuation and Lua table braces |
-| Paths | `#C1C7CD` | Supporting paths |
-| Gutter / guides | `#7F8A96` / `#23292E` | Readable line numbers / quiet indent guides |
-| Borders | `#4D5358` / `#697077` / `#343A3F` | Default, popup, decorative separators |
+| Inset | `#090B0F` | Status bar, sidebar, code preview, stopped debug line |
+| Panel | `#111419` | Current line, picker input and larger tool panels |
+| Popup | `#090B0F` | Completion, documentation, commands, prompts and notifications |
+| Popup selection | `#1B222D` | Subtle blue tint for the selected result |
+| Selection | `#1B222D` | Visual selection, focused rows, active tabs |
+| Text | `#D0D4DB` | Prose, filenames, normal labels |
+| Strong text | `#E8EBF1` | Matched text and small emphasized labels; regular weight |
+| Secondary / comments | `#999FA8` | Comments, hints, inactive information |
+| Structure | `#9299A4` | Operators, punctuation and Lua table braces |
+| Paths | `#B3B8BF` | Supporting paths |
+| Gutter / guides | `#89909A` / `#1F2227` | Readable line numbers / quiet indent guides |
+| Borders | `#4C5057` / `#686F7B` / `#2D3137` | Default, popup, decorative separators |
+| Focused border | `#667B9E` | Active popup edges and editor separators, quieter than blue labels |
 | Variables | `#FA4D56` | Local/global names, LSP, completion, outline, debugger |
-| Parameters | `#FFD7D9` | Function inputs and documentation parameters |
-| Members | `#FF7EB6` | Fields, properties, object keys |
-| Callables | `#33B1FF` | Functions, methods, callable built-ins |
-| Keywords | `#BE95FF` | Control flow, modifiers, imports, directives |
-| Types | `#3DDBD9` | Classes, constructors, type names, modules, constants |
-| Strings | `#42BE65` | Literal text and inline documentation code |
-| Values | `#FF832B` | Numbers, booleans, escapes, enum members |
-| Focus / folders | `#78A9FF` | Navigation, directory icons/text, current split, prompts |
-| Error | `#FF8389` | Diagnostics, failed watches, stop control, deleted code |
-| Warning | `#F1C21B` | Warnings, modified-file markers, changed debugger values, stopped-line arrow |
-| Information | `#78A9FF` | Informational messages, progress, untracked files |
-| Hint | `#3DDBD9` | Suggestions and note comments |
-| Success | `#42BE65` | Additions, successful checks, debugger play/restart |
-| Search | `#D4BBFF` on `#1C0F30` | Matches; current match gets an orange fill |
-| Focus fill | `#001D6C` | Active signature parameter, marked results, yank flash |
-| Diff fills | `#071908` / `#302400` / `#2D0709` | Added / changed / deleted lines |
+| Parameters | `#E0B9B8` | Function inputs and documentation parameters |
+| Members | `#E89BAC` | Fields, properties, object keys |
+| Callables | `#6EC3EB` | Functions, methods, callable built-ins |
+| Keywords | `#C6A0F2` | Control flow, modifiers, imports, directives |
+| Types | `#71CBB9` | Classes, constructors, type names, modules, constants |
+| Strings | `#84C485` | Literal text and inline documentation code |
+| Values | `#EFA464` | Numbers, booleans, escapes, enum members |
+| Focus / folders | `#8BB5FA` | Navigation, directory icons/text, current split, prompts |
+| Error | `#FD8A8C` | Diagnostics, failed watches, stop control, deleted code |
+| Warning | `#EBBD57` | Warnings, modified-file markers, changed debugger values, stopped-line arrow |
+| Information | `#8BB5FA` | Informational messages, progress, untracked files |
+| Hint | `#71CBB9` | Suggestions and note comments |
+| Success | `#84C485` | Additions, successful checks, debugger play/restart |
+| Search | `#D5B9F7` on `#231B2D` | Matches; current match gets an orange fill |
+| Focus fill | `#1E2B42` | Active signature parameter, marked results, yank flash |
+| Diff fills | `#131E13` / `#201A0D` / `#291414` | Added / changed / deleted lines |
 | On accent | `#000000` | Text inside small colored badges |
 
-Inset, panel, selection and warning fill are adaptations for these foregrounds.
-Selection is slightly darker than IBM Cool Gray 90 to give red more contrast
-margin. Visual selection preserves syntax foregrounds instead of repainting the
+The neutral ramp and blue focus/selection fills share a cool hue family.
+Editor and popup selections share one token. Softer rose members and parameters
+relate to the vivid red variables; warning amber relates to numeric orange.
+Markdown headings step from blue/cyan to neutral instead of cycling through a rainbow.
+Visual selection preserves syntax foregrounds instead of repainting the
 whole selection white. The accessible preset strengthens borders and removes
 comment italics; it retains the same readable selection fill.
 
@@ -108,7 +115,7 @@ These changes address observed problems:
 | Braces, guides and filenames competed with identifiers | Neutral Lua table braces, softer punctuation/guides, off-white filenames; line numbers keep at least 4.5:1 contrast |
 | Git status repainted whole explorer filenames | Status stays in its separate marker; blue folders and file colors remain stable |
 | The sidebar crowded a narrow editor | Explorer becomes a bottom tree below 80 columns; sidebar width is capped at 30% elsewhere |
-| Command popup occupied 56 columns on a 40-column screen | Percentage sizing follows live terminal resizing; input prompts include a border allowance |
+| Command popup occupied 56 columns on a 40-column screen | Content-sized input with a 28-column minimum, one editable row, no vertical padding, and live resize |
 | First Escape left an input prompt open in Normal mode | Escape cancels the prompt and restores the editor |
 | Completion results lacked source context | LSP/BUF/PATH/SNIP labels, bounded labels and kind names where space permits; plain-icon mode includes kind text |
 | A notification painted its entire message in a severity color | Colored severity headings with neutral body text, wrapped sizing, live plain icons |
@@ -132,7 +139,7 @@ item and typed command while rebuilding columns for the new width.
 ## Verification
 
 `palette_review.lua` checks actual syntax/diagnostic highlights on canvas, panel,
-selection, popup and popup selection: the minimum tested ratio is **4.70:1**
+selection, popup and popup selection: the minimum tested ratio is **4.77:1**
 (red variables on the editor selection).
 Variables measure **6.26:1** on the canvas. It also checks filled search/TODO/diff
 labels, completion/outline/icon consistency, preserved syntax selection, and
@@ -162,11 +169,11 @@ captures, including 40-column screens, exposed these problems:
 | Problem | Change |
 | --- | --- |
 | Completion had little context or visible guidance | Live selection/result count, compact labels, kind/source columns, visible accept/close keys and a blue selection tint |
-| Commands appeared as “Property” | Command icon, blue color and explicit “Command” label |
+| Commands appeared as “Property” | Blue command icon and concise label; plain-icon mode also spells out “Command” |
 | Docs could collapse to a nine-column strip | Vertical placement below 100 columns; useful reading width at 40 columns |
 | Documentation touched its frame | A window gutter adds margin without changing parser or signature byte offsets |
 | Long references hid their scroll state | Width-aware controls and visible line range; symbol-specific completion titles |
-| Command suggestions covered the prompt border | Account for the command prompt's vertical padding in completion placement |
+| Command suggestions covered the prompt border | Place suggestions below the one-row prompt and its border |
 | A short code-action list occupied most of the screen | Content-sized width and height while retaining the existing preview/cancel behavior |
 | Notifications competed with the top of the file | Lower-right notices, content-sized width, severity heading and history shortcut |
 | History rearranged editing splits | A searchable, resizable float; newest first; q/Escape restores the editor |
@@ -184,3 +191,33 @@ cases. The asynchronous Git-probe test needed a fresh-process rerun; it passed.
 Final focused checks cover command resizing/selection, plain icons, prompt
 cancellation, notification history, diagnostic code uniqueness and debugger first use.
 Real captures and reproduction instructions are in [POPUPS.md](POPUPS.md).
+
+## Coordinated palette and compact command follow-up
+
+All syntax, LSP, completion, debugger and icon roles consume the revised palette.
+Selections use the same blue-gray fill, active borders use a quieter related blue,
+and supporting accents have similar perceptual lightness/chroma. The black canvas,
+vivid red variable color and regular font weight remain explicit requirements.
+
+The command popup now grows with its text from 28 columns, with one input row
+and no empty vertical padding. Command suggestions omit redundant source/kind
+columns in glyph mode. Menus show at most six rows while retaining all results.
+Long commands remain editable through horizontal scrolling.
+
+The debugger now has project-aware F5, a contextual `:Debug` menu, bounded native
+binary discovery, popup argument/module prompts, watch creation and clearer setup
+errors. Python saves run safe Ruff fixes, import organization and formatting in
+that order; see [README.md](README.md) for keys, limits and project settings.
+
+Final verification for this follow-up: **30 fresh-process regressions passed**,
+plus `make test`. Attached UI checks passed for completion, command/input live
+resizing, long commands, plain icons, notifications and cancellation. A new UI
+assertion initially assumed Noice used a native window title; after checking its
+actual border buffer, the corrected popup section passed in a fresh process.
+The debugger action menu was checked at 140 and 40 columns and its Step over
+action exercised against real debugpy. This host has GDB 12.1; its unsupported
+DAP capability is detected, but native C/C++ debugging still needs a newer GDB.
+
+A separate legacy Markdown reader test passed its behavior assertions but reports
+`E31: No such mapping` when run under the stricter smoke wrapper; it is not part
+of the 30-case suite above. No Markdown reader behavior was changed in this pass.

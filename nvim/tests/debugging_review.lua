@@ -10,10 +10,18 @@ assert(vim.deep_equal(debug.parse_args([["a\path" "a\"b"]]), { [[a\path]], [[a"b
 assert(debug.parse_args([["unfinished]]) == nil, 'invalid quotes accepted')
 assert(#dap.configurations.python == 4, 'Python launch/module/attach configurations missing')
 assert(#dap.configurations.c == 2 and #dap.configurations.cpp == 2, 'native launch/attach missing')
-local input = vim.fn.input
-vim.fn.input = function() error('cancelled') end
-assert(debug.prompt('cancel') == dap.ABORT and debug.arguments() == dap.ABORT, 'cancel does not abort')
-vim.fn.input = input
+local input = vim.ui.input
+vim.ui.input = function(_, callback) vim.schedule(function() callback(nil) end) end
+local function cancelled(thread)
+  local result
+  local receiver = coroutine.create(function() result = coroutine.yield() end)
+  assert(coroutine.resume(receiver))
+  assert(coroutine.resume(thread, receiver))
+  assert(vim.wait(500, function() return result ~= nil end))
+  return result == dap.ABORT
+end
+assert(cancelled(debug.prompt('cancel')) and cancelled(debug.arguments()), 'cancel does not abort')
+vim.ui.input = input
 
 local dir = vim.fn.tempname()
 vim.fn.mkdir(dir, 'p')

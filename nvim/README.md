@@ -3,16 +3,26 @@
 A standalone Neovim configuration: **no LazyVim distribution**. lazy.nvim manages
 45 explicitly configured plugins and dependencies, pinned in `lazy-lock.json`.
 Pure-black code surfaces, regular font weight, readable comments, opaque panels, and **ty + Ruff** for Python.
-Ruff provides diagnostics through its LSP and formats with
-Ruff Format on save; `<leader>cf` runs formatting manually and `<leader>uf`
+On Python save, Ruff applies **safe fixes → organizes imports → formats**.
+It respects project rules, ignores and excludes; unsafe fixes remain disabled.
+Ruff also provides diagnostics through its LSP; `<leader>cf` runs formatting manually and `<leader>uf`
 toggles format-on-save.
+
+## Current colors and compact popups
+
+![Coordinated colors and compact command popup](assets/popup-command-140.png)
+
+Supporting accents share balanced lightness and saturation. Selections, folders
+and popup borders use a consistent blue family; variables stay vivid red.
+See [the popup gallery](POPUPS.md) for current captures. The workspace overview
+images below document earlier layout upgrades.
 
 ## A complete workspace refresh
 
 See the [full UI upgrade checklist](UI_UPGRADE_TODO.md) and
 [color role map, critique and research](DESIGN.md). Syntax, LSP, completion and
 outline colors now share one palette; measured foreground contrast is at least
-4.70:1 across the tested canvas, panel and default selection backgrounds.
+4.77:1 across the tested canvas, panel and default selection backgrounds.
 
 ![New project dashboard](assets/redesign-dashboard.png)
 ![Black Deck command guide](assets/redesign-deck.png)
@@ -80,7 +90,7 @@ The old disabled theme spec and duplicate text-object ownership are also removed
 and non-italic comments/docstrings. Loaded icon providers and command guides
 refresh when toggled; `off` restores the previous font and highlight preferences.
 
-Variables remain vivid red without bold, with pale rose parameters and magenta
+Variables remain vivid red without bold, with pale rose parameters and rose
 members. Tree-sitter and LSP semantic tokens share these colors. The statusline
 shows attached language servers when idle and keeps loading progress out of floating
 popups. Long progress messages are capped; diagnostic popups include diagnostic
@@ -132,7 +142,8 @@ The additional project controls are available without adding plugins:
 | --- | --- |
 | `<leader>ua` / `:UIAccessibility` | Toggle plain core icons, stronger borders and simpler decoration |
 | `<leader>uB` / `:BufferPerformanceRestore` | Restore features after shrinking a large buffer, preserving unsaved edits |
-| `<leader>Df` / `:DebugProjectLaunch` | Choose a project debugger profile |
+| `<leader>Df` / `:DebugTarget` | Choose a debug target, arguments, module or test file |
+| `:DebugProjectLaunch` | Explicitly choose a project profile |
 | `<leader>Dg` / `:DebugProjectGenerate` | Generate a profile for the current Python or C/C++ project |
 | `<leader>Dj` / `:DebugProjectEdit` | Create or edit `.vscode/launch.json` |
 | `<leader>Dh` / `:DebugProjectCheck` | Validate project debugger profiles |
@@ -147,8 +158,8 @@ highlights and the current theme; some third-party hardcoded glyphs may remain.
 
 Performance changes extend beyond startup: cached root lookups, one asynchronous
 Git probe per project, no dashboard filesystem walk, no duplicate bufferline
-LSP diagnostic pass, bounded large-buffer guards even after edits, and a 500 ms
-format-on-save cap. Files over 1 MiB or 20,000 lines switch to a conservative
+LSP diagnostic pass, bounded large-buffer guards even after edits, and a bounded
+format-on-save timeout (1.5 seconds for the three Ruff stages; 500 ms elsewhere). Files over 1 MiB or 20,000 lines switch to a conservative
 plain editing mode. After reducing them, use `<leader>uB` to restore the prior
 features without wiping the buffer or changing unsaved edits. Recovery refuses
 buffers still above the size or Markdown/minified-file budgets. Existing disabled
@@ -215,9 +226,21 @@ automatic rearrangement. A yellow arrow and subtle line tint identify the stoppe
 line without repainting its syntax.
 Panels open when a session starts and close when it ends.
 
+![Debugger action menu during a real Python breakpoint](assets/popup-debug-menu-140.png)
+
+`Space DD` or `:Debug` opens actions appropriate to the running/paused state.
+Type to filter, Enter to select, Escape to close. The menu stays compact on
+narrow terminals and scrolls to additional actions.
+
 | Key | Action |
 | --- | --- |
-| `F5` / `<leader>Dc` | Start or continue |
+| `F5` / `<leader>Dc` | Start the project / continue the active session |
+| `<leader>DD` / `:Debug` | Contextual debugger action menu |
+| `<leader>Df` / `:DebugTarget` | Choose target, arguments, module, attach, or detected pytest file |
+| `<leader>DR` / `:DebugRestart` | Restart active session / rerun this project |
+| `<leader>DC` | Run to cursor while paused |
+| `<leader>Dw` / `:DebugWatch` | Add a watch expression |
+| `Shift-F5` | Stop session |
 | `F10` / `<leader>Do` | Step over |
 | `F11` / `<leader>Di` | Step into |
 | `F12` / `<leader>DO` | Step out |
@@ -237,14 +260,24 @@ uv pip install --python ~/.local/share/nvim/debugpy/bin/python debugpy
 
 Alternatively install debugpy in the project environment, or set
 `vim.g.debugpy_python` to an interpreter that contains it. The debuggee uses the
-project `.venv/bin/python`, then the active `VIRTUAL_ENV`, then `python3` on PATH.
-Open a Python file, set a breakpoint, and press F5. Choose a file launch with
-arguments, module launch, or local attach when needed. Attach requires an existing
+selected Python interpreter override, then project `.venv/bin/python` or
+`venv/bin/python`, the active `VIRTUAL_ENV`, and finally `python3` on PATH.
+Open a Python file, set a breakpoint, and press F5. A single project profile
+starts directly; multiple profiles prompt once and remember the choice for that
+project during this Neovim session. `Space Df` offers file launches with arguments,
+modules, local attach and a pytest-file launch for `test_*.py` / `*_test.py`.
+Argument/module prompts use the shared popup UI; Escape cancels the launch. Attach requires an existing
 `python -m debugpy --listen 127.0.0.1:5678 --wait-for-client script.py` process.
 `<leader>DL` adds a logpoint; `<leader>Dp` pauses; `<leader>Dl` reruns; `<leader>Dx`
 clears breakpoints. Live local attach was verified with a disposable debugpy server.
 
-Project profiles use `.vscode/launch.json`; F5 includes them alongside built-ins.
+Project profiles use `.vscode/launch.json`; F5 reads the current project each time.
+Target selections capture the source path before opening a popup, so switching
+buffers cannot silently change the launch. Reruns stay scoped to their project.
+Modified project buffers prompt to save before launch; cancelling leaves them
+untouched. Once a session initializes, rerun remembers its resolved arguments.
+Missing working directories, programs, interpreters and static Python modules
+report actionable errors before launch.
 On first use, the editor creates a language-specific profile for the current
 Python or C/C++ file when none exists. `:DebugProjectGenerate` creates it
 explicitly; `:DebugProjectCheck` creates a missing profile and validates it.
@@ -256,8 +289,12 @@ and accepts JSON/JSON comments with static arguments. VSCode prompted inputs and
 explicitly. Project profiles do not modify the global built-in configurations.
 
 For C/C++, install **GDB 14+ with Python/DAP support**, build with debug symbols
-(e.g. `cc -g -O0 main.c -o main`), open the source, and press F5. Supply the compiled
-executable at the prompt. Debugger packages are not installed automatically.
+(e.g. `cc -g -O0 main.c -o main`), open the source, and press F5. If the profile
+target is missing, choose a discovered binary from the project root, `build`,
+`bin`, `debug`, `Debug` or `cmake-build-debug`, or browse for it. Discovery is
+bounded and skips dependency trees. Builds remain explicit. GDB is checked for
+Python/DAP support before starting; `vim.g.debug_gdb` can point to a newer
+user-local installation. Debugger packages are not installed automatically.
 Missing adapters show setup guidance. Python breakpoints, variable evaluation,
 step-over and clean session/panel exit were tested against real debugpy 1.8.22;
 C/C++ launch/attach configuration is provided but an actual GDB session was not tested
@@ -517,9 +554,14 @@ fallbacks use isolated Python without importing project code, and coalesce
 identical requests. Async Python definitions retain their project documentation
 identity instead of accidentally opening builtin references.
 
-Ruff follows project configuration; these actions edit the current buffer and
-leave saving to you. Formatting stays with Conform's `ruff_format`, avoiding
-competing LSP formatters. ty's project configuration and normal environment
+The explicit Ruff actions edit the current buffer. Saving runs Conform's
+`ruff_fix`, `ruff_organize_imports`, then `ruff_format` sequentially. All safe
+fixes enabled by project rules are eligible; this does not enable every Ruff
+lint rule. Project excludes/ignores and unfixable rules are respected. Automatic
+unsafe fixes are disabled even if a project enables them. `<leader>uf` toggles
+the entire save pipeline; `vim.b.autoformat = false` disables it for one buffer.
+Large-file guards still skip automatic formatting. Ruff LSP formatting remains
+disabled to avoid duplicate edits. ty's project configuration and normal environment
 discovery remain authoritative unless you explicitly set an interpreter override.
 Changing an interpreter restarts only this project's ty clients asynchronously,
 keeping their eligible buffers attached; Ruff and other projects continue running.

@@ -73,7 +73,8 @@ function M.select(items, opts, on_choice)
   -- still owns filtering, preview and cancellation; size only this invocation.
   return require('mini.pick').ui_select(items, opts, on_choice, {window={config=function()
     local width = math.max(1, math.min(desired,86,vim.o.columns-4))
-    local height = math.max(1, math.min(math.max(#items+2,5),18,vim.o.lines-6))
+    local limit = opts.kind == 'debug' and math.min(14, math.floor(vim.o.lines * 0.5)) or 18
+    local height = math.max(1, math.min(math.max(#items+2,5),limit,vim.o.lines-6))
     return {relative='editor',anchor='NW',border=require('config.ui').border,
       width=width,height=height,row=math.floor((vim.o.lines-height-2)*0.3),
       col=math.floor((vim.o.columns-width-2)/2)}

@@ -7,10 +7,13 @@ function M.refresh_signs()
   vim.fn.sign_define('DapStopped', { text = icon('debug_stopped'), texthl = 'DiagnosticWarn', linehl = 'BlackDebugLine', numhl = 'BlackDebugLineNr' })
 end
 
-function M.python()
-  local root = require('config.project').root()
+function M.python(root)
+  root = root or require('config.project').root()
+  local chosen, reason = require('config.python_environment').interpreter(vim.uv.fs_realpath(root) or root)
+  if reason == 'project override' or reason == 'configured override' then return chosen end
   for _, path in ipairs({
     root .. '/.venv/bin/python',
+    root .. '/venv/bin/python',
     vim.env.VIRTUAL_ENV and (vim.env.VIRTUAL_ENV .. '/bin/python') or '',
   }) do
     if vim.fn.executable(path) == 1 then return path end
@@ -40,20 +43,45 @@ function M.parse_args(input)
 end
 
 function M.prompt(label, default, completion)
-  local ok, result = pcall(vim.fn.input, label, default or '', completion or '')
-  if not ok or result == '' then return require('dap').ABORT end
-  return result
+  return coroutine.create(function(co)
+    vim.ui.input({ prompt = label, default = default or '', completion = completion }, function(result)
+      coroutine.resume(co, result and result ~= '' and result or require('dap').ABORT)
+    end)
+  end)
 end
 
 function M.arguments()
-  local ok, value = pcall(vim.fn.input, 'Arguments (quote paths with spaces): ')
-  if not ok then return require('dap').ABORT end
-  local args, err = M.parse_args(value)
-  if not args then
-    vim.notify(err, vim.log.levels.WARN)
-    return require('dap').ABORT
+  return coroutine.create(function(co)
+    vim.ui.input({ prompt = 'Arguments (quote paths with spaces): ' }, function(value)
+      local args, err
+      if value ~= nil then args, err = M.parse_args(value) end
+      if err then vim.notify(err, vim.log.levels.WARN) end
+      coroutine.resume(co, args or require('dap').ABORT)
+    end)
+  end)
+end
+
+local gdb_checked = {}
+function M.gdb(callback)
+  local command = vim.g.debug_gdb or vim.fn.exepath('gdb')
+  if command == '' or vim.fn.executable(command) ~= 1 then
+    vim.notify('C/C++ debugging needs GDB 14+ built with Python/DAP support. Set vim.g.debug_gdb to its path.', vim.log.levels.WARN)
+    return
   end
-  return args
+  local stat = vim.uv.fs_stat(command)
+  local key = command .. ':' .. (stat and stat.mtime.sec or '')
+  if gdb_checked[key] then callback(command); return end
+  -- --nx avoids project/user init scripts during this capability check.
+  vim.system({ command, '--quiet', '--nx', '--batch', '-ex', 'python import gdb.dap' },
+    { text = true, timeout = 5000 }, vim.schedule_wrap(function(result)
+      if result.code ~= 0 then
+        vim.notify('GDB at ' .. command .. ' cannot provide DAP. Use GDB 14+ with Python support; '
+          .. 'set vim.g.debug_gdb to a newer binary. See :ConfigGuide.', vim.log.levels.WARN)
+        return
+      end
+      gdb_checked[key] = true
+      callback(command)
+    end))
 end
 
 function M.setup()
@@ -119,23 +147,14 @@ function M.setup()
     connect = { host = '127.0.0.1', port = 5678 }, justMyCode = true,
   }
   dap.adapters.gdb = function(callback)
-    if vim.fn.executable('gdb') == 0 then
-      vim.notify('C/C++ debugger needs GDB 14+ with DAP support; see :ConfigGuide', vim.log.levels.WARN)
-      return
-    end
-    callback({ type = 'executable', command = 'gdb', args = { '--interpreter=dap', '--eval-command', 'set print pretty on' } })
+    M.gdb(function(command)
+      callback({ type = 'executable', command = command, args = { '--interpreter=dap', '--eval-command', 'set print pretty on' } })
+    end)
   end
   local compiled = {
     { name = 'C/C++: launch executable', type = 'gdb', request = 'launch', stopAtBeginningOfMainSubprogram = true,
       program = function()
-        local path = M.prompt('Executable: ', require('config.project').root() .. '/', 'file')
-        if path == dap.ABORT then return dap.ABORT end
-        path = vim.fn.expand(path)
-        if vim.fn.executable(path) ~= 1 or vim.fn.isdirectory(path) == 1 then
-          vim.notify('Choose an executable built with debug symbols (-g)', vim.log.levels.WARN)
-          return dap.ABORT
-        end
-        return vim.fn.fnamemodify(path, ':p')
+        return M.prompt('Compiled program (-g): ', require('config.project').root() .. '/', 'file')
       end,
       cwd = function() return require('config.project').root() end },
   }
@@ -146,6 +165,7 @@ function M.setup()
   dap.configurations.c = compiled
   dap.configurations.cpp = vim.deepcopy(compiled)
   require('config.debug_projects').setup()
+  require('config.debug_launch').setup()
 end
 
 return M

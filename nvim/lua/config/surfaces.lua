@@ -10,6 +10,7 @@ local M = {
   inset = c.inset,
   edge = c.border,
   edge_bright = c.border_strong,
+  focus_edge = c.focus_border,
   edge_soft = c.border_soft,
   selected = c.selection,
   selected_bright = c.selection,
@@ -23,12 +24,12 @@ local M = {
   error = colors.error,
 }
 
-local standard = { edge = M.edge, edge_bright = M.edge_bright, edge_soft = M.edge_soft, border = M.border, muted = M.muted, selected = M.selected }
+local standard = { focus_edge = M.focus_edge, edge = M.edge, edge_bright = M.edge_bright, edge_soft = M.edge_soft, border = M.border, muted = M.muted, selected = M.selected }
 function M.set_accessible(enabled)
   for key, value in pairs(standard) do M[key] = value end
   if enabled then
     M.edge, M.edge_bright, M.edge_soft, M.border = c.path, c.text, c.muted, c.path
-    M.muted, M.selected = c.path, c.selection
+    M.muted, M.selected, M.focus_edge = c.path, c.selection, c.path
   end
 end
 M.set_accessible(ui.accessible)
@@ -41,7 +42,8 @@ function M.highlights(accessible)
   end
   groups('DapUINormal', { bg = M.inset, fg = M.text })
   groups('DapUIFloatNormal', { bg = M.popup, fg = M.text })
-  groups('DapUIFloatBorder DapUIWinSelect', { fg = M.accent, bg = M.popup })
+  groups('DapUIFloatBorder', { fg = M.focus_edge, bg = M.popup })
+  groups('DapUIWinSelect', { fg = M.accent, bg = M.popup })
   groups('DapUIScope DapUIFrameName', { fg = c.callable })
   groups('DapUIType', { fg = c.type })
   groups('BlackDebugLine', { bg = c.inset })
@@ -61,7 +63,7 @@ function M.highlights(accessible)
   groups('BlackYank', { bg = c.focus_bg, fg = c.strong })
   groups('BlackBeacon', { bg = M.selected })
   groups('BlackBeaconNumber', { fg = M.accent })
-  groups('BlackActiveSeparator', { fg = M.accent, bg = c.canvas })
+  groups('BlackActiveSeparator', { fg = M.focus_edge, bg = c.canvas })
   groups('BlackCursorNormal', { fg = c.canvas, bg = colors.cursor })
   groups('BlackCursorInsert', { fg = c.canvas, bg = colors.cursor_insert })
   groups('BlackCursorVisual', { fg = c.canvas, bg = colors.lilac })
@@ -90,7 +92,7 @@ function M.highlights(accessible)
   groups("AerialGuide", { fg = M.edge_soft })
   for _, kind in ipairs({ "Cmdline", "Lua", "Search", "Help", "Filter", "Calculator", "Input" }) do
     h["NoiceCmdlinePopupTitle" .. kind] = { bg = M.popup, fg = M.accent }
-    h["NoiceCmdlinePopupBorder" .. kind] = { bg = M.popup, fg = M.accent }
+    h["NoiceCmdlinePopupBorder" .. kind] = { bg = M.popup, fg = M.focus_edge }
   end
   for _, level in ipairs({ "Trace", "Debug", "Info", "Warn", "Error" }) do
     h["SnacksNotifier" .. level] = { bg = M.panel, fg = M.text }
@@ -142,7 +144,7 @@ function M.highlights(accessible)
   end
   -- blink.cmp doc/menu chrome
   groups('BlinkCmpMenu',        { bg = M.popup, fg = M.text })
-  groups('BlinkCmpMenuBorder',  { bg = M.popup, fg = M.accent })
+  groups('BlinkCmpMenuBorder',  { bg = M.popup, fg = M.focus_edge })
   groups('BlinkCmpMenuSelection',{ bg = c.popup_selection, fg = M.text })
   groups('BlinkCmpDoc BlinkCmpSignatureHelp', { bg = M.popup, fg = M.text })
   groups('BlinkCmpDocBorder BlinkCmpSignatureHelpBorder', { bg = M.popup, fg = M.edge_bright })
@@ -191,7 +193,7 @@ function M.highlights(accessible)
   groups('BlackDocsParam', { fg = c.parameter })
   groups('BlackDocsType', { fg = c.type })
   groups('BlackDocsReturn', { fg = c.success })
-  for level, color in ipairs({c.focus,c.keyword,c.success,c.callable,c.literal,c.path}) do
+  for level, color in ipairs(c.headings) do
     groups('RenderMarkdownH' .. level, { fg = color })
     groups('RenderMarkdownH' .. level .. 'Bg', { bg = M.panel })
   end
@@ -203,7 +205,7 @@ function M.highlights(accessible)
 
   -- Prompts use a blue focus edge; reference text stays quietly framed.
   groups('BlackPrompt SnacksInputNormal', { bg = M.popup, fg = c.text })
-  groups('BlackPromptBorder SnacksInputBorder', { bg = M.popup, fg = M.accent })
+  groups('BlackPromptBorder SnacksInputBorder', { bg = M.popup, fg = M.focus_edge })
   groups('BlackPromptTitle SnacksInputTitle', { bg = M.popup, fg = M.accent })
   groups('BlackPopupHint FloatFooter', { bg = M.popup, fg = M.muted })
   groups('BlackPopupCommand', {fg=M.accent})

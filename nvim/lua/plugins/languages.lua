@@ -17,7 +17,12 @@ return {
     'stevearc/conform.nvim',
     opts = {
       formatters_by_ft = {
-        python = { 'ruff_format' },
+        python = { 'ruff_fix', 'ruff_organize_imports', 'ruff_format' },
+      },
+      -- Respect project rules, ignores and excludes; automatic edits use safe fixes.
+      formatters = {
+        ruff_fix = { append_args = { '--no-unsafe-fixes' } },
+        ruff_organize_imports = { append_args = { '--no-unsafe-fixes' } },
       },
     },
   },

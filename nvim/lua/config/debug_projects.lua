@@ -113,7 +113,7 @@ function M.read(root)
       end
     end
     if config.type == 'python' and config.request == 'launch' then
-      config.pythonPath = config.pythonPath or require('config.debugging').python()
+      config.pythonPath = config.pythonPath or require('config.debugging').python(root)
     end
     result[#result + 1] = config
   end
@@ -129,18 +129,7 @@ function M.list()
 end
 
 function M.launch()
-  local _, created, create_err = M.ensure()
-  if create_err then vim.notify('Project debugger: ' .. create_err, vim.log.levels.WARN); return end
-  local configs, err, path = M.read()
-  if err then vim.notify('Project debugger: ' .. err, vim.log.levels.WARN); return end
-  if #configs == 0 then
-    vim.notify('No project launch configurations in ' .. path .. '; use :DebugProjectEdit', vim.log.levels.INFO)
-    return
-  end
-  if created then vim.notify('Created debugger profile: ' .. path, vim.log.levels.INFO) end
-  vim.ui.select(configs, { prompt = 'Project debugger', format_item = function(config) return config.name end }, function(config)
-    if config then require('dap').run(config) end
-  end)
+  require('config.debug_launch').start(true)
 end
 
 function M.edit()

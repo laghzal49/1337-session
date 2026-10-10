@@ -91,3 +91,21 @@ and screenshot review. Existing behavior is retained where it already works.
 - [x] Show inline diagnostic codes, sources and wrapped overflow.
 - [x] Prevent Python server errors for unnamed buffers; attach automatically after naming.
 - [x] Validate all `make check` targets, including final `make review upgrade` (27 fresh-process regressions); inspect refreshed captures and publish this pass.
+
+
+## Color harmony, debugger and save workflow
+
+- [x] Balance supporting accents in Oklch; preserve vivid red variables and black canvas.
+- [x] Share blue-gray selection/focus fills and quieter blue borders across popups.
+- [x] Coordinate Markdown headings and soften rose identifier relatives.
+- [x] Keep regular font weight and verify at least 4.77:1 on tested text/background pairs.
+- [x] Replace the large command popup with one content-sized input row and compact suggestions.
+- [x] Check long commands, live resize and accessible command labels.
+- [x] Add project-aware F5, remembered profile choice and project-scoped reruns.
+- [x] Add contextual debugger controls, run-to-cursor and watch-entry shortcuts.
+- [x] Use popup arguments/module prompts, save-before-launch choices and bounded binary discovery.
+- [x] Check missing targets/modules/interpreters and detect unsupported GDB.
+- [x] Run safe Ruff fixes, import organization and formatting on Python save.
+- [x] Verify project ignores, unsafe-fix protection, idempotence and format opt-outs.
+- [x] Pass 30 strict regression cases, standalone checks and real debugpy/UI checks.
+- [x] Refresh current popup/debugger previews and document the remaining GDB requirement.
