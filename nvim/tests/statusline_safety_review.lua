@@ -19,5 +19,11 @@ local line = require('lualine').statusline(true)
 local rendered = vim.api.nvim_eval_statusline(line, {maxwidth=1000}).str
 assert(rendered:find(label,1,true),'lualine did not retain literal percent expressions')
 assert(vim.g.statusline_injected == nil,'lualine executed an expression from a project label')
+workspace.get = function() return {name='a-very-long-project-name',branch='main',dirty=false} end
+vim.o.columns = 80
+assert(opts.sections.lualine_b[1].cond() and not opts.sections.lualine_b[2].cond(),
+  'narrow statusline must keep the project without the branch')
+assert(vim.fn.strdisplaywidth(opts.sections.lualine_b[1][1]()) <= 14,
+  'project label consumed the narrow statusline')
 workspace.get, vim.lsp.status, package.loaded['config.tasks'] = get, lsp_status, tasks
 print('STATUSLINE SAFETY PASS: project, branch, task and LSP text cannot inject statusline expressions')

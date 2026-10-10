@@ -13,6 +13,8 @@ vim.cmd.lcd(vim.fn.fnameescape(tmp .. '/子目录'))
 vim.api.nvim_win_set_width(first, 20)
 vim.bo.modified, vim.bo.readonly = true, true
 ui.update()
+assert(vim.wo[second].winbar:find('BlackActiveSeparator', 1, true), 'focused split has no visible marker')
+assert(not vim.wo[first].winbar:find('BlackActiveSeparator', 1, true), 'inactive split has a focus marker')
 for _, win in ipairs({first, second}) do
   local rendered = vim.api.nvim_eval_statusline(vim.wo[win].winbar, {winid = win, use_winbar = true}).str
   assert(vim.fn.strdisplaywidth(rendered) <= vim.api.nvim_win_get_width(win), 'title exceeded window width')
@@ -20,6 +22,10 @@ for _, win in ipairs({first, second}) do
   assert(rendered:find('test.lua', 1, true), 'truncation lost filename extension')
   assert(rendered:find('[RO]', 1, true), 'readonly state lost')
 end
+vim.api.nvim_set_current_win(first)
+ui.update()
+assert(vim.wo[first].winbar:find('BlackActiveSeparator', 1, true), 'focus marker did not follow the active split')
+assert(not vim.wo[second].winbar:find('BlackActiveSeparator', 1, true), 'old split kept the focus marker')
 -- A short filename exposes the window-specific directory difference.
 vim.api.nvim_buf_set_name(0, tmp .. '/子目录/ok%file.lua')
 vim.api.nvim_win_set_width(first, 50)

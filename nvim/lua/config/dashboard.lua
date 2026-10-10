@@ -13,6 +13,22 @@ local function action(icon, label, key, callback, pane)
       { ui.icon(icon) .. '  ', hl = 'SnacksDashboardIcon', width = icon_width },
       { label, hl = 'SnacksDashboardDesc', width = 25 } } }
 end
+local function recent_files(root)
+  local files, seen = {}, {}
+  root = root:gsub('/+$', '')
+  -- oldfiles is already in memory; bound the scan and only stat candidates in
+  -- this project so opening the dashboard stays cheap on large histories.
+  for index = 1, math.min(#vim.v.oldfiles, 80) do
+    local path = vim.v.oldfiles[index]
+    if type(path) == 'string' and path:sub(1, #root + 1) == root .. '/'
+      and not seen[path] and vim.fn.filereadable(path) == 1 then
+      seen[path] = true
+      files[#files + 1] = { path = path, label = path:sub(#root + 2) }
+      if #files == 5 then break end
+    end
+  end
+  return files
+end
 return {
   width = 42, pane_gap = 6,
   sections = function(dashboard)
@@ -56,23 +72,34 @@ return {
       if size.height < 24 then section.padding = nil end
     end
     if wide and tall then
-      local groups = {
-        { 'MOVE THROUGH YOUR PROJECT', { { 'Space e', 'Explorer' }, { 'Space f', 'Files' },
-          { 'Space /', 'Search' }, { 'Space r', 'Project tasks' } } },
-        { 'WRITE AND INSPECT', { { 'Ctrl-S', 'Save' }, { 'Ctrl-T', 'Terminal' },
-          { 'K', 'Documentation' }, { 'gK', 'Deep reference' } } },
-        { 'DEBUG', { { 'F5', 'Start / continue' }, { 'F10', 'Step over' },
-          { 'Space Db', 'Breakpoint' }, { 'Space Dg', 'Generate profile' } } },
-      }
-      for _, group in ipairs(groups) do
-        sections[#sections + 1] = { pane = 2, text = group[1], hl = 'BlackLabel', padding = 1 }
-        for _, entry in ipairs(group[2]) do
-          sections[#sections + 1] = { pane = 2, text = {
-            { entry[1], hl = 'BlackDashboardKey', width = 11 },
-            { entry[2], hl = 'BlackMuted' },
+      sections[#sections + 1] = { pane = 2, text = 'PROJECT CONTEXT', hl = 'BlackDashboardHeading', padding = 1 }
+      sections[#sections + 1] = { pane = 2, text = {
+        { 'root  ', hl = 'BlackDashboardMeta', width = 6 },
+        { fit(vim.fn.fnamemodify(info.root, ':~'), width - 6), hl = 'BlackDashboardPath' },
+      } }
+      sections[#sections + 1] = { pane = 2, text = ' ' }
+      sections[#sections + 1] = { pane = 2, text = 'RECENT IN THIS PROJECT', hl = 'BlackDashboardHeading', padding = 1 }
+      local files = recent_files(info.root)
+      if #files == 0 then
+        sections[#sections + 1] = { pane = 2, text = 'No recent project files', hl = 'BlackDashboardMeta' }
+      end
+      for index, item in ipairs(files) do
+        local path = item.path
+        sections[#sections + 1] = { pane = 2, key = tostring(index),
+          action = function() vim.cmd.edit(vim.fn.fnameescape(path)) end,
+          text = {
+            { tostring(index) .. '  ', hl = 'BlackDashboardKey', width = 3 },
+            { fit(item.label, width - 3), hl = 'BlackDashboardPath' },
           } }
-        end
-        sections[#sections + 1] = { pane = 2, text = ' ' }
+      end
+      sections[#sections + 1] = { pane = 2, text = ' ' }
+      sections[#sections + 1] = { pane = 2, text = 'KEEP MOVING', hl = 'BlackDashboardHeading', padding = 1 }
+      for _, entry in ipairs({ { 'Space e', 'Explorer' }, { 'Space /', 'Project search' },
+        { 'Space rt', 'Project tasks' }, { 'Ctrl-T', 'Terminal' }, { 'F5', 'Start debugger' } }) do
+        sections[#sections + 1] = { pane = 2, text = {
+          { entry[1], hl = 'BlackDashboardKey', width = 11 },
+          { entry[2], hl = 'BlackDashboardMeta' },
+        } }
       end
     end
     return sections

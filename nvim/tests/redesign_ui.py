@@ -97,6 +97,15 @@ def save_grid(grid,attrs,fg,bg,output):
  im.save(output)
 
 save_grid(grid,attrs,default_fg,default_bg,capture_dir/(capture_prefix+'-dashboard.png'))
+if os.environ.get('NVIM_CAPTURE_RESPONSIVE') == '1':
+ for width,height in [(80,24),(40,20)]:
+  call('nvim_ui_try_resize',[width,height]);pump(.35)
+  save_grid(grid,attrs,default_fg,default_bg,capture_dir/(f'{capture_prefix}-dashboard-{width}.png'))
+ call('nvim_ui_try_resize',[140,42]);pump(.35)
+if os.environ.get('NVIM_CAPTURE_DECK') == '1':
+ call('nvim_exec_lua',["require('lazy').load({plugins={'which-key.nvim'}}); vim.schedule(function() require('which-key').show({keys=vim.g.mapleader,mode='n',delay=0}) end)",[]]);pump(.4)
+ save_grid(grid,attrs,default_fg,default_bg,capture_dir/(capture_prefix+'-deck.png'))
+ call('nvim_input',['<Esc>']);pump(.2)
 call('nvim_command',['edit nvim/lua/config/debugging.lua']);pump(.5)
 call('nvim_command',['vsplit nvim/lua/plugins/debugging.lua']);pump(.3)
 save_grid(grid,attrs,default_fg,default_bg,capture_dir/(capture_prefix+'-editor.png'))
@@ -118,6 +127,11 @@ for width,height in [(140,42),(80,24)]:
  call('nvim_input',['<Esc>']);pump(.3)
  assert call('nvim_exec_lua',["return #Snacks.picker.get()",[]])==0
 assert call('nvim_exec_lua',["return require('config.workspace_info').get().branch",[]])==(expected_branch or 'HEAD (no branch)')
+if os.environ.get('NVIM_CAPTURE_EXPLORER') == '1':
+ call('nvim_ui_try_resize',[140,42]);pump(.2)
+ call('nvim_exec_lua',["Snacks.explorer()",[]]);pump(.5)
+ save_grid(grid,attrs,default_fg,default_bg,capture_dir/(capture_prefix+'-explorer.png'))
+ call('nvim_exec_lua',["for _,p in ipairs(Snacks.picker.get()) do p:close() end",[]]);pump(.2)
 messages=call('nvim_exec_lua',["return vim.api.nvim_exec2('messages',{output=true}).output",[]])
 assert 'Error executing' not in messages and 'Failed to load' not in messages,messages
 print('REDESIGN UI: dashboard, split editor, async branch, responsive preview picker and Escape PASS')

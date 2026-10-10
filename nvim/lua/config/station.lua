@@ -645,7 +645,7 @@ function M.rebuild_venv()
     Snacks.terminal(cmd, {
       cwd = cwd,
       win = {
-        title = ' 󰌠 1337 Station · uv venv build ',
+        title = ' ' .. require('config.ui').icon('python') .. ' 1337 Station · uv venv build ',
         title_pos = 'center',
       },
     })
@@ -673,7 +673,7 @@ function M.install_tools()
   if installer then
     if pcall(require, 'snacks') and Snacks.terminal then
       Snacks.terminal('bash ' .. vim.fn.shellescape(installer), {
-        win = { title = ' 󰒓 1337 Station Installer ', title_pos = 'center' },
+        win = { title = ' ' .. require('config.ui').icon('gear') .. ' 1337 Station Installer ', title_pos = 'center' },
       })
     else
       vim.cmd('botright split | terminal bash ' .. vim.fn.shellescape(installer))
@@ -774,7 +774,7 @@ function M.health()
       col = col,
       style = 'minimal',
       border = 'rounded',
-      title = ' 󰒓 1337 STATION HEALTH (' .. host .. ') ',
+      title = ' ' .. require('config.ui').icon('gear') .. ' 1337 STATION HEALTH (' .. host .. ') ',
       title_pos = 'center',
     })
 

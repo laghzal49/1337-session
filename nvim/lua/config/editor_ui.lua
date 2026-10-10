@@ -14,6 +14,7 @@ local function fit(value, width)
   return marker
 end
 function M.update()
+  local focused = vim.api.nvim_get_current_win()
   for _, win in ipairs(vim.api.nvim_tabpage_list_wins(0)) do
     local buf = vim.api.nvim_win_get_buf(win)
     local markdown = package.loaded['config.markdown']
@@ -33,9 +34,12 @@ function M.update()
         name = fit(name, available)
         local separator = ui.accessible and ' / ' or '  ›  '
         local folder_width = available - vim.fn.strdisplaywidth(name) - vim.fn.strdisplaywidth(separator)
-        folder = not ui.accessible and folder and folder_width >= 3 and fit(folder, folder_width) or nil
-        vim.wo[win].winbar = '%#BlackPath#  ' .. (folder and escape(folder) .. separator or '')
-          .. '%#BlackFileTitle#' .. escape(name)
+        folder = folder and folder_width >= 3 and fit(folder, folder_width) or nil
+        local marker = win == focused and ('%#BlackActiveSeparator#' .. (ui.accessible and '| ' or '▎ '))
+          or '%#BlackPath#  '
+        local title_group = win == focused and '%#BlackFileTitle#' or '%#BlackPath#'
+        vim.wo[win].winbar = marker .. '%#BlackPath#' .. (folder and escape(folder) .. separator or '')
+          .. title_group .. escape(name)
           .. (vim.bo[buf].modified and '%#BlackModified#' or '') .. escape(suffix) .. '%*'
       end
     elseif not reading and vim.wo[win].winbar:find('%%#BlackPath#', 1) then
@@ -45,7 +49,7 @@ function M.update()
 end
 function M.setup()
   local group = vim.api.nvim_create_augroup('BlackEditorTitles', { clear = true })
-  vim.api.nvim_create_autocmd({ 'BufWinEnter', 'BufFilePost', 'BufModifiedSet', 'DirChanged', 'WinResized' }, {
+  vim.api.nvim_create_autocmd({ 'BufWinEnter', 'BufFilePost', 'BufModifiedSet', 'DirChanged', 'WinResized', 'WinEnter' }, {
     group = group, callback = M.update,
   })
   vim.api.nvim_create_autocmd('OptionSet', { group = group, pattern = 'readonly', callback = M.update })

@@ -42,6 +42,11 @@ local function highlights(startup)
   for _, name in ipairs({'Comment','SpecialComment','TreesitterContext','BlinkCmpGhostText'}) do
     set(name,{italic=false},vim.api.nvim_get_hl(0,{name=name,link=true}))
   end
+  for name in pairs(vim.api.nvim_get_hl(0, {})) do
+    if name:match('^@comment') or name:match('^@string%.documentation') then
+      set(name, {italic=false}, vim.api.nvim_get_hl(0, {name=name,link=true}))
+    end
+  end
 end
 local function restore()
   for name, hl in pairs(saved) do

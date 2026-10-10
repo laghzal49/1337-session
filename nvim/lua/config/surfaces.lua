@@ -101,14 +101,18 @@ function M.highlights(accessible)
   groups('FlashBackdrop', { fg = M.muted })
 
   -- WhichKey full suite
-  groups('WhichKeySeparator', { fg = M.edge })
+  groups('WhichKeySeparator', { fg = M.muted })
   groups('WhichKeyValue',     { fg = M.muted })
   groups('WhichKeyBorder',    { bg = M.panel, fg = M.edge_bright })
   groups('WhichKeyTitle',     { bg = M.panel, fg = M.accent, fmt = 'bold' })
   groups('WhichKeyDesc',      { fg = M.text })
   groups('WhichKey',          { fg = M.accent, fmt = 'bold' })
   groups('WhichKeyGroup',     { fg = M.text, fmt = 'bold' })
-  groups('WhichKeyIcon WhichKeyIconRed WhichKeyIconOrange WhichKeyIconYellow WhichKeyIconGreen WhichKeyIconCyan WhichKeyIconBlue WhichKeyIconPurple', { fg = M.muted })
+  groups('WhichKeyIcon', { fg = M.muted })
+  for color, value in pairs({ Red = '#FF8FA3', Orange = '#FF9E64', Yellow = '#FFD166',
+    Green = '#7FE3C2', Cyan = '#70D7FF', Azure = '#70D7FF', Blue = '#69AFFF', Purple = '#C7A6FF' }) do
+    groups('WhichKeyIcon' .. color, { fg = value })
+  end
 
   -- TreesitterContext — dark panel bg, subtle italic
   groups('TreesitterContext',           { bg = M.panel, fmt = 'italic' })
@@ -137,7 +141,7 @@ function M.highlights(accessible)
     Color         = '#FF8FA3',
     File          = M.text,
     Reference     = M.accent,
-    Folder        = M.accent,
+    Folder        = '#70D7FF',
     EnumMember    = '#70D7FF',
     Constant      = M.text,
     Struct        = '#7FE3C2',
@@ -170,9 +174,9 @@ function M.highlights(accessible)
   groups('SnacksPickerTitle',             { bg = M.panel, fg = '#FF2E4C', fmt = 'bold' })
   groups('SnacksPickerPrompt',            { fg = '#FF2E4C', fmt = 'bold' })
   groups('SnacksPickerMatch',             { fg = '#FFFFFF', bg = '#5C0F1D', fmt = 'bold' })
-  groups('SnacksPickerDirectory',         { fg = M.muted })
+  groups('SnacksPickerDirectory',         { fg = '#70D7FF', fmt = 'bold' })
   groups('SnacksPickerFile',              { fg = '#FFFFFF' })
-  groups('SnacksPickerDir',               { fg = '#C4A0A6' })
+  groups('SnacksPickerDir',               { fg = '#8FB9D0' })
   groups('SnacksPickerPathIgnored',       { fg = '#8A6A72' })
   groups('SnacksPickerPathHidden',        { fg = '#8A6A72' })
   groups('SnacksPickerTree',              { fg = M.edge })
@@ -184,7 +188,7 @@ function M.highlights(accessible)
   groups('SnacksPickerSelected',          { bg = '#4A101A', fg = '#FFFFFF', fmt = 'bold' })
   groups('SnacksPickerList',              { bg = M.panel, fg = '#FFFFFF' })
   groups('SnacksPickerInput',             { bg = M.panel, fg = '#FFFFFF' })
-  groups('SnacksExplorerDir',             { fg = '#FF4D6D', fmt = 'bold' })
+  groups('SnacksExplorerDir',             { fg = '#70D7FF', fmt = 'bold' })
   groups('SnacksExplorerFile',            { fg = '#FFFFFF' })
 
   groups('NoiceFormatProgressDone', { bg = M.selected, fg = M.text })
@@ -220,7 +224,7 @@ function M.highlights(accessible)
   groups('MiniIconsGrey', { fg = '#A9B9D6' })
   groups('MiniIconsOrange', { fg = '#FF9E64' })
   groups('MiniIconsPurple', { fg = '#C7A6FF' })
-  groups('MiniIconsRed', { fg = '#FF2E4C' })
+  groups('MiniIconsRed', { fg = '#FF8FA3' })
   groups('MiniIconsYellow', { fg = '#FFD166' })
 
   -- Lazy plugin manager panel
@@ -252,6 +256,9 @@ function M.highlights(accessible)
   groups('BlackMuted', { fg = M.muted })
   groups('BlackKey', { bg = M.selected, fg = '#FFFFFF', fmt = 'bold' })
   groups('BlackDashboardKey', { fg = M.teal, fmt = 'bold' })
+  groups('BlackDashboardHeading', { fg = accessible and '#D7E3FF' or '#A9B9D6', fmt = 'bold' })
+  groups('BlackDashboardMeta', { fg = M.muted })
+  groups('BlackDashboardPath', { fg = M.text })
   groups('BlackRule', { fg = '#8B0018' })
   groups('CursorLine', { bg = '#111218' })
   groups('CursorLineNr', { fg = '#FF2E4C', fmt = 'bold' })

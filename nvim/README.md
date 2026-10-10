@@ -10,28 +10,32 @@ toggles format-on-save.
 ## A complete workspace refresh
 
 ![New project dashboard](assets/redesign-dashboard.png)
+![Black Deck command guide](assets/redesign-deck.png)
 ![New editor hierarchy](assets/redesign-editor.png)
+![Explorer with readable folder colors](assets/redesign-explorer.png)
 ![Project files with live preview](assets/redesign-picker.png)
 ![Actual Python breakpoint and variables](assets/redesign-debugger.png)
 
 The new design uses a black editor canvas, charcoal tool surfaces, restrained
 crimson focus accents, readable secondary text and semantic colors for code.
-The project home shows project state, one-key actions, editing shortcuts and
-debugger controls. The branch is fetched
+Folders use clear cyan icons; functions use blue, strings mint, and keywords
+lavender. Built-in functions share the function palette. The project home shows
+project state, one-key actions, recent project files and workflow shortcuts. The branch is fetched
 asynchronously; `tracked clean` deliberately excludes untracked files.
 
 Native titles show the path and modified state above each editor split. The
 statusline gives mode, cached project/branch, diagnostics, search count,
 debug/recording state and position in a clear hierarchy. Narrow terminals keep
-only the essential state. Buffer tabs use one selection marker and no duplicated
+only the essential state. Buffer tabs use compact numbered basenames, one selection marker and no duplicated
 diagnostic badges. Borders and guides are quiet; active split focus is visible.
 The file path lives in the window title instead of appearing a third time below
 the editor. Station startup alerts ignore small home caches and report quota
 pressure only when a monitored cache reaches 100 MiB.
 
 Everyday files, grep, buffers, diagnostics and symbols now use **Snacks Picker**:
-side-by-side live preview on wide screens, stacked preview on smaller ones,
-Ctrl-P/Ctrl-N navigation, Escape to close and `?` for actions. Mini Pick remains
+side-by-side live preview on wide screens with more room for results, stacked
+preview on smaller ones, Ctrl-P/Ctrl-N navigation, Tab to select, Alt-P to toggle
+preview, Escape to close and `?` for actions. Mini Pick remains
 for specialized offline documentation, Make targets and code-action previews;
 the now-unused Mini Extra plugin and unreachable navigation fallback are removed.
 For a minimal search popup, `<leader>fF` opens fast files and `<leader>sG` fast
@@ -40,6 +44,10 @@ grep using the existing lightweight picker. The preview-rich picker measured
 the richer UI trades a little latency for a visible preview.
 
 The old disabled theme spec and duplicate text-object ownership are also removed.
+
+`:UIAccessibility on` (or `<leader>ua`) switches to plain icons, stronger borders
+and non-italic comments/docstrings. Loaded icon providers and command guides
+refresh when toggled; `off` restores the previous font and highlight preferences.
 
 Workspace mode (`<leader>uw`) opens only panels that fit and have useful content,
 returns focus to your editor, and preserves windows you repurpose while working.
@@ -270,8 +278,9 @@ configurable in `config.markdown`. Reader mode avoids spellchecking and restores
 window options when returning to code. Small files keep normal rendering.
 
 The leader popup is **BLACK DECK**, rendered by the existing Which-Key. Immediate
-commands come first, followed by Code/Docs and project/system groups. `›` marks a
-group. Escape closes; Backspace returns from a nested group. `:BlackDeck` enables
+commands come first, followed by Files, Buffers, Tasks and Debug; each group has
+a distinct icon with a live ASCII fallback. Escape closes; Backspace returns from
+a nested group. `:BlackDeck` enables
 Which-Key's supported repeating mode. Existing keypaths remain available.
 
 Documentation keys:

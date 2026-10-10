@@ -12,6 +12,15 @@ return {
       local function info() return require('config.workspace_info').get() end
       -- Function components accept statusline markup; project/tool labels are plain text.
       local function text(value) return (value or ''):gsub('[%c]', '?'):gsub('%%', '%%%%') end
+      local function compact(value, limit)
+        if vim.fn.strdisplaywidth(value) <= limit then return value end
+        local marker = ui.accessible and '.' or '…'
+        for length = vim.fn.strchars(value) - 1, 0, -1 do
+          local head = vim.fn.strcharpart(value, 0, length)
+          if vim.fn.strdisplaywidth(head .. marker) <= limit then return head .. marker end
+        end
+        return marker
+      end
       return {
         options = { globalstatus = true, component_separators = '', section_separators = '',
           disabled_filetypes = { statusline = { 'snacks_dashboard' } },
@@ -20,9 +29,13 @@ return {
             replace = mode('#FFB86B'), command = mode('#E9C46A'), inactive = mode(s.muted) } },
         sections = {
           lualine_a = { { 'mode', fmt = function(value) return vim.o.columns < 90 and value:sub(1, 1) or value end } },
-          lualine_b = { { function() return text(info().name) end, cond = wide(100) },
+          lualine_b = { { function()
+              local limit = vim.o.columns < 120 and 14 or vim.o.columns < 140 and 24 or 1000
+              return text(compact(info().name, limit))
+            end,
+              cond = wide(78) },
             { function() return text(info().branch) .. (info().dirty and (' ' .. ui.icon('modified')) or '') end,
-              icon = ui.icon('branch'), cond = function() return vim.o.columns >= 100 and info().branch ~= '' end } },
+              icon = ui.icon('branch'), cond = function() return vim.o.columns >= 110 and info().branch ~= '' end } },
           lualine_c = { { require('config.symbol_context').component, cond = wide(130), color = { fg = s.lilac } },
             { 'diagnostics', sources = { 'nvim_diagnostic' }, sections = { 'error', 'warn' },
               symbols = { error = 'E ', warn = 'W ' } } },
@@ -54,9 +67,10 @@ return {
       end
       h.indicator_selected = { fg = s.accent, bg = s.selected }
       h.modified_selected = { fg = s.teal, bg = s.selected }
-      return { options = { mode = 'buffers', separator_style = ui.accessible and { '', '' } or 'thin', always_show_bufferline = false,
+      return { options = { mode = 'buffers', numbers = 'ordinal', show_duplicate_prefix = false,
+        separator_style = ui.accessible and { '', '' } or 'thin', always_show_bufferline = false,
         show_close_icon = false, show_buffer_close_icons = false, indicator = { style = 'icon', icon = ui.accessible and '|' or '▎' },
-        modified_icon = ui.icon('modified'), show_buffer_icons = not ui.accessible, max_name_length = 24, tab_size = 20, diagnostics = false,
+        modified_icon = ui.icon('modified'), show_buffer_icons = not ui.accessible, max_name_length = 20, tab_size = 18, diagnostics = false,
         offsets = { { filetype = 'snacks_layout_box', text = 'EXPLORER', text_align = 'left', separator = true },
           { filetype = 'aerial', text = 'SYMBOLS', text_align = 'left', separator = true },
           { filetype = 'dapui_scopes', text = 'DEBUG', text_align = 'left', separator = true } },

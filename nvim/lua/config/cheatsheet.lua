@@ -1,4 +1,5 @@
 local M = {}
+local ui = require('config.ui')
 
 M.win_id = nil
 M.buf_nr = nil
@@ -48,7 +49,7 @@ local content_lines = {
   "  `<leader>bo` Close other buffers (prompts for unsaved changes)",
   "  `j` / `k` Move by displayed lines; add a count for logical lines",
   "",
-  "## 📁 File Explorer (`Snacks.explorer`)",
+  "## File Explorer (`Snacks.explorer`)",
   "  `<leader>e`   Toggle file tree             │ `<leader>fe`  Focus file tree",
   "  Inside: `<CR>` open · `a` create · `d` trash · `r` rename · `c` copy · `m` move · `.` hidden · `q` close",
   "",
@@ -58,7 +59,7 @@ local content_lines = {
   "  `<C-space>` Completion  │ `<C-d>` Toggle docs  │ `<C-b>` / `<C-f>` Open / scroll docs",
   "  `<C-e>` Dismiss completion  │ `<C-k>` Signature & parameters",
   "",
-  "## 󰞌 Floating Terminal",
+  "## Floating Terminal",
   "  `<C-t>` / `<C-/>`  Focus or hide project terminal (Normal, Insert, Terminal mode)",
   "  `<Esc><Esc>`       Exit terminal mode back to Normal mode",
   "",
@@ -66,17 +67,17 @@ local content_lines = {
   "  `gsa` Add surrounding │ `gsd` Delete │ `gsr` Replace │ `gsf` / `gsF` Find",
   "  `gsh` Highlight │ `gsn` Search range │ `s` Flash jump (immediate)",
   "",
-  "## 󰅩 Treesitter Text Objects",
+  "## Treesitter Text Objects",
   "  `daf` / `dif`  Delete func (outer/inner)   │ `caf` / `cif` Change func (outer/inner)",
   "  `dac` / `cic`  Class (outer/inner)         │ `daa` / `cia` Param (outer/inner)",
   "  `]m`  / `[m`   Jump next / prev func start",
   "",
-  "## 󰍉 Fuzzy Finding & Search",
+  "## Fuzzy Finding & Search",
   "  `<leader><space>` or `<leader>ff` Find files│ `<leader>/`   Grep project",
-  "  `<Up>` / `<Down>` or `<C-p>` / `<C-n>` Move results │ `<Tab>` Preview │ `<CR>` Open",
+  "  `<C-p>` / `<C-n>` Move │ `<Tab>` Select │ `<A-p>` Preview │ `<CR>` Open",
   "  `<leader>fb`   Buffers                     │ `<leader>fr`  Recent files  │ `<leader>sk` Keymaps",
   "",
-  "## 󰒋 Code Navigation & LSP",
+  "## Code Navigation & LSP",
   "  `gd`  Definition   │ `gr`  References      │ `K`           Smart Docs",
   "  `gK`  Deep offline reference docs        │ `:DocsBrowse` Reference search",
   "  `<leader>ca`  Code action (quick fixes)    │ `<leader>cr`  Rename symbol (IncRename)",
@@ -85,10 +86,10 @@ local content_lines = {
   "  Python: `<leader>cI` Imports │ `<leader>cF` Ruff fixes │ `<leader>cp` LSP/environment",
   "  `:PythonInterpreter /path/to/python` Set project interpreter │ `auto` Restore discovery",
   "",
-  "## 󰏫 Git Integration",
+  "## Git Integration",
   "  `<leader>gg`  Lazygit floating UI          │ `<leader>gL`  Commit history",
   "",
-  "## 󰒓 1337 Station Mode",
+  "## 1337 Station Mode",
   "  `<leader>13`  Open Station Health & Repair │ `:StationFix` Safe repair /goinfre & cache",
   "  `:StationVenv` Rebuild project venv │ `:StationVenvMigrate` Move existing venv with backup",
   "",
@@ -155,7 +156,8 @@ function M.show()
   vim.bo[buf].buftype = "nofile"
   vim.bo[buf].bufhidden = "wipe"
   vim.bo[buf].swapfile = false
-  vim.bo[buf].filetype = "markdown"
+  -- This guide owns its highlights; Markdown editing plugins are unnecessary.
+  vim.bo[buf].filetype = "configguide"
 
   vim.api.nvim_buf_set_lines(buf, 0, -1, false, content_lines)
   vim.bo[buf].modifiable = false
@@ -176,8 +178,8 @@ function M.show()
     height = height,
     row = row,
     col = col,
-    border = { "╭", "─", "╮", "│", "╯", "─", "╰", "│" },
-    title = " 󰋖 Neovim Feature & Keymap Guide ",
+    border = ui.border,
+    title = " " .. ui.icon('help') .. " Neovim Feature & Keymap Guide ",
     title_pos = "center",
     style = "minimal",
   })
@@ -218,6 +220,19 @@ function M.show()
 
   return win
 end
+
+vim.api.nvim_create_autocmd('User', {
+  pattern = 'BlackUIPresetChanged',
+  callback = function()
+    if M.win_id and vim.api.nvim_win_is_valid(M.win_id) then
+      vim.api.nvim_win_set_config(M.win_id, {
+        border = ui.border,
+        title = ' ' .. ui.icon('help') .. ' Neovim Feature & Keymap Guide ',
+        title_pos = 'center',
+      })
+    end
+  end,
+})
 
 function M.toggle()
   if M.win_id and vim.api.nvim_win_is_valid(M.win_id) then

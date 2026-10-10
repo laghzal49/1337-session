@@ -3,6 +3,37 @@
 -- All Snacks opts consolidated here — no scattered overrides.
 local ui = require('config.ui')
 
+local function refresh_panel_icons()
+  if _G.Snacks and Snacks.config then
+    local picker = Snacks.config.picker
+    if picker then
+      if picker.sources and picker.sources.explorer then
+        picker.sources.explorer.title = ' ' .. ui.icon('folder') .. ' Explorer '
+      end
+      if picker.icons and picker.icons.files then
+        picker.icons.files.dir = vim.g.have_nerd_font == false and 'D ' or ui.icon('folder') .. ' '
+        picker.icons.files.dir_open = vim.g.have_nerd_font == false and 'D/ ' or ui.icon('folder_open') .. ' '
+        picker.icons.files.file = vim.g.have_nerd_font == false and 'F ' or ui.icon('file') .. ' '
+      end
+    end
+    if Snacks.config.terminal and Snacks.config.terminal.win then
+      Snacks.config.terminal.win.title = ' ' .. ui.icon('terminal') .. ' Terminal '
+    end
+  end
+  local noice = package.loaded['noice.config']
+  local hover = noice and noice.options and noice.options.views and noice.options.views.hover
+  if hover and hover.border and hover.border.text then
+    hover.border.text.top = ' ' .. ui.icon('read') .. ' Documentation '
+  end
+  -- Noice can still be waiting for VeryLazy when the preset changes.
+  local lazy_config = package.loaded['lazy.core.config']
+  local spec = lazy_config and lazy_config.plugins and lazy_config.plugins['noice.nvim']
+  local deferred = spec and type(spec.opts) == 'table' and spec.opts.views and spec.opts.views.hover
+  if deferred and deferred.border and deferred.border.text then
+    deferred.border.text.top = ' ' .. ui.icon('read') .. ' Documentation '
+  end
+end
+
 return {
   -- ── Icons (mini.icons — best-in-class icon provider) ─────────────────
   {
@@ -61,6 +92,13 @@ return {
     'folke/snacks.nvim',
     lazy = false,
     priority = 1000,
+    init = function()
+      vim.api.nvim_create_autocmd('User', {
+        group = vim.api.nvim_create_augroup('BlackPanelIcons', { clear = true }),
+        pattern = 'BlackUIPresetChanged',
+        callback = refresh_panel_icons,
+      })
+    end,
     opts = {
       bigfile = { enabled = true, size = 1024 * 1024,
         setup = function(ctx) require('config.performance').guard(ctx.buf) end },
@@ -74,13 +112,34 @@ return {
         enabled = true,
         layout = { preset = function() return vim.o.columns >= 110 and 'default' or 'vertical' end },
         layouts = {
-          default = { layout = { width = 0.88, min_width = 0, height = 0.82 } },
-          vertical = { layout = { width = 0.90, min_width = 0, min_height = 0, height = 0.82 } },
+          default = { layout = {
+            box = 'horizontal', width = 0.90, min_width = 0, height = 0.82,
+            {
+              box = 'vertical', border = true, title = ' {title} {live} {flags} ',
+              footer = ' Enter open · Tab select · Alt-P preview · ? help ',
+              { win = 'input', height = 1, border = 'bottom' },
+              { win = 'list', border = 'none' },
+            },
+            { win = 'preview', title = ' {preview:Preview} ', border = true, width = 0.36 },
+          } },
+          vertical = { layout = {
+            box = 'vertical', border = true, width = 0.92, min_width = 0,
+            height = 0.84, min_height = 0, title = ' {title} {live} {flags} ',
+            footer = ' Enter open · Tab select · Alt-P preview · ? help ',
+            { win = 'input', height = 1, border = 'bottom' },
+            { win = 'list', border = 'none' },
+            { win = 'preview', title = ' {preview:Preview} ', height = 0.36, border = 'top' },
+          } },
         },
+        icons = { files = {
+          dir = vim.g.have_nerd_font == false and 'D ' or ui.icon('folder') .. ' ',
+          dir_open = vim.g.have_nerd_font == false and 'D/ ' or ui.icon('folder_open') .. ' ',
+          file = vim.g.have_nerd_font == false and 'F ' or ui.icon('file') .. ' ',
+        } },
         win = { input = { keys = { ['<Esc>'] = { 'close', mode = { 'n', 'i' } } } } },
         sources = {
           explorer = {
-            title = ' 󰙅 Explorer ',
+            title = ' ' .. ui.icon('folder') .. ' Explorer ',
             layout = {
               preset = 'sidebar',
               preview = false,
@@ -117,7 +176,7 @@ return {
           width = 0.85,
           height = 0.80,
           backdrop = 60,
-          title = ' 󰞌  Terminal ',
+          title = ' ' .. ui.icon('terminal') .. ' Terminal ',
           title_pos = 'center',
           wo = { number = false, relativenumber = false, signcolumn = 'no' },
           keys = { term_normal = false }, -- Existing EscEsc owns terminal-mode exit.
@@ -208,7 +267,7 @@ return {
           view = 'popup',
           border = {
             style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
-            text = { top = ' 󰈙 Documentation ', top_align = 'center' },
+            text = { top = ' ' .. ui.icon('read') .. ' Documentation ', top_align = 'center' },
             padding = { 0, 2 },
           },
           size = { max_width = 80, max_height = 24 },

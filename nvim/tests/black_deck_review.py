@@ -84,6 +84,16 @@ for width,height in [(80,24),(100,30),(140,42)]:
                 assert c['col']+c['width']+border<=width and c['row']+c['height']+border<=height,(stage,c)
     result['screens'][str(width)]={'root_open_ms':samples,'root_median_ms':statistics.median(samples),
                                   'nested_open_ms':nested,'nested_median_ms':statistics.median(nested),'stages':screens}
+lua("require('config.accessibility').set(true); vim.schedule(function() require('which-key').show({keys=vim.g.mapleader,mode='n',delay=0}) end)")
+wait("for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='wk' then return true end end")
+plain=' '.join(line for window in panel() for line in window['lines'])
+assert '[F]' in plain and '[DBG]' in plain and '󰈙' not in plain, ('Black Deck group icons did not switch to ASCII', plain)
+rpc('nvim_input',['<Esc>']);wait("for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='wk' then return false end end; return true")
+lua("require('config.accessibility').set(false); vim.schedule(function() require('which-key').show({keys=vim.g.mapleader,mode='n',delay=0}) end)")
+wait("for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='wk' then return true end end")
+glyphs=' '.join(line for window in panel() for line in window['lines'])
+assert '󰈙' in glyphs and '󰃤' in glyphs and '[DBG]' not in glyphs, 'Black Deck group icons did not restore'
+rpc('nvim_input',['<Esc>']);wait("for _,w in ipairs(vim.api.nvim_list_wins()) do if vim.bo[vim.api.nvim_win_get_buf(w)].filetype=='wk' then return false end end; return true")
 result['memory_after']=memory();result['messages']=lua("return vim.api.nvim_exec2('messages',{output=true}).output")
 args.output.write_text(json.dumps(result,indent=2)+'\n');print(json.dumps({k:v for k,v in result.items() if k not in ('leader_mappings','screens')},indent=2))
 p.terminate();p.wait(timeout=5)

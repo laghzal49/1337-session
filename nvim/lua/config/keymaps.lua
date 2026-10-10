@@ -183,7 +183,7 @@ map(']d', function() diagnostic_jump(1) end, 'Next diagnostic')
 map('<leader>cd', function()
   vim.diagnostic.open_float({
     border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
-    title = ' 󰅚 Diagnostics ',
+    title = ' ' .. require('config.ui').icon('diagnostics') .. ' Diagnostics ',
     title_pos = 'center',
     header = '',
     prefix = ' ',

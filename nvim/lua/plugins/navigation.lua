@@ -37,7 +37,7 @@ return {
         mark_all = '<C-a>',
       },
       window = {
-        prompt_prefix = ' 󰍉 ',
+        prompt_prefix = ' / ',
         prompt_caret = '▏',
         config = function()
           local width = math.max(1, math.min(110, vim.o.columns - 4, math.floor(vim.o.columns * 0.82)))
