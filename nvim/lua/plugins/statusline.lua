@@ -23,8 +23,7 @@ return {
           lualine_b = { { function() return text(info().name) end, cond = wide(100) },
             { function() return text(info().branch) .. (info().dirty and (' ' .. ui.icon('modified')) or '') end,
               icon = ui.icon('branch'), cond = function() return vim.o.columns >= 100 and info().branch ~= '' end } },
-          lualine_c = { { 'filename', path = 1, symbols = { modified = ' ' .. ui.icon('modified'), readonly = ' [RO]', unnamed = 'Untitled' } },
-            { require('config.symbol_context').component, cond = wide(130), color = { fg = s.lilac } },
+          lualine_c = { { require('config.symbol_context').component, cond = wide(130), color = { fg = s.lilac } },
             { 'diagnostics', sources = { 'nvim_diagnostic' }, sections = { 'error', 'warn' },
               symbols = { error = 'E ', warn = 'W ' } } },
           lualine_x = {

@@ -418,22 +418,34 @@ function M.check(callback)
       { path = home .. '/.cargo/registry', name = '~/.cargo' },
       { path = home .. '/.npm', name = '~/.npm' },
     }
-    local nfs_found = {}
+    local paths, names = {}, {}
     for _, c in ipairs(culprits) do
       local lstat = vim.uv.fs_lstat(c.path)
       if lstat and lstat.type == 'directory' then
-        nfs_found[#nfs_found + 1] = c.name
+        paths[#paths + 1], names[c.path] = c.path, c.name
       end
     end
-    if #nfs_found > 0 and cwd:find('^' .. vim.pesc(home)) then
-      items[#items + 1] = {
-        id = 'nfs_caches',
-        label = 'NFS Caches',
-        status = 'warn',
-        details = table.concat(nfs_found, ', ') .. ' on NFS quota',
-      }
-    end
-    done()
+    if #paths == 0 or not cwd:find('^' .. vim.pesc(home)) or vim.fn.executable('du') == 0 then done(); return end
+    local command = { 'du', '-sk' }
+    vim.list_extend(command, paths)
+    local started = pcall(vim.system, command, { text = true, timeout = 5000 }, vim.schedule_wrap(function(result)
+      local large = {}
+      if result.code == 0 then
+        for line in (result.stdout or ''):gmatch('[^\n]+') do
+          local kb, path = line:match('^%s*(%d+)%s+(.+)$')
+          kb = tonumber(kb)
+          if kb and kb >= 100 * 1024 and names[path] then
+            large[#large + 1] = ('%s (%.0f MiB)'):format(names[path], kb / 1024)
+          end
+        end
+      end
+      if #large > 0 then
+        items[#items + 1] = { id = 'nfs_caches', label = 'NFS Caches', status = 'warn',
+          details = table.concat(large, ', ') .. ' on NFS quota' }
+      end
+      done()
+    end))
+    if not started then done() end
   end
 
   -- 8. Project Location (NFS vs Local SSD)

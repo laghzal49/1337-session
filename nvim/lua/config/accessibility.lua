@@ -65,6 +65,8 @@ function M.set(enabled)
     opts.style = vim.g.have_nerd_font == false and 'ascii' or 'glyph'
     icons.setup(opts)
   end
+  local debugging = package.loaded['config.debugging']
+  if debugging and debugging.refresh_signs then debugging.refresh_signs() end
   local specs = require('plugins.statusline')
   for index, module in ipairs({'lualine','bufferline'}) do
     if package.loaded[module] then package.loaded[module].setup(specs[index].opts()) end

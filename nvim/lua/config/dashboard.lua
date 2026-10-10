@@ -7,9 +7,11 @@ local function fit(value, width)
   return vim.fn.strcharpart(value, 0, chars) .. '…'
 end
 local function action(icon, label, key, callback, pane)
+  local icon_width = vim.g.have_nerd_font == false and 8 or 4
   return { pane = pane or 1, key = key, action = callback,
-    text = { { ui.icon(icon) .. '  ', hl = 'SnacksDashboardIcon', width = vim.g.have_nerd_font == false and 8 or 4 },
-      { label, hl = 'SnacksDashboardDesc', width = 25 }, { ' ' .. key .. ' ', hl = 'BlackKey' } } }
+    text = { { key .. '  ', hl = 'BlackDashboardKey', width = 3 },
+      { ui.icon(icon) .. '  ', hl = 'SnacksDashboardIcon', width = icon_width },
+      { label, hl = 'SnacksDashboardDesc', width = 25 } } }
 end
 return {
   width = 42, pane_gap = 6,
@@ -31,9 +33,9 @@ return {
       branch_text = fit(vim.fn.fnamemodify(info.root, ':~'), width)
     end
     local sections = {
-      { text = { { tall and not ui.accessible and 'P E R F E C T\nB L A C K   /   I I' or fit('PERFECT BLACK / II', width), hl = 'SnacksDashboardHeader' } }, padding = 1 },
-      { text = fit('CODE  /  BUILD  /  DEBUG', width), hl = 'BlackMuted', padding = 1 },
-      { text = { { 'WORKSPACE  ', hl = 'BlackLabel' }, { fit(info.name, math.max(1, width - 11)), hl = 'BlackBrand' } }, padding = 1 },
+      { text = { { fit('1337  /  PERFECT BLACK', width), hl = 'SnacksDashboardHeader' } }, padding = tall and 2 or 1 },
+      { text = fit('YOUR WORKSPACE  ·  READY TO BUILD', width), hl = 'BlackMuted', padding = 1 },
+      { text = { { 'PROJECT  ', hl = 'BlackLabel' }, { fit(info.name, math.max(1, width - 9)), hl = 'BlackBrand' } }, padding = 1 },
       { text = branch_text, hl = 'BlackMuted', padding = 1 },
       action('file', 'Find files', 'f', function() require('config.pick').open('files') end),
       action('search', 'Search project', 'g', function() require('config.pick').open('grep') end),
@@ -47,19 +49,31 @@ return {
     }
     for _, section in ipairs(sections) do
       if section.action then
-        section.text[2][1] = fit(section.text[2][1], math.max(1, width - section.text[1].width - 3))
-        section.text[2].width = math.min(25, math.max(1, width - section.text[1].width - 3))
+        local room = math.max(1, width - section.text[1].width - section.text[2].width)
+        section.text[3][1] = fit(section.text[3][1], room)
+        section.text[3].width = math.min(25, room)
       end
       if size.height < 24 then section.padding = nil end
     end
     if wide and tall then
-      sections[#sections + 1] = { pane = 2, text = 'PICK UP WHERE YOU LEFT OFF', hl = 'BlackLabel', padding = 1 }
-      sections[#sections + 1] = { pane = 2, section = 'recent_files', cwd = info.root, limit = 6, padding = 2 }
-      sections[#sections + 1] = { pane = 2, text = 'EDITING', hl = 'BlackLabel', padding = 1 }
-      sections[#sections + 1] = { pane = 2, text = 'Space  commands    Ctrl-S  save\nSpace e  explorer  Ctrl-T  terminal\nK  documentation  gK  deep reference', hl = 'BlackMuted', padding = 2 }
-      sections[#sections + 1] = { pane = 2, text = 'DEBUGGING', hl = 'BlackLabel', padding = 1 }
-      sections[#sections + 1] = { pane = 2, text = 'F5  start / continue   F10  step over\nSpace Db  breakpoint   Space Du  panels', hl = 'BlackMuted', padding = 2 }
-      sections[#sections + 1] = { pane = 2, section = 'startup', enabled = not ui.accessible }
+      local groups = {
+        { 'MOVE THROUGH YOUR PROJECT', { { 'Space e', 'Explorer' }, { 'Space f', 'Files' },
+          { 'Space /', 'Search' }, { 'Space r', 'Project tasks' } } },
+        { 'WRITE AND INSPECT', { { 'Ctrl-S', 'Save' }, { 'Ctrl-T', 'Terminal' },
+          { 'K', 'Documentation' }, { 'gK', 'Deep reference' } } },
+        { 'DEBUG', { { 'F5', 'Start / continue' }, { 'F10', 'Step over' },
+          { 'Space Db', 'Breakpoint' }, { 'Space Dg', 'Generate profile' } } },
+      }
+      for _, group in ipairs(groups) do
+        sections[#sections + 1] = { pane = 2, text = group[1], hl = 'BlackLabel', padding = 1 }
+        for _, entry in ipairs(group[2]) do
+          sections[#sections + 1] = { pane = 2, text = {
+            { entry[1], hl = 'BlackDashboardKey', width = 11 },
+            { entry[2], hl = 'BlackMuted' },
+          } }
+        end
+        sections[#sections + 1] = { pane = 2, text = ' ' }
+      end
     end
     return sections
   end,

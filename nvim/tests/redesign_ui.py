@@ -107,10 +107,13 @@ for width,height in [(140,42),(80,24)]:
  state=call('nvim_exec_lua',["local p=Snacks.picker.get()[1]; return {count=#p:items(), width=vim.api.nvim_win_get_width(p.list.win.win)}",[]])
  assert state['count']>0 and state['width']<=width,state
  for win in call('nvim_list_wins',[]):
-  config=call('nvim_win_get_config',[win])
-  if config.get('relative'):
-   row,col=call('nvim_win_get_position',[win]);w=call('nvim_win_get_width',[win]);h=call('nvim_win_get_height',[win])
-   assert row>=0 and col>=0 and row+h<=height and col+w<=width,(row,col,w,h,width,height)
+  try:
+   config=call('nvim_win_get_config',[win])
+   if config.get('relative'):
+    row,col=call('nvim_win_get_position',[win]);w=call('nvim_win_get_width',[win]);h=call('nvim_win_get_height',[win])
+    assert row>=0 and col>=0 and row+h<=height and col+w<=width,(row,col,w,h,width,height)
+  except RuntimeError as err:
+   if 'Invalid window id' not in str(err): raise
  if width==140: save_grid(grid,attrs,default_fg,default_bg,capture_dir/(capture_prefix+'-picker.png'))
  call('nvim_input',['<Esc>']);pump(.3)
  assert call('nvim_exec_lua',["return #Snacks.picker.get()",[]])==0

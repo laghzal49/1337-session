@@ -16,15 +16,18 @@ toggles format-on-save.
 
 The new design uses a black editor canvas, charcoal tool surfaces, restrained
 crimson focus accents, readable secondary text and semantic colors for code.
-The project home replaces the giant logo with a useful launch surface, recent
-project files, editing shortcuts and debugger controls. The branch is fetched
+The project home shows project state, one-key actions, editing shortcuts and
+debugger controls. The branch is fetched
 asynchronously; `tracked clean` deliberately excludes untracked files.
 
 Native titles show the path and modified state above each editor split. The
-statusline gives mode, cached project/branch, filename, diagnostics, search count,
+statusline gives mode, cached project/branch, diagnostics, search count,
 debug/recording state and position in a clear hierarchy. Narrow terminals keep
 only the essential state. Buffer tabs use one selection marker and no duplicated
 diagnostic badges. Borders and guides are quiet; active split focus is visible.
+The file path lives in the window title instead of appearing a third time below
+the editor. Station startup alerts ignore small home caches and report quota
+pressure only when a monitored cache reaches 100 MiB.
 
 Everyday files, grep, buffers, diagnostics and symbols now use **Snacks Picker**:
 side-by-side live preview on wide screens, stacked preview on smaller ones,

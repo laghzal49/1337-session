@@ -1,5 +1,12 @@
 local M = {}
 
+function M.refresh_signs()
+  local icon = require('config.ui').icon
+  vim.fn.sign_define('DapBreakpoint', { text = icon('breakpoint'), texthl = 'DiagnosticError' })
+  vim.fn.sign_define('DapBreakpointCondition', { text = icon('breakpoint_condition'), texthl = 'DiagnosticWarn' })
+  vim.fn.sign_define('DapStopped', { text = icon('debug_stopped'), texthl = 'DiagnosticOk', linehl = 'CursorLine' })
+end
+
 function M.python()
   local root = require('config.project').root()
   for _, path in ipairs({
@@ -69,10 +76,7 @@ function M.setup()
       end)
     end
   end
-  local icon = require('config.ui').icon
-  vim.fn.sign_define('DapBreakpoint', { text = icon('breakpoint'), texthl = 'DiagnosticError' })
-  vim.fn.sign_define('DapBreakpointCondition', { text = icon('breakpoint_condition'), texthl = 'DiagnosticWarn' })
-  vim.fn.sign_define('DapStopped', { text = icon('debug_stopped'), texthl = 'DiagnosticOk', linehl = 'CursorLine' })
+  M.refresh_signs()
 
   dap.adapters.python = function(callback, config)
     if config.request == 'attach' and config.connect then
