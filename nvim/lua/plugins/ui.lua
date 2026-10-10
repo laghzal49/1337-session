@@ -71,6 +71,12 @@ return {
       },
       picker = {
         enabled = true,
+        layout = { preset = function() return vim.o.columns >= 110 and 'default' or 'vertical' end },
+        layouts = {
+          default = { layout = { width = 0.88, min_width = 0, height = 0.82 } },
+          vertical = { layout = { width = 0.90, min_width = 0, min_height = 0, height = 0.82 } },
+        },
+        win = { input = { keys = { ['<Esc>'] = { 'close', mode = { 'n', 'i' } } } } },
         sources = {
           explorer = {
             title = ' 󰙅 Explorer ',
@@ -95,7 +101,7 @@ return {
         animate = { enabled = false },
         indent = { char = '▏', only_current = false, hl = 'SnacksIndent' },
         scope = { enabled = true, only_current = true, char = '▎', hl = 'SnacksIndentScope' },
-        chunk = { enabled = true, only_current = true, hl = 'SnacksIndentScope',
+        chunk = { enabled = false, only_current = true, hl = 'SnacksIndentScope',
           char = { corner_top = '╭', corner_bottom = '╰', horizontal = '─', vertical = '│', arrow = '>' } },
       },
       zen = {
@@ -180,7 +186,7 @@ return {
       views = {
         cmdline_popup = {
           win_options = { winblend = 0, winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder,FloatTitle:BlackDocsTitle' },
-          position = { row = '38%', col = '50%' },
+          position = { row = '30%', col = '50%' },
           size = { min_width = 50, width = 'auto', max_width = 80, height = 'auto' },
           border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 0, 2 } },
         },

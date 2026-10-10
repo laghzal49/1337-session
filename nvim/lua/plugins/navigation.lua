@@ -1,9 +1,10 @@
 return {
-  { 'nvim-mini/mini.extra', lazy = true, opts = {} },
-  {
-    'nvim-mini/mini.pick', cmd = 'Pick', dependencies = { 'nvim-mini/mini.extra' },
+  { 'folke/snacks.nvim',
     keys = (function()
-      local result = {}
+      local result = {
+        { '<leader>fF', function() require('config.pick').fast('files') end, desc = 'Fast files (compact)' },
+        { '<leader>sG', function() require('config.pick').fast('grep') end, desc = 'Fast grep (compact)' },
+      }
       local maps = {
         { '<leader><space>', 'files', 'Files' }, { '<leader>ff', 'files', 'Files' },
         { '<leader>/', 'grep', 'Project Search' }, { '<leader>sg', 'grep', 'Project Search' },
@@ -23,6 +24,9 @@ return {
       result[#result + 1] = { '<leader>fc', function() require('config.pick').open('files', { cwd = vim.fn.stdpath('config') }) end, desc = 'Find config file' }
       return result
     end)(),
+  },
+  {
+    'nvim-mini/mini.pick', cmd = 'Pick',
     opts = {
       mappings = {
         stop = '<Esc>',
@@ -79,6 +83,7 @@ return {
   },
   {
     'stevearc/aerial.nvim',
+    branch = 'nvim-0.11', -- Newer master requires Neovim 0.12.
     cmd = { 'AerialToggle', 'AerialOpen', 'AerialNavToggle' },
     keys = {
       { '<leader>cs', '<cmd>AerialToggle float<cr>', desc = 'Symbols' },

@@ -1,7 +1,7 @@
 {
   "aerial.nvim": {
-    "branch": "master",
-    "commit": "28fe6e822ae344544c379d60fcb13c9519a1f08a"
+    "branch": "nvim-0.11",
+    "commit": "c5e56945d9703f7079ccff484b35d0e4c231dd6c"
   },
   "blink.cmp": {
     "branch": "main",
@@ -67,10 +67,6 @@
     "branch": "main",
     "commit": "203eb35f386b4fc9abcff1518c84d5537d41c80a"
   },
-  "mini.extra": {
-    "branch": "main",
-    "commit": "9c6affac2b176142f48b185bd7abc5db7ec20ac8"
-  },
   "mini.hipatterns": {
     "branch": "main",
     "commit": "7c840c71d6a91f53d734cab2b6fe2290d285ec3b"
@@ -125,7 +121,7 @@
   },
   "nvim-treesitter": {
     "branch": "main",
-    "commit": "728e031f6b11d03d1f0708b7dc4fb0f1d9c8a137"
+    "commit": "4d9916e477e5d4e3b245845dfd285edf429f3252"
   },
   "nvim-treesitter-context": {
     "branch": "master",

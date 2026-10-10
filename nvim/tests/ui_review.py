@@ -104,25 +104,26 @@ call('nvim_command',['set nomodified'])
 for width,height in [(80,24),(100,30),(140,42)]:
  call('nvim_ui_try_resize',[width,height]);pump(.2)
  for source in ['files','grep']:
-  call('nvim_exec_lua',["local source=...; vim.schedule(function() require('config.pick').open(source) end)",[source]]);pump(.7)
+  call('nvim_exec_lua',["local source=...; vim.schedule(function() _G.review_picker=require('config.pick').open(source) end)",[source]]);pump(.7)
   call('nvim_input',['notifications' if source=='files' else 'vim.notify']);pump(.7)
-  state=call('nvim_exec_lua',["local p=require('mini.pick'); local s=p.get_picker_state(); return {items=#p.get_picker_items(),width=vim.api.nvim_win_get_width(s.windows.main),height=vim.api.nvim_win_get_height(s.windows.main)}",[]])
+  state=call('nvim_exec_lua',["local p=review_picker; return {items=p.list:count(),width=p.list.win:size().width,height=p.list.win:size().height}",[]])
   assert state['items']>0 and state['width']<=width and state['height']<=height,state
   if state['items']>1:
-   first=call('nvim_exec_lua',["return require('mini.pick').get_picker_matches().current_ind",[]])
+   first=call('nvim_exec_lua',["return review_picker.list.cursor",[]])
    call('nvim_input',['<Down>']);pump(.2)
-   assert call('nvim_exec_lua',["return require('mini.pick').get_picker_matches().current_ind",[]])!=first
+   assert call('nvim_exec_lua',["return review_picker.list.cursor",[]])!=first
    call('nvim_input',['<C-p>']);pump(.2)
-   assert call('nvim_exec_lua',["return require('mini.pick').get_picker_matches().current_ind",[]])==first
+   assert call('nvim_exec_lua',["return review_picker.list.cursor",[]])==first
    call('nvim_input',['<C-n>']);pump(.2)
    call('nvim_input',['<Up>']);pump(.2)
-   assert call('nvim_exec_lua',["return require('mini.pick').get_picker_matches().current_ind",[]])==first
-  call('nvim_input',['<Tab>']);pump(.3)
-  assert call('nvim_exec_lua',["local s=require('mini.pick').get_picker_state(); return s.buffers.preview~=nil and vim.api.nvim_win_get_buf(s.windows.main)==s.buffers.preview",[]])
+   assert call('nvim_exec_lua',["return review_picker.list.cursor",[]])==first
+  call('nvim_exec_lua',["review_picker:show_preview()",[]]);pump(.3)
+  assert call('nvim_exec_lua',["return review_picker.preview.win:valid()",[]])
   call('nvim_input',['<Tab>']);pump(.2)
+  assert call('nvim_exec_lua',["return #review_picker:selected()>0",[]])
   call('nvim_input',['<Esc>']);pump(.3)
-  assert call('nvim_exec_lua',["return require('mini.pick').get_picker_state()==nil",[]])
- print('MINI PICK',width,height,'files, live grep, previews, close PASS',flush=True)
+  assert call('nvim_exec_lua',["return review_picker.closed",[]])
+ print('SNACKS PICKER',width,height,'files, live grep, previews, close PASS',flush=True)
 # Synthetic large-buffer cost; this excludes external LSP work and NFS latency.
 stress=call('nvim_exec_lua',["local t=vim.uv.hrtime(); local lines={}; for i=1,20000 do lines[i]='local value_'..i..' = '..i end; vim.api.nvim_buf_set_lines(0,0,-1,false,lines); local a,b={},{}; for i=1,2000 do a[i]={lnum=i-1,col=0,message='warning',severity=2}; b[i]={lnum=i-1,col=0,message='error',severity=1} end; vim.diagnostic.set(review_a,0,a); vim.diagnostic.set(review_b,0,b); vim.api.nvim_buf_set_text(0,10000,0,10000,0,{'-- edited '}); vim.cmd.redraw(); return {ms=(vim.uv.hrtime()-t)/1e6,lines=vim.api.nvim_buf_line_count(0)}",[]])
 assert stress['lines']==20000 and len(signs())==2000,stress
@@ -300,13 +301,13 @@ for width,height in [(140,42),(80,24),(100,30),(140,42)]:
 print('SNACKS EXPLORER',width,height,'bounds and geometry PASS',flush=True)
 call('nvim_exec_lua',["vim.fn.delete(layoutdir,'rf')",[]])
 print('PLUGIN INTEGRATION',call('nvim_exec_lua',["return dofile('nvim/tests/plugins_review.lua')",[]]),flush=True)
-call('nvim_exec_lua',["vim.schedule(function() require('config.pick').open('files',{cwd=plugin_review.dir}) end)",[]]);pump(.7)
-call('nvim_exec_lua',["assert(vim.wait(3000, function() return require('mini.pick').get_picker_state() ~= nil end), 'picker did not open')",[]])
+call('nvim_exec_lua',["vim.schedule(function() _G.review_picker=require('config.pick').open('files',{cwd=plugin_review.dir}) end)",[]]);pump(.7)
+call('nvim_exec_lua',["assert(vim.wait(3000, function() return review_picker and not review_picker.closed and review_picker.list:count()>0 end), 'picker did not open')",[]])
 call('nvim_input',['renamed']);pump(.5)
 call('nvim_input',['<CR>']);pump(.5)
 call('nvim_exec_lua',["assert(vim.wait(3000, function() return vim.fn.expand('%:t') == 'renamed.txt' end), 'did not switch to renamed.txt: ' .. vim.fn.expand('%:t'))",[]])
 call('nvim_exec_lua',["vim.api.nvim_set_current_buf(plugin_review.buf); vim.api.nvim_win_set_cursor(0,{3,5})",[]])
-print('FILE CREATION + MINI PICK selection PASS',flush=True)
+print('FILE CREATION + SNACKS PICKER selection PASS',flush=True)
 
 for width,height in [(80,24),(140,42)]:
  call('nvim_ui_try_resize',[width,height]);pump(.3)

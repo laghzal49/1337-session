@@ -198,3 +198,29 @@ map('<leader>ul', function() vim.wo.number = not vim.wo.number end, 'Toggle line
 map('<leader>ur', function() vim.wo.relativenumber = not vim.wo.relativenumber end, 'Toggle relative numbers')
 map('<leader>uv', function() vim.wo.wrap = not vim.wo.wrap end, 'Toggle line wrap')
 map('<leader>bo', function() Snacks.bufdelete.other() end, 'Close other buffers')
+
+-- Project tasks run in the background; errors feed editable quickfix.
+vim.api.nvim_create_user_command('Task', function(args) require('config.tasks').pick(args.args) end,
+  { nargs = '*', desc = 'Pick and run a project build/test/lint task', complete = function()
+    return vim.tbl_map(function(task) return task.name end, require('config.tasks').discover())
+  end })
+vim.api.nvim_create_user_command('TaskLast', function() require('config.tasks').rerun() end, { desc = 'Repeat last project task' })
+vim.api.nvim_create_user_command('TaskStop', function() require('config.tasks').stop() end, { desc = 'Stop active project task' })
+vim.api.nvim_create_user_command('TaskOutput', function() require('config.tasks').show_output() end, { desc = 'Inspect last task output' })
+map('<leader>rt', '<cmd>Task<cr>', 'Project tasks')
+map('<leader>rr', '<cmd>TaskLast<cr>', 'Repeat last task')
+map('<leader>rs', '<cmd>TaskStop<cr>', 'Stop task')
+map('<leader>ro', '<cmd>TaskOutput<cr>', 'Task output')
+map('<leader>xn', '<cmd>cnext<cr>', 'Next quickfix item')
+map('<leader>xp', '<cmd>cprevious<cr>', 'Previous quickfix item')
+map('<leader>xc', '<cmd>cclose<cr>', 'Close quickfix')
+map('<leader>uy', function()
+  local path = vim.api.nvim_buf_get_name(0)
+  if path == '' then return end
+  local root = require('config.project').root()
+  if path:sub(1, #root + 1) == root .. '/' then path = path:sub(#root + 2) end
+  vim.fn.setreg('+', path)
+  vim.notify('Copied ' .. path, vim.log.levels.INFO)
+end, 'Copy project-relative file path')
+vim.keymap.set('x', '<A-j>', ":move '>+1<CR>gv=gv", { silent = true, desc = 'Move selected lines down' })
+vim.keymap.set('x', '<A-k>', ":move '<-2<CR>gv=gv", { silent = true, desc = 'Move selected lines up' })

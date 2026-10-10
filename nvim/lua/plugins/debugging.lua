@@ -18,6 +18,14 @@ return {
       { '<leader>Do', function() require('dap').step_over() end, desc = 'Step over' },
       { '<leader>Di', function() require('dap').step_into() end, desc = 'Step into' },
       { '<leader>DO', function() require('dap').step_out() end, desc = 'Step out' },
+      { '<leader>Dl', function() require('dap').run_last() end, desc = 'Run last debug configuration' },
+      { '<leader>Dp', function() require('dap').pause() end, desc = 'Pause execution' },
+      { '<leader>Dx', function() require('dap').clear_breakpoints() end, desc = 'Clear all breakpoints' },
+      { '<leader>DL', function()
+        vim.ui.input({ prompt = 'Logpoint message (use {expression}): ' }, function(value)
+          if value and value ~= '' then require('dap').set_breakpoint(nil, nil, value) end
+        end)
+      end, desc = 'Logpoint' },
       { '<leader>Dt', function() require('dap').terminate() end, desc = 'Terminate' },
       { '<leader>Du', function() require('dapui').toggle() end, desc = 'Debug panels' },
       { '<leader>De', function() require('dapui').eval() end, mode = { 'n', 'v' }, desc = 'Evaluate expression' },
