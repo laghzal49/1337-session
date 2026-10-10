@@ -20,6 +20,10 @@ The performance review's context completion timeout is not a latency measurement
 It verifies bounded size checks and shutdown of already-attached decorations.
 The suite also checks small dashboards, Unicode titles, project discovery,
 keybinding ownership, async Git refreshes, tasks and workspace lifecycle.
+Critical regression coverage includes literal statusline labels, exact diagnostic
+text-object deletion, task subprocess cancellation, failed environment creation,
+and debugger panels after abrupt session closure. Runner timeout tests verify
+cleanup of disposable descendant processes.
 
 For attached UI checks and grid screenshots:
 

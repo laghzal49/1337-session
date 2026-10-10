@@ -1,5 +1,15 @@
 -- Project-aware background jobs. No shell interpolation or startup dependencies.
 local M = { running = nil, last = nil, output = nil }
+local posix = vim.fn.has('win32') == 0
+local function signal_task(token, signal)
+  if not token or not token.job then return end
+  if token.group then
+    -- detach gives this task a new POSIX session/process group; never signal the editor's group.
+    pcall(vim.uv.kill, -token.job.pid, signal)
+  else
+    pcall(token.job.kill, token.job, signal)
+  end
+end
 local output_limit = 1024 * 1024 -- Bound retained stdout/stderr even for noisy builds.
 local function capture(stream, data)
   if not data or stream.truncated then return end
@@ -89,11 +99,11 @@ function M.run(task)
   task.cwd = task.cwd or require('config.project').root()
   M.last = vim.deepcopy(task)
   local started = vim.uv.hrtime()
-  local token = { task = task, stopped = false, efm = vim.bo.errorformat, tab = vim.api.nvim_get_current_tabpage() }
+  local token = { task = task, stopped = false, group = posix, efm = vim.bo.errorformat, tab = vim.api.nvim_get_current_tabpage() }
   local stdout, stderr = { chunks = {}, bytes = 0 }, { chunks = {}, bytes = 0 }
   M.running = token
   vim.notify('Running ' .. task.name, vim.log.levels.INFO, { title = 'Project tasks' })
-  local ok, job = pcall(vim.system, task.argv, { cwd = task.cwd, text = true,
+  local ok, job = pcall(vim.system, task.argv, { cwd = task.cwd, text = true, detach = posix,
     stdout = function(_, data) capture(stdout, data) end,
     stderr = function(_, data) capture(stderr, data) end,
   }, function(result)
@@ -132,9 +142,9 @@ function M.stop()
   local token = M.running
   if not token or not token.job or token.stopped then return end
   token.stopped = true
-  token.job:kill(15)
+  signal_task(token, 15)
   vim.defer_fn(function()
-    if M.running == token and token.job then token.job:kill(9) end
+    if token.group or M.running == token then signal_task(token, 9) end
   end, 1000)
 end
 function M.rerun()
@@ -158,7 +168,7 @@ vim.api.nvim_create_autocmd('VimLeavePre', {
   callback = function()
     local token = M.running
     M.running = nil
-    if token and token.job then pcall(token.job.kill, token.job, 9) end
+    signal_task(token, 9)
   end,
 })
 return M

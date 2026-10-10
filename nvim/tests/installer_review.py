@@ -2,6 +2,7 @@
 import os
 from pathlib import Path
 import shutil
+import shlex
 import subprocess
 import tempfile
 
@@ -48,3 +49,21 @@ with tempfile.TemporaryDirectory(prefix='nvim-installer-review-') as folder:
                             env=env, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=10)
     assert result.returncode != 0 and 'STRICT SMOKE PASS:' not in result.stdout, result.stdout
     print('STRICT RUNNER CHECK PASS: scheduled callback errors exit nonzero')
+
+    # Execute the installer's real phase helper against a fake executable. An
+    # inherited custom app name must not restore another Neovim configuration.
+    fake_bin = fixture / 'bin'
+    fake_bin.mkdir()
+    fake_nvim = fake_bin / 'nvim'
+    fake_nvim.write_text('#!/usr/bin/env bash\n[ "$NVIM_APPNAME" = nvim ] || exit 3\n'
+                         '[ "$XDG_CONFIG_HOME" = "$HOME/.config" ] || exit 4\n'
+                         'echo "BOOTSTRAP PASS: $NVIM_BOOTSTRAP_MODE"\n')
+    fake_nvim.chmod(0o755)
+    installer = (ROOT/'install.sh').read_text()
+    helper = installer[installer.index('  run_nvim_phase() {'):installer.index('  if run_nvim_phase plugins; then')]
+    setup = 'TMP=' + shlex.quote(folder) + '; REPO_DIR=' + shlex.quote(str(ROOT)) + '; have() { return 1; };\n'
+    result = subprocess.run(['bash', '-c', setup + helper + '\nrun_nvim_phase plugins'],
+                            env=dict(os.environ, NVIM_APPNAME='unrelated-config', PATH=str(fake_bin)+os.pathsep+os.environ['PATH']),
+                            text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=10)
+    assert result.returncode == 0, result.stdout
+    print('INSTALLER CHECK PASS: inherited app name cannot redirect plugin restore')

@@ -74,6 +74,17 @@ dap.continue()
 assert(vim.wait(5000, function() return dap.session() == nil end), 'attached debuggee did not finish')
 assert(vim.wait(5000, function() return server_done end), 'attach server leaked after exit')
 vim.wait(100)
+-- Adapter/session failures can close without any terminated/exited DAP event.
+dap.run({ name = 'Abrupt close review', type = 'python', request = 'launch', program = file,
+  args = { 'hello world', '42' }, pythonPath = vim.fn.exepath('python3'), cwd = dir, console = 'internalConsole' })
+assert(vim.wait(15000, function() local active = dap.session(); return active and active.stopped_thread_id ~= nil end),
+  'abrupt-close fixture did not stop')
+dap.session():close()
+assert(vim.wait(3000, function() return dap.session() == nil end), 'closed adapter retained session')
+vim.wait(100)
+for _, win in ipairs(vim.api.nvim_list_wins()) do
+  assert(vim.bo[vim.api.nvim_win_get_buf(win)].filetype ~= 'dapui_scopes', 'abrupt adapter closure leaked debug panels')
+end
 -- Yank must mark the copied range briefly, then clear it.
 vim.cmd.edit(file)
 vim.api.nvim_win_set_cursor(0, { 1, 0 })
@@ -84,4 +95,4 @@ vim.wait(250)
 assert(#vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, {}) == 0, 'yank highlight did not clear')
 vim.cmd.enew()
 vim.fn.delete(dir, 'rf')
-print('DEBUGGING: quoted arguments/cancellation/configurations, real debugpy file/module/attach arguments/breakpoint/evaluation/step/exit, panels, timed yank PASS')
+print('DEBUGGING: quoted arguments/cancellation/configurations, real debugpy file/module/attach arguments/breakpoint/evaluation/step/exit, abrupt-close panel cleanup, timed yank PASS')

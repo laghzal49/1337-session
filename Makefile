@@ -1,6 +1,7 @@
 NVIM ?= $(if $(NVIM_BIN),$(NVIM_BIN),nvim)
 PYTHON ?= python3
 export NVIM_BIN := $(NVIM)
+export NVIM_APPNAME := nvim
 export XDG_CONFIG_HOME := $(CURDIR)
 export NVIM_BLACK_DOCS_AUTO_UPDATE := 0
 
@@ -45,4 +46,5 @@ reference:
 ## Run strict upgrade regressions in fresh Neovim processes (requires debugpy)
 upgrade:
 	$(PYTHON) nvim/tests/installer_review.py
+	$(PYTHON) nvim/tests/runner_review.py
 	$(PYTHON) nvim/tests/smoke.py

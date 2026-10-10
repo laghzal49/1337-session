@@ -432,7 +432,7 @@ elif have nvim; then
     local phase="$1" log="$TMP/nvim-$1.log"
     local -a command=(nvim --headless -c 'lua dofile(vim.env.NVIM_BOOTSTRAP_SCRIPT)')
     if have timeout; then command=(timeout 900 "${command[@]}"); fi
-    if env XDG_CONFIG_HOME="$HOME/.config" NVIM_BLACK_DOCS_AUTO_UPDATE=0 \
+    if env NVIM_APPNAME=nvim XDG_CONFIG_HOME="$HOME/.config" NVIM_BLACK_DOCS_AUTO_UPDATE=0 \
         NVIM_BOOTSTRAP_MODE="$phase" NVIM_BOOTSTRAP_SCRIPT="$REPO_DIR/scripts/nvim-bootstrap.lua" \
         "${command[@]}" >"$log" 2>&1 \
         && grep -Fq "BOOTSTRAP PASS: $phase" "$log"; then

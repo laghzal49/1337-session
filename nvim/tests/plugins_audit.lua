@@ -27,4 +27,21 @@ assert(map.rhs and map.rhs:find("'<,'>", 1, true), 'visual history must forward 
 vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(map.rhs, true, false, true), 'nx', false)
 assert(captured and captured[1] == 2 and captured[2] == 2 and captured[3] == 3,
   'selected lines history did not receive lines 2 through 3')
-print('PLUGINS REVIEW PASS: first command pairing, stable TODO keys, selected history range')
+
+-- Real diagnostic deletion must never consume a character after the range.
+require('lazy').load({ plugins = { 'mini.ai' } })
+local diagnostic_ns = vim.api.nvim_create_namespace('plugin_diagnostic_operator')
+local function delete_diagnostic(lines, diagnostic, expected)
+  vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
+  diagnostic.message, diagnostic.severity = 'selected range', vim.diagnostic.severity.ERROR
+  vim.diagnostic.set(diagnostic_ns, 0, { diagnostic })
+  vim.api.nvim_win_set_cursor(0, { diagnostic.lnum + 1, diagnostic.col })
+  vim.cmd('normal did')
+  assert(vim.deep_equal(vim.api.nvim_buf_get_lines(0, 0, -1, false), expected),
+    'diagnostic deletion consumed content outside its exclusive range')
+end
+delete_diagnostic({ 'abcdef' }, { lnum = 0, col = 1, end_lnum = 0, end_col = 3 }, { 'adef' })
+delete_diagnostic({ 'aé界z' }, { lnum = 0, col = 1, end_lnum = 0, end_col = 6 }, { 'az' })
+delete_diagnostic({ 'abc', 'DEF' }, { lnum = 0, col = 1, end_lnum = 1, end_col = 0 }, { 'a', 'DEF' })
+vim.diagnostic.reset(diagnostic_ns)
+print('PLUGINS REVIEW PASS: first command pairing, stable TODO keys, selected history and safe diagnostic deletion')

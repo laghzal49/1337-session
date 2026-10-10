@@ -590,8 +590,11 @@ end
 
 -- ── Rebuild Virtualenv ([v] / :StationVenv) ──────────────────────────────────
 function M.rebuild_venv()
+  if vim.fn.executable('uv') ~= 1 then
+    vim.notify('Install uv before rebuilding the project environment', vim.log.levels.ERROR, { title = '1337 Station' })
+    return
+  end
   local cwd = require('config.project').root() or vim.uv.cwd() or vim.fn.getcwd()
-  local user = vim.env.USER or 'user'
   local proj_name = vim.fn.fnamemodify(cwd, ':t')
   local venv_path = cwd .. '/.venv'
 
@@ -601,25 +604,27 @@ function M.rebuild_venv()
   if user_dir and vim.fn.isdirectory(user_dir) == 1 then
     local venvs_root = user_dir .. '/venvs'
     if vim.fn.isdirectory(venvs_root) == 0 then vim.fn.mkdir(venvs_root, 'p') end
-    target_venv = venvs_root .. '/' .. proj_name
+    -- Distinct projects with the same basename must not overwrite one another.
+    local identity = vim.uv.fs_realpath(cwd) or cwd
+    target_venv = venvs_root .. '/' .. proj_name .. '-' .. vim.fn.sha256(identity):sub(1, 12)
   else
     target_venv = venv_path
   end
 
-  -- Handle existing .venv link or folder
   local lstat = vim.uv.fs_lstat(venv_path)
-  if lstat and lstat.type == 'link' then
-    vim.uv.fs_unlink(venv_path)
-  end
-
-  -- If using local goinfre, establish symlink first
-  if target_venv ~= venv_path then
-    if vim.fn.isdirectory(target_venv) == 0 then vim.fn.mkdir(target_venv, 'p') end
-    pcall(vim.uv.fs_symlink, target_venv, venv_path)
+  if target_venv ~= venv_path and lstat and lstat.type ~= 'link' then
+    vim.notify('Existing project .venv is a directory; move it explicitly before using a goinfre environment',
+      vim.log.levels.ERROR, { title = '1337 Station' })
+    return
   end
 
   -- Build uv command
   local cmd = 'uv venv ' .. vim.fn.shellescape(target_venv)
+  -- Publish the link only after creation succeeds, preserving a working old link
+  -- when uv is missing, cancelled, or fails to build the replacement.
+  if target_venv ~= venv_path then
+    cmd = cmd .. ' && ln -sfn ' .. vim.fn.shellescape(target_venv) .. ' ' .. vim.fn.shellescape(venv_path)
+  end
   if vim.uv.fs_stat(cwd .. '/pyproject.toml') ~= nil then
     cmd = cmd .. ' && uv sync'
   elseif vim.uv.fs_stat(cwd .. '/requirements.txt') ~= nil then

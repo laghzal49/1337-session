@@ -24,6 +24,19 @@ assert(tasks.run({ name = 'ignore term', cwd = dir, argv = { 'python3', '-c',
 assert(vim.wait(2000, function() return vim.fn.filereadable(marker) == 1 end, 10))
 tasks.stop(); tasks.stop()
 assert(vim.wait(3000, function() return not tasks.running end, 10), 'SIGKILL escalation failed')
+-- POSIX cancellation terminates ordinary descendants holding inherited pipes.
+if vim.fn.has('win32') == 0 then
+  local child_marker = dir .. '/child-pid'
+  assert(tasks.run({ name = 'process tree', cwd = dir, argv = { 'python3', '-c',
+    "import subprocess,signal,time,sys; p=subprocess.Popen(['sleep','20']); signal.signal(signal.SIGTERM,lambda *_:(p.wait(),sys.exit(0))); open('child-pid','w').write(str(p.pid)); time.sleep(20)" } }))
+  assert(vim.wait(2000, function() return vim.fn.filereadable(child_marker) == 1 end, 10))
+  local child_pid = tonumber(vim.fn.readfile(child_marker)[1])
+  tasks.stop()
+  local completed = vim.wait(3000, function() return not tasks.running end, 10)
+  local dead = vim.uv.kill(child_pid, 0) ~= 0
+  if not dead then vim.uv.kill(child_pid, 9) end -- Cleanup even if a regression fails.
+  assert(completed and dead, 'TaskStop left a descendant alive / pipe handles blocked')
+end
 -- Existing explorers belong to the user and survive workspace exit.
 vim.o.columns, vim.o.lines = 160, 40
 local explorer = Snacks.explorer({ focus = false })

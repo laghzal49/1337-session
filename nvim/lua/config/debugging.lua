@@ -60,9 +60,15 @@ function M.setup()
     floating = { border = require('config.ui').border },
   })
   dap.listeners.after.event_initialized.black_debug = function() ui.open() end
-  dap.listeners.before.event_terminated.black_debug = function() ui.close() end
-  dap.listeners.before.event_exited.black_debug = function() ui.close() end
-  dap.listeners.after.disconnect.black_debug = function() ui.close() end
+  -- Session closure also covers adapter crashes and failed initialization.
+  -- Preserve panels while another parent/child session is still active.
+  dap.listeners.on_session.black_debug = function(_, active)
+    if not active then
+      vim.schedule(function()
+        if not dap.session() then ui.close() end
+      end)
+    end
+  end
   vim.fn.sign_define('DapBreakpoint', { text = '●', texthl = 'DiagnosticError' })
   vim.fn.sign_define('DapBreakpointCondition', { text = '◆', texthl = 'DiagnosticWarn' })
   vim.fn.sign_define('DapStopped', { text = '▶', texthl = 'DiagnosticOk', linehl = 'CursorLine' })

@@ -53,7 +53,9 @@ Tasks recognize Make, package.json scripts, Cargo, Go and Python projects. Tool
 output stays available; failures with parseable file locations populate quickfix.
 Output retention is capped at 1 MiB or 5,000 lines per stream, with a visible
 truncation notice. Stopping a task sends SIGTERM, then SIGKILL after one second
-if needed; programs that spawn their own process trees may need separate cleanup.
+if needed. POSIX cancellation stops the task's process group, including ordinary
+child processes. Windows stops the direct child; descendants that create their
+own session can escape group cleanup.
 Tools/packages are installed explicitly, never by opening a project.
 
 The follow-up audit also fixes small-window and Unicode title sizing, keeps Git
@@ -66,7 +68,8 @@ Performance changes extend beyond startup: cached root lookups, one asynchronous
 Git probe per project, no dashboard filesystem walk, no duplicate bufferline
 LSP diagnostic pass, bounded large-buffer guards even after edits, and a 500 ms
 format-on-save cap. Files over 1 MiB or 20,000 lines switch to a conservative
-plain editing mode; close/reopen after reducing them to restore semantic features.
+plain editing mode. After reducing them, save, wipe the buffer (`:bwipeout`), and
+reopen it to restore semantic features; a plain reload retains the guard flags.
 
 Matched five-run benchmarks on this machine: cached headless startup median
 **20.78 → 15.38 ms** (~26% lower); attached idle RSS **21.4 → 20.3 MiB**.
@@ -419,6 +422,9 @@ A dedicated environment manager built specifically for 1337 / 42 cluster machine
 - **uv cache manager:** Ensures `UV_CACHE_DIR` points to local SSD (`/goinfre/$USER/.uv_cache`) instead of consuming NFS quota.
 - **Safe repairs (`[f]` / `:StationFix`):** Never deletes files. Automatically creates `/goinfre/$USER`, repairs `~/goinfre` symlinks, points `UV_CACHE_DIR`, and ensures `~/.local/bin` is in PATH.
 - **Python venv builder (`[v]` / `:StationVenv`):** Rebuilds project virtual environments on fast local `/goinfre` storage using `uv venv` and `uv sync`, symlinking `.venv` back into the project.
+  Project storage names include a canonical-path hash to keep same-named projects
+  separate. A replacement link is published after environment creation succeeds;
+  existing real `.venv` directories are preserved and require explicit relocation.
 - **Tool manager (`[t]` / `:StationTools`):** Verifies and installs core tools (`ty`, `ruff`, `clangd`, `rg`, `lazygit`, `uv`).
 - **Commands:**
   - `:StationHealth` — Open interactive floating status and repair modal
