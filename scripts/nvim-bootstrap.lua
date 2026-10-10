@@ -13,9 +13,15 @@ local function run()
     end
   elseif mode == 'parsers' then
     local languages = { 'python', 'c', 'cpp', 'lua', 'vim', 'vimdoc', 'query', 'markdown', 'markdown_inline' }
-    require('nvim-treesitter').install(languages):wait(300000)
+    -- Install missing parsers, then refresh older ones to match current queries.
+    -- update() alone skips languages that have never been installed.
+    local treesitter = require('nvim-treesitter')
+    treesitter.install(languages):wait(300000)
+    treesitter.update(languages):wait(300000)
     for _, language in ipairs(languages) do
       assert(vim.treesitter.language.add(language), 'parser unavailable: ' .. language)
+      local ok, err = pcall(vim.treesitter.query.get, language, 'highlights')
+      assert(ok, 'highlight query is incompatible with ' .. language .. ' parser: ' .. tostring(err))
     end
   else error('unknown installer phase: ' .. mode) end
   assert(vim.v.errmsg == '', 'phase reported an error: ' .. vim.v.errmsg)

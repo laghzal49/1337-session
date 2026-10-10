@@ -35,7 +35,8 @@ git clone https://github.com/laghzal49/1337-session.git && ./1337-session/instal
 ```
 
 `install.sh` builds the complete environment into `~/.local` from official
-prebuilt binaries — **never calls sudo, never leaves $HOME**:
+prebuilt binaries — **never calls sudo**. Downloads and parser builds use a private
+temporary directory that is removed when installation exits. It installs:
 
 - JetBrainsMono **Nerd Font Mono** (regular, bold, italic, and bold-italic faces
   for the UI's icons and italic comments; select this family in the terminal)
@@ -52,7 +53,7 @@ prebuilt binaries — **never calls sudo, never leaves $HOME**:
 Idempotent — re-run it any time; installed tools are skipped
 (`--force` reinstalls, `--no-sync` skips the headless plugin download).
 The installer supports Linux `x86_64` and `aarch64`, keeps downloads and
-temporary files under `~/.local`, and never calls `sudo`.
+temporary files under `${TMPDIR:-/tmp}`, and never calls `sudo`.
 
 ## Personal dotfiles
 

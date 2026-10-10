@@ -31,9 +31,10 @@ with tempfile.TemporaryDirectory(prefix='nvim-installer-review-') as folder:
     bad_task = "package.preload['lazy.core.config']=function() return {plugins={fixture={dir=" + repr(folder) + ",_={tasks={{has_errors=function() return true end,output=function() return 'fetch failed' end}}}}}} end\n"
     check('failed Lazy task rejects success', plugin + bad_task, 'plugins', False)
     check('startup Lua error rejects exit-zero behavior', "error('startup fixture error')", 'plugins', False)
-    parser = "package.preload['nvim-treesitter']=function() return {install=function() return {wait=function() end} end} end\n"
+    parser = "package.preload['nvim-treesitter']=function() local task={wait=function() end}; return {install=function() return task end, update=function() return task end} end\n"
     check('missing parser rejects installer success', parser + "vim.treesitter.language.add=function() return false end", 'parsers', False)
-    check('loadable parsers confirmed', parser + "vim.treesitter.language.add=function() return true end", 'parsers', True)
+    check('loadable parsers confirmed', parser + "vim.treesitter.language.add=function() return true end; vim.treesitter.query.get=function() return {} end", 'parsers', True)
+    check('incompatible query rejects installer success', parser + "vim.treesitter.language.add=function() return true end; vim.treesitter.query.get=function() error('invalid node') end", 'parsers', False)
     check('unknown installer phase rejected', '', 'unexpected', False)
     # An intentional failed assertion must also make the regression runner fail.
     failure = fixture / 'failure.lua'
@@ -57,6 +58,7 @@ with tempfile.TemporaryDirectory(prefix='nvim-installer-review-') as folder:
     fake_nvim = fake_bin / 'nvim'
     fake_nvim.write_text('#!/usr/bin/env bash\n[ "$NVIM_APPNAME" = nvim ] || exit 3\n'
                          '[ "$XDG_CONFIG_HOME" = "$HOME/.config" ] || exit 4\n'
+                         '[ "$XDG_CACHE_HOME" = "$TMPDIR/nvim-cache" ] || exit 5\n'
                          'echo "BOOTSTRAP PASS: $NVIM_BOOTSTRAP_MODE"\n')
     fake_nvim.chmod(0o755)
     installer = (ROOT/'install.sh').read_text()

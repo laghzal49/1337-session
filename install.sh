@@ -2,8 +2,8 @@
 # ============================================================================
 # 1337-session bootstrap — a user-local Neovim environment, ZERO sudo.
 # ============================================================================
-# Everything this script can install is placed in ~/.local from official
-# prebuilt release binaries.
+# Installed tools stay in ~/.local. Downloads and build files use a private
+# temporary directory so a small home quota is not consumed twice.
 #
 #   font      JetBrainsMono Nerd Font (icons for the whole UI)
 #   editor    Neovim (latest stable) + this repo's config linked in
@@ -23,7 +23,7 @@
 #   ./install.sh --no-sync    skip the headless plugin download at the end
 #
 # Idempotent: safe to re-run; existing tools are skipped unless --force.
-# Never calls sudo. Never touches anything outside $HOME.
+# Never calls sudo. Temporary files are removed on exit.
 # ============================================================================
 
 set -euo pipefail
@@ -49,16 +49,13 @@ BIN="$LOCAL/bin"
 OPT="$LOCAL/opt"
 FONTS="$LOCAL/share/fonts"
 umask 077
-mkdir -p "$BIN" "$OPT" "$FONTS" "$LOCAL/var/tmp"
+mkdir -p "$BIN" "$OPT" "$FONTS"
 export PATH="$BIN:$PATH" # so later steps see what earlier steps installed
 
-# Do not use /tmp: it may be shared with other users.  A private, predictable
-# per-process directory under ~/.local is just as useful and remains in $HOME.
-TMP="$LOCAL/var/tmp/1337-session.$$"
-if ! (umask 077 && mkdir "$TMP"); then
-  printf 'could not create private working directory: %s\n' "$TMP" >&2
-  exit 1
-fi
+# mktemp creates an unpredictable private directory even on a shared /tmp.
+# Honor TMPDIR for machines with a dedicated scratch filesystem.
+TMP="$(mktemp -d "${TMPDIR:-/tmp}/1337-session.XXXXXXXX")" \
+  || { printf 'could not create private temporary directory\n' >&2; exit 1; }
 trap 'rm -rf "$TMP"' EXIT
 
 # ── pretty logging ──────────────────────────────────────────────────────────
@@ -465,7 +462,8 @@ elif have nvim; then
     local phase="$1" log="$TMP/nvim-$1.log"
     local -a command=(nvim --headless -c 'lua dofile(vim.env.NVIM_BOOTSTRAP_SCRIPT)')
     if have timeout; then command=(timeout 900 "${command[@]}"); fi
-    if env NVIM_APPNAME=nvim XDG_CONFIG_HOME="$HOME/.config" NVIM_BLACK_DOCS_AUTO_UPDATE=0 \
+    if env NVIM_APPNAME=nvim XDG_CONFIG_HOME="$HOME/.config" XDG_CACHE_HOME="$TMP/nvim-cache" \
+        TMPDIR="$TMP" NVIM_BLACK_DOCS_AUTO_UPDATE=0 \
         NVIM_BOOTSTRAP_MODE="$phase" NVIM_BOOTSTRAP_SCRIPT="$REPO_DIR/scripts/nvim-bootstrap.lua" \
         "${command[@]}" >"$log" 2>&1 \
         && grep -Fq "BOOTSTRAP PASS: $phase" "$log"; then
@@ -481,9 +479,9 @@ elif have nvim; then
     INSTALL_FAILED=1
   fi
   if run_nvim_phase parsers; then
-    ok "syntax parsers installed and loadable"
+    ok "syntax parsers installed, updated and query-compatible"
   else
-    warn "parser setup incomplete — review errors above; run :TSInstall python c cpp lua vim vimdoc query markdown markdown_inline"
+    warn "parser setup incomplete — review errors above; run :TSUpdate python c cpp lua vim vimdoc query markdown markdown_inline"
     INSTALL_FAILED=1
   fi
 fi

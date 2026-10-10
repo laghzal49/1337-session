@@ -481,6 +481,15 @@ Install syntax parsers once (the installer also does this):
 :TSInstall python c cpp lua vim vimdoc query markdown markdown_inline
 ```
 
+If highlighting reports an invalid Tree-sitter node (for example `except*`
+in Python), update the installed parser to match the current queries:
+
+```vim
+:TSUpdate python
+```
+
+The installer now checks parser/query compatibility when it runs again.
+
 Project roots use canonical paths. Activate your environment before opening
 Neovim; restart it after switching environments. Project `.venv` discovery stays
 with ty. No environment paths tied to a particular desk are hardcoded.
