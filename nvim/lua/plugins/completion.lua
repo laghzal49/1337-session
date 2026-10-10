@@ -27,11 +27,19 @@ return {
         trigger = { show_on_backspace_in_keyword = true, show_in_snippet = false },
         list = { max_items = 100, selection = { preselect = false, auto_insert = false } },
         menu = {
+          min_width = 28,
+          -- Noice's padded command input extends one row below the cursor.
+          cmdline_position = function()
+            local pos = vim.g.ui_cmdline_pos
+            if pos then return {pos[1] + 1, pos[2]} end
+            return {vim.o.lines-math.max(1,vim.o.cmdheight),0}
+          end,
           border = 'rounded',
           winhighlight = 'Normal:BlinkCmpMenu,FloatBorder:BlinkCmpMenuBorder,CursorLine:BlinkCmpMenuSelection,Search:None',
           scrollbar = true,
           scrolloff = 2,
           draw = {
+            cursorline_priority = 100,
             columns = function()
               local label = vim.o.columns >= 100 and { 'label', 'label_description', gap = 1 } or { 'label' }
               local columns = { { 'kind_icon' }, label }
@@ -40,16 +48,29 @@ return {
               return columns
             end,
             components = {
-              kind_icon = { text = function(ctx) return require('config.ui').symbol(ctx.kind) .. ' ' end },
-              label = { width = { max = function()
+              kind_icon = {
+                text = function(ctx)
+                  local ui = require('config.ui')
+                  return (ctx.source_id=='cmdline' and ui.icon('command') or ui.symbol(ctx.kind)) .. ' '
+                end,
+                highlight = function(ctx)
+                  return {{group=ctx.source_id=='cmdline' and 'BlackPopupCommand' or ctx.kind_hl,priority=20000}}
+                end,
+              },
+              label = { text = function(ctx) return ctx.label end, width = { max = function()
                 local width = vim.o.columns
                 local kind = (width >= 100 or vim.g.have_nerd_font == false) and 16 or 0
                 local source = width >= 80 and 10 or 0
                 local description = width >= 100 and 21 or 0
                 return math.max(4, math.min(48, width - 8 - kind - source - description))
               end } },
-              label_description = { width = { max = 20 } },
-              kind = { width = { max = 12 } },
+              label_description = { width = { max = 20 }, text=function(ctx)
+                return ctx.label_description~='' and ctx.label_description or ctx.label_detail
+              end },
+              kind = { width = { max = 12 },
+                text=function(ctx) return ctx.source_id=='cmdline' and 'Command' or ctx.kind end,
+                highlight=function(ctx) return ctx.source_id=='cmdline' and 'BlackPopupCommand' or ctx.kind_hl end,
+              },
               source_name = {
                 width = { max = 7 },
                 text = function(ctx)
@@ -64,7 +85,7 @@ return {
           auto_show_delay_ms = 180,
           draw = function(opts) require('config.documentation').completion_draw(opts) end,
           window = {
-            desired_min_width = 40,
+            desired_min_width = 44,
             desired_min_height = 3,
             border = 'rounded',
             winhighlight = 'Normal:BlinkCmpDoc,FloatBorder:BlinkCmpDocBorder,EndOfBuffer:BlinkCmpDoc',

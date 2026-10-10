@@ -10,7 +10,7 @@ and a composed status bar. JetBrains Mono with selective italics. Python uses
 
 ![Python palette and status bar](nvim/assets/python.png)
 
-![Blink completion and documentation](nvim/assets/completion.png)
+![Blink completion and documentation](nvim/assets/popup-completion-140.png)
 
 Completion shows local matches while the language server responds, then favors
 semantic suggestions. Ctrl-N/Ctrl-P navigate; Ctrl-K shows documentation,
@@ -18,8 +18,11 @@ parameters and usage details; Ctrl-D toggles the completion documentation;
 Tab/Shift-Tab follow snippet placeholders. Exact matches rank first, and the
 native matcher retains typo tolerance and usage history.
 
-The completion and Makefile images are captures of the current Neovim UI with
-demonstration content. The Python palette image above is from an earlier revision.
+Commands, inputs, documentation, diagnostics, notification history and debugger
+inspectors share the updated popup design. See the [popup previews](nvim/POPUPS.md).
+
+The completion image is a capture of this popup revision with demonstration
+content. The Python palette and Makefile images are from earlier revisions.
 See the [Neovim guide](nvim/README.md) for shortcuts and setup, and the
 [design notes](nvim/DESIGN.md) for behavior and testing limits.
 

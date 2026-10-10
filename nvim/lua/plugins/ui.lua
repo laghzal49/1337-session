@@ -113,10 +113,10 @@ return {
         layout = { preset = function() return vim.o.columns >= 110 and 'default' or 'vertical' end },
         layouts = {
           default = { layout = {
-            box = 'horizontal', width = 0.90, min_width = 0, height = 0.82,
+            box = 'horizontal', width = 0.88, min_width = 0, height = 0.78,
             {
               box = 'vertical', border = true, title = ' {title} {live} {flags} ',
-              footer = ' Enter open · Tab select · Alt-P preview · ? help ',
+              footer = ' Enter open · Tab mark · Alt-P preview · Esc close ',
               { win = 'input', height = 1, border = 'bottom' },
               { win = 'list', border = 'none' },
             },
@@ -125,7 +125,7 @@ return {
           vertical = { layout = {
             box = 'vertical', border = true, width = 0.92, min_width = 0,
             height = 0.84, min_height = 0, title = ' {title} {live} {flags} ',
-            footer = ' Enter open · Tab select · Alt-P preview · ? help ',
+            footer = ' Enter open · Esc close ',
             { win = 'input', height = 1, border = 'bottom' },
             { win = 'list', border = 'none' },
             { win = 'preview', title = ' {preview:Preview} ', height = 0.36, border = 'top' },
@@ -185,12 +185,16 @@ return {
       input = {
         enabled = true,
         icon = ui.icon('command') .. ' ',
+        icon_pos = 'title',
+        expand = false,
         prompt_pos = 'title',
         win = {
           border = ui.border,
           width = function() return math.max(1, math.min(60, vim.o.columns - 6)) end,
           row = false,
-          title_pos = 'center',
+          title_pos = 'left',
+          footer = { { ' Enter confirm · Esc cancel ', 'BlackPopupHint' } },
+          footer_pos = 'right',
           wo = { winblend = ui.blend },
           keys = { i_esc = { '<Esc>', { 'cmp_close', 'cancel' }, mode = 'i', expr = true } },
         },
@@ -256,20 +260,21 @@ return {
       notify = { enabled = false },
       cmdline = {
         format = {
-          cmdline = { icon = ui.icon('command'), title = ' COMMAND ' },
+          cmdline = { icon = ui.icon('command'), title = ' Command ' },
           lua = { icon = ui.icon('lua'), title = ' LUA ' },
-          search_down = { icon = ui.icon('search'), title = ' SEARCH FORWARD ' },
-          search_up = { icon = ui.icon('search'), title = ' SEARCH BACKWARD ' },
-          help = { icon = ui.icon('help'), title = ' HELP ' },
-          filter = { icon = ui.icon('shell'), title = ' SHELL ' },
+          search_down = { icon = ui.icon('search'), title = ' Search forward ' },
+          search_up = { icon = ui.icon('search'), title = ' Search backward ' },
+          help = { icon = ui.icon('help'), title = ' Help ' },
+          filter = { icon = ui.icon('shell'), title = ' Shell ' },
         },
       },
       views = {
         cmdline_popup = {
-          win_options = { winblend = 0, winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder,FloatTitle:BlackDocsTitle' },
+          win_options = { winblend = 0, winhighlight = 'Normal:BlackPrompt,FloatBorder:BlackPromptBorder,FloatTitle:BlackPromptTitle' },
           position = { row = '30%', col = '50%' },
           size = { width = '60%', height = 'auto' },
-          border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 0, 2 } },
+          border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 1, 2 },
+            text = { top_align='left', bottom=' Enter apply · Esc close ', bottom_align='right' } },
         },
         popupmenu = {
           win_options = { winblend = 0, winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder,CursorLine:PmenuSel' },
@@ -297,7 +302,8 @@ return {
         },
         popup = {
           win_options = { winblend = 0, winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder' },
-          border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 0, 2 } },
+          border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 1, 2 },
+            text = { top=' Messages ',top_align='left',bottom=' q close ',bottom_align='right' } },
           size = { width = '75%', height = '60%' },
         },
         -- Mini notification-style messages at bottom-right

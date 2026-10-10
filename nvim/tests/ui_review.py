@@ -334,7 +334,7 @@ print('LSP UI: Glance, Aerial, incremental rename PASS',flush=True)
 
 # Floating borders must fit too, including when an already-open command is resized.
 def floating_frames():
- return call('nvim_exec_lua',["local r={}; for _,w in ipairs(vim.api.nvim_list_wins()) do local c=vim.api.nvim_win_get_config(w); if c.relative~='' then local b=vim.api.nvim_win_get_buf(w); r[#r+1]={ft=vim.bo[b].filetype,pos=vim.api.nvim_win_get_position(w),width=c.width,height=c.height,border=c.border,lines=vim.api.nvim_buf_get_lines(b,0,-1,false)} end end; return r",[]])
+ return call('nvim_exec_lua',["local r={}; for _,w in ipairs(vim.api.nvim_list_wins()) do local c=vim.api.nvim_win_get_config(w); if c.relative~='' then local b=vim.api.nvim_win_get_buf(w); r[#r+1]={ft=vim.bo[b].filetype,pos=vim.api.nvim_win_get_position(w),width=c.width,height=c.height,border=c.border,title=c.title,footer=c.footer,lines=vim.api.nvim_buf_get_lines(b,0,-1,false)} end end; return r",[]])
 def check_bounds(width,height):
  frames=floating_frames()
  assert frames,'Expected a visible popup'
@@ -366,7 +366,8 @@ for width,height in [(140,42),(80,24),(40,20),(140,42)]:
 call('nvim_exec_lua',["require('config.accessibility').set(true)",[]]);pump(.4)
 call('nvim_ui_try_resize',[40,20]);pump(.4)
 menus=[f for f in check_bounds(40,20) if f['ft']=='blink-cmp-menu']
-assert len(menus)==1 and 'Property' in menus[0]['lines'][0],menus
+assert len(menus)==1 and 'Command' in menus[0]['lines'][0],menus
+assert 'Suggestions' in str(menus[0]['title']) and 'Enter accept' in str(menus[0]['footer']),menus
 assert all(not any(0xe000<=ord(c)<=0xf8ff or 0xf0000<=ord(c)<=0x10ffff for c in line) for line in menus[0]['lines'])
 call('nvim_input',['<Esc>']);pump(.3)
 call('nvim_exec_lua',["require('config.accessibility').set(false)",[]])

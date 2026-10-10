@@ -5,6 +5,7 @@ local c = require('config.palette')
 
 local M = {
   panel = c.panel,
+  popup = c.inset,
   tree_panel = c.inset,
   inset = c.inset,
   edge = c.border,
@@ -39,8 +40,8 @@ function M.highlights(accessible)
     for name in names:gmatch("%S+") do h[name] = vim.deepcopy(value) end
   end
   groups('DapUINormal', { bg = M.inset, fg = M.text })
-  groups('DapUIFloatNormal', { bg = M.panel, fg = M.text })
-  groups('DapUIFloatBorder DapUIWinSelect', { fg = M.accent, bg = M.panel })
+  groups('DapUIFloatNormal', { bg = M.popup, fg = M.text })
+  groups('DapUIFloatBorder DapUIWinSelect', { fg = M.accent, bg = M.popup })
   groups('DapUIScope DapUIFrameName', { fg = c.callable })
   groups('DapUIType', { fg = c.type })
   groups('BlackDebugLine', { bg = c.inset })
@@ -68,27 +69,28 @@ function M.highlights(accessible)
   groups('BlackCursorCommand', { fg = c.canvas, bg = colors.cursor_command })
   groups('BlackSymbolReference', { fmt = 'underline', sp = M.edge })
   groups('BlackSymbolCurrent', { fmt = 'underline', sp = M.muted })
-  groups("NormalFloat BlackDocs NoiceCmdlinePopup NoicePopupmenu SnacksInputNormal WhichKeyNormal NoicePopup SnacksNotifierHistory", { bg = M.panel, fg = M.text })
-  groups("FloatBorder BlackDocsBorder NoiceCmdlinePopupBorder NoicePopupmenuBorder SnacksInputBorder WhichKeyBorder NoicePopupBorder", { bg = M.panel, fg = M.edge_bright })
-  groups("FloatTitle BlackDocsTitle NoiceCmdlinePopupTitle SnacksInputTitle", { bg = M.panel, fg = M.accent })
+  groups("NormalFloat BlackDocs NoiceCmdlinePopup NoicePopupmenu SnacksInputNormal WhichKeyNormal NoicePopup SnacksNotifierHistory", { bg = M.popup, fg = M.text })
+  groups("FloatBorder BlackDocsBorder NoiceCmdlinePopupBorder NoicePopupmenuBorder SnacksInputBorder WhichKeyBorder NoicePopupBorder", { bg = M.popup, fg = M.edge_bright })
+  groups("FloatTitle BlackDocsTitle NoiceCmdlinePopupTitle SnacksInputTitle", { bg = M.popup, fg = M.accent })
   groups("BlackRule", { fg = c.border_soft })
   groups("BufferLineIndicatorSelected", { fg = M.accent, bg = M.selected })
   groups("BufferLineBufferSelected", { fg = c.strong, bg = M.selected })
   groups("BufferLineModifiedSelected", { fg = c.warning, bg = M.selected })
-  groups("BlackDocsHint", { bg = M.panel, fg = M.muted })
-  groups("PmenuSel NoicePopupmenuSelected ", { bg = M.selected, fg = c.strong })
-  groups("MiniNotifyNormal GlanceListNormal MiniPickNormal AerialNormal", { bg = M.panel, fg = M.text })
-  groups("MiniNotifyBorder MiniPickBorder AerialBorder GlanceBorderTop GlanceListBorderBottom GlancePreviewBorderBottom", { bg = M.panel, fg = M.edge_bright })
-  groups("GlanceListCursorLine MiniPickMatchCurrent AerialLine", { bg = M.selected, fg = M.text })
+  groups("BlackDocsHint", { bg = M.popup, fg = M.muted })
+  groups("PmenuSel NoicePopupmenuSelected ", { bg = c.popup_selection, fg = c.strong })
+  groups("MiniNotifyNormal GlanceListNormal MiniPickNormal AerialNormal", { bg = M.popup, fg = M.text })
+  groups("MiniNotifyBorder MiniPickBorder AerialBorder GlanceBorderTop GlanceListBorderBottom GlancePreviewBorderBottom", { bg = M.popup, fg = M.edge_bright })
+  groups("GlanceListCursorLine MiniPickMatchCurrent AerialLine", { bg = c.popup_selection, fg = M.text })
   groups("GlancePreviewNormal GlanceWinBarFilename GlanceWinBarFilepath MiniPickPreviewNormal", { bg = M.inset, fg = M.text })
   groups("GlanceListMatch GlancePreviewMatch MiniPickMatchRanges", { fg = M.panel_accent })
-  groups("MiniPickPrompt MiniPickPromptPrefix MiniPickPromptCaret MiniPickBorderText MiniPickHeader", { bg = M.panel, fg = M.panel_accent })
+  groups("MiniPickPrompt MiniPickPromptPrefix MiniPickPromptCaret MiniPickBorderText MiniPickHeader", { bg = M.popup, fg = M.panel_accent })
   groups("MiniPickPreviewBorder", { bg = M.inset, fg = M.edge_soft })
   groups("MiniPickPreviewLine", { bg = M.selected, fg = M.text })
   groups("MiniPickMatchMarked", { bg = M.selected, fg = M.accent })
   groups("AerialGuide", { fg = M.edge_soft })
   for _, kind in ipairs({ "Cmdline", "Lua", "Search", "Help", "Filter", "Calculator", "Input" }) do
-    h["NoiceCmdlinePopupTitle" .. kind] = { bg = M.panel, fg = M.accent }
+    h["NoiceCmdlinePopupTitle" .. kind] = { bg = M.popup, fg = M.accent }
+    h["NoiceCmdlinePopupBorder" .. kind] = { bg = M.popup, fg = M.accent }
   end
   for _, level in ipairs({ "Trace", "Debug", "Info", "Warn", "Error" }) do
     h["SnacksNotifier" .. level] = { bg = M.panel, fg = M.text }
@@ -118,8 +120,8 @@ function M.highlights(accessible)
   -- WhichKey full suite
   groups('WhichKeySeparator', { fg = M.muted })
   groups('WhichKeyValue',     { fg = M.muted })
-  groups('WhichKeyBorder',    { bg = M.panel, fg = M.edge_bright })
-  groups('WhichKeyTitle',     { bg = M.panel, fg = M.accent })
+  groups('WhichKeyBorder',    { bg = M.popup, fg = M.edge_bright })
+  groups('WhichKeyTitle',     { bg = M.popup, fg = M.accent })
   groups('WhichKeyDesc',      { fg = M.text })
   groups('WhichKey',          { fg = M.accent })
   groups('WhichKeyGroup',     { fg = M.text })
@@ -139,11 +141,11 @@ function M.highlights(accessible)
     h['Aerial' .. kind] = { fg = color }
   end
   -- blink.cmp doc/menu chrome
-  groups('BlinkCmpMenu',        { bg = M.panel, fg = M.text })
-  groups('BlinkCmpMenuBorder',  { bg = M.panel, fg = M.edge_bright })
-  groups('BlinkCmpMenuSelection',{ bg = M.selected, fg = M.text })
-  groups('BlinkCmpDoc BlinkCmpSignatureHelp', { bg = M.panel, fg = M.text })
-  groups('BlinkCmpDocBorder BlinkCmpSignatureHelpBorder', { bg = M.panel, fg = M.edge_bright })
+  groups('BlinkCmpMenu',        { bg = M.popup, fg = M.text })
+  groups('BlinkCmpMenuBorder',  { bg = M.popup, fg = M.accent })
+  groups('BlinkCmpMenuSelection',{ bg = c.popup_selection, fg = M.text })
+  groups('BlinkCmpDoc BlinkCmpSignatureHelp', { bg = M.popup, fg = M.text })
+  groups('BlinkCmpDocBorder BlinkCmpSignatureHelpBorder', { bg = M.popup, fg = M.edge_bright })
   groups('BlinkCmpScrollBar',   { bg = M.inset })
   groups('BlinkCmpScrollBarThumb', { bg = M.edge })
   groups('BlinkCmpLabel',       { fg = M.text })
@@ -155,9 +157,9 @@ function M.highlights(accessible)
   groups('BlinkCmpGhostText',   { fg = M.muted, fmt = 'italic' })
 
   -- ── Snacks.picker & explorer file tree ─────────────────────────────────
-  groups('SnacksPicker',                  { bg = M.panel, fg = c.strong })
-  groups('SnacksPickerBorder',            { bg = M.panel, fg = M.edge })
-  groups('SnacksPickerTitle',             { bg = M.panel, fg = c.focus })
+  groups('SnacksPicker',                  { bg = M.popup, fg = c.strong })
+  groups('SnacksPickerBorder',            { bg = M.popup, fg = M.edge })
+  groups('SnacksPickerTitle',             { bg = M.popup, fg = c.focus })
   groups('SnacksPickerPrompt',            { fg = c.focus })
   groups('SnacksPickerMatch',             { fg = c.strong, bg = c.search_bg })
   groups('SnacksPickerDirectory',         { fg = c.folder })
@@ -172,8 +174,8 @@ function M.highlights(accessible)
   groups('SnacksPickerGitStatusDeleted',   { fg = c.error, fmt = 'strikethrough' })
   groups('SnacksPickerGitStatusIgnored',   { fg = c.muted, fmt = 'italic' })
   groups('SnacksPickerSelected',          { bg = c.focus_bg, fg = c.strong })
-  groups('SnacksPickerList',              { bg = M.panel, fg = c.strong })
-  groups('SnacksPickerInput',             { bg = M.panel, fg = c.strong })
+  groups('SnacksPickerList',              { bg = M.popup, fg = c.strong })
+  groups('SnacksPickerInput',             { bg = c.panel, fg = c.text })
   groups('SnacksExplorerDir',             { fg = c.folder })
   groups('SnacksExplorerFile',            { fg = c.text })
 
@@ -199,9 +201,24 @@ function M.highlights(accessible)
   groups('RenderMarkdownTableHead', { fg = M.accent })
   groups('LspSignatureActiveParameter', { fg = c.strong, bg = c.focus_bg, fmt = 'underline' })
 
+  -- Prompts use a blue focus edge; reference text stays quietly framed.
+  groups('BlackPrompt SnacksInputNormal', { bg = M.popup, fg = c.text })
+  groups('BlackPromptBorder SnacksInputBorder', { bg = M.popup, fg = M.accent })
+  groups('BlackPromptTitle SnacksInputTitle', { bg = M.popup, fg = M.accent })
+  groups('BlackPopupHint FloatFooter', { bg = M.popup, fg = M.muted })
+  groups('BlackPopupCommand', {fg=M.accent})
+  for name, color in pairs({Error=c.error,Warn=c.warning,Info=c.info,Hint=c.hint}) do
+    groups('DiagnosticFloating'..name, {bg=M.popup,fg=color})
+  end
+  groups('BlinkCmpSignatureHelpActiveParameter', { fg = c.strong, bg = c.focus_bg, fmt = 'underline' })
+  groups('SnacksPickerPreview', { bg = c.canvas, fg = c.text })
+  groups('SnacksPickerPreviewBorder', { bg = c.canvas, fg = M.edge })
+  groups('SnacksPickerListCursorLine', { bg = c.popup_selection })
+  groups('SnacksPickerFooter', { bg = M.popup, fg = M.muted })
+
   -- Snacks input enhanced
-  groups('SnacksInputIcon', { bg = M.panel, fg = M.accent })
-  groups('SnacksInputPrompt', { bg = M.panel, fg = M.panel_accent })
+  groups('SnacksInputIcon', { bg = M.popup, fg = M.accent })
+  groups('SnacksInputPrompt', { bg = M.popup, fg = M.panel_accent })
 
   -- Mini.icons palette integration
   for color, value in pairs(c.icons) do groups('MiniIcons' .. color, { fg = value }) end

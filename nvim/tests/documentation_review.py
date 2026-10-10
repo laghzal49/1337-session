@@ -100,7 +100,7 @@ pump(0.7)
 lua("dofile('nvim/tests/documentation_fixture.lua'); require('lazy').load({plugins={'mini.pick','render-markdown.nvim'}})")
 pump(0.2)
 
-for width,height in [(80,24),(100,30),(140,42)]:
+for width,height in [(40,20),(80,24),(100,30),(140,42)]:
     call('nvim_ui_try_resize', [width,height])
     reset()
     input_keys('K')
@@ -178,7 +178,7 @@ lua("""
  _G.documentation_sources=require('blink.cmp.config').sources.default
  require('blink.cmp.config').sources.default={'documentation_review'}
 """)
-for width,height in [(80,24),(100,30),(140,42)]:
+for width,height in [(40,20),(80,24),(100,30),(140,42)]:
     call('nvim_ui_try_resize',[width,height])
     reset('',True)
     input_keys('ana',0.15)
@@ -191,6 +191,8 @@ for width,height in [(80,24),(100,30),(140,42)]:
     assert popup['config']['width']+2<=width and popup['config']['height']+2<=height,popup
     assert 'def analyze' in '\n'.join(popup['lines']),popup
     assert popup['rendered']>0,'Blink documentation has no Markdown rendering marks'
+    assert popup['config']['width']>=min(30,width-4),'documentation collapsed to an unreadable sliver'
+    assert 'Docs' in str(popup['config'].get('title')) and popup['config'].get('footer'),popup
     assert len(docs())==1,docs()
     before=lua("return vim.api.nvim_win_call(...,function() return vim.fn.winsaveview() end)",popup['win'])
     input_keys('<C-f>',0.04)

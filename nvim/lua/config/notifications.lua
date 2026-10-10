@@ -12,6 +12,7 @@ local icon_names = { ERROR='error', WARN='warn', INFO='info', DEBUG='hint', TRAC
 local severity_hl = { ERROR='DiagnosticError', WARN='DiagnosticWarn', INFO='DiagnosticInfo', DEBUG='DiagnosticHint', TRACE='DiagnosticHint' }
 local headers = {}
 local namespace = vim.api.nvim_create_namespace('BlackNoticeHeadings')
+local history_win
 local function icon(level) return ui.icon(icon_names[level] or 'info') end
 local function highlight_headers(buf)
   vim.api.nvim_buf_clear_namespace(buf, namespace, 0, -1)
@@ -106,17 +107,33 @@ function M.setup()
       max_width_share = 0.38,
       config = function(buf)
         highlight_headers(buf)
-        local width = math.max(1,math.min(62,math.floor(vim.o.columns*0.55),vim.o.columns-4))
+        local longest = 0
+        for _,line in ipairs(vim.api.nvim_buf_get_lines(buf,0,-1,false)) do
+          longest = math.max(longest,vim.fn.strdisplaywidth(line))
+        end
+        local width = math.max(1,math.min(math.max(32,longest+2),62,math.floor(vim.o.columns*0.55),vim.o.columns-4))
         local rows = 0
         for _,line in ipairs(vim.api.nvim_buf_get_lines(buf,0,-1,false)) do
-          rows = rows + math.max(1,math.ceil(vim.fn.strdisplaywidth(line)/width))
+          rows = rows + math.max(1,math.ceil(vim.fn.strdisplaywidth(line)/math.max(1,width-1)))
         end
+        vim.schedule(function()
+          if not vim.api.nvim_buf_is_valid(buf) then return end
+          for _,win in ipairs(vim.fn.win_findbuf(buf)) do
+            vim.wo[win].foldcolumn='1'; vim.wo[win].statuscolumn=' '
+            vim.wo[win].linebreak=true
+          end
+        end)
         return {
+          anchor='SE',row=vim.o.lines-2,col=vim.o.columns-2,
           width = width,
           height = math.max(1,math.min(rows,10,vim.o.lines-6)),
           border = ui.border,
           title = '  Notifications ',
           title_pos = 'left',
+          footer = {{require('config.popups').hint(width, {
+            '<leader>n history · <leader>un dismiss','<leader>n history',
+          }), 'BlackPopupHint'}},
+          footer_pos = 'right',
         }
       end,
     },
@@ -131,9 +148,11 @@ end
 
 function M.history()
   M.dismiss()
-  vim.cmd("botright " .. math.max(4, math.floor(vim.o.lines * 0.3)) .. "split")
+  if history_win and vim.api.nvim_win_is_valid(history_win) then vim.api.nvim_win_close(history_win,true) end
   local buf = vim.api.nvim_create_buf(false, true)
-  vim.api.nvim_win_set_buf(0, buf)
+  local width,height = math.max(1,math.min(94,vim.o.columns-6)),math.max(1,math.min(26,vim.o.lines-6))
+  history_win = vim.api.nvim_open_win(buf,true,{relative='editor',style='minimal',border=ui.border,
+    width=width,height=height,row=math.floor((vim.o.lines-height-2)*0.35),col=math.floor((vim.o.columns-width-2)/2)})
   local lines = { "Latest " .. #history .. " notifications · " .. dropped .. " older records discarded", "" }
   local marks = {}
   if #history == 0 then lines[#lines+1] = 'No notifications yet.' end
@@ -154,7 +173,8 @@ function M.history()
   vim.wo.number, vim.wo.relativenumber = false, false
   vim.wo.signcolumn = "no"
   vim.wo.winhighlight = "Normal:BlackDocs,NormalNC:BlackDocs"
-  vim.wo.winbar = " Notification history · q to close"
+  require('config.popups').frame(history_win,{title='Notification history · '..#history,
+    pad=true,center={width=94,height=26},hints={'/ search · n next match · q / Esc close','/ search · q close','q close'}})
   for _,key in ipairs({'q','<Esc>'}) do
     vim.keymap.set('n', key, '<cmd>close<cr>', { buffer = true, silent = true })
   end

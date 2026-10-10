@@ -32,9 +32,15 @@ return {
         float = {
           border = 'rounded', source = 'if_many', header = '', max_width = 80,
           focusable = true, title = ' Diagnostics ',
-          format = function(diagnostic)
+          format = function(diagnostic) return diagnostic.message end,
+          suffix = function(diagnostic)
             local code = diagnostic.code
-            return diagnostic.message .. (code ~= nil and (' [' .. tostring(code) .. ']') or '')
+            return code ~= nil and (' [' .. tostring(code) .. ']') or '', 'BlackPopupHint'
+          end,
+          prefix = function(diagnostic, index, total)
+            local name = ({'error','warn','info','hint'})[diagnostic.severity] or 'info'
+            local group = ({'Error','Warn','Info','Hint'})[diagnostic.severity] or 'Info'
+            return require('config.ui').icon(name)..' '..(total>1 and index..'. ' or ''), 'Diagnostic'..group
           end,
         },
       },

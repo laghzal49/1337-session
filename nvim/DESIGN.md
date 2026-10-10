@@ -43,7 +43,9 @@ semantic token, icon, debugger and completion definitions consume these roles.
 | --- | --- | --- |
 | Canvas | `#000000` | Active and inactive editor splits, normal message area |
 | Inset | `#080A0C` | Status bar, sidebar, code preview, stopped debug line |
-| Panel | `#121619` | Popups, documentation, current line, guides |
+| Panel | `#121619` | Current line, picker input and larger tool panels |
+| Popup | `#080A0C` | Completion, documentation, commands, prompts and notifications |
+| Popup selection | `#111F2D` | Subtle blue tint for the selected result |
 | Selection | `#202327` | Visual selection, focused rows, active tabs |
 | Text | `#DDE1E6` | Prose, filenames, normal labels |
 | Strong text | `#F2F4F8` | Matched text and small emphasized labels; regular weight |
@@ -129,8 +131,9 @@ item and typed command while rebuilding columns for the new width.
 
 ## Verification
 
-`palette_review.lua` checks actual syntax/diagnostic highlights on canvas, panel
-and selection: the minimum tested ratio is **4.70:1** (red variables on selection).
+`palette_review.lua` checks actual syntax/diagnostic highlights on canvas, panel,
+selection, popup and popup selection: the minimum tested ratio is **4.70:1**
+(red variables on the editor selection).
 Variables measure **6.26:1** on the canvas. It also checks filled search/TODO/diff
 labels, completion/outline/icon consistency, preserved syntax selection, and
 absence of bold after lazy loading, theme reload and accessibility changes.
@@ -146,7 +149,38 @@ notification history order and ASCII severity icons. Debugger layout tests check
 three sizes, focus, tab cleanup and preservation of unsaved text; the integration
 suite still exercises actual debugpy launch, attach, evaluation and stepping.
 
-Release verification: all `make check` targets passed; after resolving the
+Previous release verification: all `make check` targets passed; after resolving the
 resize and unnamed-Python failures, the final `make review upgrade` run passed,
 including 27 fresh-process regressions. Screenshots include a real debugpy stop,
 40-column command/explorer layouts and the final folder-color overrides.
+
+## Popup review
+
+This pass changes layout and interaction as well as color. Attached Neovim
+captures, including 40-column screens, exposed these problems:
+
+| Problem | Change |
+| --- | --- |
+| Completion had little context or visible guidance | Live selection/result count, compact labels, kind/source columns, visible accept/close keys and a blue selection tint |
+| Commands appeared as “Property” | Command icon, blue color and explicit “Command” label |
+| Docs could collapse to a nine-column strip | Vertical placement below 100 columns; useful reading width at 40 columns |
+| Documentation touched its frame | A window gutter adds margin without changing parser or signature byte offsets |
+| Long references hid their scroll state | Width-aware controls and visible line range; symbol-specific completion titles |
+| Command suggestions covered the prompt border | Account for the command prompt's vertical padding in completion placement |
+| A short code-action list occupied most of the screen | Content-sized width and height while retaining the existing preview/cancel behavior |
+| Notifications competed with the top of the file | Lower-right notices, content-sized width, severity heading and history shortcut |
+| History rearranged editing splits | A searchable, resizable float; newest first; q/Escape restores the editor |
+| Diagnostic codes appeared twice | Explicit suffix owns the code once; source and severity remain visible |
+| Watch inspectors lacked context | Central placement, title, edit/expand/close hints and safe first-use loading |
+
+`config.popups` changes window presentation only. It discards ownership when a
+buffer is replaced, cleans up closed windows and preserves regular typography.
+Blink still owns completion selection and documentation requests; Mini Pick owns
+code-action previews and cancellation. No plugins were added.
+
+Popup verification: full attached UI review, documentation/action review at
+40/80/100/140 columns, the 1,102-notification rollover test and 28 strict regression
+cases. The asynchronous Git-probe test needed a fresh-process rerun; it passed.
+Final focused checks cover command resizing/selection, plain icons, prompt
+cancellation, notification history, diagnostic code uniqueness and debugger first use.
+Real captures and reproduction instructions are in [POPUPS.md](POPUPS.md).

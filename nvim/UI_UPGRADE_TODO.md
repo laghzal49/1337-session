@@ -4,6 +4,19 @@ This tracks the whole installed UI, including the current color pass. A checked
 item means its change is implemented; the final validation items cover runtime
 and screenshot review. Existing behavior is retained where it already works.
 
+## Popup redesign
+
+- [x] Nearly black popup surfaces, regular font weight and clear selected rows.
+- [x] Completion titles, result counts, accurate command kinds and visible controls.
+- [x] Documentation margins, symbol titles, scroll position and readable narrow layouts.
+- [x] Padded command prompts with non-overlapping suggestions.
+- [x] Labeled input prompts and content-sized selection menus.
+- [x] Diagnostic severity/source and exactly one diagnostic code.
+- [x] Lower-right notices and a searchable, resizable history float.
+- [x] Centered debugger inspectors with action hints and safe first invocation.
+- [x] Distinct picker input/results/preview and useful close controls.
+- [x] Review actual captures and run popup, accessibility and runtime regressions.
+
 ## Color and readability
 
 - [x] Define named color roles in one shared palette.

@@ -60,6 +60,20 @@ shows compact source labels and kind names when space permits. Notifications use
 colored severity headings with neutral body text; `<leader>n` opens newest-first
 history, with `q` or Escape to close.
 
+### Popup redesign
+
+Popups use nearly black surfaces, blue edges for input/selection and quiet gray
+edges for reference text. Text stays at regular weight. Completion has a live
+selection count and key hints; documentation has a symbol title, reading margin,
+scroll position and controls. Below 100 columns, completion docs stack vertically.
+Command suggestions sit below the padded prompt without covering its border.
+Rename/input prompts label Enter and Escape; code-action menus fit their contents.
+Notifications sit at the lower right; `<leader>n` opens a searchable history float.
+Watch/stack inspectors open centrally with action hints. Diagnostic floats show
+severity, source and one copy of the diagnostic code.
+
+See the [popup previews and controls](POPUPS.md).
+
 The old disabled theme spec and duplicate text-object ownership are also removed.
 
 `:UIAccessibility on` (or `<leader>ua`) switches to plain icons, stronger borders

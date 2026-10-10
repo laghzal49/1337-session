@@ -63,7 +63,21 @@ end
 
 function M.select(items, opts, on_choice)
   if opts.kind == 'codeaction' then opts = vim.tbl_extend('force', opts, { preview_item = M.preview }) end
-  return require('mini.pick').ui_select(items, opts, on_choice)
+  local desired = opts.kind == 'codeaction' and 60 or 36
+  for _, item in ipairs(items) do
+    local text = opts.format_item and opts.format_item(item) or type(item)=='string' and item
+      or type(item)=='table' and (item.text or item.title) or ''
+    desired = math.max(desired, vim.fn.strdisplaywidth(tostring(text))+4)
+  end
+  -- A two-choice action menu should not occupy most of the editor. The picker
+  -- still owns filtering, preview and cancellation; size only this invocation.
+  return require('mini.pick').ui_select(items, opts, on_choice, {window={config=function()
+    local width = math.max(1, math.min(desired,86,vim.o.columns-4))
+    local height = math.max(1, math.min(math.max(#items+2,5),18,vim.o.lines-6))
+    return {relative='editor',anchor='NW',border=require('config.ui').border,
+      width=width,height=height,row=math.floor((vim.o.lines-height-2)*0.3),
+      col=math.floor((vim.o.columns-width-2)/2)}
+  end}})
 end
 
 function M.code_action()

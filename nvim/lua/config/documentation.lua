@@ -2,10 +2,12 @@
 local M = {}
 local ui = require('config.ui')
 local window
+local popup = require('config.popups')
 
 function M.options(title)
   return { border = ui.border, title = ' ' .. (title or 'Documentation') .. ' ', title_pos = 'left',
-    max_width = math.max(1, math.min(ui.max_width, vim.o.columns - 4, math.floor(vim.o.columns * 0.75))),
+    max_width = math.max(1, math.min(ui.max_width, vim.o.columns - 4,
+      vim.o.columns < 80 and vim.o.columns-4 or math.floor(vim.o.columns * 0.75))),
     max_height = math.max(1, math.min(ui.max_height, math.floor((vim.o.lines - 4) * 0.5))),
     focus_id = 'black_documentation', wrap = true,
     close_events = { 'CursorMoved', 'CursorMovedI', 'InsertCharPre' } }
@@ -59,6 +61,16 @@ function M.open(lines, title, options)
   vim.wo[win].winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder,FloatTitle:BlackDocsTitle'
   vim.wo[win].spell = false
   vim.wo[win].scrolloff = 1
+  vim.wo[win].linebreak = true
+  popup.frame(win, {title=title or 'Documentation', pad=true, scroll=true, hints=function(target)
+    if vim.api.nvim_get_current_win() == target then
+      return {'C-b/f scroll · q / Esc close', 'q / Esc close'}
+    end
+    if vim.api.nvim_get_mode().mode:sub(1,1) == 'i' then
+      return {'C-k details · Esc close', 'Esc close'}
+    end
+    return {'K focus · C-b/f scroll · q close', 'K focus · q close', 'K focus'}
+  end})
   for _, key in ipairs({ 'q', '<Esc>' }) do
     vim.keymap.set('n', key, M.close, { buffer = buf, silent = true, nowait = true })
   end
@@ -72,13 +84,21 @@ function M.completion_draw(opts)
   if cmp then cmp.hide_signature() end
   local bounds = M.options()
   opts.window.config.max_width, opts.window.config.max_height = bounds.max_width, bounds.max_height
+  -- Side-by-side panes become unreadable on small terminals. Restrict the
+  -- candidate directions so Blink cannot fall back to a nine-column sliver.
+  opts.config.window.direction_priority = vim.o.columns < 100
+    and {menu_north={'n','s'},menu_south={'s','n'}}
+    or {menu_north={'e','w','n','s'},menu_south={'e','w','s','n'}}
+  opts.config.window.desired_min_width = math.min(44,bounds.max_width)
   opts.default_implementation()
   local buf = opts.window:get_buf()
   local tick = vim.api.nvim_buf_get_changedtick(buf)
   vim.schedule(function()
     local win = opts.window:get_win()
     if win and vim.api.nvim_buf_is_valid(buf) and vim.api.nvim_buf_get_changedtick(buf) == tick then
-      vim.api.nvim_win_set_config(win, { title = ' Documentation ', title_pos = 'left' })
+      local label = opts.item and opts.item.label or ''
+      popup.frame(win, {title='Docs · '..label, pad=true, scroll=true,
+        hints={'C-b/f scroll · C-d hide', 'C-d hide'}})
       M.render(buf, win)
     end
   end)

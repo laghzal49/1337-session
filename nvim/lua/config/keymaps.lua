@@ -174,21 +174,14 @@ local function diagnostic_jump(count)
   vim.diagnostic.jump({ count = count * vim.v.count1, on_jump = function(diagnostic, buf)
     if diagnostic and buf == vim.api.nvim_get_current_buf() then
       require('config.cursor_ui').after(before)
-      vim.diagnostic.open_float({ bufnr = buf, scope = 'cursor', focus = false })
+      require('config.popups').diagnostic({ bufnr = buf, scope = 'cursor', focus = false })
     end
   end })
 end
 map('[d', function() diagnostic_jump(-1) end, 'Previous diagnostic')
 map(']d', function() diagnostic_jump(1) end, 'Next diagnostic')
 map('<leader>cd', function()
-  vim.diagnostic.open_float({
-    border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
-    title = ' ' .. require('config.ui').icon('diagnostics') .. ' Diagnostics ',
-    title_pos = 'center',
-    header = '',
-    prefix = ' ',
-    source = 'if_many',
-  })
+  require('config.popups').diagnostic()
 end, 'Line diagnostics')
 
 -- Yank to system clipboard helpers

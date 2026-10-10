@@ -15,6 +15,7 @@ local function owned_intact()
   return visible
 end
 function M.open()
+  require('dap') -- Initialize the owning plugin before its UI dependency.
   local ui = require('dapui')
   local current = vim.api.nvim_get_current_win()
   if M.active and M.tab ~= vim.api.nvim_get_current_tabpage() then M.close() end
@@ -45,7 +46,9 @@ function M.toggle()
   if M.active and M.tab == vim.api.nvim_get_current_tabpage() and owned_intact() then M.close() else M.open() end
 end
 function M.inspect(element)
+  require('dap')
   require('dapui').float_element(element, {
+    position='center', title=' Debug · '..element:gsub('^%l',string.upper)..' ',
     enter=true, width=math.max(1,math.min(76,vim.o.columns-6)),
     height=math.max(1,math.min(18,vim.o.lines-6)),
   })

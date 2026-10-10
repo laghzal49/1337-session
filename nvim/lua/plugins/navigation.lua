@@ -47,7 +47,7 @@ return {
             relative = 'editor',
             border = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' },
             title = '  Search  ',
-            title_pos = 'center',
+            title_pos = 'left',
             width = width,
             height = height,
             row = math.max(0, math.floor((vim.o.lines - height) * 0.28)),

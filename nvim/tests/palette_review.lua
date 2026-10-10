@@ -29,7 +29,7 @@ local names={'@variable','@variable.parameter','@variable.member','@function','@
 local lowest=100
 for _,name in ipairs(names) do
   local hl=vim.api.nvim_get_hl(0,{name=name,link=false})
-  for _,bg in ipairs({p.canvas,p.panel,p.selection}) do
+  for _,bg in ipairs({p.canvas,p.panel,p.selection,p.inset,p.popup_selection}) do
     local contrast=ratio(assert(hl.fg,name),color(bg))
     assert(contrast>=4.5,('%s contrast %.2f on %s'):format(name,contrast,bg))
     lowest=math.min(lowest,contrast)
@@ -43,7 +43,7 @@ for _,lang in ipairs({'python','lua','c','cpp'}) do
 end
 assert(vim.api.nvim_get_hl(0,{name='DiagnosticUnderlineError',link=false}).undercurl,
   'errors need a non-color cue')
-print(('PALETTE PASS: syntax/diagnostics on three backgrounds, minimum %.2f:1; LSP parity and error undercurl'):format(lowest))
+print(('PALETTE PASS: syntax/diagnostics on five backgrounds, minimum %.2f:1; LSP parity and error undercurl'):format(lowest))
 
 -- Catch lazy plugin setup and theme reloads reverting the chosen colors/weight.
 require('lazy').load({plugins={'mini.icons','flash.nvim','nvim-dap','todo-comments.nvim','render-markdown.nvim','blink.cmp','aerial.nvim','which-key.nvim','lualine.nvim','bufferline.nvim'}})
