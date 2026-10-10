@@ -30,6 +30,7 @@ set -euo pipefail
 
 FORCE=0
 NOSYNC=0
+INSTALL_FAILED=0
 for arg in "$@"; do
   case "$arg" in
     --force) FORCE=1 ;;
@@ -48,7 +49,7 @@ BIN="$LOCAL/bin"
 OPT="$LOCAL/opt"
 FONTS="$LOCAL/share/fonts"
 umask 077
-mkdir -p "$BIN" "$OPT" "$FONTS"
+mkdir -p "$BIN" "$OPT" "$FONTS" "$LOCAL/var/tmp"
 export PATH="$BIN:$PATH" # so later steps see what earlier steps installed
 
 # Do not use /tmp: it may be shared with other users.  A private, predictable
@@ -231,12 +232,15 @@ fi
 # ============================================================================
 step "3/10 · Neovim (latest stable)"
 # ============================================================================
-if want nvim; then
+if [ "$FORCE" = 1 ] || ! have nvim || ! nvim --clean --headless \
+    -c 'if !has("nvim-0.11") | cquit 1 | endif' -c qa >/dev/null 2>&1; then
   fetch "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${A_NVIM}.tar.gz" "$TMP/nvim.tar.gz"
   rm -rf "$OPT/nvim-linux-${A_NVIM}"
   tar -C "$OPT" -xzf "$TMP/nvim.tar.gz"
   ln -sf "$OPT/nvim-linux-${A_NVIM}/bin/nvim" "$BIN/nvim"
   ok "$("$BIN/nvim" --version | head -1) → ~/.local/bin/nvim"
+else
+  skip "Neovim (0.11 or newer)"
 fi
 
 # ============================================================================
@@ -424,21 +428,30 @@ step "10/10 · preinstall pinned plugins and parsers"
 if [ "$NOSYNC" = 1 ]; then
   printf '%s  ↷ skipped (--no-sync)%s\n' "$C_DIM" "$C_OFF"
 elif have nvim; then
-  if have timeout; then
-    if timeout 900 nvim --headless "+Lazy! restore" +qa >/dev/null 2>&1; then
-      ok "plugins installed"
-    else
-      warn "headless plugin sync didn't finish — first nvim launch will finish it"
+  run_nvim_phase() {
+    local phase="$1" log="$TMP/nvim-$1.log"
+    local -a command=(nvim --headless -c 'lua dofile(vim.env.NVIM_BOOTSTRAP_SCRIPT)')
+    if have timeout; then command=(timeout 900 "${command[@]}"); fi
+    if env XDG_CONFIG_HOME="$HOME/.config" NVIM_BLACK_DOCS_AUTO_UPDATE=0 \
+        NVIM_BOOTSTRAP_MODE="$phase" NVIM_BOOTSTRAP_SCRIPT="$REPO_DIR/scripts/nvim-bootstrap.lua" \
+        "${command[@]}" >"$log" 2>&1 \
+        && grep -Fq "BOOTSTRAP PASS: $phase" "$log"; then
+      return 0
     fi
-  elif nvim --headless "+Lazy! restore" +qa >/dev/null 2>&1; then
-    ok "plugins installed"
+    tail -n 12 "$log" >&2
+    return 1
+  }
+  if run_nvim_phase plugins; then
+    ok "pinned plugins installed and restore tasks verified"
   else
-    warn "headless plugin sync didn't finish — first nvim launch will finish it"
+    warn "plugin restore failed — review errors above and rerun the installer"
+    INSTALL_FAILED=1
   fi
-  if nvim --headless "+lua require('nvim-treesitter').install({'python','c','cpp','lua','vim','vimdoc','query','markdown','markdown_inline'}):wait(300000)" +qa >/dev/null 2>&1; then
-    ok "syntax parsers installed"
+  if run_nvim_phase parsers; then
+    ok "syntax parsers installed and loadable"
   else
-    warn "parser setup incomplete — run :TSInstall python c cpp lua vim vimdoc query markdown markdown_inline"
+    warn "parser setup incomplete — review errors above; run :TSInstall python c cpp lua vim vimdoc query markdown markdown_inline"
+    INSTALL_FAILED=1
   fi
 fi
 
@@ -461,7 +474,11 @@ if ! have xclip && ! have wl-copy; then
 fi
 
 # ============================================================================
-printf '\n%s━━━ done ━━━%s\n\n' "$C_GREEN" "$C_OFF"
+if [ "$INSTALL_FAILED" = 1 ]; then
+  printf '\n%s━━━ setup incomplete ━━━%s\n\n' "$C_RED" "$C_OFF"
+else
+  printf '\n%s━━━ done ━━━%s\n\n' "$C_GREEN" "$C_OFF"
+fi
 printf '  next steps:\n'
 printf '   1. restart your terminal (or: source ~/.bashrc)\n'
 printf '   2. set your terminal font to %sJetBrainsMono Nerd Font Mono, Regular, 13pt%s\n' "$C_CYAN" "$C_OFF"
@@ -471,3 +488,6 @@ if [ "${#WARNINGS[@]}" -gt 0 ]; then
   for w in "${WARNINGS[@]}"; do printf '   %s! %s%s\n' "$C_YELLOW" "$w" "$C_OFF"; done
 fi
 printf '\n'
+
+# Core setup failures must propagate to callers; optional-tool warnings remain advisory.
+if [ "$INSTALL_FAILED" = 1 ]; then exit 1; fi

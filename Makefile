@@ -1,9 +1,10 @@
-NVIM ?= nvim
+NVIM ?= $(if $(NVIM_BIN),$(NVIM_BIN),nvim)
 PYTHON ?= python3
+export NVIM_BIN := $(NVIM)
 export XDG_CONFIG_HOME := $(CURDIR)
 export NVIM_BLACK_DOCS_AUTO_UPDATE := 0
 
-.PHONY: all test review bench check workflow spatial reference
+.PHONY: all test review bench check workflow spatial reference upgrade
 all: test
 
 ## Run standalone test suite
@@ -23,7 +24,7 @@ workflow:
 	$(NVIM) --headless -c "lua local ok, err = pcall(dofile, 'nvim/tests/workflow.lua'); if not ok then print(err); vim.cmd('cquit 1') end" -c "qa!"
 
 ## Run all test suites
-check: test workflow spatial reference review
+check: test workflow spatial reference review upgrade
 
 ## Verify navigation feedback, cached symbols, split focus and command suggestions
 spatial:
@@ -40,3 +41,8 @@ reference:
 	$(NVIM) --headless -c "lua local ok, err = pcall(dofile, 'nvim/tests/markdown_review.lua'); if not ok then print(err); vim.cmd('cquit 1') end" -c "qa!"
 	$(PYTHON) nvim/tests/terminal_escape_review.py
 	$(PYTHON) nvim/tests/documentation_review.py
+
+## Run strict upgrade regressions in fresh Neovim processes (requires debugpy)
+upgrade:
+	$(PYTHON) nvim/tests/installer_review.py
+	$(PYTHON) nvim/tests/smoke.py

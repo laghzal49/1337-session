@@ -51,7 +51,16 @@ It no longer automatically opens a terminal. Project tasks run in the background
 
 Tasks recognize Make, package.json scripts, Cargo, Go and Python projects. Tool
 output stays available; failures with parseable file locations populate quickfix.
+Output retention is capped at 1 MiB or 5,000 lines per stream, with a visible
+truncation notice. Stopping a task sends SIGTERM, then SIGKILL after one second
+if needed; programs that spawn their own process trees may need separate cleanup.
 Tools/packages are installed explicitly, never by opening a project.
+
+The follow-up audit also fixes small-window and Unicode title sizing, keeps Git
+change status visible beside long branch names, and makes the dashboard build
+action discover tasks across supported projects. Root discovery respects local
+working directories and recognizes standalone Node and Python projects. TODO
+navigation and selected-line Git history retain their intended keybindings.
 
 Performance changes extend beyond startup: cached root lookups, one asynchronous
 Git probe per project, no dashboard filesystem walk, no duplicate bufferline
@@ -60,7 +69,7 @@ format-on-save cap. Files over 1 MiB or 20,000 lines switch to a conservative
 plain editing mode; close/reopen after reducing them to restore semantic features.
 
 Matched five-run benchmarks on this machine: cached headless startup median
-**20.78 → 14.86 ms** (~29% lower); attached idle RSS **21.4 → 20.5 MiB**.
+**20.78 → 15.38 ms** (~26% lower); attached idle RSS **21.4 → 20.3 MiB**.
 These are local measurements, not promises of LSP or interactive latency.
 Raw results are in `tests/redesign_results.json`; screenshots are rendered from
 Neovim's actual attached UI grid, not mockups.
@@ -92,7 +101,7 @@ activates cluster scans. Use `STATION_1337=1` or `:StationMode on` to opt in els
 The inode quota parser also handles `df` output without a Lua multiple-return error.
 
 Validation on Neovim 0.11.5: five cached headless launches per config had median
-startup **20.78 ms before → 14.86 ms after**. These numbers describe this test
+startup **20.78 ms before → 15.38 ms after**. These numbers describe this test
 machine, exclude first-install costs, and do not measure LSP readiness or UI latency.
 Run `NVIM_BIN=/path/to/nvim python3 nvim/tests/startup_bench.py --runs 5`
 and `nvim --headless '+lua dofile("nvim/tests/responsiveness_review.lua")' +qa!`
@@ -133,7 +142,7 @@ Open a Python file, set a breakpoint, and press F5. Choose a file launch with
 arguments, module launch, or local attach when needed. Attach requires an existing
 `python -m debugpy --listen 127.0.0.1:5678 --wait-for-client script.py` process.
 `<leader>DL` adds a logpoint; `<leader>Dp` pauses; `<leader>Dl` reruns; `<leader>Dx`
-clears breakpoints. Live attach was configured but not exercised in this environment.
+clears breakpoints. Live local attach was verified with a disposable debugpy server.
 
 For C/C++, install **GDB 14+ with Python/DAP support**, build with debug symbols
 (e.g. `cc -g -O0 main.c -o main`), open the source, and press F5. Supply the compiled
@@ -421,7 +430,9 @@ A dedicated environment manager built specifically for 1337 / 42 cluster machine
 ## Verification
 
 Run `make check` from the repository root with installed plugins, ty on PATH,
-and Python `msgpack`. It checks the real Blink completion UI, workflow
+debugpy installed as above, and Python `msgpack`. Use `make upgrade` for the
+strict upgrade regression suite (or `make upgrade NVIM=/path/to/nvim`).
+It checks the real Blink completion UI, workflow
 regressions and the configured Python language server. Individual commands:
 
 ```sh

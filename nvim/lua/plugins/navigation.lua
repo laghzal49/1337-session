@@ -234,7 +234,7 @@ return {
       -- MiniBracketed lowercases suffixes; 'D' would still overwrite [d/]d.
       diagnostic = { suffix = '' },
       quickfix   = { suffix = '' }, -- [q/]q owned by cursor_ui, preserving counts.
-      treesitter = { suffix = 't' },
+      treesitter = { suffix = '' }, -- [t/]t belong to TODO navigation; [m/]m jump functions.
       undo       = { suffix = '' },
       window     = { suffix = '' },
       yank       = { suffix = '' },

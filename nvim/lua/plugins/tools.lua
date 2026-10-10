@@ -61,7 +61,7 @@ return {
   -- Lightweight autopairs
   {
     'nvim-mini/mini.pairs',
-    event = 'InsertEnter',
+    event = { 'InsertEnter', 'CmdlineEnter' },
     opts = {
       modes = { insert = true, command = true, terminal = false },
     },
@@ -176,7 +176,8 @@ return {
     keys = {
       { '<leader>gD', '<cmd>DiffviewOpen<cr>', desc = 'Git diff view' },
       { '<leader>gH', '<cmd>DiffviewFileHistory %<cr>', desc = 'Current file history' },
-      { '<leader>gf', '<cmd>DiffviewFileHistory<cr>', mode = { 'n', 'v' }, desc = 'File history (selection)' },
+      { '<leader>gf', '<cmd>DiffviewFileHistory<cr>', desc = 'File history' },
+      { '<leader>gf', "<Esc><cmd>'<,'>DiffviewFileHistory<cr>", mode = 'v', desc = 'Selected lines history' },
       { '<leader>gc', '<cmd>DiffviewClose<cr>', desc = 'Close diffview' },
     },
     opts = {

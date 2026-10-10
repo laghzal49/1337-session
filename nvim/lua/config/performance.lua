@@ -10,7 +10,16 @@ function M.large(buf)
 end
 
 function M.guard(buf)
-  if not M.large(buf) or vim.b[buf].performance_guard then return end
+  buf = (buf == nil or buf == 0) and vim.api.nvim_get_current_buf() or buf
+  if not M.large(buf) then return end
+  -- Window-local options need applying again when a guarded buffer enters a
+  -- different split; one-time buffer classification alone does not cover it.
+  for _, win in ipairs(vim.fn.win_findbuf(buf)) do
+    if vim.wo[win].foldmethod ~= 'manual' then vim.wo[win].foldmethod = 'manual' end
+    if vim.wo[win].spell then vim.wo[win].spell = false end
+    if vim.wo[win].cursorcolumn then vim.wo[win].cursorcolumn = false end
+  end
+  if vim.b[buf].performance_guard then return end
   vim.b[buf].performance_guard = true
   vim.b[buf].bigfile = true
   vim.b[buf].minihipatterns_disable = true
@@ -30,11 +39,6 @@ function M.guard(buf)
   vim.diagnostic.enable(false, { bufnr = buf })
   for _, client in ipairs(vim.lsp.get_clients({ bufnr = buf })) do
     vim.lsp.buf_detach_client(buf, client.id)
-  end
-  for _, win in ipairs(vim.fn.win_findbuf(buf)) do
-    vim.wo[win].foldmethod = 'manual'
-    vim.wo[win].spell = false
-    vim.wo[win].cursorcolumn = false
   end
 end
 

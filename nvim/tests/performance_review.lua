@@ -13,6 +13,31 @@ hipatterns.setup({ highlighters = { todo = { pattern = 'TODO', group = 'Todo' } 
 hipatterns.enable(buf)
 vim.wait(20, function() return false end)
 assert(vim.tbl_contains(hipatterns.get_enabled_buffers(), buf), 'decoration fixture did not attach')
+-- A local RPC fixture verifies real client attachment/detachment without tools.
+local rpc_closed, request_id = false, 0
+local client_id = vim.lsp.start_client({
+  name = 'performance-guard-review',
+  cmd = function(dispatchers)
+    return {
+      request = function(method, _, callback)
+        request_id = request_id + 1
+        vim.schedule(function()
+          callback(nil, method == 'initialize' and { capabilities = { textDocumentSync = 1 } } or nil)
+        end)
+        return true, request_id
+      end,
+      notify = function() return true end,
+      is_closing = function() return rpc_closed end,
+      terminate = function() rpc_closed = true; dispatchers.on_exit(0, 0) end,
+    }
+  end,
+})
+assert(client_id, 'LSP fixture did not start')
+assert(vim.wait(5000, function()
+  local client = vim.lsp.get_client_by_id(client_id)
+  return client and client.initialized
+end), 'LSP fixture did not initialize')
+assert(vim.lsp.buf_attach_client(buf, client_id), 'normal buffer rejected LSP fixture')
 local context_refreshed = false
 local previous_context = package.loaded['treesitter-context']
 local previous_enable
@@ -48,9 +73,30 @@ assert(not vim.tbl_contains(hipatterns.get_enabled_buffers(), buf), 'existing pa
 assert(vim.b[buf].snacks_indent == false and vim.b[buf].snacks_scope == false, 'indent/scope decorations remain enabled')
 assert(vim.wo.foldmethod == 'manual', 'growth guard did not suppress expensive folds')
 assert(not vim.diagnostic.is_enabled({ bufnr = buf }), 'growth guard did not suppress diagnostics')
+assert(not vim.lsp.buf_is_attached(buf, client_id), 'existing LSP attachment survived growth')
+vim.lsp.buf_attach_client(buf, client_id)
+assert(vim.wait(5000, function() return not vim.lsp.buf_is_attached(buf, client_id) end),
+  'new LSP attachment bypassed large-buffer guard')
+vim.lsp.stop_client(client_id, true)
+local small = vim.api.nvim_create_buf(true, false)
+vim.cmd.vsplit()
+local split = vim.api.nvim_get_current_win()
+vim.api.nvim_win_set_buf(split, small)
+vim.wo[split].foldmethod = 'expr'
+vim.wo[split].spell = true
+vim.wo[split].cursorcolumn = true
+vim.api.nvim_win_set_buf(split, buf)
+assert(vim.wo[split].foldmethod == 'manual' and not vim.wo[split].spell
+  and not vim.wo[split].cursorcolumn, 'guard was not applied to a newly displayed split')
+vim.api.nvim_win_close(split, true)
 local bytes = vim.api.nvim_create_buf(true, false)
 vim.api.nvim_buf_set_lines(bytes, 0, -1, false, { string.rep('x', performance.max_bytes + 1) })
 assert(performance.large(bytes), 'byte budget missed single-line generated file')
+vim.api.nvim_set_current_buf(bytes)
+vim.wo.foldmethod = 'expr'
+vim.wo.spell = true
+performance.guard(0)
+assert(vim.wo.foldmethod == 'manual' and not vim.wo.spell, 'guard current-buffer sentinel skipped window options')
 local normal = vim.api.nvim_create_buf(true, false)
 assert(not performance.large(normal), 'large-file state leaked to normal buffer')
 vim.bo[normal].buftype = 'nofile'

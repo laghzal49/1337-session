@@ -6,6 +6,7 @@ local dap = require('dap')
 local debug = require('config.debugging')
 assert(vim.deep_equal(debug.parse_args([[--name "hello world" 'two words' plain\ value ""]]),
   { '--name', 'hello world', 'two words', 'plain value', '' }), 'quoted arguments broken')
+assert(vim.deep_equal(debug.parse_args([["a\path" "a\"b"]]), { [[a\path]], [[a"b]] }), 'double-quoted backslashes lost')
 assert(debug.parse_args([["unfinished]]) == nil, 'invalid quotes accepted')
 assert(#dap.configurations.python == 4, 'Python launch/module/attach configurations missing')
 assert(#dap.configurations.c == 2 and #dap.configurations.cpp == 2, 'native launch/attach missing')
@@ -53,6 +54,26 @@ assert(vim.wait(15000, function() local active = dap.session(); return active an
 dap.continue()
 assert(vim.wait(5000, function() return dap.session() == nil end), 'module debuggee did not finish')
 vim.wait(100)
+-- A live attach server chooses a disposable loopback port; no fixed-port conflicts.
+local port, output, server_done = nil, '', false
+local adapter_python = vim.fn.stdpath('data') .. '/debugpy/bin/python'
+local server = vim.system({ adapter_python, '-u', '-c',
+  'import debugpy,runpy,sys; endpoint=debugpy.listen(("127.0.0.1",0)); print(endpoint[1],flush=True); debugpy.wait_for_client(); sys.argv=[sys.argv[1],"hello world","42"]; runpy.run_path(sys.argv[0],run_name="__main__")', file }, {
+  text = true,
+  stdout = function(_, data)
+    if data then output = output .. data; port = tonumber(output:match('^(%d+)')) end
+  end,
+}, function() server_done = true end)
+assert(vim.wait(10000, function() return port ~= nil or server_done end) and port, 'attach server did not start')
+dap.run({ name = 'Attach review', type = 'python', request = 'attach',
+  connect = { host = '127.0.0.1', port = port }, justMyCode = true })
+local attached = vim.wait(15000, function() local active = dap.session(); return active and active.stopped_thread_id ~= nil end)
+if not attached then server:kill(15) end
+assert(attached, 'live attach did not stop at breakpoint')
+dap.continue()
+assert(vim.wait(5000, function() return dap.session() == nil end), 'attached debuggee did not finish')
+assert(vim.wait(5000, function() return server_done end), 'attach server leaked after exit')
+vim.wait(100)
 -- Yank must mark the copied range briefly, then clear it.
 vim.cmd.edit(file)
 vim.api.nvim_win_set_cursor(0, { 1, 0 })
@@ -63,4 +84,4 @@ vim.wait(250)
 assert(#vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, {}) == 0, 'yank highlight did not clear')
 vim.cmd.enew()
 vim.fn.delete(dir, 'rf')
-print('DEBUGGING: quoted arguments/cancellation/configurations, real debugpy file/module arguments/breakpoint/evaluation/step/exit, panels, timed yank PASS')
+print('DEBUGGING: quoted arguments/cancellation/configurations, real debugpy file/module/attach arguments/breakpoint/evaluation/step/exit, panels, timed yank PASS')
