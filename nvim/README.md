@@ -12,6 +12,8 @@ toggles format-on-save.
 ![New project dashboard](assets/redesign-dashboard.png)
 ![Black Deck command guide](assets/redesign-deck.png)
 ![New editor hierarchy](assets/redesign-editor.png)
+![Bold red variables and TODO comment labels](assets/redesign-annotations.png)
+![Responsive keymap guide](assets/redesign-guide-100.png)
 ![Explorer with readable folder colors](assets/redesign-explorer.png)
 ![Project files with live preview](assets/redesign-picker.png)
 ![Actual Python breakpoint and variables](assets/redesign-debugger.png)
@@ -48,6 +50,21 @@ The old disabled theme spec and duplicate text-object ownership are also removed
 `:UIAccessibility on` (or `<leader>ua`) switches to plain icons, stronger borders
 and non-italic comments/docstrings. Loaded icon providers and command guides
 refresh when toggled; `off` restores the previous font and highlight preferences.
+
+Variables are vivid bold red, with lighter peach parameters and lavender
+members. Tree-sitter and LSP semantic tokens share these colors. The statusline
+shows attached language servers when idle and keeps loading progress out of floating
+popups; diagnostic popups include diagnostic
+codes so a warning can be identified precisely.
+
+TODO, FIXME, NOTE, HACK, WARN, PERF and TEST comments receive colored labels.
+Both `TODO: message` and `TODO message` work, including `TODO(name): message`.
+Use `]t` / `[t` to jump and `<leader>st` to search. Highlighting stays inside
+comments, so strings containing these words are left alone.
+
+The keymap guide (`<leader>?`) starts with everyday actions, wraps long rows,
+and adapts when the terminal resizes. `/` searches the guide and `]]` / `[[`
+jump between sections; `q` closes it.
 
 Workspace mode (`<leader>uw`) opens only panels that fit and have useful content,
 returns focus to your editor, and preserves windows you repurpose while working.

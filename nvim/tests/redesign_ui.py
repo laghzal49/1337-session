@@ -83,6 +83,8 @@ import sys;sys.path.insert(0,str(root/'nvim/tests'))
 from PIL import Image, ImageDraw, ImageFont
 font_path=os.environ.get('NVIM_PREVIEW_FONT') or subprocess.check_output(['fc-match','-f','%{file}','JetBrainsMono Nerd Font Mono'],text=True)
 font=ImageFont.truetype(font_path,16)
+bold_path=subprocess.check_output(['fc-match','-f','%{file}','JetBrainsMono Nerd Font Mono:style=Bold'],text=True)
+bold_font=ImageFont.truetype(bold_path,16)
 def save_grid(grid,attrs,fg,bg,output):
  im=Image.new('RGB',(len(grid[0])*10,len(grid)*22)); d=ImageDraw.Draw(im)
  for y,row in enumerate(grid):
@@ -93,7 +95,7 @@ def save_grid(grid,attrs,fg,bg,output):
  for y,row in enumerate(grid):
   for x,(char,hl) in enumerate(row):
    a=attrs.get(hl,{});f=a.get('background',bg) if a.get('reverse') else a.get('foreground',fg)
-   d.text((x*10,y*22+2),char,font=font,fill=f'#{f:06x}',stroke_width=0)
+   d.text((x*10,y*22+2),char,font=bold_font if a.get('bold') else font,fill=f'#{f:06x}',stroke_width=0)
  im.save(output)
 
 save_grid(grid,attrs,default_fg,default_bg,capture_dir/(capture_prefix+'-dashboard.png'))
@@ -132,6 +134,34 @@ if os.environ.get('NVIM_CAPTURE_EXPLORER') == '1':
  call('nvim_exec_lua',["Snacks.explorer()",[]]);pump(.5)
  save_grid(grid,attrs,default_fg,default_bg,capture_dir/(capture_prefix+'-explorer.png'))
  call('nvim_exec_lua',["for _,p in ipairs(Snacks.picker.get()) do p:close() end",[]]);pump(.2)
+if os.environ.get('NVIM_CAPTURE_GUIDE') == '1':
+ call('nvim_exec_lua',["require('config.cheatsheet').show()",[]]);pump(.3)
+ for width,height in [(100,30),(40,20)]:
+  call('nvim_ui_try_resize',[width,height]);pump(.3)
+  save_grid(grid,attrs,default_fg,default_bg,capture_dir/(f'{capture_prefix}-guide-{width}.png'))
+ call('nvim_exec_lua',["require('config.cheatsheet').close()",[]]);pump(.1)
+if os.environ.get('NVIM_CAPTURE_ANNOTATIONS') == '1':
+ call('nvim_ui_try_resize',[100,30]);pump(.2)
+ call('nvim_command',['enew'])
+ call('nvim_buf_set_lines',[0,0,-1,False,[
+  '-- TODO validate user input before saving',
+  '-- FIXME: handle a missing project directory',
+  '-- NOTE(owner): paths are relative to the workspace',
+  '',
+  'local project_name = "my-project"',
+  'local files = { "main.lua", "config.lua" }',
+  '',
+  'local function describe_project(name, count)',
+  '  local summary = name .. ": " .. count .. " files"',
+  '  return summary',
+  'end',
+  '',
+  'print(describe_project(project_name, #files))',
+ ]])
+ call('nvim_command',['setfiletype lua'])
+ call('nvim_exec_lua',["require('lazy').load({plugins={'todo-comments.nvim'}}); vim.treesitter.start(0,'lua'); vim.treesitter.get_parser(0):parse()",[]]);pump(.4)
+ call('nvim_exec_lua',["require('todo-comments.highlight').highlight(vim.api.nvim_get_current_buf(),0,12)",[]]);pump(.2)
+ save_grid(grid,attrs,default_fg,default_bg,capture_dir/(capture_prefix+'-annotations.png'))
 messages=call('nvim_exec_lua',["return vim.api.nvim_exec2('messages',{output=true}).output",[]])
 assert 'Error executing' not in messages and 'Failed to load' not in messages,messages
 print('REDESIGN UI: dashboard, split editor, async branch, responsive preview picker and Escape PASS')

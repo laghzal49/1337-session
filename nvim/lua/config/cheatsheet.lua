@@ -1,28 +1,19 @@
+-- Read-only keyboard reference, independent of Markdown editing plugins.
 local M = {}
 local ui = require('config.ui')
+local sections = {}
 
-M.win_id = nil
-M.buf_nr = nil
-
--- Define highlights matching theme palette
 local function setup_highlights()
-  local ok, surfaces = pcall(require, "config.surfaces")
-  local accent = ok and surfaces.accent or "#82AAFF"
-  local lilac = ok and surfaces.lilac or "#C7A6FF"
-  local teal = ok and surfaces.teal or "#4FD1C5"
-  local muted = ok and surfaces.muted or "#61708A"
-  local edge = ok and surfaces.edge or "#38557A"
-  local panel = ok and surfaces.panel or "#0E141D"
-  local text = ok and surfaces.text or "#D7E3FF"
-
-  vim.api.nvim_set_hl(0, "CheatsheetNormal", { fg = text, bg = panel, default = true })
-  vim.api.nvim_set_hl(0, "CheatsheetBorder", { fg = teal, bg = panel, default = true })
-  vim.api.nvim_set_hl(0, "CheatsheetTitle", { fg = accent, bg = panel, bold = true, default = true })
-  vim.api.nvim_set_hl(0, "CheatsheetHeader", { fg = accent, bold = true, default = true })
-  vim.api.nvim_set_hl(0, "CheatsheetKey", { fg = lilac, bold = true, default = true })
-  vim.api.nvim_set_hl(0, "CheatsheetSep", { fg = edge, default = true })
-  vim.api.nvim_set_hl(0, "CheatsheetMuted", { fg = muted, italic = true, default = true })
-  vim.api.nvim_set_hl(0, "CheatsheetAction", { fg = teal, default = true })
+  local s = require('config.surfaces')
+  local groups = {
+    CheatsheetNormal = { fg = s.text, bg = s.panel },
+    CheatsheetBorder = { fg = s.edge_bright, bg = s.panel },
+    CheatsheetTitle = { fg = s.text, bg = s.panel, bold = true },
+    CheatsheetHeader = { fg = s.teal, bold = true },
+    CheatsheetKey = { fg = s.lilac, bold = true },
+    CheatsheetMuted = { fg = s.muted },
+  }
+  for name, value in pairs(groups) do vim.api.nvim_set_hl(0, name, value) end
 end
 
 local content_lines = {
@@ -86,6 +77,11 @@ local content_lines = {
   "  Python: `<leader>cI` Imports │ `<leader>cF` Ruff fixes │ `<leader>cp` LSP/environment",
   "  `:PythonInterpreter /path/to/python` Set project interpreter │ `auto` Restore discovery",
   "",
+  "## TODO Comments",
+  "  TODO / FIXME / NOTE / HACK / WARN / PERF / TEST highlight inside comments",
+  "  `]t` Next TODO │ `[t` Previous TODO │ `<leader>st` Search project TODOs",
+  "  Use TODO, TODO: or TODO(name): followed by your note",
+  "",
   "## Git Integration",
   "  `<leader>gg`  Lazygit floating UI          │ `<leader>gL`  Commit history",
   "",
@@ -97,51 +93,104 @@ local content_lines = {
   "  Press `q` or `<Esc>` to close  ·  Use `j`/`k` or `<C-d>`/`<C-u>` to scroll",
 }
 
-local function apply_highlights(buf)
-  local ns = vim.api.nvim_create_namespace("cheatsheet_highlights")
-  vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
 
-  for l_idx, line in ipairs(content_lines) do
-    local row = l_idx - 1
-    if line:match("^## ") then
-      vim.api.nvim_buf_add_highlight(buf, ns, "CheatsheetHeader", row, 0, -1)
-    elseif line:match("^%s*─") then
-      vim.api.nvim_buf_add_highlight(buf, ns, "CheatsheetSep", row, 0, -1)
-    elseif line:match("^%s*Press") then
-      vim.api.nvim_buf_add_highlight(buf, ns, "CheatsheetMuted", row, 0, -1)
-    end
+-- Put frequent actions first; each heading is a navigation target.
+local order = { 'Everyday Controls', 'File Explorer', 'Fuzzy Finding',
+  'Code Navigation', 'Makefile', 'Project Tasks', 'Debugger', 'Floating Terminal',
+  'Surround', 'Treesitter', 'TODO Comments', 'Git Integration', '1337 Station' }
+local groups = {}
+for _, line in ipairs(content_lines) do
+  if line:match('^## ') then
+    groups[#groups + 1] = { (line:sub(4):gsub(' %(`Snacks.explorer`%)', '')) }
+  elseif #groups > 0 and not line:match('^%s*─') and not line:match('^%s*Press') then
+    table.insert(groups[#groups], line)
+  end
+end
+local ordered = {}
+for _, prefix in ipairs(order) do
+  for _, group in ipairs(groups) do
+    if group[1]:sub(1, #prefix) == prefix then ordered[#ordered + 1] = group end
+  end
+end
 
-    -- Highlight keys inside backticks `...`
-    local start_col = 1
+local function layout()
+  local width = math.max(1, math.min(88, vim.o.columns - 4))
+  local height = math.max(1, math.min(34, vim.o.lines - 4))
+  local footer = width >= 62 and ' / search   ]] next section   [[ previous   q close '
+    or (width >= 34 and ' / find  ]] next  q close ' or ' q close ')
+  return {
+    relative = 'editor', width = width, height = height,
+    row = math.max(0, math.floor((vim.o.lines - height - 2) / 2)),
+    col = math.max(0, math.floor((vim.o.columns - width - 2) / 2)),
+    border = ui.border, title = ' ' .. ui.icon('help') .. ' Keymap Guide ',
+    title_pos = 'center', footer = footer, footer_pos = 'center',
+  }
+end
+
+local function render(buf, width)
+  local lines, highlights = {}, {}
+  sections = {}
+  local function append(source, heading)
+    source = source:gsub('<leader>', 'Space ')
+    local text, spans, cursor = '', {}, 1
     while true do
-      local s, e = line:find("`[^`]+`", start_col)
-      if not s then break end
-      vim.api.nvim_buf_add_highlight(buf, ns, "CheatsheetKey", row, s - 1, e)
-      start_col = e + 1
+      local first, last = source:find('`[^`]+`', cursor)
+      if not first then text = text .. source:sub(cursor); break end
+      text = text .. source:sub(cursor, first - 1)
+      local start = #text
+      text = text .. source:sub(first + 1, last - 1)
+      spans[#spans + 1] = {start, #text}
+      cursor = last + 1
     end
-
-    -- Highlight delimiters │ and ·
-    for _, sym in ipairs({ "│", "·" }) do
-      local cur = 1
-      while true do
-        local s, e = line:find(sym, cur, true)
-        if not s then break end
-        vim.api.nvim_buf_add_highlight(buf, ns, "CheatsheetSep", row, s - 1, e)
-        cur = e + 1
+    lines[#lines + 1] = text
+    if heading then
+      sections[#sections + 1] = #lines
+      highlights[#highlights + 1] = {#lines - 1, 0, -1, 'CheatsheetHeader'}
+    else
+      for _, span in ipairs(spans) do
+        highlights[#highlights + 1] = {#lines - 1, span[1], span[2], 'CheatsheetKey'}
       end
     end
+  end
+  for _, group in ipairs(ordered) do
+    append(group[1], true)
+    for index = 2, #group do
+      local line = group[index]
+      -- Separate parallel actions when a narrow terminal cannot show the row.
+      if vim.fn.strdisplaywidth(line:gsub('<leader>', 'Space '):gsub('`', '')) > width - 2
+        and line:find('│', 1, true) then
+        for _, part in ipairs(vim.split(line, '│', {plain=true})) do append('  ' .. vim.trim(part)) end
+      else append(line) end
+    end
+    if lines[#lines] ~= '' then append('') end
+  end
+  vim.bo[buf].modifiable = true
+  vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
+  vim.bo[buf].modifiable = false
+  local ns = vim.api.nvim_create_namespace('cheatsheet_highlights')
+  vim.api.nvim_buf_clear_namespace(buf, ns, 0, -1)
+  for _, hl in ipairs(highlights) do
+    vim.api.nvim_buf_add_highlight(buf, ns, hl[4], hl[1], hl[2], hl[3])
   end
 end
 
 function M.close()
-  if M.win_id and vim.api.nvim_win_is_valid(M.win_id) then
-    vim.api.nvim_win_close(M.win_id, true)
-  end
-  if M.buf_nr and vim.api.nvim_buf_is_valid(M.buf_nr) then
-    vim.api.nvim_buf_delete(M.buf_nr, { force = true })
-  end
-  M.win_id = nil
-  M.buf_nr = nil
+  local win, buf = M.win_id, M.buf_nr
+  M.win_id, M.buf_nr = nil, nil
+  if win and vim.api.nvim_win_is_valid(win) then vim.api.nvim_win_close(win, true) end
+  if buf and vim.api.nvim_buf_is_valid(buf) then vim.api.nvim_buf_delete(buf, {force=true}) end
+end
+
+local function refresh()
+  setup_highlights()
+  if not M.win_id or not vim.api.nvim_win_is_valid(M.win_id) then return end
+  local config = layout()
+  local cursor = vim.api.nvim_win_get_cursor(M.win_id)[1]
+  local section = 1
+  for index, row in ipairs(sections) do if row <= cursor then section = index end end
+  vim.api.nvim_win_set_config(M.win_id, config)
+  render(M.buf_nr, config.width)
+  vim.api.nvim_win_set_cursor(M.win_id, {sections[section] or 1, 0})
 end
 
 function M.show()
@@ -149,97 +198,48 @@ function M.show()
     vim.api.nvim_set_current_win(M.win_id)
     return M.win_id
   end
-
   setup_highlights()
-
   local buf = vim.api.nvim_create_buf(false, true)
-  vim.bo[buf].buftype = "nofile"
-  vim.bo[buf].bufhidden = "wipe"
+  vim.bo[buf].buftype, vim.bo[buf].bufhidden = 'nofile', 'wipe'
   vim.bo[buf].swapfile = false
-  -- This guide owns its highlights; Markdown editing plugins are unnecessary.
-  vim.bo[buf].filetype = "configguide"
-
-  vim.api.nvim_buf_set_lines(buf, 0, -1, false, content_lines)
-  vim.bo[buf].modifiable = false
-
-  -- Target dimensions
-  local target_w = 86
-  local target_h = 32
-
-  -- Clamp dimensions to fit current terminal size gracefully
-  local width = math.max(1, math.min(target_w, vim.o.columns - 4))
-  local height = math.max(1, math.min(target_h, vim.o.lines - 4))
-  local row = math.max(0, math.floor((vim.o.lines - height) / 2))
-  local col = math.max(0, math.floor((vim.o.columns - width) / 2))
-
-  local win = vim.api.nvim_open_win(buf, true, {
-    relative = "editor",
-    width = width,
-    height = height,
-    row = row,
-    col = col,
-    border = ui.border,
-    title = " " .. ui.icon('help') .. " Neovim Feature & Keymap Guide ",
-    title_pos = "center",
-    style = "minimal",
-  })
-
-  vim.wo[win].winblend = 0
-  vim.wo[win].cursorline = true
-  vim.wo[win].wrap = false
-  vim.wo[win].number = false
-  vim.wo[win].relativenumber = false
-  vim.wo[win].signcolumn = "no"
-  vim.wo[win].foldcolumn = "0"
-  vim.wo[win].spell = false
-  vim.wo[win].conceallevel = 0
-  vim.wo[win].winhighlight = "Normal:CheatsheetNormal,FloatBorder:CheatsheetBorder,FloatTitle:CheatsheetTitle"
-
-  apply_highlights(buf)
-
-  M.win_id = win
-  M.buf_nr = buf
-
-  -- Key mappings to close
-  local close_fn = function()
-    M.close()
+  vim.bo[buf].filetype = 'configguide'
+  local config = layout()
+  render(buf, config.width)
+  config.style = 'minimal'
+  local win = vim.api.nvim_open_win(buf, true, config)
+  M.win_id, M.buf_nr = win, buf
+  for name, value in pairs({winblend=0, cursorline=false, wrap=true, linebreak=true,
+    breakindent=true, number=false, relativenumber=false, signcolumn='no',
+    foldcolumn='0', spell=false, conceallevel=0,
+    winhighlight='Normal:CheatsheetNormal,FloatBorder:CheatsheetBorder,FloatTitle:CheatsheetTitle,FloatFooter:CheatsheetMuted'}) do
+    vim.wo[win][name] = value
   end
-
-  for _, key in ipairs({ "q", "<Esc>" }) do
-    vim.keymap.set("n", key, close_fn, { buffer = buf, nowait = true, silent = true, desc = "Close cheatsheet" })
+  for _, key in ipairs({'q','<Esc>'}) do
+    vim.keymap.set('n', key, M.close, {buffer=buf, nowait=true, silent=true, desc='Close guide'})
   end
-
-  vim.api.nvim_create_autocmd("WinClosed", {
-    pattern = tostring(win),
-    once = true,
-    callback = function()
-      M.win_id = nil
-      M.buf_nr = nil
-    end,
-  })
-
+  vim.keymap.set('n', 'j', 'gj', {buffer=buf, silent=true})
+  vim.keymap.set('n', 'k', 'gk', {buffer=buf, silent=true})
+  for key, direction in pairs({[']]']=1, ['[[']=-1}) do
+    vim.keymap.set('n', key, function()
+      local row = vim.api.nvim_win_get_cursor(win)[1]
+      local target = direction == 1 and sections[1] or sections[#sections]
+      for _, candidate in ipairs(sections) do
+        if direction == 1 and candidate > row then target = candidate; break end
+        if direction == -1 and candidate < row then target = candidate end
+      end
+      vim.api.nvim_win_set_cursor(win, {target, 0})
+      vim.cmd('normal! zt')
+    end, {buffer=buf, silent=true, desc=direction == 1 and 'Next section' or 'Previous section'})
+  end
+  vim.api.nvim_create_autocmd('WinClosed', {pattern=tostring(win), once=true, callback=function()
+    if M.win_id == win then M.win_id, M.buf_nr = nil, nil end
+  end})
   return win
 end
-
-vim.api.nvim_create_autocmd('User', {
-  pattern = 'BlackUIPresetChanged',
-  callback = function()
-    if M.win_id and vim.api.nvim_win_is_valid(M.win_id) then
-      vim.api.nvim_win_set_config(M.win_id, {
-        border = ui.border,
-        title = ' ' .. ui.icon('help') .. ' Neovim Feature & Keymap Guide ',
-        title_pos = 'center',
-      })
-    end
-  end,
-})
-
 function M.toggle()
-  if M.win_id and vim.api.nvim_win_is_valid(M.win_id) then
-    M.close()
-  else
-    M.show()
-  end
+  if M.win_id and vim.api.nvim_win_is_valid(M.win_id) then M.close() else M.show() end
 end
-
+local group = vim.api.nvim_create_augroup('BlackKeymapGuide', {clear=true})
+vim.api.nvim_create_autocmd({'VimResized', 'ColorScheme'}, {group=group, callback=refresh})
+vim.api.nvim_create_autocmd('User', {group=group, pattern='BlackUIPresetChanged', callback=refresh})
 return M

@@ -45,8 +45,18 @@ return {
             { function() local dap = package.loaded.dap; return dap and dap.session() and (ui.accessible and 'DEBUG' or '● DEBUG') or '' end, color = { fg = s.teal } },
             { function() local reg = vim.fn.reg_recording(); return reg ~= '' and (ui.accessible and 'REC @' or '● REC @') .. reg or '' end, color = { fg = s.accent } },
             { function() return vim.b.bigfile and 'LARGE FILE' or '' end, color = { fg = '#E9C46A' } },
-            { function() return text(vim.lsp.status()) end, cond = wide(120), color = { fg = s.muted } },
-            { 'filetype', icon_only = false, colored = not ui.accessible, icons_enabled = not ui.accessible, cond = wide(85) },
+            { function()
+                local progress = vim.lsp.status()
+                if progress ~= '' then return text(progress) end
+                local names, seen = {}, {}
+                for _, client in ipairs(vim.lsp.get_clients({bufnr=0})) do
+                  if not seen[client.name] then names[#names + 1] = client.name; seen[client.name] = true end
+                end
+                table.sort(names)
+                return #names > 0 and ('LSP ' .. text(compact(table.concat(names, '+'), 24))) or ''
+              end, cond = wide(120), color = { fg = s.muted } },
+            { 'filetype', icon_only = false, colored = not ui.accessible, icons_enabled = not ui.accessible,
+              fmt = function(value) return value == 'configguide' and 'Guide' or value end, cond = wide(85) },
           },
           lualine_y = { { 'progress', cond = wide(100) } }, lualine_z = { 'location' },
         },

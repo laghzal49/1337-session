@@ -223,6 +223,7 @@ return {
       popupmenu = { enabled = false }, -- Blink owns command suggestions; one menu.
       presets = { inc_rename = true, command_palette = true },
       lsp = {
+        progress = { enabled = false }, -- The statusline owns LSP progress.
         override = {
           ['vim.lsp.util.convert_input_to_markdown_lines'] = true,
           ['vim.lsp.util.stylize_markdown'] = true,

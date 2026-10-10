@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 DEFAULT = [
     'project_review.lua', 'redesign_review.lua', 'editor_titles_review.lua',
     'dashboard_review.lua', 'statusline_safety_review.lua', 'station_detection_review.lua', 'station_venv_review.lua',
-    'accessibility_review.lua', 'venv_migration_review.lua',
+    'accessibility_review.lua', 'readability_review.lua', 'venv_migration_review.lua',
     'plugins_audit.lua', 'surround_audit.lua', 'performance_review.lua',
     'tasks_workspace_review.lua', 'tasks_lifecycle_review.lua', 'tasks_streaming_review.lua',
     'debugging_review.lua', 'python_help_review.lua', 'python_lsp_review.lua',

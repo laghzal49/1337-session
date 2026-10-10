@@ -158,7 +158,13 @@ return {
     dependencies = { 'nvim-lua/plenary.nvim' },
     opts = {
       signs = false,
-      highlight = { multiline = false, before = '', after = 'fg', keyword = 'bg' },
+      highlight = {
+        multiline = false, before = '', after = 'fg', keyword = 'bg',
+        -- Match TODO, TODO: and TODO(owner): while rejecting words like TODOS.
+        pattern = [[.*<(KEYWORDS)>]],
+        comments_only = true,
+      },
+      search = { pattern = [[\b(KEYWORDS)\b]] },
       colors = {
         error = { '#FF8FA3' },
         warning = { '#FFD166' },

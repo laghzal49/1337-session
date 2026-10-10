@@ -29,7 +29,14 @@ return {
         severity_sort = true,
         virtual_text = false,
         virtual_lines = false,
-        float = { border = 'rounded', source = 'if_many', header = '', max_width = 80, focusable = true, title = ' Diagnostics ' },
+        float = {
+          border = 'rounded', source = 'if_many', header = '', max_width = 80,
+          focusable = true, title = ' Diagnostics ',
+          format = function(diagnostic)
+            local code = diagnostic.code
+            return diagnostic.message .. (code ~= nil and (' [' .. tostring(code) .. ']') or '')
+          end,
+        },
       },
       servers = {
         clangd = {
