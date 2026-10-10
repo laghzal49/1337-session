@@ -28,7 +28,10 @@ local ok, err = xpcall(function()
   end
   vim.uv.os_gethostname = function() return 'ordinary-workstation' end
   package.loaded['config.station'] = nil
-  assert(not require('config.station').is_1337(), 'ordinary host falsely detected as a 1337 station')
+  local station = require('config.station')
+  assert(not station.is_1337(), 'ordinary host falsely detected as a 1337 station')
+  assert(station.installer_path() == vim.fs.dirname(vim.uv.fs_realpath(vim.fn.stdpath('config'))) .. '/install.sh',
+    'installer lookup did not follow the configured Neovim directory')
 end, debug.traceback)
 
 vim.env.USER, vim.env.STATION_1337 = saved.user, saved.station
@@ -38,4 +41,4 @@ vim.uv.os_gethostname = saved.hostname
 package.loaded['config.station'] = saved.module
 vim.fn.delete(dir, 'rf')
 assert(ok, err)
-print('STATION DETECTION PASS: username and broken goinfre link do not enable station mode')
+print('STATION DETECTION PASS: host detection and installer lookup')

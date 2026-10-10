@@ -647,13 +647,18 @@ function M.migrate_venv()
 end
 
 -- ── Tool Installer ([t] / :StationTools) ─────────────────────────────────────
-function M.install_tools()
-  local installer = vim.fn.expand('~/Projects/1337-session/install.sh')
-  if vim.uv.fs_stat(installer) == nil then
-    installer = vim.fn.stdpath('config') .. '/../install.sh'
-  end
+function M.installer_path()
+  local config = vim.uv.fs_realpath(vim.fn.stdpath('config')) or vim.fn.stdpath('config')
+  local path = vim.fs.dirname(config) .. '/install.sh'
+  local stat = vim.uv.fs_stat(path)
+  if stat and stat.type == 'file' then return path end
+  return nil, path
+end
 
-  if vim.uv.fs_stat(installer) ~= nil then
+function M.install_tools()
+  local installer, expected = M.installer_path()
+
+  if installer then
     if pcall(require, 'snacks') and Snacks.terminal then
       Snacks.terminal('bash ' .. vim.fn.shellescape(installer), {
         win = { title = ' 󰒓 1337 Station Installer ', title_pos = 'center' },
@@ -662,7 +667,7 @@ function M.install_tools()
       vim.cmd('botright split | terminal bash ' .. vim.fn.shellescape(installer))
     end
   else
-    vim.notify('Installer not found at ~/Projects/1337-session/install.sh', vim.log.levels.WARN)
+    vim.notify('Installer not found at ' .. expected, vim.log.levels.WARN)
   end
 end
 
