@@ -32,7 +32,9 @@ return {
         end)
       end, desc = 'Logpoint' },
       { '<leader>Dt', function() require('dap').terminate() end, desc = 'Terminate' },
-      { '<leader>Du', function() require('dapui').toggle() end, desc = 'Debug panels' },
+      { '<leader>Du', function() require('config.debug_panels').toggle() end, desc = 'Debug panels' },
+      { '<leader>Dv', function() require('config.debug_panels').inspect('watches') end, desc = 'Watch expressions' },
+      { '<leader>DS', function() require('config.debug_panels').inspect('stacks') end, desc = 'Call stack' },
       { '<leader>De', function() require('dapui').eval() end, mode = { 'n', 'v' }, desc = 'Evaluate expression' },
       { '<leader>Dr', function() require('dap').repl.toggle() end, desc = 'Debug console' },
     },

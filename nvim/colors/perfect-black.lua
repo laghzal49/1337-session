@@ -58,11 +58,11 @@ end
 
 -- ── Editor Chrome ──────────────────────────────────────────────────────
 hi('Normal',       { fg = p.fg, bg = p.bg0 })
-hi('NormalNC',     { bg = '$bg_d' })
+hi('NormalNC',     { fg = c.text, bg = c.canvas })
 hi('NormalFloat',  { bg = '$bg1', fg = p.fg })
 hi('Comment',      { fg = c.comment, fmt = 'italic' })
 hi('SpecialComment', { fg = c.comment, fmt = 'italic' })
-hi('LineNr',       { fg = c.muted, bg = 'NONE' })
+hi('LineNr',       { fg = c.gutter, bg = 'NONE' })
 hi('CursorLine',   { bg = c.panel })
 hi('CursorLineNr', { fg = c.focus, bg = 'NONE' })
 hi('Cursor',       { fg = c.canvas, bg = c.focus })
@@ -249,7 +249,8 @@ hi('@function.method.call.lua',  { fg = c.callable })
 hi('@function.builtin.lua',      { fg = c.callable })
 hi('@type.lua',                  { fg = c.type })
 hi('@type.builtin.lua',          { fg = c.type })
-hi('@constructor.lua',           { fg = c.type })
+-- Lua's constructor capture marks table braces, not a type name.
+hi('@constructor.lua',           { fg = c.punctuation })
 hi('@string.lua',                { fg = c.string })
 hi('@number.lua',                { fg = c.literal })
 hi('@boolean.lua',               { fg = c.literal })
@@ -500,8 +501,8 @@ hi('FloatShadowThrough', { bg = p.bg0 })
 
 -- Shared surface highlights own plugin chrome; only editor guide lines live here.
 groups('NoiceCmdlineIcon', { fg = c.focus })
-groups('SnacksIndent', { fg = c.border_soft })
-groups('SnacksIndentScope', { fg = c.punctuation })
+groups('SnacksIndent', { fg = c.guide })
+groups('SnacksIndentScope', { fg = c.border_strong })
 
 -- Native terminal colors follow the same status and syntax families.
 local terminal = {c.inset, c.error, c.success, c.warning, c.callable, c.keyword,

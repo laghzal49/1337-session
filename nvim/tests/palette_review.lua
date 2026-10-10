@@ -12,7 +12,12 @@ local function ratio(fg,bg)
   return (math.max(a,b)+0.05)/(math.min(a,b)+0.05)
 end
 local p=require('config.palette')
-assert(vim.api.nvim_get_hl(0,{name='Normal',link=false}).bg==0,'editor canvas must remain pure black')
+for _,name in ipairs({'Normal','NormalNC'}) do
+  assert(vim.api.nvim_get_hl(0,{name=name,link=false}).bg==0,name..' must remain pure black')
+end
+assert(vim.api.nvim_get_hl(0,{name='@constructor.lua',link=false}).fg==color(p.punctuation),
+  'Lua table braces must stay neutral')
+assert(ratio(color(p.gutter),color(p.canvas))>=4.5,'unreadable line numbers')
 for _,family in ipairs({{'Variable','variable'}, {'Function','callable'}, {'Class','type'}, {'Field','member'}}) do
   local completion=vim.api.nvim_get_hl(0,{name='BlinkCmpKind'..family[1],link=false})
   local outline=vim.api.nvim_get_hl(0,{name='Aerial'..family[1],link=false})
@@ -58,6 +63,10 @@ local function check_runtime()
   end
   local _,directory_hl=require('mini.icons').get('directory','color-review')
   assert(vim.api.nvim_get_hl(0,{name=directory_hl,link=false}).fg==color(p.folder),'directory glyph disagrees with directory text')
+  for _,name in ipairs(require('mini.icons').list('directory')) do
+    local _,hl=require('mini.icons').get('directory',name)
+    assert(vim.api.nvim_get_hl(0,{name=hl,link=false}).fg==color(p.folder),'special folder has another color: '..name)
+  end
   for _,name in ipairs({'Search','CurSearch','FlashLabel','FlashCurrent','DiffAdd','DiffDelete','DiffChange',
     'LspSignatureActiveParameter','SnacksPickerMatch','BlinkCmpMenuSelection','TodoBgTODO','TodoBgFIX','TodoBgWARN'}) do
     local hl=vim.api.nvim_get_hl(0,{name=name,link=false})

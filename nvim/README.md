@@ -22,9 +22,10 @@ outline colors now share one palette; measured foreground contrast is at least
 ![Explorer with readable folder colors](assets/redesign-explorer.png)
 ![Project files with live preview](assets/redesign-picker.png)
 ![Responsive Station Health report (example data)](assets/redesign-station-40.png)
+![Real Python debugger on a narrow screen](assets/redesign-debugger-40.png)
 
 The researched design uses a pure-black canvas, off-white text, blue focus accents
-and regular font weight. Folders are blue, functions cyan, types teal, strings
+and regular font weight in both active and inactive editor splits. Folders are blue, functions cyan, types teal, strings
 green, keywords violet and values orange. Surrounding controls stay quiet, with
 a dark status bar and restrained borders. Built-in functions share the function palette. The project home shows
 project state, one-key actions, recent project files and workflow shortcuts. The branch is fetched
@@ -51,6 +52,14 @@ grep using the existing lightweight picker. The preview-rich picker measured
 ~25 ms to first files results versus ~13 ms for the compact picker on this machine;
 the richer UI trades a little latency for a visible preview.
 
+The explorer keeps Git status in separate markers so changed folders stay blue.
+Below 80 columns, the tree moves beneath the editor; wider sidebars use at most
+30% of the screen. Command popups resize with the terminal, input prompts fit
+including their borders, and Escape cancels the prompt in one press. Completion
+shows compact source labels and kind names when space permits. Notifications use
+colored severity headings with neutral body text; `<leader>n` opens newest-first
+history, with `q` or Escape to close.
+
 The old disabled theme spec and duplicate text-object ownership are also removed.
 
 `:UIAccessibility on` (or `<leader>ua`) switches to plain icons, stronger borders
@@ -61,7 +70,8 @@ Variables remain vivid red without bold, with pale rose parameters and magenta
 members. Tree-sitter and LSP semantic tokens share these colors. The statusline
 shows attached language servers when idle and keeps loading progress out of floating
 popups. Long progress messages are capped; diagnostic popups include diagnostic
-codes so a warning can be identified precisely.
+codes so a warning can be identified precisely. Ty and Ruff wait for a filename before
+attaching to a new Python buffer, then attach automatically when it is named.
 
 TODO, FIXME, NOTE, HACK, WARN, PERF and TEST comments receive colored labels.
 Both `TODO: message` and `TODO message` work, including `TODO(name): message`.
@@ -184,6 +194,11 @@ selections. There is no popup for each copy.
 
 Debugging uses nvim-dap with scope, watch, stack, breakpoint and console panels
 in the shared black UI. It loads only when a debug key is pressed.
+Panels adapt to the terminal: full sidebar and console from 120 columns × 32
+rows, sidebar from 80 × 24, and bottom scopes on smaller screens. Resize keeps
+the source editor focused; replacing a debugger panel with your own buffer stops
+automatic rearrangement. A yellow arrow and subtle line tint identify the stopped
+line without repainting its syntax.
 Panels open when a session starts and close when it ends.
 
 | Key | Action |
@@ -194,6 +209,7 @@ Panels open when a session starts and close when it ends.
 | `F12` / `<leader>DO` | Step out |
 | `<leader>Db` / `<leader>DB` | Breakpoint / conditional breakpoint |
 | `<leader>Du` / `<leader>De` | Toggle panels / evaluate expression or selection |
+| `<leader>Dv` / `<leader>DS` | Floating watch expressions / call stack |
 | `<leader>Dr` / `<leader>Dt` | Console / terminate |
 
 The installer sets up debugpy in an isolated environment for Python debugging.

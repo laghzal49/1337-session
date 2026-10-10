@@ -41,14 +41,16 @@ semantic token, icon, debugger and completion definitions consume these roles.
 
 | Role | Value | Applied to |
 | --- | --- | --- |
-| Canvas | `#000000` | Editing background, normal message area |
-| Inset | `#080A0C` | Status bar, sidebar, inactive split, code preview |
+| Canvas | `#000000` | Active and inactive editor splits, normal message area |
+| Inset | `#080A0C` | Status bar, sidebar, code preview, stopped debug line |
 | Panel | `#121619` | Popups, documentation, current line, guides |
 | Selection | `#202327` | Visual selection, focused rows, active tabs |
 | Text | `#DDE1E6` | Prose, filenames, normal labels |
 | Strong text | `#F2F4F8` | Matched text and small emphasized labels; regular weight |
 | Secondary / comments | `#A2A9B0` | Comments, hints, inactive information |
-| Structure / paths | `#C1C7CD` | Operators, punctuation, supporting paths |
+| Structure | `#A2A9B0` | Operators, punctuation and Lua table braces |
+| Paths | `#C1C7CD` | Supporting paths |
+| Gutter / guides | `#7F8A96` / `#23292E` | Readable line numbers / quiet indent guides |
 | Borders | `#4D5358` / `#697077` / `#343A3F` | Default, popup, decorative separators |
 | Variables | `#FA4D56` | Local/global names, LSP, completion, outline, debugger |
 | Parameters | `#FFD7D9` | Function inputs and documentation parameters |
@@ -59,8 +61,8 @@ semantic token, icon, debugger and completion definitions consume these roles.
 | Strings | `#42BE65` | Literal text and inline documentation code |
 | Values | `#FF832B` | Numbers, booleans, escapes, enum members |
 | Focus / folders | `#78A9FF` | Navigation, directory icons/text, current split, prompts |
-| Error | `#FF8389` | Diagnostics, failed watches, debugger stop, deleted code |
-| Warning | `#F1C21B` | Warnings, modified files, changed debugger values |
+| Error | `#FF8389` | Diagnostics, failed watches, stop control, deleted code |
+| Warning | `#F1C21B` | Warnings, modified-file markers, changed debugger values, stopped-line arrow |
 | Information | `#78A9FF` | Informational messages, progress, untracked files |
 | Hint | `#3DDBD9` | Suggestions and note comments |
 | Success | `#42BE65` | Additions, successful checks, debugger play/restart |
@@ -77,7 +79,8 @@ comment italics; it retains the same readable selection fill.
 
 ## Small details covered
 
-- Mini Icons and Which-Key share one color-family table; default folders use blue.
+- Mini Icons and Which-Key share one color-family table; all folder icons use blue,
+  including built-in special directories such as `nvim`, `.git` and Downloads.
   Python uses yellow, Lua/TypeScript blue, shell green, Rust/HTML orange.
 - Every completion kind and outline kind uses the same role table. Debugger
   variables, scopes, values, changed values, controls and watch errors are mapped.
@@ -92,6 +95,38 @@ comment italics; it retains the same readable selection fill.
   capped. Station Health wraps details, resizes, reuses its window and follows
   the live accessibility preset.
 
+## Critical review of the actual UI
+
+The follow-up review used attached Neovim screens at 40, 80 and 140 columns.
+These changes address observed problems:
+
+| Finding | Applied change |
+| --- | --- |
+| Inactive code changed from black to gray | Both editor backgrounds now use pure black |
+| Braces, guides and filenames competed with identifiers | Neutral Lua table braces, softer punctuation/guides, off-white filenames; line numbers keep at least 4.5:1 contrast |
+| Git status repainted whole explorer filenames | Status stays in its separate marker; blue folders and file colors remain stable |
+| The sidebar crowded a narrow editor | Explorer becomes a bottom tree below 80 columns; sidebar width is capped at 30% elsewhere |
+| Command popup occupied 56 columns on a 40-column screen | Percentage sizing follows live terminal resizing; input prompts include a border allowance |
+| First Escape left an input prompt open in Normal mode | Escape cancels the prompt and restores the editor |
+| Completion results lacked source context | LSP/BUF/PATH/SNIP labels, bounded labels and kind names where space permits; plain-icon mode includes kind text |
+| A notification painted its entire message in a severity color | Colored severity headings with neutral body text, wrapped sizing, live plain icons |
+| History opened at the oldest message | Newest first, wrapped lines, colored headings, Escape or q to close |
+| Debugger left only four columns for code at 40 columns | Three layouts: full panels on large screens, a sidebar on medium screens, bottom scopes on small screens |
+| Long branch and task names crowded status information | Explicit project, branch and task label limits |
+| Ruff emitted repeated errors for unnamed Python buffers | Delay Python server attachment until the buffer receives a filename, then retry automatically |
+
+Debugger resizing uses existing buffers, preserves editor focus, and stops
+rearranging windows if the user replaces a panel's buffer. Watches and call stack
+also have dedicated floating views (`<leader>Dv` and `<leader>DS`). Diagnostic
+codes and source names are visible; overflow wraps outside insert mode.
+
+The gutter and indent-guide colors are custom neutral adaptations. Their purpose
+is hierarchy: code and meaningful states draw more attention than scaffolding.
+No extra plugins are needed for this pass. The resize hook uses the pinned
+Noice/Nui layout methods; run the attached UI regressions when updating those
+plugins. Completion reopens through Blink’s public API, retaining the selected
+item and typed command while rebuilding columns for the new width.
+
 ## Verification
 
 `palette_review.lua` checks actual syntax/diagnostic highlights on canvas, panel
@@ -104,3 +139,14 @@ These checks measure foreground/background pairs, not complete WCAG conformance
 or medical comfort. Terminal settings can change the final appearance. Attached
 Neovim captures provide the visual review; report layout tests include 24-column
 terminals and exercise real action callbacks without changing the workstation.
+
+The UI regression checks also cover real completion source labels, floating-window
+borders at 40 columns, live command/explorer resizing, prompt cancellation,
+notification history order and ASCII severity icons. Debugger layout tests check
+three sizes, focus, tab cleanup and preservation of unsaved text; the integration
+suite still exercises actual debugpy launch, attach, evaluation and stepping.
+
+Release verification: all `make check` targets passed; after resolving the
+resize and unnamed-Python failures, the final `make review upgrade` run passed,
+including 27 fresh-process regressions. Screenshots include a real debugpy stop,
+40-column command/explorer layouts and the final folder-color overrides.

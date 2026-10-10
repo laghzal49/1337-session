@@ -61,3 +61,20 @@ and screenshot review. Existing behavior is retained where it already works.
 - [x] Limit long LSP progress messages.
 - [x] Make Station Health responsive, readable, reusable and keyboard accessible.
 - [x] Review final pure-black captures and complete `make check` (26 fresh-process regressions), plus final palette/accessibility checks.
+
+## Critical UI and interaction pass
+
+- [x] Keep inactive editing splits pure black too.
+- [x] Quiet punctuation, Lua table braces and indent guides; keep line numbers readable.
+- [x] Preserve folder/file colors while showing Git status in separate markers.
+- [x] Resize the explorer without squeezing out code, including a bottom layout at 40 columns.
+- [x] Fit command and input popups including borders; support one-Escape input cancellation.
+- [x] Label completion sources and kinds according to screen width and icon support.
+- [x] Give notifications colored headings, neutral body text and live plain icons.
+- [x] Open wrapped notification history newest first with consistent close keys.
+- [x] Adapt debugger panels across three screen sizes and preserve editor focus.
+- [x] Add floating watches/call-stack keys and a distinct stopped-line indicator.
+- [x] Cap long project, branch and task labels in the status bar.
+- [x] Show inline diagnostic codes, sources and wrapped overflow.
+- [x] Prevent Python server errors for unnamed buffers; attach automatically after naming.
+- [x] Validate all `make check` targets, including final `make review upgrade` (27 fresh-process regressions); inspect refreshed captures and publish this pass.

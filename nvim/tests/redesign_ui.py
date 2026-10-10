@@ -133,6 +133,8 @@ if os.environ.get('NVIM_CAPTURE_EXPLORER') == '1':
  call('nvim_ui_try_resize',[140,42]);pump(.2)
  call('nvim_exec_lua',["Snacks.explorer()",[]]);pump(.5)
  save_grid(grid,attrs,default_fg,default_bg,capture_dir/(capture_prefix+'-explorer.png'))
+ call('nvim_ui_try_resize',[40,20]);pump(.4)
+ save_grid(grid,attrs,default_fg,default_bg,capture_dir/(capture_prefix+'-explorer-40.png'))
  call('nvim_exec_lua',["for _,p in ipairs(Snacks.picker.get()) do p:close() end",[]]);pump(.2)
 if os.environ.get('NVIM_CAPTURE_GUIDE') == '1':
  call('nvim_exec_lua',["require('config.cheatsheet').show()",[]]);pump(.3)
@@ -168,6 +170,28 @@ if os.environ.get('NVIM_CAPTURE_ANNOTATIONS') == '1':
  call('nvim_exec_lua',["require('lazy').load({plugins={'todo-comments.nvim'}}); vim.treesitter.start(0,'lua'); vim.treesitter.get_parser(0):parse()",[]]);pump(.4)
  call('nvim_exec_lua',["require('todo-comments.highlight').highlight(vim.api.nvim_get_current_buf(),0,12)",[]]);pump(.2)
  save_grid(grid,attrs,default_fg,default_bg,capture_dir/(capture_prefix+'-annotations.png'))
+if os.environ.get('NVIM_CAPTURE_POLISH') == '1':
+ call('nvim_input',[':echo "Hello"']);pump(.3)
+ call('nvim_ui_try_resize',[40,20]);pump(.3)
+ save_grid(grid,attrs,default_fg,default_bg,capture_dir/(capture_prefix+'-command-40.png'))
+ call('nvim_input',['<Esc>']);pump(.2)
+ call('nvim_ui_try_resize',[100,30]);pump(.2)
+ call('nvim_exec_lua',["vim.notify('Project analysis finished. Two warnings need attention.',vim.log.levels.WARN,{title='Language server'})",[]]);pump(.3)
+ save_grid(grid,attrs,default_fg,default_bg,capture_dir/(capture_prefix+'-notification.png'))
+ call('nvim_exec_lua',["require('config.notifications').dismiss()",[]])
+ call('nvim_command',['enew!'])
+ call('nvim_ui_try_resize',[140,42]);pump(.2)
+ import tempfile
+ with tempfile.TemporaryDirectory(prefix='nvim-debug-preview-') as temp:
+  sample=Path(temp)/'analysis.py'
+  sample.write_text('# Review a real stopped Python session.\nvalues = [4, 8, 15, 16, 23, 42]\ntotal = sum(values)\nmessage = f"Total: {total}"\nprint(message)\n')
+  call('nvim_command',['edit '+str(sample)])
+  call('nvim_exec_lua',["require('lazy').load({plugins={'nvim-dap'}}); vim.api.nvim_win_set_cursor(0,{4,0}); require('dap').toggle_breakpoint(); require('dap').run({name='Preview',type='python',request='launch',program=vim.api.nvim_buf_get_name(0),console='internalConsole',pythonPath=vim.fn.exepath('python3')})",[]])
+  call('nvim_exec_lua',["assert(vim.wait(15000,function() local s=require('dap').session(); return s and s.stopped_thread_id~=nil end),'preview debugger did not stop')",[]]);pump(.6)
+  for width,height in [(140,42),(40,20)]:
+   call('nvim_ui_try_resize',[width,height]);pump(.5)
+   save_grid(grid,attrs,default_fg,default_bg,capture_dir/(f'{capture_prefix}-debugger-{width}.png'))
+  call('nvim_exec_lua',["require('dap').continue(); assert(vim.wait(5000,function() return require('dap').session()==nil end))",[]]);pump(.2)
 messages=call('nvim_exec_lua',["return vim.api.nvim_exec2('messages',{output=true}).output",[]])
 assert 'Error executing' not in messages and 'Failed to load' not in messages,messages
 print('REDESIGN UI: dashboard, split editor, async branch, responsive preview picker and Escape PASS')

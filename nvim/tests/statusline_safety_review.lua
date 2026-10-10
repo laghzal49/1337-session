@@ -10,14 +10,14 @@ local opts = require('plugins.statusline')[1].opts()
 for index, component in ipairs({opts.sections.lualine_b[1],opts.sections.lualine_b[2],opts.sections.lualine_x[2],opts.sections.lualine_x[6]}) do
   local raw = component[1]()
   local rendered = vim.api.nvim_eval_statusline(raw, {}).str
-  assert(rendered:find(index == 4 and label:sub(1,20) or label,1,true), 'dynamic statusline text interpreted markup')
+  assert(rendered:find(label:sub(1,16),1,true), 'dynamic statusline text interpreted markup')
   assert(vim.g.statusline_injected == nil, 'statusline label executed an expression')
 end
 -- Exercise the actual lualine component pipeline as well as individual callbacks.
 require('lualine').setup(opts)
 local line = require('lualine').statusline(true)
 local rendered = vim.api.nvim_eval_statusline(line, {maxwidth=1000}).str
-assert(rendered:find(label,1,true),'lualine did not retain literal percent expressions')
+assert(rendered:find(label:sub(1,16),1,true),'lualine did not retain literal percent expressions')
 assert(vim.g.statusline_injected == nil,'lualine executed an expression from a project label')
 workspace.get = function() return {name='a-very-long-project-name',branch='main',dirty=false} end
 vim.o.columns = 80

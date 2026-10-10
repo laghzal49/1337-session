@@ -31,18 +31,18 @@ return {
         sections = {
           lualine_a = { { 'mode', fmt = function(value) return vim.o.columns < 90 and value:sub(1, 1) or value end } },
           lualine_b = { { function()
-              local limit = vim.o.columns < 120 and 14 or vim.o.columns < 140 and 24 or 1000
+              local limit = vim.o.columns < 120 and 14 or vim.o.columns < 140 and 24 or 28
               return text(compact(info().name, limit))
             end,
               cond = wide(78) },
-            { function() return text(info().branch) .. (info().dirty and (' ' .. ui.icon('modified')) or '') end,
+            { function() return text(compact(info().branch, vim.o.columns >= 140 and 24 or 16)) .. (info().dirty and (' ' .. ui.icon('modified')) or '') end,
               icon = ui.icon('branch'), cond = function() return vim.o.columns >= 110 and info().branch ~= '' end } },
           lualine_c = { { require('config.symbol_context').component, cond = wide(130), color = { fg = s.lilac } },
             { 'diagnostics', sources = { 'nvim_diagnostic' }, sections = { 'error', 'warn' },
               symbols = { error = 'E ', warn = 'W ' } } },
           lualine_x = {
             { 'searchcount', maxcount = 9999, timeout = 50, cond = wide(85), color = { fg = palette.warning } },
-            { function() local task = package.loaded['config.tasks']; return task and task.running and ((ui.accessible and '> ' or '▶ ') .. (vim.o.columns >= 110 and text(task.running.task.name) or 'TASK')) or '' end, color = { fg = palette.warning } },
+            { function() local task = package.loaded['config.tasks']; return task and task.running and ((ui.accessible and '> ' or '▶ ') .. (vim.o.columns >= 110 and text(compact(task.running.task.name, 20)) or 'TASK')) or '' end, color = { fg = palette.warning } },
             { function() local dap = package.loaded.dap; return dap and dap.session() and (ui.accessible and 'DEBUG' or '● DEBUG') or '' end, color = { fg = s.teal } },
             { function() local reg = vim.fn.reg_recording(); return reg ~= '' and (ui.accessible and 'REC @' or '● REC @') .. reg or '' end, color = { fg = s.accent } },
             { function() return vim.b.bigfile and 'LARGE FILE' or '' end, color = { fg = palette.warning } },

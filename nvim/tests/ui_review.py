@@ -274,6 +274,9 @@ pump(.8)
 items=call('nvim_exec_lua',["return require('blink.cmp').get_items()",[]])
 assert items[0]['label']=='summary_lsp' and items[0]['source_id']=='lsp', items
 assert any(item['label']=='summary_local' for item in items), items
+menu=call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do local b=vim.api.nvim_win_get_buf(w); if vim.bo[b].filetype=='blink-cmp-menu' then return table.concat(vim.api.nvim_buf_get_lines(b,0,-1,false),'\\n') end end",[]])
+assert menu and 'LSP' in menu and 'BUF' in menu,menu
+print('COMPLETION LABELS: actual LSP and buffer results identified PASS',flush=True)
 print('COMPLETION LATENCY: local matches %.1f ms; slow LSP updates and ranks first PASS' % stats['first_ms'],flush=True)
 call('nvim_input',['<Esc>']);pump(.2)
 call('nvim_exec_lua',["vim.lsp.get_client_by_id(completion_latency_client):stop(true)",[]])
@@ -293,12 +296,15 @@ call('nvim_input',['<Esc>']);pump(.2)
 print('SNIPPETS: Tab / Shift-Tab placeholders PASS',flush=True)
 
 call('nvim_exec_lua',["_G.layoutdir=vim.fn.tempname(); vim.fn.mkdir(layoutdir..'/parent/long_directory_name_for_title','p')",[]])
-for width,height in [(140,42),(80,24),(100,30),(140,42)]:
- call('nvim_ui_try_resize',[width,height]);pump(.2)
- call('nvim_exec_lua',["_G.test_exp = Snacks.explorer({ cwd = layoutdir })",[]]);pump(.3)
- assert call('nvim_exec_lua',["return _G.test_exp ~= nil",[]])
- call('nvim_exec_lua',["_G.test_exp:close()",[]]);pump(.2)
-print('SNACKS EXPLORER',width,height,'bounds and geometry PASS',flush=True)
+explorer_editor=call('nvim_get_current_win',[])
+call('nvim_exec_lua',["_G.test_exp = Snacks.explorer({ cwd = layoutdir })",[]]);pump(.4)
+for width,height in [(140,42),(80,24),(40,20),(140,42)]:
+ call('nvim_ui_try_resize',[width,height]);pump(.4)
+ assert call('nvim_exec_lua',["return test_exp and not test_exp.closed and test_exp.opts.formatters.file.git_status_hl==false",[]])
+ size=call('nvim_exec_lua',["local w=...; return {vim.api.nvim_win_get_width(w),vim.api.nvim_win_get_height(w)}",[explorer_editor]])
+ assert size[0]>=int(width*.65) and size[1]>=int(height*.5),(width,height,size)
+ print('SNACKS EXPLORER',width,height,'live resize and usable editor PASS',flush=True)
+call('nvim_exec_lua',["test_exp:close()",[]]);pump(.2)
 call('nvim_exec_lua',["vim.fn.delete(layoutdir,'rf')",[]])
 print('PLUGIN INTEGRATION',call('nvim_exec_lua',["return dofile('nvim/tests/plugins_review.lua')",[]]),flush=True)
 call('nvim_exec_lua',["vim.schedule(function() _G.review_picker=require('config.pick').open('files',{cwd=plugin_review.dir}) end)",[]]);pump(.7)
@@ -325,6 +331,78 @@ call('nvim_input',['<CR>']);pump(.6)
 assert 'renamed' in call('nvim_exec_lua',["return vim.api.nvim_buf_get_lines(plugin_review.buf,2,3,false)[1]",[]])
 call('nvim_exec_lua',["vim.lsp.stop_client(plugin_review.client,true); vim.api.nvim_buf_delete(plugin_review.buf,{force=true}); vim.fn.delete(plugin_review.dir,'rf')",[]])
 print('LSP UI: Glance, Aerial, incremental rename PASS',flush=True)
+
+# Floating borders must fit too, including when an already-open command is resized.
+def floating_frames():
+ return call('nvim_exec_lua',["local r={}; for _,w in ipairs(vim.api.nvim_list_wins()) do local c=vim.api.nvim_win_get_config(w); if c.relative~='' then local b=vim.api.nvim_win_get_buf(w); r[#r+1]={ft=vim.bo[b].filetype,pos=vim.api.nvim_win_get_position(w),width=c.width,height=c.height,border=c.border,lines=vim.api.nvim_buf_get_lines(b,0,-1,false)} end end; return r",[]])
+def check_bounds(width,height):
+ frames=floating_frames()
+ assert frames,'Expected a visible popup'
+ for f in frames:
+  border=f.get('border') or []
+  if border in ('none',''): border=[]
+  def edge(index):
+   if not border: return 0
+   cell=border[index%len(border)]
+   return int(bool(cell[0] if isinstance(cell,list) else cell))
+  row,col=f['pos']
+  assert 0<=col and col+f['width']+edge(3)+edge(7)<=width,(width,f)
+  assert 0<=row and row+f['height']+edge(1)+edge(5)<=height,(height,f)
+ return frames
+call('nvim_command',['enew!'])
+call('nvim_buf_set_lines',[0,0,-1,False,['unsaved editor text']])
+editor=call('nvim_get_current_win',[])
+call('nvim_exec_lua',["require('config.notifications').dismiss()",[]])
+call('nvim_exec_lua',["vim.api.nvim_echo({{string.rep('Long message ',8)}},true,{})",[]]);pump(.2)
+call('nvim_input',[':echo ']);pump(.5)
+call('nvim_exec_lua',["require('blink.cmp').select_next()",[]]);pump(.2)
+selected=call('nvim_exec_lua',["return require('blink.cmp').get_selected_item().label",[]])
+for width,height in [(140,42),(80,24),(40,20),(140,42)]:
+ call('nvim_ui_try_resize',[width,height]);pump(.3)
+ frames=check_bounds(width,height)
+ assert any(f['ft']=='noice' for f in frames),frames
+ assert call('nvim_eval',['getcmdline()'])=='echo '
+ assert call('nvim_exec_lua',["return require('blink.cmp').get_selected_item().label",[]])==selected
+call('nvim_exec_lua',["require('config.accessibility').set(true)",[]]);pump(.4)
+call('nvim_ui_try_resize',[40,20]);pump(.4)
+menus=[f for f in check_bounds(40,20) if f['ft']=='blink-cmp-menu']
+assert len(menus)==1 and 'Property' in menus[0]['lines'][0],menus
+assert all(not any(0xe000<=ord(c)<=0xf8ff or 0xf0000<=ord(c)<=0x10ffff for c in line) for line in menus[0]['lines'])
+call('nvim_input',['<Esc>']);pump(.3)
+call('nvim_exec_lua',["require('config.accessibility').set(false)",[]])
+for width,height in [(140,42),(40,20)]:
+ call('nvim_ui_try_resize',[width,height]);pump(.2)
+ call('nvim_exec_lua',["_G.polish_input={count=0}; vim.ui.input({prompt='Rename symbol',default='project_name'},function(value) polish_input.count=polish_input.count+1; polish_input.cancelled=value==nil end)",[]]);pump(.2)
+ check_bounds(width,height)
+ call('nvim_input',['<Esc>']);pump(.3)
+ assert call('nvim_exec_lua',["return polish_input",[]])=={'count':1,'cancelled':True}
+ assert call('nvim_get_current_win',[])==editor
+ assert call('nvim_buf_get_lines',[0,0,-1,False])==['unsaved editor text']
+ assert not any(f['ft']=='snacks_input' for f in floating_frames())
+print('RESPONSIVE POPUPS: live command resizing, input bounds, one-Escape cancel and unsaved text PASS',flush=True)
+# Rendered notification text changes with the live preset. Color applies to the
+# severity heading; the body uses neutral text so long messages remain readable.
+call('nvim_exec_lua',["require('config.accessibility').set(false); vim.notify('Older notice',vim.log.levels.WARN); vim.notify('Newest notice',vim.log.levels.WARN)",[]]);pump(.2)
+call('nvim_exec_lua',["require('config.accessibility').set(true)",[]]);pump(.3)
+frames=check_bounds(40,20)
+notices=[f for f in frames if f['ft']=='mininotify']
+assert len(notices)==1,frames
+assert any(line.startswith('W WARN') for line in notices[0]['lines']),notices
+assert not any(0xe000<=ord(c)<=0xf8ff or 0xf0000<=ord(c)<=0x10ffff for line in notices[0]['lines'] for c in line),notices
+marks=call('nvim_exec_lua',["for _,w in ipairs(vim.api.nvim_list_wins()) do local b=vim.api.nvim_win_get_buf(w); if vim.bo[b].filetype=='mininotify' then return vim.api.nvim_buf_get_extmarks(b,vim.api.nvim_get_namespaces().BlackNoticeHeadings,0,-1,{details=true}) end end",[]])
+if any(m[3]['hl_group']=='DiagnosticError' for m in marks):
+ print('UNEXPECTED NOTIFICATION',call('nvim_exec_lua',["return vim.tbl_filter(function(n) return n.level=='ERROR' end,require('mini.notify').get_all())",[]]),flush=True)
+assert marks and all(m[3]['hl_group']=='DiagnosticWarn' for m in marks),(marks,notices)
+call('nvim_exec_lua',["require('config.notifications').history()",[]]);pump(.2)
+lines=call('nvim_buf_get_lines',[0,0,-1,False])
+assert lines.index('Newest notice')<lines.index('Older notice'),lines[:15]
+assert call('nvim_get_option_value',['wrap',{'win':0}])
+call('nvim_input',['<Esc>']);pump(.2)
+assert call('nvim_get_current_win',[])==editor
+call('nvim_exec_lua',["require('config.accessibility').set(false)",[]])
+print('NOTIFICATION POLISH: plain live icons, colored headings, narrow bounds, newest-first history and Escape PASS',flush=True)
+call('nvim_ui_try_resize',[100,30]);pump(.2)
+
 errors=call('nvim_eval',['v:errors']); assert errors==[],errors
 print('V_ERRORS',errors,flush=True)
 req('nvim_command',['silent! qa!'])

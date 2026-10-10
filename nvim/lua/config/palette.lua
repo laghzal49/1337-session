@@ -2,7 +2,8 @@
 -- Source, adaptations and contrast measurements: nvim/DESIGN.md.
 local c = {
   canvas = '#000000', inset = '#080A0C', panel = '#121619', selection = '#202327',
-  text = '#DDE1E6', muted = '#A2A9B0', punctuation = '#C1C7CD', path = '#C1C7CD',
+  text = '#DDE1E6', muted = '#A2A9B0', punctuation = '#A2A9B0', path = '#C1C7CD',
+  gutter = '#7F8A96', guide = '#23292E',
   border = '#4D5358', border_strong = '#697077', border_soft = '#343A3F',
   focus = '#78A9FF', variable = '#FA4D56', parameter = '#FFD7D9', member = '#FF7EB6',
   callable = '#33B1FF', keyword = '#BE95FF', type = '#3DDBD9',

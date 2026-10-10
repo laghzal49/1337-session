@@ -10,7 +10,30 @@ function M.project_root(buf)
   return vim.uv.fs_realpath(root) or root, project
 end
 
-function M.ruff_root_dir(buf, on_dir) on_dir(M.project_root(buf)) end
+local function named_buffer(buf)
+  buf = buf == 0 and vim.api.nvim_get_current_buf() or buf
+  if vim.api.nvim_buf_get_name(buf) == '' then
+    -- Python servers need stable file URIs, including across document renames.
+    if not vim.b[buf].black_python_waiting_for_name then
+      vim.b[buf].black_python_waiting_for_name = true
+      vim.api.nvim_create_autocmd('BufFilePost', { buffer = buf, once = true, callback = function()
+        vim.b[buf].black_python_waiting_for_name = nil
+        vim.schedule(function()
+          if vim.api.nvim_buf_is_valid(buf) and vim.bo[buf].filetype == 'python'
+            and (vim.lsp.is_enabled('ruff') or vim.lsp.is_enabled('ty')) then
+            vim.api.nvim_exec_autocmds('FileType', { group = 'nvim.lsp.enable', buffer = buf, modeline = false })
+          end
+        end)
+      end })
+    end
+    return false
+  end
+  return true
+end
+
+function M.ruff_root_dir(buf, on_dir)
+  if named_buffer(buf) then on_dir(M.project_root(buf)) end
+end
 
 function M.interpreter(root)
   root = root or M.project_root(0)
@@ -56,6 +79,7 @@ function M.user_site(done)
 end
 
 function M.root_dir(buf, on_dir)
+  if not named_buffer(buf) then return end
   local root, project = M.project_root(buf)
   local name = vim.api.nvim_buf_get_name(buf)
   local cwd = vim.fn.getcwd()

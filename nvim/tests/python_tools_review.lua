@@ -5,6 +5,19 @@ vim.fn.mkdir(dir, 'p')
 local buf, ty, ruff, other_buf
 local ok, err = xpcall(function()
   vim.fn.writefile({ '[project]', 'name = "python-tools-review"', 'version = "0.1.0"' }, dir .. '/pyproject.toml')
+  require('lazy').load({plugins={'nvim-lspconfig'}})
+  vim.cmd.enew()
+  vim.bo.filetype = 'python'
+  local unnamed = vim.api.nvim_get_current_buf()
+  vim.wait(250, function() return false end)
+  assert(#vim.lsp.get_clients({bufnr=unnamed})==0,'Python server attached to an unsupported untitled document')
+  vim.api.nvim_buf_set_name(unnamed, dir .. '/new_file.py')
+  assert(vim.wait(5000,function()
+    local client=vim.lsp.get_clients({bufnr=unnamed,name='ruff'})[1]
+    local semantic=vim.lsp.get_clients({bufnr=unnamed,name='ty'})[1]
+    return client and client.initialized and semantic and semantic.initialized
+  end),'Python servers did not attach after naming a new file')
+  vim.api.nvim_buf_delete(unnamed,{force=true})
   local alternate = dir .. '/alternate-env'
   local created = vim.system({ 'python3', '-m', 'venv', '--without-pip', alternate }, { text = true }):wait()
   assert(created.code == 0, created.stderr)

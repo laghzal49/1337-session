@@ -4,7 +4,7 @@ function M.refresh_signs()
   local icon = require('config.ui').icon
   vim.fn.sign_define('DapBreakpoint', { text = icon('breakpoint'), texthl = 'DiagnosticError' })
   vim.fn.sign_define('DapBreakpointCondition', { text = icon('breakpoint_condition'), texthl = 'DiagnosticWarn' })
-  vim.fn.sign_define('DapStopped', { text = icon('debug_stopped'), texthl = 'DiagnosticOk', linehl = 'CursorLine' })
+  vim.fn.sign_define('DapStopped', { text = icon('debug_stopped'), texthl = 'DiagnosticWarn', linehl = 'BlackDebugLine', numhl = 'BlackDebugLineNr' })
 end
 
 function M.python()
@@ -59,20 +59,24 @@ end
 function M.setup()
   local dap, ui = require('dap'), require('dapui')
   ui.setup({
+    force_buffers = false,
     layouts = {
       { elements = { { id = 'scopes', size = 0.45 }, { id = 'watches', size = 0.25 },
-        { id = 'stacks', size = 0.2 }, { id = 'breakpoints', size = 0.1 } }, size = math.min(36, math.max(22, math.floor(vim.o.columns * 0.25))), position = 'left' },
-      { elements = { 'repl', 'console' }, size = math.min(12, math.max(5, math.floor(vim.o.lines * 0.25))), position = 'bottom' },
+        { id = 'stacks', size = 0.2 }, { id = 'breakpoints', size = 0.1 } }, size = 0.25, position = 'left' },
+      { elements = { 'repl', 'console' }, size = 0.25, position = 'bottom' },
+      { elements = { 'scopes' }, size = 0.3, position = 'bottom' },
     },
     floating = { border = require('config.ui').border },
   })
-  dap.listeners.after.event_initialized.black_debug = function() ui.open() end
+  local panels = require('config.debug_panels')
+  panels.setup()
+  dap.listeners.after.event_initialized.black_debug = panels.open
   -- Session closure also covers adapter crashes and failed initialization.
   -- Preserve panels while another parent/child session is still active.
   dap.listeners.on_session.black_debug = function(_, active)
     if not active then
       vim.schedule(function()
-        if not dap.session() then ui.close() end
+        if not dap.session() then panels.close() end
       end)
     end
   end

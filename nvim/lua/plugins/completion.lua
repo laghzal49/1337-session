@@ -31,6 +31,33 @@ return {
           winhighlight = 'Normal:BlinkCmpMenu,FloatBorder:BlinkCmpMenuBorder,CursorLine:BlinkCmpMenuSelection,Search:None',
           scrollbar = true,
           scrolloff = 2,
+          draw = {
+            columns = function()
+              local label = vim.o.columns >= 100 and { 'label', 'label_description', gap = 1 } or { 'label' }
+              local columns = { { 'kind_icon' }, label }
+              if vim.o.columns >= 100 or vim.g.have_nerd_font == false then columns[#columns+1] = { 'kind' } end
+              if vim.o.columns >= 80 then columns[#columns+1] = { 'source_name' } end
+              return columns
+            end,
+            components = {
+              kind_icon = { text = function(ctx) return require('config.ui').symbol(ctx.kind) .. ' ' end },
+              label = { width = { max = function()
+                local width = vim.o.columns
+                local kind = (width >= 100 or vim.g.have_nerd_font == false) and 16 or 0
+                local source = width >= 80 and 10 or 0
+                local description = width >= 100 and 21 or 0
+                return math.max(4, math.min(48, width - 8 - kind - source - description))
+              end } },
+              label_description = { width = { max = 20 } },
+              kind = { width = { max = 12 } },
+              source_name = {
+                width = { max = 7 },
+                text = function(ctx)
+                  return ({lsp='LSP',buffer='BUF',path='PATH',snippets='SNIP',cmdline='CMD'})[ctx.source_id] or ctx.source_name
+                end,
+              },
+            },
+          },
         },
         documentation = {
           auto_show = true,
@@ -110,6 +137,14 @@ return {
       vim.treesitter.language.register('markdown', 'blink-cmp-documentation')
       local cmp = require('blink.cmp')
       cmp.setup(opts)
+      local function reflow()
+        if not cmp.is_menu_visible() then return end
+        local selected = cmp.get_selected_item_idx()
+        cmp.hide({ callback = function() cmp.show({ initial_selected_item_idx = selected }) end })
+      end
+      local group = vim.api.nvim_create_augroup('BlackCompletionLayout', { clear = true })
+      vim.api.nvim_create_autocmd('VimResized', { group = group, callback = reflow })
+      vim.api.nvim_create_autocmd('User', { group = group, pattern = 'BlackUIPresetChanged', callback = reflow })
       -- Blink initializes its input listeners after checking the native binary.
       -- A first batched ':command' can arrive before those listeners exist.
       -- Catch up once ready, without blocking input or loading private modules.

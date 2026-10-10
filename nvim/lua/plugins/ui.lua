@@ -71,6 +71,12 @@ return {
     },
     config = function(_, opts)
       local icons = require('mini.icons')
+      -- Built-in special directories (nvim, .git, Downloads...) otherwise keep
+      -- unrelated green/orange colors even when the default folder is blue.
+      opts.directory = opts.directory or {}
+      for _, name in ipairs(icons.list('directory')) do
+        opts.directory[name] = vim.tbl_extend('force', opts.directory[name] or {}, { hl = 'MiniIconsBlue' })
+      end
       icons.setup(opts)
       -- Make mini.icons the global icon provider — replaces nvim-web-devicons
       icons.mock_nvim_web_devicons()
@@ -103,6 +109,7 @@ return {
       },
       picker = {
         enabled = true,
+        formatters = { file = { git_status_hl = false } },
         layout = { preset = function() return vim.o.columns >= 110 and 'default' or 'vertical' end },
         layouts = {
           default = { layout = {
@@ -133,14 +140,14 @@ return {
         sources = {
           explorer = {
             title = ' ' .. ui.icon('folder') .. ' Explorer ',
-            layout = {
-              preset = 'sidebar',
-              preview = false,
-              layout = {
-                width = 34,
-                min_width = 30,
-              },
-            },
+            layout = function()
+              if vim.o.columns < 80 then
+                return { preset = 'ivy_split', preview = false,
+                  layout = { height = 0.35, min_height = 4 } }
+              end
+              return { preset = 'sidebar', preview = false,
+                layout = { width = math.min(34, math.floor(vim.o.columns * 0.3)), min_width = 0 } }
+            end,
           },
         },
       },
@@ -181,10 +188,11 @@ return {
         prompt_pos = 'title',
         win = {
           border = ui.border,
-          width = 60,
+          width = function() return math.max(1, math.min(60, vim.o.columns - 6)) end,
           row = false,
           title_pos = 'center',
           wo = { winblend = ui.blend },
+          keys = { i_esc = { '<Esc>', { 'cmp_close', 'cancel' }, mode = 'i', expr = true } },
         },
       },
       styles = {
@@ -212,6 +220,25 @@ return {
     'folke/noice.nvim',
     event = 'VeryLazy',
     dependencies = { 'MunifTanjim/nui.nvim' },
+    config = function(_, opts)
+      require('noice').setup(opts)
+      vim.api.nvim_create_autocmd('VimResized', {
+        group = vim.api.nvim_create_augroup('BlackNoiceLayout', { clear = true }),
+        callback = vim.schedule_wrap(function()
+          -- The pinned Noice/Nui versions do not reflow mounted views on resize.
+          -- Reuse their layout methods so messages and command text stay intact.
+          local router = package.loaded['noice.message.router']
+          if not router then return end
+          for view in pairs(router.get_views()) do
+            local popup = view.view or view -- Mini messages own a child Nui view.
+            if popup.is_mounted and popup:is_mounted() then
+              popup:check_options()
+              popup:update_layout()
+            end
+          end
+        end),
+      })
+    end,
     opts = {
       popupmenu = { enabled = false }, -- Blink owns command suggestions; one menu.
       presets = { inc_rename = true, command_palette = true },
@@ -241,7 +268,7 @@ return {
         cmdline_popup = {
           win_options = { winblend = 0, winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder,FloatTitle:BlackDocsTitle' },
           position = { row = '30%', col = '50%' },
-          size = { min_width = 50, width = 'auto', max_width = 80, height = 'auto' },
+          size = { width = '60%', height = 'auto' },
           border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 0, 2 } },
         },
         popupmenu = {
@@ -271,11 +298,11 @@ return {
         popup = {
           win_options = { winblend = 0, winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder' },
           border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' }, padding = { 0, 2 } },
-          size = { width = 76, height = 22 },
+          size = { width = '75%', height = '60%' },
         },
         -- Mini notification-style messages at bottom-right
         mini = {
-          win_options = { winblend = 0, winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder' },
+          win_options = { wrap = true, linebreak = true, winblend = 0, winhighlight = 'Normal:BlackDocs,FloatBorder:BlackDocsBorder' },
           border = { style = { '╭', '─', '╮', '│', '╯', '─', '╰', '│' } },
           timeout = 3000,
         },
@@ -408,6 +435,8 @@ return {
       preset = 'minimal',
       options = {
         throttle = 80, show_source = { enabled = true },
+        show_code = true, use_icons_from_diagnostic = true,
+        overflow = { mode = 'wrap', padding = 2 },
         multilines = { enabled = true, always_show = false },
         show_all_diags_on_cursorline = true,
         enable_on_insert = false, enable_on_select = false,

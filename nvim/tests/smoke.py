@@ -14,7 +14,7 @@ DEFAULT = [
     'accessibility_review.lua', 'readability_review.lua', 'palette_review.lua', 'venv_migration_review.lua',
     'plugins_audit.lua', 'surround_audit.lua', 'performance_review.lua',
     'tasks_workspace_review.lua', 'tasks_lifecycle_review.lua', 'tasks_streaming_review.lua',
-    'debugging_review.lua', 'python_help_review.lua', 'python_lsp_review.lua',
+    'debugging_review.lua', 'debug_panels_review.lua', 'python_help_review.lua', 'python_lsp_review.lua',
     'signature_ui_review.lua', 'python_tools_review.lua',
 ]
 parser = argparse.ArgumentParser(description=__doc__)
