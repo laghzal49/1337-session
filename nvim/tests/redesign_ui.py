@@ -140,6 +140,12 @@ if os.environ.get('NVIM_CAPTURE_GUIDE') == '1':
   call('nvim_ui_try_resize',[width,height]);pump(.3)
   save_grid(grid,attrs,default_fg,default_bg,capture_dir/(f'{capture_prefix}-guide-{width}.png'))
  call('nvim_exec_lua',["require('config.cheatsheet').close()",[]]);pump(.1)
+if os.environ.get('NVIM_CAPTURE_STATION') == '1':
+ call('nvim_exec_lua',["require('config.station_ui').show({{status='ok',label='Neovim',details='Ready: parser and query versions match'},{status='warn',label='Python environment',details='Project environment needs rebuilding on this workstation. Full paths and repair instructions remain visible on small terminals.'},{status='info',label='Preview',details='Example report; no tools are installed or changed.'}},{current_station='example-workstation'}, {})",[]]);pump(.2)
+ for width,height in [(100,30),(40,20)]:
+  call('nvim_ui_try_resize',[width,height]);pump(.3)
+  save_grid(grid,attrs,default_fg,default_bg,capture_dir/(f'{capture_prefix}-station-{width}.png'))
+ call('nvim_exec_lua',["require('config.station_ui').close()",[]]);pump(.1)
 if os.environ.get('NVIM_CAPTURE_ANNOTATIONS') == '1':
  call('nvim_ui_try_resize',[100,30]);pump(.2)
  call('nvim_command',['enew'])

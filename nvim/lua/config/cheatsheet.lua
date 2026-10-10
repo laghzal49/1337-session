@@ -8,9 +8,9 @@ local function setup_highlights()
   local groups = {
     CheatsheetNormal = { fg = s.text, bg = s.panel },
     CheatsheetBorder = { fg = s.edge_bright, bg = s.panel },
-    CheatsheetTitle = { fg = s.text, bg = s.panel, bold = true },
-    CheatsheetHeader = { fg = s.teal, bold = true },
-    CheatsheetKey = { fg = s.lilac, bold = true },
+    CheatsheetTitle = { fg = s.text, bg = s.panel, bold = false },
+    CheatsheetHeader = { fg = s.teal, bold = false },
+    CheatsheetKey = { fg = s.lilac, bold = false },
     CheatsheetMuted = { fg = s.muted },
   }
   for name, value in pairs(groups) do vim.api.nvim_set_hl(0, name, value) end

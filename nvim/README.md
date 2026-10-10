@@ -2,7 +2,7 @@
 
 A standalone Neovim configuration: **no LazyVim distribution**. lazy.nvim manages
 45 explicitly configured plugins and dependencies, pinned in `lazy-lock.json`.
-Pure-black code, italic comments, opaque panels, and **ty + Ruff** for Python.
+Pure-black code surfaces, regular font weight, readable comments, opaque panels, and **ty + Ruff** for Python.
 Ruff provides diagnostics through its LSP and formats with
 Ruff Format on save; `<leader>cf` runs formatting manually and `<leader>uf`
 toggles format-on-save.
@@ -12,32 +12,33 @@ toggles format-on-save.
 See the [full UI upgrade checklist](UI_UPGRADE_TODO.md) and
 [color role map, critique and research](DESIGN.md). Syntax, LSP, completion and
 outline colors now share one palette; measured foreground contrast is at least
-4.61:1 across the tested canvas, panel and default selection backgrounds.
+4.70:1 across the tested canvas, panel and default selection backgrounds.
 
 ![New project dashboard](assets/redesign-dashboard.png)
 ![Black Deck command guide](assets/redesign-deck.png)
 ![New editor hierarchy](assets/redesign-editor.png)
-![Bold red variables and TODO comment labels](assets/redesign-annotations.png)
+![Red variables and TODO comment labels without bold](assets/redesign-annotations.png)
 ![Responsive keymap guide](assets/redesign-guide-100.png)
 ![Explorer with readable folder colors](assets/redesign-explorer.png)
 ![Project files with live preview](assets/redesign-picker.png)
-![Actual Python breakpoint and variables](assets/redesign-debugger.png)
+![Responsive Station Health report (example data)](assets/redesign-station-40.png)
 
-The new design uses a black editor canvas, charcoal tool surfaces, restrained
-crimson focus accents, readable secondary text and semantic colors for code.
-Folders use clear cyan icons; functions use blue, strings mint, and keywords
-lavender. Built-in functions share the function palette. The project home shows
+The researched design uses a pure-black canvas, off-white text, blue focus accents
+and regular font weight. Folders are blue, functions cyan, types teal, strings
+green, keywords violet and values orange. Surrounding controls stay quiet, with
+a dark status bar and restrained borders. Built-in functions share the function palette. The project home shows
 project state, one-key actions, recent project files and workflow shortcuts. The branch is fetched
 asynchronously; `tracked clean` deliberately excludes untracked files.
 
 Native titles show the path and modified state above each editor split. The
 statusline gives mode, cached project/branch, diagnostics, search count,
 debug/recording state and position in a clear hierarchy. Narrow terminals keep
-only the essential state. Buffer tabs use compact numbered basenames, one selection marker and no duplicated
-diagnostic badges. Borders and guides are quiet; active split focus is visible.
+only the essential state. Buffer tabs use numbered basenames and short directory prefixes for duplicate
+filenames, with one selection marker and no repeated diagnostic badges. Borders and guides are quiet; active split focus is visible.
 The file path lives in the window title instead of appearing a third time below
 the editor. Station startup alerts ignore small home caches and report quota
-pressure only when a monitored cache reaches 100 MiB.
+pressure only when a monitored cache reaches 100 MiB. Station Health now wraps
+full details and resizes to small terminals; repair and recheck keys remain visible.
 
 Everyday files, grep, buffers, diagnostics and symbols now use **Snacks Picker**:
 side-by-side live preview on wide screens with more room for results, stacked
@@ -56,10 +57,10 @@ The old disabled theme spec and duplicate text-object ownership are also removed
 and non-italic comments/docstrings. Loaded icon providers and command guides
 refresh when toggled; `off` restores the previous font and highlight preferences.
 
-Variables are vivid bold red, with lighter peach parameters and lavender
+Variables remain vivid red without bold, with pale rose parameters and magenta
 members. Tree-sitter and LSP semantic tokens share these colors. The statusline
 shows attached language servers when idle and keeps loading progress out of floating
-popups; diagnostic popups include diagnostic
+popups. Long progress messages are capped; diagnostic popups include diagnostic
 codes so a warning can be identified precisely.
 
 TODO, FIXME, NOTE, HACK, WARN, PERF and TEST comments receive colored labels.
@@ -152,7 +153,7 @@ and no format-on-save. Explicit `<leader>cf` still formats on request. The exist
 stricter Markdown line/size limits continue to apply.
 
 Comments, inactive buffer labels and panel hints have brighter contrast while
-keeping the pure-black canvas and crimson accents. The statusline removes secondary details in narrow terminals. Flash labels use dark text on pink for readability.
+using a pure-black canvas and blue navigation accents. The statusline removes secondary details in narrow terminals. Flash labels use dark text on violet.
 
 | Key | Action |
 | --- | --- |
@@ -182,7 +183,7 @@ Yanking briefly highlights exactly the copied text for 180 ms, including Visual
 selections. There is no popup for each copy.
 
 Debugging uses nvim-dap with scope, watch, stack, breakpoint and console panels
-in the existing black/crimson UI. It loads only when a debug key is pressed.
+in the shared black UI. It loads only when a debug key is pressed.
 Panels open when a session starts and close when it ends.
 
 | Key | Action |
@@ -248,7 +249,7 @@ debugger dependencies are added and unused Mini Extra is removed from the lockfi
 
 ![Perfect Black live dashboard](assets/perfect-black-ui.png)
 
-The current theme uses blood-red accents over black editing surfaces.
+The current theme uses black surfaces, blue navigation and red variables.
 The dashboard and older editing screenshots below document earlier revisions.
 
 Navigation now gives a subtle 180 ms destination beacon for definitions,
@@ -257,7 +258,7 @@ Flash, Aerial and quickfix selection. Ordinary `hjkl` movement stays quiet.
 The physical cursor uses a block in Normal/Visual, a bar in Insert/Command,
 and an underline in Replace; terminal support determines cursor colors.
 
-Split focus keeps inactive windows dim and uses one native red separator anchor.
+Split focus keeps inactive windows dim and uses one native blue separator anchor.
 Panel highlights are preserved, including Edgy. At 130 columns or wider, the
 existing statusline shows the enclosing function/class from an idle-updated
 cache. Python, C/C++ and Lua use Tree-sitter; other languages can reuse
@@ -276,9 +277,8 @@ Enter accepts and executes it. Suggestions never replace your input automaticall
 
 ![Command bar](assets/command.png)
 
-The completion image is captured from the current Blink UI using a demo source;
-the Python palette and command images are from earlier revisions. The Makefile
-screenshot below is also regenerated from the current configuration.
+These editing images and the Makefile image below document earlier palette
+revisions. Current editor, picker, explorer and guide captures appear at the top.
 
 ## File browser
 

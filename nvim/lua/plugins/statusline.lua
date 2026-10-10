@@ -1,3 +1,4 @@
+local palette = require('config.palette')
 -- Two clear information levels: buffer navigation above, editor state below.
 return {
   {
@@ -5,7 +6,7 @@ return {
     opts = function()
       local s, ui = require('config.surfaces'), require('config.ui')
       local function mode(accent)
-        return { a = { fg = '#000000', bg = accent, gui = 'bold' },
+        return { a = { fg = accent, bg = s.inset, gui = 'NONE' },
           b = { fg = s.text, bg = s.inset }, c = { fg = s.text, bg = s.tree_panel } }
       end
       local function wide(n) return function() return vim.o.columns >= n end end
@@ -26,7 +27,7 @@ return {
           disabled_filetypes = { statusline = { 'snacks_dashboard' } },
           refresh = { statusline = 250, tabline = 1000, winbar = 1000 },
           theme = { normal = mode(s.accent), insert = mode(s.teal), visual = mode(s.lilac),
-            replace = mode('#FFB86B'), command = mode('#E9C46A'), inactive = mode(s.muted) } },
+            replace = mode(palette.literal), command = mode(palette.warning), inactive = mode(s.muted) } },
         sections = {
           lualine_a = { { 'mode', fmt = function(value) return vim.o.columns < 90 and value:sub(1, 1) or value end } },
           lualine_b = { { function()
@@ -40,23 +41,23 @@ return {
             { 'diagnostics', sources = { 'nvim_diagnostic' }, sections = { 'error', 'warn' },
               symbols = { error = 'E ', warn = 'W ' } } },
           lualine_x = {
-            { 'searchcount', maxcount = 9999, timeout = 50, cond = wide(85), color = { fg = '#E9C46A' } },
-            { function() local task = package.loaded['config.tasks']; return task and task.running and ((ui.accessible and '> ' or '▶ ') .. (vim.o.columns >= 110 and text(task.running.task.name) or 'TASK')) or '' end, color = { fg = '#E9C46A' } },
+            { 'searchcount', maxcount = 9999, timeout = 50, cond = wide(85), color = { fg = palette.warning } },
+            { function() local task = package.loaded['config.tasks']; return task and task.running and ((ui.accessible and '> ' or '▶ ') .. (vim.o.columns >= 110 and text(task.running.task.name) or 'TASK')) or '' end, color = { fg = palette.warning } },
             { function() local dap = package.loaded.dap; return dap and dap.session() and (ui.accessible and 'DEBUG' or '● DEBUG') or '' end, color = { fg = s.teal } },
             { function() local reg = vim.fn.reg_recording(); return reg ~= '' and (ui.accessible and 'REC @' or '● REC @') .. reg or '' end, color = { fg = s.accent } },
-            { function() return vim.b.bigfile and 'LARGE FILE' or '' end, color = { fg = '#E9C46A' } },
+            { function() return vim.b.bigfile and 'LARGE FILE' or '' end, color = { fg = palette.warning } },
             { function()
                 local progress = vim.lsp.status()
-                if progress ~= '' then return text(progress) end
+                if progress ~= '' then return text(compact(progress, vim.o.columns >= 140 and 36 or 20)) end
                 local names, seen = {}, {}
                 for _, client in ipairs(vim.lsp.get_clients({bufnr=0})) do
                   if not seen[client.name] then names[#names + 1] = client.name; seen[client.name] = true end
                 end
                 table.sort(names)
                 return #names > 0 and ('LSP ' .. text(compact(table.concat(names, '+'), 24))) or ''
-              end, cond = wide(120), color = { fg = s.muted } },
+              end, cond = wide(100), color = { fg = s.muted } },
             { 'filetype', icon_only = false, colored = not ui.accessible, icons_enabled = not ui.accessible,
-              fmt = function(value) return value == 'configguide' and 'Guide' or value end, cond = wide(85) },
+              fmt = function(value) return ({configguide='Guide',stationhealth='Station'})[value] or value end, cond = wide(85) },
           },
           lualine_y = { { 'progress', cond = wide(100) } }, lualine_z = { 'location' },
         },
@@ -73,11 +74,11 @@ return {
         h[key] = { fg = s.muted, bg = s.tree_panel }
       end
       for _, key in ipairs({ 'buffer_selected', 'separator_selected' }) do
-        h[key] = { fg = s.text, bg = s.selected, bold = true, italic = false }
+        h[key] = { fg = s.text, bg = s.selected, bold = false, italic = false }
       end
       h.indicator_selected = { fg = s.accent, bg = s.selected }
-      h.modified_selected = { fg = s.teal, bg = s.selected }
-      return { options = { mode = 'buffers', numbers = 'ordinal', show_duplicate_prefix = false,
+      h.modified_selected = { fg = palette.warning, bg = s.selected }
+      return { options = { style_preset = require('bufferline').style_preset.no_bold, mode = 'buffers', numbers = 'ordinal', show_duplicate_prefix = true, max_prefix_length = 12,
         separator_style = ui.accessible and { '', '' } or 'thin', always_show_bufferline = false,
         show_close_icon = false, show_buffer_close_icons = false, indicator = { style = 'icon', icon = ui.accessible and '|' or '▎' },
         modified_icon = ui.icon('modified'), show_buffer_icons = not ui.accessible, max_name_length = 20, tab_size = 18, diagnostics = false,

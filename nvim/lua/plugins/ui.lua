@@ -50,13 +50,13 @@ return {
         ['docker-compose.yml'] = { glyph = '󰡨', hl = 'MiniIconsCyan' },
       },
       filetype = {
-        python = { glyph = '󰌠', hl = 'MiniIconsGreen' },
-        lua = { glyph = '󰢱', hl = 'MiniIconsPurple' },
+        python = { glyph = '󰌠', hl = 'MiniIconsYellow' },
+        lua = { glyph = '󰢱', hl = 'MiniIconsBlue' },
         c = { glyph = '󰙱', hl = 'MiniIconsCyan' },
         cpp = { glyph = '󰙲', hl = 'MiniIconsCyan' },
         rust = { glyph = '󱘗', hl = 'MiniIconsOrange' },
         javascript = { glyph = '󰌞', hl = 'MiniIconsYellow' },
-        typescript = { glyph = '󰛦', hl = 'MiniIconsCyan' },
+        typescript = { glyph = '󰛦', hl = 'MiniIconsBlue' },
         markdown = { glyph = '󰍔', hl = 'MiniIconsBlue' },
         json = { glyph = '󰘦', hl = 'MiniIconsYellow' },
         yaml = { glyph = '', hl = 'MiniIconsAzure' },
@@ -67,23 +67,16 @@ return {
         go = { glyph = '󰟓', hl = 'MiniIconsCyan' },
       },
       lsp = {},
-      default = {},
+      default = { directory = { glyph = ui.icon('folder'), hl = 'MiniIconsBlue' } },
     },
     config = function(_, opts)
       local icons = require('mini.icons')
       icons.setup(opts)
       -- Make mini.icons the global icon provider — replaces nvim-web-devicons
       icons.mock_nvim_web_devicons()
-      -- Set up custom highlight colors matching Perfect Black palette
-      vim.api.nvim_set_hl(0, 'MiniIconsAzure', { fg = '#70D7FF' })
-      vim.api.nvim_set_hl(0, 'MiniIconsBlue', { fg = '#69AFFF' })
-      vim.api.nvim_set_hl(0, 'MiniIconsCyan', { fg = '#70D7FF' })
-      vim.api.nvim_set_hl(0, 'MiniIconsGreen', { fg = '#7FE3C2' })
-      vim.api.nvim_set_hl(0, 'MiniIconsGrey', { fg = '#A9B9D6' })
-      vim.api.nvim_set_hl(0, 'MiniIconsOrange', { fg = '#FF9E64' })
-      vim.api.nvim_set_hl(0, 'MiniIconsPurple', { fg = '#C7A6FF' })
-      vim.api.nvim_set_hl(0, 'MiniIconsRed', { fg = '#FF8FA3' })
-      vim.api.nvim_set_hl(0, 'MiniIconsYellow', { fg = '#FFD166' })
+      for name, color in pairs(require('config.palette').icons) do
+        vim.api.nvim_set_hl(0, 'MiniIcons' .. name, { fg = color })
+      end
     end,
   },
 

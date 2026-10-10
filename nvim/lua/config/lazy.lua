@@ -44,6 +44,7 @@ require("lazy").setup({
   },
 })
 
+require('config.typography').setup()
 vim.cmd.colorscheme('perfect-black')
 require('config.accessibility').setup()
 

@@ -1,86 +1,106 @@
-# Perfect Black — color roles
+# Perfect Black — researched color system
 
-A black editor with vivid bold red variables, clear token families and quieter
-surrounding controls. The palette is defined in `lua/config/palette.lua`.
-Syntax, LSP semantic tokens, completion kinds and outline symbols use the same
-roles. UI surfaces are defined in `lua/config/surfaces.lua`.
+The editor canvas is pure black, with regular font weight throughout. The design
+is intended for long coding sessions: less glaring prose, quiet surrounding controls, distinct code
+families, and readable comments. Vivid red variables remain a user preference.
 
-## Critique and decisions
+## Research and decisions
 
-The previous theme mixed several generations of hardcoded colors. Built-ins,
-control flow, selection, folders and Git state sometimes received unrelated
-reds. Completion kinds disagreed with syntax colors. Some secondary labels used
-dim brown, and the written design described a palette no longer installed.
+- [Google's dark-theme design guide](https://codelabs.developers.google.com/codelabs/design-material-darktheme)
+  describes dark gray surfaces, softened text, restrained saturation, and lighter
+  elevated panels. These informed off-white text, restrained panel contrast and a
+  dark status bar. The canvas stays pure black at the user’s explicit request.
+  Large bright mode blocks were removed.
+- [IBM's color specifications](https://www.ibm.com/design/language/color/)
+  supply the cool neutrals and red, blue, cyan, purple, teal, green and magenta
+  swatches. [Carbon's semantic tokens](https://www.carbondesignsystem.com/building-blocks/foundations/color/tokens)
+  supply the warning yellow and orange. These are source swatches; the editor's
+  syntax assignments are our design choices, not IBM recommendations for code.
+- [Atlassian's color roles](https://atlassian.design/foundations/color/)
+  separate neutral, informational, success, warning and danger states. Here,
+  navigation is blue, warnings yellow, additions green, and errors red with
+  explicit labels and undercurls.
+- [Nord's syntax guidelines](https://www.nordtheme.com/docs/colors-and-palettes/)
+  provide a reference for separating functions, strings, comments and structural
+  elements. Its muted pastel palette was considered; the selected swatches keep
+  the user's preference for stronger code colors.
+- [W3C contrast guidance](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html)
+  provides the 4.5:1 normal-text benchmark used in tests.
+  [W3C use-of-color guidance](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html)
+  informs severity labels, selection markers, underlines and Git signs.
 
-This revision gives each role a consistent color. Punctuation and supporting
-text are neutral so variable names and function calls are easier to find.
-Dashboard icons use action families. Errors retain severity labels, signs and
-undercurls; deleted code retains its minus/strike cues. Color is additional
-information, not the only indication of state.
+There is no universally best hue for a variable or folder. This is a deliberate
+adaptation of those sources, tested against the actual editor backgrounds.
+A theme also cannot guarantee ten hours without discomfort; display brightness,
+font size, ambient lighting and breaks still affect comfort.
 
-## Role map
+## Complete role map
 
-| Role | Color | Where it appears |
+All literal theme values live in `lua/config/palette.lua`. Surface, syntax,
+semantic token, icon, debugger and completion definitions consume these roles.
+
+| Role | Value | Applied to |
 | --- | --- | --- |
-| Canvas | `#000000` | Editing area |
-| Panel | `#101116` | Menus, docs, guides, notifications |
-| Inset | `#08090D` | Preview, sidebar and status areas |
-| Selection | `#24212C` | Focused result or menu row |
-| Primary text | `#D7E3FF` | Labels, prose, filenames |
-| Secondary text / comments | `#98A2B8` | Hints, comments, inactive information |
-| Punctuation / paths | `#A9B9D6` | Structural separators and supporting paths |
-| Variables | `#FF4057`, bold | Locals/globals, LSP variables, completion and outline |
-| Focus | `#FF4057` | Active UI markers and command prompt |
-| Parameters | `#FFD4A8` | Function inputs |
-| Members | `#E0C6FF` | Properties and fields |
-| Callables | `#70D7FF` | Functions, methods, callable built-ins |
-| Keywords | `#C7A6FF` | Control flow, imports, directives and modifiers |
-| Types | `#FFD166` | Classes, structs, constructors, type names and named constants |
-| Strings | `#7FE3C2` | Literal text |
-| Values | `#FFB47D` | Numbers, booleans, escapes and enum members |
-| Folders / navigation | `#70D7FF` | Explorer directories and navigation actions |
-| Errors | `#FF8FA3` | Diagnostics, FIXME labels, deletion state |
-| Warnings / changes | `#FFD166` | Warnings, modified Git state |
-| Information / untracked | `#70D7FF` | Informational diagnostics and untracked files |
-| Success / additions | `#7FE3C2` | Added/staged files, successful actions |
+| Canvas | `#000000` | Editing background, normal message area |
+| Inset | `#080A0C` | Status bar, sidebar, inactive split, code preview |
+| Panel | `#121619` | Popups, documentation, current line, guides |
+| Selection | `#202327` | Visual selection, focused rows, active tabs |
+| Text | `#DDE1E6` | Prose, filenames, normal labels |
+| Strong text | `#F2F4F8` | Matched text and small emphasized labels; regular weight |
+| Secondary / comments | `#A2A9B0` | Comments, hints, inactive information |
+| Structure / paths | `#C1C7CD` | Operators, punctuation, supporting paths |
+| Borders | `#4D5358` / `#697077` / `#343A3F` | Default, popup, decorative separators |
+| Variables | `#FA4D56` | Local/global names, LSP, completion, outline, debugger |
+| Parameters | `#FFD7D9` | Function inputs and documentation parameters |
+| Members | `#FF7EB6` | Fields, properties, object keys |
+| Callables | `#33B1FF` | Functions, methods, callable built-ins |
+| Keywords | `#BE95FF` | Control flow, modifiers, imports, directives |
+| Types | `#3DDBD9` | Classes, constructors, type names, modules, constants |
+| Strings | `#42BE65` | Literal text and inline documentation code |
+| Values | `#FF832B` | Numbers, booleans, escapes, enum members |
+| Focus / folders | `#78A9FF` | Navigation, directory icons/text, current split, prompts |
+| Error | `#FF8389` | Diagnostics, failed watches, debugger stop, deleted code |
+| Warning | `#F1C21B` | Warnings, modified files, changed debugger values |
+| Information | `#78A9FF` | Informational messages, progress, untracked files |
+| Hint | `#3DDBD9` | Suggestions and note comments |
+| Success | `#42BE65` | Additions, successful checks, debugger play/restart |
+| Search | `#D4BBFF` on `#1C0F30` | Matches; current match gets an orange fill |
+| Focus fill | `#001D6C` | Active signature parameter, marked results, yank flash |
+| Diff fills | `#071908` / `#302400` / `#2D0709` | Added / changed / deleted lines |
+| On accent | `#000000` | Text inside small colored badges |
 
-Red variables are a user preference, not a universal recommendation. Error
-messages use lighter rose plus explicit severity cues. Types and warnings share
-amber in different contexts, with labels identifying their meaning.
+Inset, panel, selection and warning fill are adaptations for these foregrounds.
+Selection is slightly darker than IBM Cool Gray 90 to give red more contrast
+margin. Visual selection preserves syntax foregrounds instead of repainting the
+whole selection white. The accessible preset strengthens borders and removes
+comment italics; it retains the same readable selection fill.
 
-## Readability checks
+## Small details covered
 
-The previous variable red measured 4.37:1 against the default selected-row fill.
-The new crimson measures 4.61:1 there and 6.12:1 against black. The palette test
-checks syntax and diagnostic foregrounds on the canvas, panel and default
-selection fill; the lowest tested contrast is 4.61:1. It also verifies agreement
-between LSP, Tree-sitter, completion and outline colors.
+- Mini Icons and Which-Key share one color-family table; default folders use blue.
+  Python uses yellow, Lua/TypeScript blue, shell green, Rust/HTML orange.
+- Every completion kind and outline kind uses the same role table. Debugger
+  variables, scopes, values, changed values, controls and watch errors are mapped.
+- TODO/FIXME/WARN/NOTE/TEST labels use semantic colors and regular font weight.
+- Markdown headings, links, checkboxes, tables and code blocks are mapped.
+- Search, jump labels, matching brackets, ghost text, inlay hints, deprecations,
+  notifications, plugin/tool managers and the 16 ANSI terminal colors are mapped.
+- Bold is disabled in theme definitions, statusline, tabs, TODO labels and guides.
+  The typography hook also clears inherited bold after theme/plugin loading.
+  Underlines, undercurls, strike-throughs and status symbols remain meaningful.
+- Duplicate filenames get short directory prefixes in tabs. Long LSP progress is
+  capped. Station Health wraps details, resizes, reuses its window and follows
+  the live accessibility preset.
 
-These are pairwise checks, not a claim of complete WCAG conformance for Neovim.
-Terminal fonts, transparency and user overrides can change the final appearance.
-The accessible preset provides plain icons, stronger borders and non-italic
-comments. Status messages keep text, icons and underlines alongside their colors.
+## Verification
 
-## Typography and behavior
+`palette_review.lua` checks actual syntax/diagnostic highlights on canvas, panel
+and selection: the minimum tested ratio is **4.70:1** (red variables on selection).
+Variables measure **6.26:1** on the canvas. It also checks filled search/TODO/diff
+labels, completion/outline/icon consistency, preserved syntax selection, and
+absence of bold after lazy loading, theme reload and accessibility changes.
 
-Variables are bold as requested. Headings, active state and selected items use
-bold for emphasis. Comments are readable gray; the accessible preset removes
-italics from syntax and LSP comments. File icons retain recognizable type colors.
-The terminal's 16 ANSI colors use the same status and syntax families.
-
-The dashboard shows project context and recent project files. Pickers allocate
-more width to results and stack their preview on small screens. Split titles
-show paths, while numbered tabs use compact basenames. LSP progress stays in the
-status bar. The keymap guide wraps and provides section navigation.
-
-## Research used
-
-- [Material color roles](https://developer.android.com/codelabs/m3-design-theming):
-  separate semantic roles from literal color values and apply them consistently.
-- [W3C contrast guidance](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum.html):
-  use 4.5:1 as a normal-text contrast benchmark.
-- [W3C use of color](https://www.w3.org/WAI/WCAG22/Understanding/use-of-color.html):
-  communicate meaningful state through text or shape as well as color.
-
-The aesthetic choices follow your strong-red preference; readability decisions
-use the checks above.
+These checks measure foreground/background pairs, not complete WCAG conformance
+or medical comfort. Terminal settings can change the final appearance. Attached
+Neovim captures provide the visual review; report layout tests include 24-column
+terminals and exercise real action callbacks without changing the workstation.

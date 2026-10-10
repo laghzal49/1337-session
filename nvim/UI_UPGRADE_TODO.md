@@ -7,11 +7,11 @@ and screenshot review. Existing behavior is retained where it already works.
 ## Color and readability
 
 - [x] Define named color roles in one shared palette.
-- [x] Use vivid bold red for variables, including LSP tokens.
+- [x] Use vivid red without bold for variables, including LSP tokens.
 - [x] Give parameters, properties, functions, keywords, types and values distinct roles.
 - [x] Make punctuation neutral and comments readable.
 - [x] Match completion and outline symbol colors to syntax.
-- [x] Use cyan folders and readable secondary paths.
+- [x] Use blue folders and readable secondary paths.
 - [x] Distinguish error, warning, information and success with labels/shapes too.
 - [x] Give TODO/FIXME/NOTE comments visible labels and navigation.
 - [x] Improve selected-row contrast and remove obsolete duplicate theme overrides.
@@ -47,3 +47,17 @@ and screenshot review. Existing behavior is retained where it already works.
 - [x] Run the complete regression suite after the final color changes — `make check`, including 25 fresh-process tests.
 - [x] Inspect real editor, picker, explorer, dashboard and narrow guide captures.
 - [x] Refresh preview assets and publish the verified configuration.
+
+## Researched palette and long-session pass
+
+- [x] Rebuild color assignments from IBM/Carbon, Material, Atlassian and Nord references.
+- [x] Keep a pure-black canvas with off-white body text; remove bright mode blocks.
+- [x] Move remaining hardcoded UI colors into semantic palette roles.
+- [x] Remove bold from syntax, LSP, tabs, statusline, comments, guides and inherited plugin highlights.
+- [x] Preserve syntax foregrounds during visual selection.
+- [x] Cover every completion/outline kind, debugger controls/values and icon family.
+- [x] Check filled labels, theme reloads, lazy loading and the accessible preset.
+- [x] Disambiguate identical filenames with directory prefixes in tabs.
+- [x] Limit long LSP progress messages.
+- [x] Make Station Health responsive, readable, reusable and keyboard accessible.
+- [x] Review final pure-black captures and complete `make check` (26 fresh-process regressions), plus final palette/accessibility checks.

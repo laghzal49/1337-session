@@ -15,9 +15,9 @@ assert(ui.accessible and vim.g.have_nerd_font == false and ui.border == 'single'
 assert(icons.config.style == 'ascii','loaded icon provider not updated')
 assert(breakpoint_sign() == ui.icon('breakpoint'), 'debugger sign did not switch to plain icon')
 assert(ui.icon('modified') == '*' and ui.icon('dot') == '.','plain icon fallback missing')
-assert(surfaces.edge == '#A9B9D6','strong border token missing')
+assert(surfaces.edge == require('config.palette').path,'strong border token missing')
 local border = vim.api.nvim_get_hl(0,{name='SnacksPickerBorder',link=false})
-assert(border.fg == tonumber('A9B9D6',16),'picker border remains low contrast')
+assert(border.fg == tonumber(require('config.palette').path:sub(2),16),'picker border remains low contrast')
 assert(not vim.api.nvim_get_hl(0,{name='Comment',link=false}).italic,'decorative comment italics remain')
 assert(not vim.api.nvim_get_hl(0,{name='@comment',link=false}).italic,'Treesitter comment italics remain')
 assert(not vim.api.nvim_get_hl(0,{name='@string.documentation.python',link=false}).italic,'Python docstring italics remain')
@@ -54,7 +54,7 @@ vim.g.have_nerd_font = old_font
 -- Contrast persists on theme changes and reset retains the user's theme.
 vim.cmd.colorscheme('habamax')
 access.set(true)
-assert(vim.g.colors_name == 'habamax' and vim.api.nvim_get_hl(0,{name='SnacksPickerBorder',link=false}).fg == tonumber('A9B9D6',16),'custom theme lost contrast or was replaced')
+assert(vim.g.colors_name == 'habamax' and vim.api.nvim_get_hl(0,{name='SnacksPickerBorder',link=false}).fg == tonumber(require('config.palette').path:sub(2),16),'custom theme lost contrast or was replaced')
 access.set(false)
 assert(vim.g.colors_name == 'habamax','reset replaced user colorscheme')
 -- Switching themes while enabled invalidates snapshots from the old theme.

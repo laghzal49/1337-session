@@ -1,3 +1,4 @@
+local palette = require('config.palette')
 -- Editing tools, quickfix, text objects, and visual utilities.
 return {
   { 'smjonas/inc-rename.nvim', cmd = 'IncRename', opts = {} },
@@ -158,6 +159,7 @@ return {
     dependencies = { 'nvim-lua/plenary.nvim' },
     opts = {
       signs = false,
+      gui_style = { fg = 'NONE', bg = 'NONE' },
       highlight = {
         multiline = false, before = '', after = 'fg', keyword = 'bg',
         -- Match TODO, TODO: and TODO(owner): while rejecting words like TODOS.
@@ -166,12 +168,12 @@ return {
       },
       search = { pattern = [[\b(KEYWORDS)\b]] },
       colors = {
-        error = { '#FF8FA3' },
-        warning = { '#FFD166' },
-        info = { '#70D7FF' },
-        hint = { '#7FE3C2' },
-        default = { '#C7A6FF' },
-        test = { '#69AFFF' },
+        error = { palette.error },
+        warning = { palette.warning },
+        info = { palette.info },
+        hint = { palette.hint },
+        default = { palette.keyword },
+        test = { palette.success },
       },
     },
     keys = {

@@ -7,17 +7,11 @@ local M = {
   max_width = 80,
   max_height = 20,
   colors = {
-    teal = "#4FD1C5",
-    lilac = "#C7A6FF",
-    text = "#D7E3FF",
-    selection = "#14263D",
-    selection_bright = "#164B4A",
-    border = "#25334A",
-    border_soft = "#2A5961",
-    error = "#FF8FA3",
-    cursor = palette.focus,
-    cursor_insert = '#7FE3C2',
-    cursor_command = '#FFD166',
+    teal = palette.type, lilac = palette.keyword, text = palette.text,
+    selection = palette.selection, selection_bright = palette.focus_bg,
+    border = palette.border, border_soft = palette.border_soft,
+    error = palette.error, cursor = palette.focus,
+    cursor_insert = palette.success, cursor_command = palette.warning,
   },
   -- Keep glyphs in one place so dashboard, panels, completion, and statusline
   -- do not slowly drift into competing icon sets. Set `vim.g.have_nerd_font`

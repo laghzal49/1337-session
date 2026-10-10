@@ -188,8 +188,8 @@ return {
     config = function(_, opts)
       require('glance').setup(opts)
       local s = require('config.surfaces')
-      vim.api.nvim_set_hl(0, 'GlanceWinBarTitle', { bg = s.panel, fg = s.panel_accent, bold = true })
-      vim.api.nvim_set_hl(0, 'GlanceWinBarFilename', { bg = s.inset, fg = s.text, bold = true })
+      vim.api.nvim_set_hl(0, 'GlanceWinBarTitle', { bg = s.panel, fg = s.panel_accent, bold = false })
+      vim.api.nvim_set_hl(0, 'GlanceWinBarFilename', { bg = s.inset, fg = s.text, bold = false })
       vim.api.nvim_set_hl(0, 'GlanceWinBarFilepath', { bg = s.inset, fg = s.muted })
       vim.api.nvim_set_hl(0, 'GlanceBorderTop', { bg = s.panel, fg = s.edge_bright })
       vim.api.nvim_set_hl(0, 'GlanceListBorderBottom', { bg = s.panel, fg = s.edge_bright })
@@ -219,10 +219,7 @@ return {
     },
     config = function(_, opts)
       require('flash').setup(opts)
-      -- Perfect Black palette: vivid purple label on dark inset background
-      vim.api.nvim_set_hl(0, 'FlashLabel', { bg = '#C7A6FF', fg = '#0D1117', bold = true })
-      vim.api.nvim_set_hl(0, 'FlashMatch', { bg = '#1E2837', fg = '#70D7FF' })
-      vim.api.nvim_set_hl(0, 'FlashCurrent', { bg = '#354357', fg = '#FFFFFF', bold = true })
+
     end,
   },
   {

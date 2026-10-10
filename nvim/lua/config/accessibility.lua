@@ -36,7 +36,7 @@ local function highlights(startup)
     end
     -- Third-party themes also receive the stronger panel boundaries.
     if name:find('Border',1,true) or name == 'WinSeparator' then
-      set(name,{fg=tonumber((spec.fg or '#D7E3FF'):sub(2),16)},native(base))
+      set(name,{fg=tonumber((spec.fg or require('config.palette').text):sub(2),16)},native(base))
     end
   end
   for _, name in ipairs({'Comment','SpecialComment','TreesitterContext','BlinkCmpGhostText'}) do
