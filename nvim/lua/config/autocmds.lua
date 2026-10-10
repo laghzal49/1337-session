@@ -27,3 +27,11 @@ vim.api.nvim_create_autocmd('BufReadPost', {
     end
   end,
 })
+
+-- One short beacon on the actual yanked region, without notification spam.
+vim.api.nvim_create_autocmd('TextYankPost', {
+  group = vim.api.nvim_create_augroup('BlackYankFeedback', { clear = true }),
+  callback = function()
+    vim.hl.on_yank({ higroup = 'BlackYank', timeout = 180, on_visual = true })
+  end,
+})

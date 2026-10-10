@@ -38,8 +38,8 @@ return {
             a = { '@block.outer', '@conditional.outer', '@loop.outer' },
             i = { '@block.inner', '@conditional.inner', '@loop.inner' },
           }),
-          f = ai.gen_spec.treesitter({ a = '@function.outer', i = '@function.inner' }),
-          c = ai.gen_spec.treesitter({ a = '@class.outer', i = '@class.inner' }),
+          -- Dedicated Tree-sitter textobjects own af/if/ac/ic.
+          f = false, c = false,
           -- HTML / JSX tag text object (at = around tag, it = inner tag)
           t = ai.gen_spec.treesitter({ a = '@tag.outer', i = '@tag.inner' }),
           -- Diagnostic region: around/inner the current diagnostic message

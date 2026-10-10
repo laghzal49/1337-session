@@ -25,6 +25,12 @@ local function setup_highlights()
 end
 
 local content_lines = {
+  "## Debugger (Python / C / C++)",
+  "  `<F5>` Continue/start │ `<F10>` Over │ `<F11>` Into │ `<F12>` Out",
+  "  `<leader>Db` Breakpoint │ `<leader>DB` Conditional breakpoint",
+  "  `<leader>Du` Panels │ `<leader>De` Evaluate │ `<leader>Dt` Stop",
+  "  Setup: debugpy for Python; GDB 14+ for C/C++. See :ConfigGuide.",
+  "",
   "## Everyday Controls",
   "  `<leader>ud` Buffer diagnostics │ `<leader>uv` Line wrap",
   "  `<leader>ul` Line numbers       │ `<leader>ur` Relative numbers",

@@ -1,7 +1,7 @@
 # Perfect Black Neovim
 
 A standalone Neovim configuration: **no LazyVim distribution**. lazy.nvim manages
-43 explicitly configured plugins and dependencies, pinned in `lazy-lock.json`.
+46 explicitly configured plugins and dependencies, pinned in `lazy-lock.json`.
 Pure-black code, italic comments, opaque panels, and **ty + Ruff** for Python.
 Ruff provides diagnostics through its LSP and formats with
 Ruff Format on save; `<leader>cf` runs formatting manually and `<leader>uf`
@@ -10,7 +10,7 @@ toggles format-on-save.
 ## Responsiveness and everyday controls
 
 Completion loads on first Insert/Command mode entry (or when an LSP needs its
-capabilities); the parser manager loads on the first file. No plugins were added.
+capabilities); the parser manager loads on the first file. The debugger and its two UI dependencies are loaded only on demand.
 Files above 1 MiB, or averaging more than 1,000 bytes per line, use Snacks' plain
 big-file view: manual folds, no Tree-sitter highlighting/context, no completion,
 and no format-on-save. Explicit `<leader>cf` still formats on request. The existing
@@ -41,6 +41,51 @@ Run `NVIM_BIN=/path/to/nvim python3 nvim/tests/startup_bench.py --runs 5`
 and `nvim --headless '+lua dofile("nvim/tests/responsiveness_review.lua")' +qa!`
 from the repository root with `XDG_CONFIG_HOME` pointing to the repository.
 The responsiveness review expects a non-cluster host with no Station Mode override.
+
+## Debugger and yank feedback
+
+Yanking briefly highlights exactly the copied text for 180 ms, including Visual
+selections. There is no popup for each copy.
+
+Debugging uses nvim-dap with scope, watch, stack, breakpoint and console panels
+in the existing black/crimson UI. It loads only when a debug key is pressed.
+Panels open when a session starts and close when it ends.
+
+| Key | Action |
+| --- | --- |
+| `F5` / `<leader>Dc` | Start or continue |
+| `F10` / `<leader>Do` | Step over |
+| `F11` / `<leader>Di` | Step into |
+| `F12` / `<leader>DO` | Step out |
+| `<leader>Db` / `<leader>DB` | Breakpoint / conditional breakpoint |
+| `<leader>Du` / `<leader>De` | Toggle panels / evaluate expression or selection |
+| `<leader>Dr` / `<leader>Dt` | Console / terminate |
+
+For Python, install debugpy once in an isolated environment:
+
+```sh
+# Linux; default Neovim data directory. Adjust if XDG_DATA_HOME is customized.
+uv venv ~/.local/share/nvim/debugpy
+uv pip install --python ~/.local/share/nvim/debugpy/bin/python debugpy
+```
+
+Alternatively install debugpy in the project environment, or set
+`vim.g.debugpy_python` to an interpreter that contains it. The debuggee uses the
+project `.venv/bin/python`, then the active `VIRTUAL_ENV`, then `python3` on PATH.
+Open a Python file, set a breakpoint, and press F5.
+
+For C/C++, install **GDB 14+ with Python/DAP support**, build with debug symbols
+(e.g. `cc -g -O0 main.c -o main`), open the source, and press F5. Supply the compiled
+executable at the prompt. Debugger packages are not installed automatically.
+Missing adapters show setup guidance. Python breakpoints, variable evaluation,
+step-over and clean session/panel exit were tested against real debugpy 1.8.22;
+C/C++ launch configuration is provided but an actual GDB session was not tested
+in this environment.
+
+Cleanup removed the disabled onedark spec and stale Mini Files status labels.
+Function/class text objects are now owned only by nvim-treesitter-textobjects;
+Mini AI retains its other useful objects. Existing plugin pins are preserved;
+only the three debugger dependencies are added to the lockfile.
 
 ## Workspace
 

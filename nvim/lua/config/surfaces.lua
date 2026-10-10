@@ -26,6 +26,12 @@ function M.highlights()
   local function groups(names, value)
     for name in names:gmatch("%S+") do h[name] = vim.deepcopy(value) end
   end
+  groups('DapUIFloatNormal', { bg = M.panel, fg = M.text })
+  groups('DapUIFloatBorder DapUIWinSelect', { fg = M.accent, bg = M.panel })
+  groups('DapUIScope DapUIType', { fg = M.lilac })
+  groups('DapUIValue DapUIDecoration', { fg = M.text })
+  groups('DapUIStoppedThread DapUIThread', { fg = M.teal })
+  groups('BlackYank', { bg = '#4E121D', fg = '#FFFFFF' })
   groups('BlackBeacon', { bg = M.selected })
   groups('BlackBeaconNumber', { fg = M.accent, fmt = 'bold' })
   groups('BlackActiveSeparator', { fg = M.accent, bg = '#000000' })

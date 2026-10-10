@@ -71,7 +71,7 @@ return {
         command = mode('#FFD166'),
         inactive = mode(palette.grey, true),
       }
-      opts.options.ignore_focus = { 'minipick', 'minifiles', 'snacks_picker_list', 'snacks_picker_input', 'aerial' }
+      opts.options.ignore_focus = { 'minipick', 'snacks_picker_list', 'snacks_picker_input', 'aerial' }
       opts.options.globalstatus = true
       opts.options.component_separators = { left = '', right = '' }
       opts.options.section_separators = { left = '', right = '' }
@@ -97,7 +97,6 @@ return {
 
               local tool_modes = {
                 minipick = 'SEARCH',
-                minifiles = 'FILES',
                 snacks_picker_list = 'FILES',
                 snacks_picker_input = 'SEARCH',
                 aerial = 'SYMBOLS',

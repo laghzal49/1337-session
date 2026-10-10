@@ -30,7 +30,7 @@ local plugins = require("lazy.core.config").plugins
 local lock = vim.json.decode(table.concat(vim.fn.readfile("nvim/lazy-lock.json"), "\n"))
 for name in pairs(plugins) do assert(lock[name], "Unpinned plugin: " .. name) end
 for name in pairs(lock) do assert(plugins[name], "Unused lock entry: " .. name) end
-for _, name in ipairs({ "nvim-cmp", "cmp-nvim-lsp", "lsp_signature.nvim", "nvim-dap" }) do
+for _, name in ipairs({ "nvim-cmp", "cmp-nvim-lsp", "lsp_signature.nvim" }) do
   assert(not plugins[name], "Obsolete plugin: " .. name)
 end
 assert(not pcall(require, "cmp"), "Completion shim still available")
