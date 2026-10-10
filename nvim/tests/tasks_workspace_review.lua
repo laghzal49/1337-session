@@ -14,7 +14,7 @@ assert(names['make: test'].argv[2] == '--')
 assert(tasks.run({ name = 'fixture success', argv = { 'sh', '-c', 'printf "done\\n"' }, cwd = dir }))
 assert(not tasks.run({ name = 'duplicate', argv = { 'sh', '-c', 'true' }, cwd = dir }))
 assert(vim.wait(3000, function() return not tasks.running end, 10), 'Task timed out')
-assert(table.concat(tasks.output, '\n'):find('done', 1, true))
+assert(table.concat(vim.list_slice(tasks.output, 4), '\n'):find('done', 1, true))
 tasks.rerun()
 assert(vim.wait(3000, function() return not tasks.running end, 10))
 assert(tasks.run({ name = 'fixture cancel', argv = { 'sleep', '10' }, cwd = dir }))
@@ -22,14 +22,14 @@ tasks.stop()
 assert(vim.wait(3000, function() return not tasks.running end, 10), 'Cancellation did not finish')
 -- A compiler failure should attach relative files to the task root.
 vim.fn.writefile({ 'int main() {}' }, dir .. '/source.c')
-local previous_efm = vim.o.errorformat
-vim.o.errorformat = '%f:%l:%c: %m'
+local previous_efm = vim.bo.errorformat
+vim.bo.errorformat = '%f:%l:%c: %m'
 assert(tasks.run({ name = 'fixture error', argv = { 'sh', '-c', 'echo "source.c:3:2: bad"; exit 1' }, cwd = dir }))
 assert(vim.wait(3000, function() return not tasks.running end, 10))
 local qf = vim.fn.getqflist()
 assert(qf[1].valid == 1 and qf[1].lnum == 3)
 assert(vim.api.nvim_buf_get_name(qf[1].bufnr) == dir .. '/source.c', 'Wrong compiler root')
-vim.o.errorformat = previous_efm
+vim.bo.errorformat = previous_efm
 vim.cmd('cclose')
 local workspace = require('config.workspace')
 local columns = vim.o.columns

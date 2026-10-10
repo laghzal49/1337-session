@@ -39,27 +39,27 @@
     "auto_update": false,
     "runs": 5,
     "startup_ms": [
-      15.275,
-      21.305,
-      14.856,
-      14.758,
-      14.717
+      18.883,
+      21.023,
+      16.574,
+      19.076,
+      21.214
     ],
     "metrics": {},
     "errors": [],
-    "startup_first_ms": 27.872,
-    "startup_median_ms": 14.856,
+    "startup_first_ms": 27.349,
+    "startup_median_ms": 19.076,
     "idle_memory": {
-      "rss_kib": 21012,
-      "lua_gc_kib": 6271.96484375,
-      "live_lua_gc_kib": 5377.083984375
+      "rss_kib": 20432,
+      "lua_gc_kib": 6701.7978515625,
+      "live_lua_gc_kib": 5234.5654296875
     },
     "modules_at_idle": {
-      "devdocs": false,
-      "telescope": false,
       "smart_docs": false,
       "docs_store": false,
-      "deep_docs": false
+      "deep_docs": false,
+      "devdocs": false,
+      "telescope": false
     },
     "messages": ""
   },
@@ -265,6 +265,68 @@
       }
     },
     "errors": [],
+    "messages": ""
+  },
+  "after_initial_redesign": {
+    "scope": "Matched startup/idle memory benchmark for BLACKDECK and SmartDocs.\nFive warm runs, existing installed plugin data, same repo cwd, /tmp cache/state.\nNVIM_BLACK_DOCS_AUTO_UPDATE=0 prevents benchmark-triggered network requests.\n",
+    "cwd": "/workspace/1337-session",
+    "config": "/workspace/1337-session/nvim",
+    "auto_update": false,
+    "runs": 5,
+    "startup_ms": [
+      15.275,
+      21.305,
+      14.856,
+      14.758,
+      14.717
+    ],
+    "metrics": {},
+    "errors": [],
+    "startup_first_ms": 27.872,
+    "startup_median_ms": 14.856,
+    "idle_memory": {
+      "rss_kib": 21012,
+      "lua_gc_kib": 6271.96484375,
+      "live_lua_gc_kib": 5377.083984375
+    },
+    "modules_at_idle": {
+      "devdocs": false,
+      "telescope": false,
+      "smart_docs": false,
+      "docs_store": false,
+      "deep_docs": false
+    },
+    "messages": ""
+  },
+  "after_critical_audit": {
+    "scope": "Matched startup/idle memory benchmark for BLACKDECK and SmartDocs.\nFive warm runs, existing installed plugin data, same repo cwd, /tmp cache/state.\nNVIM_BLACK_DOCS_AUTO_UPDATE=0 prevents benchmark-triggered network requests.\n",
+    "cwd": "/workspace/1337-session",
+    "config": "/workspace/1337-session/nvim",
+    "auto_update": false,
+    "runs": 5,
+    "startup_ms": [
+      15.384,
+      15.45,
+      15.011,
+      15.891,
+      15.165
+    ],
+    "metrics": {},
+    "errors": [],
+    "startup_first_ms": 25.461,
+    "startup_median_ms": 15.384,
+    "idle_memory": {
+      "rss_kib": 20752,
+      "lua_gc_kib": 6719.962890625,
+      "live_lua_gc_kib": 5373.9384765625
+    },
+    "modules_at_idle": {
+      "deep_docs": false,
+      "devdocs": false,
+      "telescope": false,
+      "smart_docs": false,
+      "docs_store": false
+    },
     "messages": ""
   }
 }

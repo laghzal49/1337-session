@@ -9,11 +9,16 @@ end
 function M.refresh(root, force)
   local entry = M.get(root)
   local now = vim.uv.now()
-  if entry.pending or (not force and entry.checked and now - entry.checked < 5000) then return end
+  if entry.pending then
+    -- A write during a probe needs a second snapshot after that probe finishes.
+    entry.refresh_again = entry.refresh_again or force
+    return
+  end
+  if not force and entry.checked and now - entry.checked < 5000 then return end
   entry.checked = now
   if vim.fn.executable('git') == 0 then return end
   entry.pending = true
-  vim.system({ 'git', '-C', entry.root, 'status', '--porcelain=v1', '--branch', '--untracked-files=no' },
+  local ok = pcall(vim.system, { 'git', '-C', entry.root, 'status', '--porcelain=v1', '--branch', '--untracked-files=no' },
     { text = true, timeout = 1500 }, vim.schedule_wrap(function(result)
       entry.pending = false
       if result.code == 0 then
@@ -26,7 +31,15 @@ function M.refresh(root, force)
       if snacks and snacks.dashboard then
         snacks.dashboard.update()
       end
+      if entry.refresh_again then
+        entry.refresh_again = nil
+        M.refresh(entry.root, true)
+      end
     end))
+  if not ok then
+    entry.pending, entry.refresh_again = false, nil
+    entry.branch, entry.dirty = '', false
+  end
 end
 function M.setup()
   vim.api.nvim_create_autocmd({ 'BufEnter', 'DirChanged', 'FocusGained', 'BufWritePost' }, {

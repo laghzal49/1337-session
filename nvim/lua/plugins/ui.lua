@@ -62,7 +62,8 @@ return {
     lazy = false,
     priority = 900,
     opts = {
-      bigfile = { enabled = true, size = 1024 * 1024 },
+      bigfile = { enabled = true, size = 1024 * 1024,
+        setup = function(ctx) require('config.performance').guard(ctx.buf) end },
       quickfile = { enabled = true },
       dashboard = require('config.dashboard'),
       explorer = {

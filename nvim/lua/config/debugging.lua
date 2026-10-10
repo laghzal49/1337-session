@@ -15,7 +15,10 @@ end
 function M.parse_args(input)
   local args, word, quote, escaped, started = {}, '', nil, false, false
   for char in input:gmatch('.') do
-    if escaped then word, escaped, started = word .. char, false, true
+    if escaped then
+      -- In double quotes a backslash only escapes quote, backslash, dollar or backtick.
+      if quote == '"' and not char:match('["\\$`]') then word = word .. '\\' end
+      word, escaped, started = word .. char, false, true
     elseif char == '\\' and quote ~= "'" then escaped, started = true, true
     elseif quote then
       if char == quote then quote = nil else word = word .. char end
@@ -57,9 +60,15 @@ function M.setup()
     floating = { border = require('config.ui').border },
   })
   dap.listeners.after.event_initialized.black_debug = function() ui.open() end
-  dap.listeners.before.event_terminated.black_debug = function() ui.close() end
-  dap.listeners.before.event_exited.black_debug = function() ui.close() end
-  dap.listeners.after.disconnect.black_debug = function() ui.close() end
+  -- Session closure also covers adapter crashes and failed initialization.
+  -- Preserve panels while another parent/child session is still active.
+  dap.listeners.on_session.black_debug = function(_, active)
+    if not active then
+      vim.schedule(function()
+        if not dap.session() then ui.close() end
+      end)
+    end
+  end
   vim.fn.sign_define('DapBreakpoint', { text = '●', texthl = 'DiagnosticError' })
   vim.fn.sign_define('DapBreakpointCondition', { text = '◆', texthl = 'DiagnosticWarn' })
   vim.fn.sign_define('DapStopped', { text = '▶', texthl = 'DiagnosticOk', linehl = 'CursorLine' })
@@ -112,7 +121,8 @@ function M.setup()
       program = function()
         local path = M.prompt('Executable: ', require('config.project').root() .. '/', 'file')
         if path == dap.ABORT then return dap.ABORT end
-        if vim.fn.executable(path) ~= 1 then
+        path = vim.fn.expand(path)
+        if vim.fn.executable(path) ~= 1 or vim.fn.isdirectory(path) == 1 then
           vim.notify('Choose an executable built with debug symbols (-g)', vim.log.levels.WARN)
           return dap.ABORT
         end
@@ -126,6 +136,7 @@ function M.setup()
     cwd = function() return require('config.project').root() end }
   dap.configurations.c = compiled
   dap.configurations.cpp = vim.deepcopy(compiled)
+  require('config.debug_projects').setup()
 end
 
 return M

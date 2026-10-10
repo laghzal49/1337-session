@@ -21,7 +21,18 @@ local M = {
   error = colors.error,
 }
 
-function M.highlights()
+local standard = { edge = M.edge, edge_bright = M.edge_bright, edge_soft = M.edge_soft, border = M.border, muted = M.muted, selected = M.selected }
+function M.set_accessible(enabled)
+  for key, value in pairs(standard) do M[key] = value end
+  if enabled then
+    M.edge, M.edge_bright, M.edge_soft, M.border = '#A9B9D6', '#D7E3FF', '#9299A9', '#A9B9D6'
+    M.muted, M.selected = '#B8C4DA', '#34323E'
+  end
+end
+M.set_accessible(ui.accessible)
+
+function M.highlights(accessible)
+  if accessible == nil then accessible = ui.accessible end
   local h = {}
   local function groups(names, value)
     for name in names:gmatch("%S+") do h[name] = vim.deepcopy(value) end
@@ -254,6 +265,13 @@ function M.highlights()
   groups('SnacksDashboardFile', { fg = '#FFFFFF' })
 
 
+  if accessible then
+    for _, spec in pairs(h) do
+      if spec.fmt then spec.fmt = spec.fmt:gsub('italic', '') end
+    end
+    groups('WinSeparator', { fg = M.edge, bg = '#000000' })
+    groups('SnacksDashboardDir SnacksDashboardFooter', { fg = M.muted })
+  end
   return h
 end
 return M

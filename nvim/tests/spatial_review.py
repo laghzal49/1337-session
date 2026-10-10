@@ -189,6 +189,27 @@ lua("require('aerial').close(); for _,w in ipairs(vim.api.nvim_tabpage_list_wins
 call("nvim_command", ["Trouble diagnostics open"])
 inspect_layout("code + Trouble")
 call("nvim_command", ["Trouble close"])
+
+# Colon completion uses command sources; search completion must not scan a
+# guarded file even though Blink evaluates cmdline separately from Insert mode.
+call("nvim_input", ["<Esc>"])
+pump(0.1)
+call("nvim_command", ["enew!"])
+lua("vim.api.nvim_buf_set_lines(0,0,-1,false,{string.rep('x',1024*1024+1)}); require('config.performance').guard(0)")
+assert lua("return vim.b.performance_guard == true")
+call("nvim_input", [":colo"])
+pump(0.5)
+assert lua("return require('blink.cmp').is_menu_visible()"), "large file blocked colon suggestions"
+call("nvim_input", ["<Esc>"])
+pump(0.1)
+for prefix in ("/", "?"):
+    call("nvim_input", [prefix + "xxx"])
+    pump(0.2)
+    assert lua("return #require('blink.cmp.config').cmdline.sources() == 0"), "large search enabled buffer source"
+    assert not lua("return require('blink.cmp').is_menu_visible()"), "large search showed buffer suggestions"
+    call("nvim_input", ["<Esc>"])
+    pump(0.1)
+print("LARGE FILE COMMANDS: colon suggestions available, forward/backward search completion guarded PASS", flush=True)
 assert call("nvim_eval", ["v:errors"]) == []
 serial += 1
 process.stdin.write(msgpack.packb([0, serial, "nvim_command", ["silent! qa!"]], use_bin_type=True))

@@ -30,6 +30,7 @@ set -euo pipefail
 
 FORCE=0
 NOSYNC=0
+INSTALL_FAILED=0
 for arg in "$@"; do
   case "$arg" in
     --force) FORCE=1 ;;
@@ -48,7 +49,7 @@ BIN="$LOCAL/bin"
 OPT="$LOCAL/opt"
 FONTS="$LOCAL/share/fonts"
 umask 077
-mkdir -p "$BIN" "$OPT" "$FONTS"
+mkdir -p "$BIN" "$OPT" "$FONTS" "$LOCAL/var/tmp"
 export PATH="$BIN:$PATH" # so later steps see what earlier steps installed
 
 # Do not use /tmp: it may be shared with other users.  A private, predictable
@@ -93,6 +94,30 @@ fetch() { # fetch <url> <dest-file>
   fi
 }
 
+fetch_verified() { # fetch_verified <url> <dest> <published-sha256>
+  fetch "$1" "$2" || return 1
+  if ! python3 "$REPO_DIR/scripts/download-integrity.py" verify "$2" "$3"; then
+    rm -f "$2"
+    return 1
+  fi
+}
+fetch_release() { # fetch_release <owner/repo> <tag-or-latest> <asset> <dest>
+  local repo="$1" tag="$2" asset="$3" dest="$4" endpoint metadata details expected
+  local -a fields
+  endpoint="tags/$tag"
+  [ "$tag" != latest ] || endpoint=latest
+  metadata="$TMP/${repo//\//-}-release.json"
+  fetch "https://api.github.com/repos/$repo/releases/$endpoint" "$metadata" || return 1
+  details="$(python3 "$REPO_DIR/scripts/download-integrity.py" github "$metadata" "$repo" "$asset")" || return 1
+  mapfile -t fields <<< "$details"
+  expected="${fields[1]}"
+  if [ -z "$expected" ]; then
+    fetch "${fields[2]}" "$dest.checksums" || return 1
+    expected="$(python3 "$REPO_DIR/scripts/download-integrity.py" checksum "$dest.checksums" "$asset" "${fields[3]}")" || return 1
+  fi
+  fetch_verified "${fields[0]}" "$dest" "$expected"
+}
+
 # latest release tag of a GitHub repo, via the /releases/latest redirect
 # (no API call, so no rate limits)
 gh_tag() { # gh_tag <owner/repo>
@@ -112,11 +137,11 @@ case "$(uname -m)" in
   x86_64)  A_NVIM="x86_64"; A_RG="x86_64-unknown-linux-musl"
            A_FD="x86_64-unknown-linux-musl"; A_FZF="linux_amd64"
            A_LG="linux_x86_64"; A_NODE="linux-x64"; A_TS="linux-x64"
-           A_ZIG="x86_64" ;;
+           A_ZIG="x86_64"; A_UV="x86_64-unknown-linux-musl" ;;
   aarch64) A_NVIM="arm64"; A_RG="aarch64-unknown-linux-gnu"
            A_FD="aarch64-unknown-linux-musl"; A_FZF="linux_arm64"
            A_LG="linux_arm64"; A_NODE="linux-arm64"; A_TS="linux-arm64"
-           A_ZIG="aarch64" ;;
+           A_ZIG="aarch64"; A_UV="aarch64-unknown-linux-musl" ;;
   *) die "unsupported architecture: $(uname -m) (x86_64 / aarch64 only)" ;;
 esac
 
@@ -134,6 +159,20 @@ else
   # cloud/desktop image, so this should never fire.
   die "git is missing and can't be installed without sudo — ask an admin for: apt install git"
 fi
+
+# Locate the repository helpers before downloading tool archives.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+if [ -d "$SCRIPT_DIR/nvim" ]; then
+  REPO_DIR="$SCRIPT_DIR"
+else
+  # running via `curl | bash` — grab the repo first
+  REPO_DIR="$HOME/1337-session"
+  if [ ! -d "$REPO_DIR/.git" ]; then
+    git clone --depth=1 "https://github.com/laghzal49/1337-session.git" "$REPO_DIR"
+  fi
+fi
+have python3 || die "python3 is required to verify release checksums"
+[ -f "$REPO_DIR/scripts/download-integrity.py" ] || die "checksum helper missing — update the repository checkout before installing"
 
 # mason unpacks some of its packages from .zip (stylua) and .tar.xz
 # (shellcheck), and the Nerd Font ships as .tar.xz — but minimal Ubuntu
@@ -214,13 +253,13 @@ if [ -e "$FONTS/JetBrainsMonoNerdFontMono-Regular.ttf" ] \
     && [ -e "$FONTS/JetBrainsMonoNerdFontMono-BoldItalic.ttf" ] && [ "$FORCE" = 0 ]; then
   skip "JetBrainsMono Nerd Font"
 else
-  if fetch "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.tar.xz" "$TMP/font.tar.xz" \
+  if fetch_release ryanoasis/nerd-fonts latest JetBrainsMono.tar.xz "$TMP/font.tar.xz" \
       && tar -C "$FONTS" -xJf "$TMP/font.tar.xz" 2>/dev/null; then
     :
   else
     # xz missing or asset shape changed — fall back to the zip
     warn "tar.xz route failed, trying zip"
-    fetch "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip" "$TMP/font.zip"
+    fetch_release ryanoasis/nerd-fonts latest JetBrainsMono.zip "$TMP/font.zip"
     if have unzip; then unzip -oq "$TMP/font.zip" -d "$FONTS"
     else die "need either xz or unzip to extract the font"; fi
   fi
@@ -231,12 +270,15 @@ fi
 # ============================================================================
 step "3/10 · Neovim (latest stable)"
 # ============================================================================
-if want nvim; then
-  fetch "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${A_NVIM}.tar.gz" "$TMP/nvim.tar.gz"
+if [ "$FORCE" = 1 ] || ! have nvim || ! nvim --clean --headless \
+    -c 'if !has("nvim-0.11") | cquit 1 | endif' -c qa >/dev/null 2>&1; then
+  fetch_release neovim/neovim latest "nvim-linux-${A_NVIM}.tar.gz" "$TMP/nvim.tar.gz"
   rm -rf "$OPT/nvim-linux-${A_NVIM}"
   tar -C "$OPT" -xzf "$TMP/nvim.tar.gz"
   ln -sf "$OPT/nvim-linux-${A_NVIM}/bin/nvim" "$BIN/nvim"
   ok "$("$BIN/nvim" --version | head -1) → ~/.local/bin/nvim"
+else
+  skip "Neovim (0.11 or newer)"
 fi
 
 # ============================================================================
@@ -244,21 +286,21 @@ step "4/10 · search tools — ripgrep · fd · fzf"
 # ============================================================================
 if want rg; then
   RG_TAG="$(gh_tag BurntSushi/ripgrep)" # tags have no v prefix
-  fetch "https://github.com/BurntSushi/ripgrep/releases/download/${RG_TAG}/ripgrep-${RG_TAG}-${A_RG}.tar.gz" "$TMP/rg.tar.gz"
+  fetch_release BurntSushi/ripgrep "$RG_TAG" "ripgrep-${RG_TAG}-${A_RG}.tar.gz" "$TMP/rg.tar.gz"
   tar -C "$TMP" -xzf "$TMP/rg.tar.gz"
   install -m755 "$TMP/ripgrep-${RG_TAG}-${A_RG}/rg" "$BIN/rg"
   ok "ripgrep $RG_TAG"
 fi
 if want fd; then
   FD_TAG="$(gh_tag sharkdp/fd)" # tags look like v10.2.0
-  fetch "https://github.com/sharkdp/fd/releases/download/${FD_TAG}/fd-${FD_TAG}-${A_FD}.tar.gz" "$TMP/fd.tar.gz"
+  fetch_release sharkdp/fd "$FD_TAG" "fd-${FD_TAG}-${A_FD}.tar.gz" "$TMP/fd.tar.gz"
   tar -C "$TMP" -xzf "$TMP/fd.tar.gz"
   install -m755 "$TMP/fd-${FD_TAG}-${A_FD}/fd" "$BIN/fd"
   ok "fd $FD_TAG"
 fi
 if want fzf; then
   FZF_TAG="$(gh_tag junegunn/fzf)" # v0.60.0 → asset uses 0.60.0
-  fetch "https://github.com/junegunn/fzf/releases/download/${FZF_TAG}/fzf-${FZF_TAG#v}-${A_FZF}.tar.gz" "$TMP/fzf.tar.gz"
+  fetch_release junegunn/fzf "$FZF_TAG" "fzf-${FZF_TAG#v}-${A_FZF}.tar.gz" "$TMP/fzf.tar.gz"
   tar -C "$TMP" -xzf "$TMP/fzf.tar.gz"
   install -m755 "$TMP/fzf" "$BIN/fzf"
   ok "fzf $FZF_TAG"
@@ -269,7 +311,7 @@ step "5/10 · lazygit (<leader>gg)"
 # ============================================================================
 if want lazygit; then
   LG_TAG="$(gh_tag jesseduffield/lazygit)" # v0.45.0 → asset uses 0.45.0
-  fetch "https://github.com/jesseduffield/lazygit/releases/download/${LG_TAG}/lazygit_${LG_TAG#v}_${A_LG}.tar.gz" "$TMP/lg.tar.gz"
+  fetch_release jesseduffield/lazygit "$LG_TAG" "lazygit_${LG_TAG#v}_${A_LG}.tar.gz" "$TMP/lg.tar.gz"
   tar -C "$TMP" -xzf "$TMP/lg.tar.gz" lazygit
   install -m755 "$TMP/lazygit" "$BIN/lazygit"
   ok "lazygit $LG_TAG"
@@ -283,7 +325,9 @@ if want node; then
   NODE_V="$(fetch "https://nodejs.org/dist/index.tab" "$TMP/node-index.tab" >/dev/null 2>&1 \
     && awk -F'\t' 'NR>1 && $10 != "-" {print $1; exit}' "$TMP/node-index.tab")"
   [ -n "$NODE_V" ] || die "couldn't resolve the Node.js LTS version"
-  fetch "https://nodejs.org/dist/${NODE_V}/node-${NODE_V}-${A_NODE}.tar.gz" "$TMP/node.tar.gz"
+  fetch "https://nodejs.org/dist/${NODE_V}/SHASUMS256.txt" "$TMP/node-checksums.txt"
+  NODE_SHA="$(python3 "$REPO_DIR/scripts/download-integrity.py" checksum "$TMP/node-checksums.txt" "node-${NODE_V}-${A_NODE}.tar.gz")"
+  fetch_verified "https://nodejs.org/dist/${NODE_V}/node-${NODE_V}-${A_NODE}.tar.gz" "$TMP/node.tar.gz" "$NODE_SHA"
   rm -rf "$OPT/node-${NODE_V}-${A_NODE}"
   tar -C "$OPT" -xzf "$TMP/node.tar.gz"
   for b in node npm npx; do
@@ -301,13 +345,13 @@ fi
 step "7/10 · Python tooling — uv (+ venv capability for mason)"
 # ============================================================================
 if want uv; then
-  fetch "https://astral.sh/uv/install.sh" "$TMP/uv-install.sh"
-  if env UV_NO_MODIFY_PATH=1 UV_INSTALL_DIR="$BIN" sh "$TMP/uv-install.sh" >/dev/null 2>&1; then
-    :
+  if fetch_release astral-sh/uv latest "uv-${A_UV}.tar.gz" "$TMP/uv.tar.gz" \
+      && tar -C "$TMP" -xzf "$TMP/uv.tar.gz" \
+      && install -m755 "$TMP/uv-${A_UV}/uv" "$TMP/uv-${A_UV}/uvx" "$BIN/"; then
+    ok "uv $(uv --version 2>/dev/null | awk '{print $2}')"
   else
-    warn "uv installer failed"
+    warn "uv download or checksum verification failed"
   fi
-  have uv && ok "uv $(uv --version 2>/dev/null | awk '{print $2}')"
 fi
 # Install the Python language server without sudo; uv places its executable in ~/.local/bin.
 if want ty; then
@@ -356,7 +400,7 @@ step "8/10 · treesitter & C/C++ toolchain — tree-sitter · cc · clangd"
 # ============================================================================
 if want tree-sitter; then
   TS_TAG="$(gh_tag tree-sitter/tree-sitter)"
-  fetch "https://github.com/tree-sitter/tree-sitter/releases/download/${TS_TAG}/tree-sitter-${A_TS}.gz" "$TMP/ts.gz"
+  fetch_release tree-sitter/tree-sitter "$TS_TAG" "tree-sitter-${A_TS}.gz" "$TMP/ts.gz"
   gunzip -f "$TMP/ts.gz"
   install -m755 "$TMP/ts" "$BIN/tree-sitter"
   ok "tree-sitter CLI $TS_TAG"
@@ -367,7 +411,9 @@ if have cc || have gcc || have clang; then
   ok "C compiler present ($(command -v cc || command -v gcc || command -v clang))"
 else
   ZIG_V="0.14.0" # pinned: 0.14.x is the last release with this asset naming
-  if fetch "https://ziglang.org/download/${ZIG_V}/zig-linux-${A_ZIG}-${ZIG_V}.tar.xz" "$TMP/zig.tar.xz" \
+  if fetch "https://ziglang.org/download/index.json" "$TMP/zig-index.json" \
+      && ZIG_INFO="$(python3 "$REPO_DIR/scripts/download-integrity.py" zig "$TMP/zig-index.json" "$ZIG_V" "$A_ZIG")" \
+      && fetch_verified "${ZIG_INFO%%$'\n'*}" "$TMP/zig.tar.xz" "${ZIG_INFO#*$'\n'}" \
       && tar -C "$OPT" -xJf "$TMP/zig.tar.xz" 2>/dev/null; then
     printf '#!/bin/sh\nexec "%s/zig-linux-%s-%s/zig" cc "$@"\n' "$OPT" "$A_ZIG" "$ZIG_V" > "$BIN/cc"
     chmod +x "$BIN/cc"
@@ -379,7 +425,7 @@ fi
 if want clangd; then
   if [ "$A_NVIM" = "x86_64" ]; then
     CLANGD_TAG="$(gh_tag clangd/clangd)"
-    if fetch "https://github.com/clangd/clangd/releases/download/${CLANGD_TAG}/clangd-linux-${CLANGD_TAG}.zip" "$TMP/clangd.zip" \
+    if fetch_release clangd/clangd "$CLANGD_TAG" "clangd-linux-${CLANGD_TAG}.zip" "$TMP/clangd.zip" \
         && unzip -oq "$TMP/clangd.zip" -d "$OPT" 2>/dev/null; then
       ln -sf "$OPT/clangd_${CLANGD_TAG}/bin/clangd" "$BIN/clangd"
       ok "clangd $CLANGD_TAG → ~/.local/bin/clangd"
@@ -399,16 +445,7 @@ fi
 # ============================================================================
 step "9/10 · this repo's Neovim config → ~/.config/nvim"
 # ============================================================================
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
-if [ -d "$SCRIPT_DIR/nvim" ]; then
-  REPO_DIR="$SCRIPT_DIR"
-else
-  # running via `curl | bash` — grab the repo first
-  REPO_DIR="$HOME/1337-session"
-  if [ ! -d "$REPO_DIR/.git" ]; then
-    git clone --depth=1 "https://github.com/laghzal49/1337-session.git" "$REPO_DIR"
-  fi
-fi
+
 mkdir -p "$HOME/.config"
 if [ -e "$HOME/.config/nvim" ] && [ ! -L "$HOME/.config/nvim" ]; then
   BAK="$HOME/.config/nvim.bak.$(date +%Y%m%d%H%M%S)"
@@ -424,21 +461,30 @@ step "10/10 · preinstall pinned plugins and parsers"
 if [ "$NOSYNC" = 1 ]; then
   printf '%s  ↷ skipped (--no-sync)%s\n' "$C_DIM" "$C_OFF"
 elif have nvim; then
-  if have timeout; then
-    if timeout 900 nvim --headless "+Lazy! restore" +qa >/dev/null 2>&1; then
-      ok "plugins installed"
-    else
-      warn "headless plugin sync didn't finish — first nvim launch will finish it"
+  run_nvim_phase() {
+    local phase="$1" log="$TMP/nvim-$1.log"
+    local -a command=(nvim --headless -c 'lua dofile(vim.env.NVIM_BOOTSTRAP_SCRIPT)')
+    if have timeout; then command=(timeout 900 "${command[@]}"); fi
+    if env NVIM_APPNAME=nvim XDG_CONFIG_HOME="$HOME/.config" NVIM_BLACK_DOCS_AUTO_UPDATE=0 \
+        NVIM_BOOTSTRAP_MODE="$phase" NVIM_BOOTSTRAP_SCRIPT="$REPO_DIR/scripts/nvim-bootstrap.lua" \
+        "${command[@]}" >"$log" 2>&1 \
+        && grep -Fq "BOOTSTRAP PASS: $phase" "$log"; then
+      return 0
     fi
-  elif nvim --headless "+Lazy! restore" +qa >/dev/null 2>&1; then
-    ok "plugins installed"
+    tail -n 12 "$log" >&2
+    return 1
+  }
+  if run_nvim_phase plugins; then
+    ok "pinned plugins installed and restore tasks verified"
   else
-    warn "headless plugin sync didn't finish — first nvim launch will finish it"
+    warn "plugin restore failed — review errors above and rerun the installer"
+    INSTALL_FAILED=1
   fi
-  if nvim --headless "+lua require('nvim-treesitter').install({'python','c','cpp','lua','vim','vimdoc','query','markdown','markdown_inline'}):wait(300000)" +qa >/dev/null 2>&1; then
-    ok "syntax parsers installed"
+  if run_nvim_phase parsers; then
+    ok "syntax parsers installed and loadable"
   else
-    warn "parser setup incomplete — run :TSInstall python c cpp lua vim vimdoc query markdown markdown_inline"
+    warn "parser setup incomplete — review errors above; run :TSInstall python c cpp lua vim vimdoc query markdown markdown_inline"
+    INSTALL_FAILED=1
   fi
 fi
 
@@ -461,7 +507,11 @@ if ! have xclip && ! have wl-copy; then
 fi
 
 # ============================================================================
-printf '\n%s━━━ done ━━━%s\n\n' "$C_GREEN" "$C_OFF"
+if [ "$INSTALL_FAILED" = 1 ]; then
+  printf '\n%s━━━ setup incomplete ━━━%s\n\n' "$C_RED" "$C_OFF"
+else
+  printf '\n%s━━━ done ━━━%s\n\n' "$C_GREEN" "$C_OFF"
+fi
 printf '  next steps:\n'
 printf '   1. restart your terminal (or: source ~/.bashrc)\n'
 printf '   2. set your terminal font to %sJetBrainsMono Nerd Font Mono, Regular, 13pt%s\n' "$C_CYAN" "$C_OFF"
@@ -471,3 +521,6 @@ if [ "${#WARNINGS[@]}" -gt 0 ]; then
   for w in "${WARNINGS[@]}"; do printf '   %s! %s%s\n' "$C_YELLOW" "$w" "$C_OFF"; done
 fi
 printf '\n'
+
+# Core setup failures must propagate to callers; optional-tool warnings remain advisory.
+if [ "$INSTALL_FAILED" = 1 ]; then exit 1; fi

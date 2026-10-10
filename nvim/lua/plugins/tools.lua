@@ -48,7 +48,17 @@ return {
             if vim.tbl_isempty(diags) then return end
             local d = diags[1]
             local from = { line = d.lnum + 1, col = d.col + 1 }
-            local to   = { line = (d.end_lnum or d.lnum) + 1, col = (d.end_col or d.col) + 1 }
+            -- Diagnostics end at an exclusive byte offset; MiniAi expects the
+            -- start byte of the last included character. Never select the
+            -- next character (or a UTF-8 continuation byte) when deleting id.
+            local end_line, end_col = (d.end_lnum or d.lnum) + 1, d.end_col or d.col
+            if end_col == 0 and end_line > from.line then
+              end_line = end_line - 1
+              end_col = #(vim.api.nvim_buf_get_lines(0, end_line - 1, end_line, false)[1] or '')
+            end
+            local prefix = (vim.api.nvim_buf_get_lines(0, end_line - 1, end_line, false)[1] or ''):sub(1, end_col)
+            local to = { line = end_line, col = math.max(1, vim.fn.match(prefix, '.$') + 1) }
+            if to.line == from.line and to.col < from.col then to.col = from.col end
             return { from = from, to = to }
           end,
         },
@@ -61,32 +71,32 @@ return {
   -- Lightweight autopairs
   {
     'nvim-mini/mini.pairs',
-    event = 'InsertEnter',
+    event = { 'InsertEnter', 'CmdlineEnter' },
     opts = {
       modes = { insert = true, command = true, terminal = false },
     },
   },
-  -- Underrated Gem 3: Fast surround management (sa, sd, sr)
+  -- Surround actions use gs so Flash's s key has no longer mapping prefix.
   {
     'nvim-mini/mini.surround',
     keys = {
-      { 'sa', desc = 'Add surrounding', mode = { 'n', 'v' } },
-      { 'sd', desc = 'Delete surrounding' },
-      { 'sf', desc = 'Find surrounding' },
-      { 'sF', desc = 'Find surrounding left' },
-      { 'sh', desc = 'Highlight surrounding' },
-      { 'sn', desc = 'Set surround search lines' },
-      { 'sr', desc = 'Replace surrounding' },
+      { 'gsa', desc = 'Add surrounding', mode = { 'n', 'v' } },
+      { 'gsd', desc = 'Delete surrounding' },
+      { 'gsf', desc = 'Find surrounding' },
+      { 'gsF', desc = 'Find surrounding left' },
+      { 'gsh', desc = 'Highlight surrounding' },
+      { 'gsn', desc = 'Set surround search lines' },
+      { 'gsr', desc = 'Replace surrounding' },
     },
     opts = {
       mappings = {
-        add = 'sa',
-        delete = 'sd',
-        find = 'sf',
-        find_left = 'sF',
-        highlight = 'sh',
-        replace = 'sr',
-        update_n_lines = 'sn',
+        add = 'gsa',
+        delete = 'gsd',
+        find = 'gsf',
+        find_left = 'gsF',
+        highlight = 'gsh',
+        replace = 'gsr',
+        update_n_lines = 'gsn',
       },
     },
   },
@@ -176,7 +186,8 @@ return {
     keys = {
       { '<leader>gD', '<cmd>DiffviewOpen<cr>', desc = 'Git diff view' },
       { '<leader>gH', '<cmd>DiffviewFileHistory %<cr>', desc = 'Current file history' },
-      { '<leader>gf', '<cmd>DiffviewFileHistory<cr>', mode = { 'n', 'v' }, desc = 'File history (selection)' },
+      { '<leader>gf', '<cmd>DiffviewFileHistory<cr>', desc = 'File history' },
+      { '<leader>gf', "<Esc><cmd>'<,'>DiffviewFileHistory<cr>", mode = 'v', desc = 'Selected lines history' },
       { '<leader>gc', '<cmd>DiffviewClose<cr>', desc = 'Close diffview' },
     },
     opts = {
