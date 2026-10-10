@@ -15,7 +15,10 @@ end
 function M.parse_args(input)
   local args, word, quote, escaped, started = {}, '', nil, false, false
   for char in input:gmatch('.') do
-    if escaped then word, escaped, started = word .. char, false, true
+    if escaped then
+      -- In double quotes a backslash only escapes quote, backslash, dollar or backtick.
+      if quote == '"' and not char:match('["\\$`]') then word = word .. '\\' end
+      word, escaped, started = word .. char, false, true
     elseif char == '\\' and quote ~= "'" then escaped, started = true, true
     elseif quote then
       if char == quote then quote = nil else word = word .. char end
@@ -112,7 +115,8 @@ function M.setup()
       program = function()
         local path = M.prompt('Executable: ', require('config.project').root() .. '/', 'file')
         if path == dap.ABORT then return dap.ABORT end
-        if vim.fn.executable(path) ~= 1 then
+        path = vim.fn.expand(path)
+        if vim.fn.executable(path) ~= 1 or vim.fn.isdirectory(path) == 1 then
           vim.notify('Choose an executable built with debug symbols (-g)', vim.log.levels.WARN)
           return dap.ABORT
         end

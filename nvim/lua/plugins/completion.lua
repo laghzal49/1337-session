@@ -91,7 +91,12 @@ return {
       cmdline = {
         sources = function()
           local kind = vim.fn.getcmdtype()
-          return (kind == '/' or kind == '?') and { 'buffer' } or { 'cmdline' }
+          if kind == '/' or kind == '?' then
+            -- Blink's global enabled callback is bypassed in command mode.
+            return require('config.performance').large(0) and {} or { 'buffer' }
+          end
+          -- Colon suggestions are independent of the file's size.
+          return { 'cmdline' }
         end,
         completion = {
           list = { selection = { preselect = false, auto_insert = false } },
@@ -103,7 +108,23 @@ return {
     config = function(_, opts)
       -- Perfect Black owns these groups centrally in config.surfaces.
       vim.treesitter.language.register('markdown', 'blink-cmp-documentation')
-      require('blink.cmp').setup(opts)
+      local cmp = require('blink.cmp')
+      cmp.setup(opts)
+      -- Blink initializes its input listeners after checking the native binary.
+      -- A first batched ':command' can arrive before those listeners exist.
+      -- Catch up once ready, without blocking input or loading private modules.
+      local attempts = 0
+      local function resume_first_command()
+        if vim.api.nvim_get_mode().mode ~= 'c' then return end
+        local trigger = package.loaded['blink.cmp.completion.trigger']
+        if trigger and trigger.cmdline_events and #trigger.show_emitter.listeners > 0 then
+          if vim.fn.getcmdline() ~= '' and #opts.cmdline.sources() > 0 and not cmp.is_menu_visible() then cmp.show() end
+        elseif attempts < 100 then
+          attempts = attempts + 1
+          vim.defer_fn(resume_first_command, 50)
+        end
+      end
+      vim.schedule(resume_first_command)
     end,
   },
 }
