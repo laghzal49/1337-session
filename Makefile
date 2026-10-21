@@ -5,8 +5,12 @@ export NVIM_APPNAME := nvim
 export XDG_CONFIG_HOME := $(CURDIR)
 export NVIM_BLACK_DOCS_AUTO_UPDATE := 0
 
-.PHONY: all test review bench check workflow spatial reference upgrade integrity-metadata
+.PHONY: all test review bench check workflow spatial reference upgrade integrity-metadata portable
 all: test
+
+## Validate installer portability and backups without network or Neovim
+portable:
+	$(PYTHON) nvim/tests/portable_installer_review.py
 
 ## Run standalone test suite
 test:
@@ -25,7 +29,7 @@ workflow:
 	$(NVIM) --headless -c "lua local ok, err = pcall(dofile, 'nvim/tests/workflow.lua'); if not ok then print(err); vim.cmd('cquit 1') end" -c "qa!"
 
 ## Run all test suites
-check: test workflow spatial reference review upgrade
+check: portable test workflow spatial reference review upgrade
 
 ## Verify navigation feedback, cached symbols, split focus and command suggestions
 spatial:
