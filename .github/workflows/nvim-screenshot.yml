@@ -21,9 +21,25 @@ jobs:
         run: python3 -m pip install --user Pillow msgpack
       - name: Capture editor screenshot
         run: python3 scripts/capture-nvim.py --output nvim-rose-preview.png
+      - name: Prepare full Neovim configuration
+        continue-on-error: true
+        run: |
+          mkdir -p "$RUNNER_TEMP/config"
+          ln -s "$GITHUB_WORKSPACE/nvim" "$RUNNER_TEMP/config/nvim"
+          XDG_CONFIG_HOME="$RUNNER_TEMP/config" NVIM_BLACK_DOCS_AUTO_UPDATE=0 \
+            NVIM_BOOTSTRAP_MODE=plugins NVIM_BOOTSTRAP_SCRIPT="$GITHUB_WORKSPACE/scripts/nvim-bootstrap.lua" \
+            timeout 240 nvim --headless --cmd 'let g:station_1337 = v:false' \
+            -c 'lua dofile(vim.env.NVIM_BOOTSTRAP_SCRIPT)'
+      - name: Capture full 1337-session UI
+        continue-on-error: true
+        run: |
+          XDG_CONFIG_HOME="$RUNNER_TEMP/config" \
+            python3 scripts/capture-nvim.py --full --output nvim-rose-full-preview.png --timeout 60
       - name: Upload screenshot
         uses: actions/upload-artifact@v4
         with:
           name: neovim-rose-preview
-          path: nvim-rose-preview.png
+          path: |
+            nvim-rose-preview.png
+            nvim-rose-full-preview.png
           retention-days: 30
