@@ -1,0 +1,29 @@
+name: Neovim visual screenshot
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  screenshot:
+    name: Capture real Neovim UI
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install current Neovim
+        run: |
+          curl -fsSL --retry 3 https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz -o /tmp/neovim.tar.gz
+          tar -xzf /tmp/neovim.tar.gz -C /tmp
+          echo "/tmp/nvim-linux-x86_64/bin" >> "$GITHUB_PATH"
+      - name: Install image capture requirements
+        run: python3 -m pip install --user Pillow msgpack
+      - name: Capture editor screenshot
+        run: python3 scripts/capture-nvim.py --output nvim-rose-preview.png
+      - name: Upload screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: neovim-rose-preview
+          path: nvim-rose-preview.png
+          retention-days: 30
