@@ -21,6 +21,7 @@ M.state = {
 -- ── 1337 Environment Detection ───────────────────────────────────────────────
 function M.is_1337()
   if vim.g.station_1337 ~= nil then return vim.g.station_1337 end
+  if vim.env.STATION_1337 == '0' then return false end
   if vim.env.STATION_1337 == '1' then return true end
   if detected_station ~= nil then return detected_station end
 
@@ -30,7 +31,7 @@ function M.is_1337()
 
   -- Cluster hostname naming conventions (e.g. c1r2p3, f2r4p1, 1337-*, 42-*)
   local host = (vim.uv.os_gethostname() or ''):lower()
-  if host:match('^[cbfzer]%d+r%d+p%d+') or host:match('1337') or host:match('42') then detected_station = true; return true end
+  if host:match('^[cbfzer]%d+r%d+p%d+') or host:match('^1337%-') or host:match('^42%-') then detected_station = true; return true end
 
   -- Installing this config does not imply a cluster filesystem.
   -- Non-cluster hosts can opt in with STATION_1337=1 or :StationMode on.

@@ -17,6 +17,8 @@ jobs:
           curl -fsSL --retry 3 https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz -o /tmp/neovim.tar.gz
           tar -xzf /tmp/neovim.tar.gz -C /tmp
           echo "/tmp/nvim-linux-x86_64/bin" >> "$GITHUB_PATH"
+      - name: Verify offline runtime portability
+        run: make runtime
       - name: Install image capture requirements
         run: python3 -m pip install --user Pillow msgpack
       - name: Capture editor screenshot
