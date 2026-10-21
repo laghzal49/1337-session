@@ -25,6 +25,39 @@ in your shell). A deliberate `vim.g.station_1337` setting takes precedence.
 Windows now uses its native PATH separator so Mason tools can be discovered.
 Offline runtime regressions run with `make runtime`; no plugins are required.
 
+## Recovery, plain fonts and live profiling
+
+Normal editing buffers now keep swap files under Neovim's state directory in
+`swap/`, with full-path filenames so projects with the same filenames do not
+collide. Swap files are removed on a clean exit. After a crash, run `nvim -r` to
+list recovery files, then `nvim -r path/to/file` to recover and inspect your work.
+Persistent undo remains enabled for edits that have already been saved.
+Recovery is periodic, not a guarantee that every last keystroke survives.
+
+`NVIM_ASCII_ICONS=1 nvim` now also replaces native and Glance fold glyphs.
+`:UIAccessibility on` switches native fold markers immediately; the stronger
+contrast preset still has its existing behavior. No new plugins are added.
+
+To investigate slowness on your actual cluster or laptop:
+
+1. Run `:SessionProfile start`.
+2. Use completion, `K`, project search and save in a real project.
+3. Run `:SessionProfile stop` and inspect `:messages` for the report.
+
+The report shows count, mean and maximum completed LSP request time, plus
+event-loop delays while working. These are observations of server round trips
+and editor stalls, **not** end-to-end timings for each key or popup. Cancellation
+and unfinished requests are excluded. The loop probe also reflects OS scheduling
+and sleep. Profiling does not collect source text or paths, and adds no timer or
+LSP observer until started. Starting again clears earlier samples.
+
+`:ConfigTools` and `:checkhealth session` now share one tool inventory with
+feature-specific installation guidance. Project grep and the Git UI report
+missing dependencies before attempting to open. Existing documentation modules
+remain separate: `smart_docs` chooses a source, `docs_resolver` resolves symbol
+identity, `docs_store` reads cached content, and `documentation` owns the popup.
+They have distinct responsibilities; removing them would remove behavior.
+
 ## Current colors and compact popups
 
 ![Coordinated colors and compact command popup](assets/popup-command-140.png)

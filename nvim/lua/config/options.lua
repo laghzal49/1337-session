@@ -20,7 +20,7 @@ vim.opt.timeoutlen = 350
 vim.opt.updatetime = 250
 vim.opt.winblend = 0
 vim.opt.pumblend = 0
-vim.opt.fillchars:append({ eob = " ", fold = " ", foldopen = "", foldclose = "", foldsep = " ", vert = "│", diff = " " })
+vim.opt.fillchars:append({ eob = " ", fold = " ", foldopen = require('config.ui').icon('fold_open'), foldclose = require('config.ui').icon('fold_closed'), foldsep = " ", vert = "│", diff = " " })
 
 -- Stable visual anchors; a short completion menu keeps code visible.
 vim.opt.pumheight = 8
@@ -74,7 +74,17 @@ vim.opt.hlsearch = true
 vim.opt.incsearch = true
 
 -- Backup/swap improvements
-vim.opt.swapfile = false
+-- Keep crash recovery in Neovim state storage, never beside project files.
+local swap_dir = vim.fn.stdpath('state') .. '/swap'
+-- A read-only/full state directory must not prevent the rest of startup.
+local swap_ok = pcall(vim.fn.mkdir, swap_dir, 'p', 448) -- 0700 on Unix
+if not swap_ok or vim.fn.filewritable(swap_dir) ~= 2 then
+  vim.schedule(function()
+    vim.notify('Swap recovery directory is not writable: ' .. swap_dir .. '. Run :checkhealth session', vim.log.levels.WARN)
+  end)
+end
+vim.opt.directory = { swap_dir .. '//' } -- encode full paths to avoid basename collisions
+vim.opt.swapfile = true
 vim.opt.backup = false
 vim.opt.writebackup = true -- Keep a recovery copy until a write succeeds.
 

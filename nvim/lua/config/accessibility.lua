@@ -62,6 +62,7 @@ function M.set(enabled)
   if enabled == ui.accessible then return ui.accessible end
   if not enabled then restore() end
   ui.set_accessible(enabled)
+  vim.opt.fillchars:append({ foldopen = ui.icon('fold_open'), foldclose = ui.icon('fold_closed') })
   require('config.surfaces').set_accessible(ui.accessible)
   highlights()
   local icons = package.loaded['mini.icons']
