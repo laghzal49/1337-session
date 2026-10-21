@@ -8,6 +8,23 @@ It respects project rules, ignores and excludes; unsafe fixes remain disabled.
 Ruff also provides diagnostics through its LSP; `<leader>cf` runs formatting manually and `<leader>uf`
 toggles format-on-save.
 
+## Check your cluster or laptop
+
+Run `:checkhealth session` after installation. This local report shows resolved
+storage paths, missing tools, station detection, clipboard availability and
+display settings. It does not install plugins or repair files.
+
+From the repository, run `make bench` to measure startup on the actual machine.
+This measures headless startup with existing caches, not first-use LSP latency;
+use `:Lazy profile` to inspect plugin timing in an interactive session.
+Then open a real C or Python file and check completion, `K`, copy/paste and save.
+
+If your terminal shows boxes instead of icons, try `NVIM_ASCII_ICONS=1 nvim`.
+To disable cluster auto-detection, use `STATION_1337=0 nvim` (or set the variable
+in your shell). A deliberate `vim.g.station_1337` setting takes precedence.
+Windows now uses its native PATH separator so Mason tools can be discovered.
+Offline runtime regressions run with `make runtime`; no plugins are required.
+
 ## Current colors and compact popups
 
 ![Coordinated colors and compact command popup](assets/popup-command-140.png)

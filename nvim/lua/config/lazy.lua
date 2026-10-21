@@ -6,10 +6,10 @@ if not vim.uv.fs_stat(lazypath) then
     vim.api.nvim_echo({
       { "Failed to clone lazy.nvim:\n", "ErrorMsg" },
       { out, "WarningMsg" },
-      { "\nPress any key to exit..." },
     }, true, {})
-    vim.fn.getchar()
-    os.exit(1)
+    -- CI and unattended setup must fail rather than wait for keyboard input.
+    vim.cmd('cquit 1')
+    return
   end
 end
 vim.opt.rtp:prepend(lazypath)
