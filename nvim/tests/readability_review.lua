@@ -20,7 +20,7 @@ assert(not rows[4] and not rows[5], 'TODO highlight leaked into a string or long
 local variable = vim.api.nvim_get_hl(0,{name='@variable',link=false})
 local semantic = vim.api.nvim_get_hl(0,{name='@lsp.type.variable',link=false})
 assert(variable.fg == semantic.fg, 'LSP changes variable brightness')
-assert(math.floor(variable.fg / 65536) >= 240 and math.floor(variable.fg / 256) % 256 < 90 and not variable.bold and not semantic.bold, 'variables must stay vivid red without bold with LSP')
+assert(variable.fg == tonumber(require('config.palette').variable:sub(2),16) and not variable.bold and not semantic.bold, 'variable color must match configured palette without bold with LSP')
 local ns = vim.api.nvim_create_namespace('readability_diagnostics')
 vim.diagnostic.set(ns,buf,{{lnum=0,col=0,message='Example type mismatch',code='TYPE001',severity=1,source='review'}})
 local float_buf, float_win = vim.diagnostic.open_float(buf,{scope='buffer',focus=false})
