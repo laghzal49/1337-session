@@ -228,14 +228,18 @@ def capture(binary, width, height, full, timeout):
                 vim.opt.number = true
                 vim.opt.relativenumber = false
                 vim.opt.cursorline = true
-                vim.opt.showmode = false
-                vim.opt.laststatus = 2
-                vim.opt.signcolumn = 'yes'
-                vim.opt.cmdheight = 1
+                if not vim.g.capture_full_ui then
+                    vim.opt.showmode = false
+                    vim.opt.laststatus = 2
+                    vim.opt.signcolumn = 'yes'
+                    vim.opt.cmdheight = 1
+                end
                 vim.api.nvim_win_set_cursor(0, {7, 1})
                 vim.cmd('redraw!')
                 return vim.g.colors_name
             """
+            flag = write("nvim_set_var", ["capture_full_ui", full])
+            events(flag, 5)
             request = write("nvim_exec_lua", [script, [str(demo)]])
             result = events(request, timeout)
             # Capture after deferred UI redraws have settled.
