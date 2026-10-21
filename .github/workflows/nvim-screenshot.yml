@@ -30,11 +30,26 @@ jobs:
             NVIM_BOOTSTRAP_MODE=plugins NVIM_BOOTSTRAP_SCRIPT="$GITHUB_WORKSPACE/scripts/nvim-bootstrap.lua" \
             timeout 240 nvim --headless --cmd 'let g:station_1337 = v:false' \
             -c 'lua dofile(vim.env.NVIM_BOOTSTRAP_SCRIPT)'
-      - name: Capture full 1337-session UI
-        continue-on-error: true
+      - name: Capture all four real 1337-session views
+        env:
+          XDG_CONFIG_HOME: ${{ runner.temp }}/config
         run: |
-          XDG_CONFIG_HOME="$RUNNER_TEMP/config" \
-            python3 scripts/capture-nvim.py --full --output nvim-rose-full-preview.png --timeout 60
+          python3 scripts/capture-nvim.py --full --view editor --output nvim-rose-full-preview.png --timeout 60
+          python3 scripts/capture-nvim.py --full --view explorer --output nvim-rose-explorer.png --timeout 60
+          python3 scripts/capture-nvim.py --full --view completion --output nvim-rose-completion.png --timeout 60
+          python3 scripts/capture-nvim.py --full --view documentation --output nvim-rose-documentation.png --timeout 60
+      - name: Verify screenshots are distinct and legible
+        run: |
+          python3 - <<'PY'
+          from PIL import Image, ImageChops
+          files = ['nvim-rose-full-preview.png', 'nvim-rose-explorer.png',
+                   'nvim-rose-completion.png', 'nvim-rose-documentation.png']
+          images = [Image.open(path).convert('RGB') for path in files]
+          assert all(im.width >= 1000 and im.height >= 700 for im in images)
+          for im in images[1:]:
+              assert ImageChops.difference(images[0], im).getbbox(), 'Panel screenshot equals editor'
+          print('VISUAL QA PASS: 4 real distinct Neovim captures')
+          PY
       - name: Upload screenshot
         uses: actions/upload-artifact@v4
         with:
@@ -42,4 +57,7 @@ jobs:
           path: |
             nvim-rose-preview.png
             nvim-rose-full-preview.png
+            nvim-rose-explorer.png
+            nvim-rose-completion.png
+            nvim-rose-documentation.png
           retention-days: 30
