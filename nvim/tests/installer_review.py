@@ -63,7 +63,7 @@ with tempfile.TemporaryDirectory(prefix='nvim-installer-review-') as folder:
     fake_nvim.chmod(0o755)
     installer = (ROOT/'install.sh').read_text()
     helper = installer[installer.index('  run_nvim_phase() {'):installer.index('  if run_nvim_phase plugins; then')]
-    setup = 'TMP=' + shlex.quote(folder) + '; REPO_DIR=' + shlex.quote(str(ROOT)) + '; have() { return 1; };\n'
+    setup = 'TMP=' + shlex.quote(folder) + '; REPO_DIR=' + shlex.quote(str(ROOT)) + '; CONFIG_HOME="$HOME/.config"; have() { return 1; };\n'
     result = subprocess.run(['bash', '-c', setup + helper + '\nrun_nvim_phase plugins'],
                             env=dict(os.environ, NVIM_APPNAME='unrelated-config', PATH=str(fake_bin)+os.pathsep+os.environ['PATH']),
                             text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, timeout=10)

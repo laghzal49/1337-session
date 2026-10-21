@@ -12,8 +12,10 @@ toggles format-on-save.
 
 ![Coordinated colors and compact command popup](assets/popup-command-140.png)
 
-Supporting accents share balanced lightness and saturation. Selections, folders
-and popup borders use a consistent blue family; variables stay vivid red.
+Rose is now the default: a pure-black canvas, pink variables and strings,
+soft lilac keywords and readable off-white text. To restore the original blue
+focus/green string/red variable accents, run `NVIM_COLOR_STYLE=classic nvim`.
+The preview below was captured with the earlier classic palette.
 See [the popup gallery](POPUPS.md) for current captures. The workspace overview
 images below document earlier layout upgrades.
 
@@ -34,9 +36,10 @@ outline colors now share one palette; measured foreground contrast is at least
 ![Responsive Station Health report (example data)](assets/redesign-station-40.png)
 ![Real Python debugger on a narrow screen](assets/redesign-debugger-40.png)
 
-The researched design uses a pure-black canvas, off-white text, blue focus accents
-and regular font weight in both active and inactive editor splits. Folders are blue, functions cyan, types teal, strings
-green, keywords violet and values orange. Surrounding controls stay quiet, with
+The original design (still available in `classic` mode) uses a pure-black canvas,
+off-white text, blue focus accents and regular font weight in both active and inactive
+editor splits. Its folders are blue, functions cyan, types teal, strings green,
+keywords violet and values orange. Surrounding controls stay quiet, with
 a dark status bar and restrained borders. Built-in functions share the function palette. The project home shows
 project state, one-key actions, recent project files and workflow shortcuts. The branch is fetched
 asynchronously; `tracked clean` deliberately excludes untracked files.

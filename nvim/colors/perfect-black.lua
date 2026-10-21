@@ -1,5 +1,5 @@
 -- Perfect Black — standalone colorscheme for Neovim ≥ 0.11
--- Pure black canvas, blue navigation, vivid red variables, regular font weight.
+-- Pure black canvas, rose or classic accents, regular font weight.
 -- Converts the previous onedark.nvim override into a native colorscheme,
 -- eliminating the third-party dependency entirely.
 
