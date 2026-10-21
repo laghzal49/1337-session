@@ -259,7 +259,7 @@ def capture(binary, width, height, full, timeout, view="editor"):
                         'The terminating null byte is part of the search.',
                         '',
                         '```c',
-                        'char *match = ft_strchr("banana", \'n\');',
+                        [[char *match = ft_strchr("banana", 'n');]],
                         '// match points to the third character',
                         '```',
                         '',
