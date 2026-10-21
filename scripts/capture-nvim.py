@@ -252,7 +252,9 @@ def capture(binary, width, height, full, timeout, view="editor"):
                         return #vim.api.nvim_tabpage_list_wins(0) >= 2
                     end, 50)
                 elseif view == 'documentation' then
-                    require('config.documentation').open({
+                    -- Let deferred startup UI handlers finish before the float opens.
+                    vim.wait(700, function() return false end, 100)
+                    local _, doc_win = require('config.documentation').open({
                         '### ft_strchr(const char *str, int c)',
                         '',
                         'Returns a pointer to the first matching character.',
@@ -264,12 +266,12 @@ def capture(binary, width, height, full, timeout, view="editor"):
                         '```',
                         '',
                         '**Controls:** K to focus · Ctrl-B/F to scroll',
-                    }, 'C reference · ft_strchr')
+                    }, 'C reference · ft_strchr', { close_events = {} })
+                    assert(doc_win and vim.api.nvim_win_is_valid(doc_win),
+                      'documentation window failed to open')
+                    vim.api.nvim_set_current_win(doc_win)
                     ready = vim.wait(1500, function()
-                        for _, win in ipairs(vim.api.nvim_list_wins()) do
-                            if vim.api.nvim_win_get_config(win).relative ~= '' then return true end
-                        end
-                        return false
+                        return vim.api.nvim_win_is_valid(doc_win)
                     end, 40)
                 elseif view == 'completion' then
                     require('lazy').load({plugins={'blink.cmp'}})
@@ -296,6 +298,14 @@ def capture(binary, width, height, full, timeout, view="editor"):
             # Capture after deferred UI redraws have settled.
             request = write("nvim_eval", ["g:colors_name"])
             result = events(request, 6)
+            visible = "\n".join("".join(ch for ch, _ in row)
+                                 for row in result.cells)
+            if view == "documentation" and "Returns a pointer" not in visible:
+                raise RuntimeError("Documentation float disappeared before capture")
+            if view == "completion" and "Suggestions" not in visible:
+                raise RuntimeError("Blink completion menu disappeared before capture")
+            if view == "explorer" and "Explorer" not in visible:
+                raise RuntimeError("Snacks explorer pane disappeared before capture")
             return result
     finally:
         try:
