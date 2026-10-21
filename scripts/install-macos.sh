@@ -48,7 +48,7 @@ install_formula fzf fzf
 install_formula lazygit lazygit
 install_formula node node
 install_formula uv uv
-install_formula tree-sitter tree-sitter
+install_formula tree-sitter-cli tree-sitter
 if ! command -v python3 >/dev/null 2>&1; then install_formula python python3; fi
 
 # Let login shells discover binaries installed by uv.
