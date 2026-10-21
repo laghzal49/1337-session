@@ -16,15 +16,15 @@ local classic = {
 -- Default: screenshot-inspired dark rose, balanced for long coding sessions.
 -- Classic preserves the previous Perfect Black accents.
 local rose = {
-  canvas = '#000000', inset = '#0C0A0D', panel = '#151116', selection = '#261D26',
+  canvas = '#000000', inset = '#0C0A0D', panel = '#151116', line = '#211923', selection = '#261D26',
   text = '#E9E4E9', muted = '#B2A6B0', punctuation = '#BDB2BC', path = '#D0C5CF',
   gutter = '#A89EAA', guide = '#2A242B',
   border = '#675463', border_strong = '#877584', border_soft = '#393039',
   focus_border = '#C58EAE', focus = '#F3B4D1',
-  variable = '#F38DA9', parameter = '#E8B5C8', member = '#F0AAC4',
+  variable = '#F09ABC', parameter = '#DFBED0', member = '#DBA8BA',
   callable = '#A9D8EB', keyword = '#D7B8EE', type = '#B2DCCC',
-  string = '#F4A3B7', literal = '#EFC390',
-  error = '#FF91A9', warning = '#E9C77F',
+  string = '#DAC4AE', literal = '#EFC390',
+  success = '#9CD5B7', error = '#FF91A9', warning = '#E9C77F',
   on_accent = '#000000', strong = '#FFF5FA',
   error_bg = '#30131F', warning_bg = '#292112', success_bg = '#13251F',
   focus_bg = '#362439', search_bg = '#3B273B', search_text = '#F6D0F0',
@@ -35,7 +35,7 @@ if style ~= 'classic' then style = 'rose' end
 vim.g.black_color_style = style
 local c = style == 'classic' and classic or rose
 c.folder, c.info, c.hint = c.focus, c.focus, c.type
-c.success, c.comment, c.popup_selection = c.string, c.muted, c.selection
+c.success, c.comment, c.popup_selection = c.success or c.string, c.muted, c.selection
 -- A heading hierarchy in one cool family, shared by native and rendered Markdown.
 c.headings = { c.focus, c.callable, c.text, c.path, c.path, c.muted }
 c.icons = {

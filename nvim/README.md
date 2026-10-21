@@ -19,6 +19,31 @@ The preview below was captured with the earlier classic palette.
 See [the popup gallery](POPUPS.md) for current captures. The workspace overview
 images below document earlier layout upgrades.
 
+## Rose UI polish and verified previews
+
+Rose now gives variables a clear pink accent, keeps parameters and members
+slightly softer, and uses warm-neutral strings so every identifier is not the
+same color. Success indicators stay green, while the original classic palette
+is unchanged. The active line has a dedicated low-glare violet surface and the
+statusline now shows a compact, readable mode capsule with more spacing.
+
+To capture the **actual Neovim UI** (not a composited mockup), install Neovim,
+the config's plugins, and `pip install Pillow msgpack`, then run:
+
+```sh
+python3 scripts/capture-nvim.py --full --view editor --output editor.png
+python3 scripts/capture-nvim.py --full --view explorer --output explorer.png
+python3 scripts/capture-nvim.py --full --view completion --output completion.png
+python3 scripts/capture-nvim.py --full --view documentation --output documentation.png
+```
+
+The editor uses a real C buffer, explorer opens Snacks, completion requests
+Blink.cmp, and documentation uses the existing `config.documentation` floating
+panel with example help text. Panels fail explicitly if their plugin does not
+open. GitHub Actions publishes all four views as the
+`neovim-rose-preview` artifact after checking readability and that each panel
+differs from the editor capture.
+
 ## A complete workspace refresh
 
 See the [full UI upgrade checklist](UI_UPGRADE_TODO.md) and

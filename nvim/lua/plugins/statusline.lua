@@ -6,8 +6,8 @@ return {
     opts = function()
       local s, ui = require('config.surfaces'), require('config.ui')
       local function mode(accent)
-        return { a = { fg = accent, bg = s.inset, gui = 'NONE' },
-          b = { fg = s.text, bg = s.inset }, c = { fg = s.text, bg = s.tree_panel } }
+        return { a = { fg = palette.on_accent, bg = accent, gui = 'NONE' },
+          b = { fg = palette.path, bg = s.inset }, c = { fg = s.text, bg = s.tree_panel } }
       end
       local function wide(n) return function() return vim.o.columns >= n end end
       local function info() return require('config.workspace_info').get() end
@@ -29,14 +29,16 @@ return {
           theme = { normal = mode(s.accent), insert = mode(s.teal), visual = mode(s.lilac),
             replace = mode(palette.literal), command = mode(palette.warning), inactive = mode(s.muted) } },
         sections = {
-          lualine_a = { { 'mode', fmt = function(value) return vim.o.columns < 90 and value:sub(1, 1) or value end } },
+          lualine_a = { { 'mode', padding = { left = 1, right = 1 },
+              fmt = function(value) return vim.o.columns < 90 and value:sub(1, 1) or value end } },
           lualine_b = { { function()
               local limit = vim.o.columns < 120 and 14 or vim.o.columns < 140 and 24 or 28
               return text(compact(info().name, limit))
             end,
-              cond = wide(78) },
+              padding = { left = 2, right = 1 }, cond = wide(78) },
             { function() return text(compact(info().branch, vim.o.columns >= 140 and 24 or 16)) .. (info().dirty and (' ' .. ui.icon('modified')) or '') end,
-              icon = ui.icon('branch'), cond = function() return vim.o.columns >= 110 and info().branch ~= '' end } },
+              icon = ui.icon('branch'), padding = { left = 1, right = 1 },
+              cond = function() return vim.o.columns >= 110 and info().branch ~= '' end } },
           lualine_c = { { require('config.symbol_context').component, cond = wide(130), color = { fg = s.lilac } },
             { 'diagnostics', sources = { 'nvim_diagnostic' }, sections = { 'error', 'warn' },
               symbols = { error = 'E ', warn = 'W ' } } },
