@@ -16,6 +16,8 @@ portable:
 runtime:
 	$(NVIM) --headless -u NONE -l nvim/tests/portable_runtime_review.lua
 	$(PYTHON) nvim/tests/bootstrap_failure_review.py
+	$(NVIM) --headless -u NONE -l nvim/tests/session_comfort_review.lua
+	$(PYTHON) nvim/tests/recovery_review.py
 
 ## Run standalone test suite
 test:

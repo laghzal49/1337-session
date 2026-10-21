@@ -175,8 +175,8 @@ return {
           enable = true,
         },
         folds = {
-          fold_closed = '',
-          fold_open = '',
+          fold_closed = require('config.ui').icon('fold_closed'),
+          fold_open = require('config.ui').icon('fold_open'),
           folded = true,
         },
         indent_lines = {

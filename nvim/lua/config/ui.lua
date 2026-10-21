@@ -17,6 +17,8 @@ local M = {
   -- do not slowly drift into competing icon sets. Set `vim.g.have_nerd_font`
   -- to false for a readable ASCII-only fallback on minimal terminals.
   icons = {
+    fold_open = { nerd = '', text = 'v' },
+    fold_closed = { nerd = '', text = '>' },
     workspace = { nerd = '󰉋', text = '[W]' },
     search = { nerd = '󰍉', text = '/' },
     file = { nerd = '󰈙', text = '[F]' },

@@ -28,14 +28,21 @@ function M.check()
   end
 
   health.start('Tools available to this Neovim process')
-  for _, name in ipairs({ 'git', 'rg', 'uv', 'ty', 'ruff', 'clangd' }) do
-    local path = vim.fn.exepath(name)
+  local inventory = require('config.tool_health')
+  for _, tool in ipairs(inventory.tools) do
+    local path = vim.fn.exepath(tool[1])
     if path ~= '' then
-      health.ok(name .. ': ' .. path)
+      health.ok(tool[1] .. ': ' .. path)
     else
-      health.warn(name .. ' is missing from PATH; needed only for its corresponding workflow')
+      health.warn(inventory.missing(tool))
     end
   end
+
+  health.start('Unsaved edit recovery')
+  if vim.o.swapfile then health.ok('Swap recovery enabled for normal buffers')
+  else health.warn('Swap recovery disabled; persistent undo does not protect unsaved edits') end
+  health.info('Recovery directory: ' .. vim.o.directory)
+  health.info('After a crash, use nvim -r to list swap files; use :recover for the affected file')
 
   health.start('Display and clipboard')
   health.info('Palette: ' .. (vim.env.NVIM_COLOR_STYLE or 'rose'))
@@ -52,6 +59,7 @@ function M.check()
     health.warn('No clipboard provider detected; run :checkhealth vim.provider for details')
   end
   health.info('Measure startup on this machine with make bench from the repository; use :Lazy profile for plugin timing')
+  health.info('For live LSP timings and event-loop stalls: :SessionProfile start, work normally, then :SessionProfile stop')
 end
 
 return M

@@ -71,7 +71,7 @@ vim.api.nvim_create_autocmd('LspAttach', { callback = function(ev)
 end })
 
 map('<leader>gg', function()
-  if vim.fn.executable('lazygit') == 0 then vim.notify('Install lazygit to open Git UI', vim.log.levels.WARN); return end
+  if not require('config.tool_health').require_tool('lazygit') then return end
   Snacks.lazygit({ cwd = require('config.project').root() })
 end, 'Git UI')
 
@@ -82,13 +82,13 @@ vim.keymap.set({ 'n', 't', 'i' }, '<C-/>', toggle_terminal, { desc = 'Focus or h
 vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
 
 vim.api.nvim_create_user_command('ConfigTools', function()
-  local lines = { 'Tools found on PATH:' }
-  for _, name in ipairs({'ty','ruff','clangd','rg','git','tree-sitter','cc','lazygit'}) do
-    local path = vim.fn.exepath(name)
-    lines[#lines + 1] = name .. ': ' .. (path ~= '' and path or 'MISSING')
-  end
-  vim.notify(table.concat(lines, '\n'), vim.log.levels.INFO, {title='Config tools'})
+  require('config.tool_health').show()
 end, {})
+
+vim.api.nvim_create_user_command('SessionProfile', function(args)
+  require('config.session_profile').command(args.args)
+end, { nargs = '?', complete = function() return { 'start', 'stop', 'report' } end,
+  desc = 'Measure live LSP requests and event-loop stalls on this machine' })
 
 -- ── 1337 Station Mode Commands & Keymaps ──────────────────────────────────────
 vim.api.nvim_create_user_command('StationHealth', function()

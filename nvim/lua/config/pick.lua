@@ -7,6 +7,7 @@ function M.open(command, opts)
     lsp_references = 'references', lsp_definitions = 'definition', lsp_implementations = 'implementation',
     lsp_type_definitions = 'type_definition', lsp_symbols = 'document_symbol', lsp_workspace_symbols = 'workspace_symbol_live' }
   command = aliases[command] or command
+  if command == 'grep' and not require('config.tool_health').require_tool('rg') then return end
   if vim.tbl_contains({ 'references', 'definition', 'declaration', 'implementation', 'type_definition' }, command) then
     return require('config.lsp_actions').locations(command, command == 'references')
   end
@@ -26,6 +27,7 @@ function M.open(command, opts)
 end
 -- Lightweight search reuses the documentation picker when preview is unnecessary.
 function M.fast(command)
+  if command == 'grep' and not require('config.tool_health').require_tool('rg') then return end
   local pick = require('mini.pick')
   local config = { source = { cwd = require('config.project').root() } }
   if command == 'files' then
@@ -34,6 +36,8 @@ function M.fast(command)
     end
     return pick.builtin.files(nil, config)
   end
-  if command == 'grep' then return pick.builtin.grep_live({ tool = 'rg', globs = { '!.git', '!*.bak-*' } }, config) end
+  if command == 'grep' then
+    return pick.builtin.grep_live({ tool = 'rg', globs = { '!.git', '!*.bak-*' } }, config)
+  end
 end
 return M
