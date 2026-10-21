@@ -7,6 +7,9 @@ sudo, clipboard, or user config modifications required.
 Examples:
     python3 scripts/capture-nvim.py --output nvim-preview.png
     python3 scripts/capture-nvim.py --output full-preview.png --full
+    python3 scripts/capture-nvim.py --full --view explorer --output explorer.png
+    python3 scripts/capture-nvim.py --full --view completion --output completion.png
+    python3 scripts/capture-nvim.py --full --view documentation --output docs.png
 """
 import argparse
 import os
@@ -55,6 +58,7 @@ class NvimGrid:
         self.fg = 0xE9E4E9
         self.bg = 0
         self.cursor = None
+        self.last_reply = None
 
     def apply(self, name, event):
         if name == "default_colors_set":
@@ -158,8 +162,9 @@ def render(grid, destination, font_path=None):
     return image.size
 
 
-def capture(binary, width, height, full, timeout):
-    env = dict(os.environ, NVIM_ASCII_ICONS="1", NVIM_BLACK_DOCS_AUTO_UPDATE="0")
+def capture(binary, width, height, full, timeout, view="editor"):
+    env = dict(os.environ, NVIM_ASCII_ICONS="1", NVIM_BLACK_DOCS_AUTO_UPDATE="0",
+               NVIM_CAPTURE_VIEW=view)
     args = [binary, "--embed", "--cmd", "let g:station_1337 = v:false"]
     if not full:
         args += ["-u", "NONE", "--cmd", "set runtimepath^=" + str(ROOT / "nvim")]
@@ -203,11 +208,13 @@ def capture(binary, width, height, full, timeout):
                 reply = replies.pop(wait_for)
                 if reply[2] is not None:
                     raise RuntimeError("Neovim RPC error: " + str(reply[2]))
+                grid.last_reply = reply[3]
                 return grid
         if wait_for in replies:
             reply = replies[wait_for]
             if reply[2] is not None:
                 raise RuntimeError("Neovim RPC error: " + str(reply[2]))
+            grid.last_reply = reply[3]
             return grid
         raise TimeoutError("Timed out reading Neovim redraw RPC")
 
@@ -235,13 +242,57 @@ def capture(binary, width, height, full, timeout):
                     vim.opt.cmdheight = 1
                 end
                 vim.api.nvim_win_set_cursor(0, {7, 1})
+                local view = vim.env.NVIM_CAPTURE_VIEW or 'editor'
+                local ready = true
+                if view == 'explorer' then
+                    require('lazy').load({plugins={'snacks.nvim'}})
+                    assert(_G.Snacks and Snacks.explorer, 'Snacks explorer is unavailable')
+                    Snacks.explorer()
+                    ready = vim.wait(3500, function()
+                        return #vim.api.nvim_tabpage_list_wins(0) >= 2
+                    end, 50)
+                elseif view == 'documentation' then
+                    require('config.documentation').open({
+                        '### ft_strchr(const char *str, int c)',
+                        '',
+                        'Returns a pointer to the first matching character.',
+                        'The terminating null byte is part of the search.',
+                        '',
+                        '```c',
+                        'char *match = ft_strchr("banana", \'n\');',
+                        '// match points to the third character',
+                        '```',
+                        '',
+                        '**Controls:** K to focus · Ctrl-B/F to scroll',
+                    }, 'C reference · ft_strchr')
+                    ready = vim.wait(1500, function()
+                        for _, win in ipairs(vim.api.nvim_list_wins()) do
+                            if vim.api.nvim_win_get_config(win).relative ~= '' then return true end
+                        end
+                        return false
+                    end, 40)
+                elseif view == 'completion' then
+                    require('lazy').load({plugins={'blink.cmp'}})
+                    local cmp = require('blink.cmp')
+                    -- A deliberately incomplete identifier matching this C buffer.
+                    vim.api.nvim_buf_set_lines(0, 13, 13, false, {'        str'})
+                    vim.api.nvim_win_set_cursor(0, {14, 11})
+                    vim.cmd('startinsert')
+                    cmp.show()
+                    ready = vim.wait(4000, function() return cmp.is_menu_visible() end, 60)
+                elseif view ~= 'editor' then
+                    error('unknown screenshot view: ' .. view)
+                end
                 vim.cmd('redraw!')
-                return vim.g.colors_name
+                return {theme=vim.g.colors_name, view=view, ready=ready}
             """
             flag = write("nvim_set_var", ["capture_full_ui", full])
             events(flag, 5)
             request = write("nvim_exec_lua", [script, [str(demo)]])
             result = events(request, timeout)
+            state = result.last_reply or {}
+            if not isinstance(state, dict) or not state.get("ready"):
+                raise RuntimeError(f"Cannot capture {view}: its real Neovim panel did not open")
             # Capture after deferred UI redraws have settled.
             request = write("nvim_eval", ["g:colors_name"])
             result = events(request, 6)
@@ -264,6 +315,8 @@ def main():
     parser.add_argument("--nvim", default=os.environ.get("NVIM_BIN", "nvim"))
     parser.add_argument("--font")
     parser.add_argument("--full", action="store_true", help="Load installed full 1337-session config")
+    parser.add_argument("--view", choices=("editor", "explorer", "completion", "documentation"),
+                        default="editor", help="Which real Neovim UI surface to capture")
     parser.add_argument("--width", type=int, default=100)
     parser.add_argument("--height", type=int, default=28)
     parser.add_argument("--timeout", type=int, default=35)
@@ -272,7 +325,9 @@ def main():
         parser.error("width must be >= 40 and height >= 12")
     if not (ROOT / "nvim" / "colors" / "perfect-black.lua").is_file():
         parser.error("Run inside a 1337-session checkout")
-    result = capture(args.nvim, args.width, args.height, args.full, args.timeout)
+    if args.view != "editor" and not args.full:
+        parser.error("panel previews need --full and installed plugins")
+    result = capture(args.nvim, args.width, args.height, args.full, args.timeout, args.view)
     size = render(result, args.output, args.font)
     print(f"REAL NVIM REDRAW CAPTURE: {args.output} ({size[0]}x{size[1]})")
 
