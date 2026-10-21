@@ -1,0 +1,30 @@
+name: Portable setup checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  unix-config:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run offline installer regressions
+        run: python3 nvim/tests/portable_installer_review.py
+  windows-config:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify PowerShell config setup
+        shell: pwsh
+        run: |
+          $env:XDG_CONFIG_HOME = Join-Path $env:RUNNER_TEMP '1337-nvim-config'
+          ./install.ps1 -ConfigOnly
+          if (-not (Test-Path (Join-Path $env:XDG_CONFIG_HOME 'nvim/init.lua'))) {
+            throw 'PowerShell config installation failed'
+          }
