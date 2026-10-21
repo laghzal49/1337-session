@@ -218,8 +218,8 @@ def capture(binary, width, height, full, timeout):
             demo = Path(temporary) / "strchr.c"
             demo.write_text(DEMO_C, encoding="utf8")
             script = """
-                if vim.fn.exists(':Lazy') == 2 then vim.cmd('silent! Lazy close') end
                 vim.cmd('edit ' .. vim.fn.fnameescape(...))
+                vim.cmd('file src/strchr.c')
                 vim.bo.filetype = 'c'
                 vim.cmd('syntax enable')
                 if vim.g.colors_name ~= 'perfect-black' then
