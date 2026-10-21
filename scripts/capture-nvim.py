@@ -194,10 +194,11 @@ def capture(binary, width, height, full, timeout):
                         replies[message[1]] = message
                     elif message[0] == 2 and message[1] == "redraw":
                         for event in message[2]:
-                            for occurrence in event[1:]:
-                                grid.apply(event[0], occurrence)
-                                if event[0] == "flush":
-                                    latest_flush = time.monotonic()
+                            if event[0] == "flush":
+                                latest_flush = time.monotonic()
+                            else:
+                                for occurrence in event[1:]:
+                                    grid.apply(event[0], occurrence)
             if wait_for in replies and (latest_flush and time.monotonic() - latest_flush > 0.35):
                 reply = replies.pop(wait_for)
                 if reply[2] is not None:
