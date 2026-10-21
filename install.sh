@@ -21,6 +21,7 @@
 #   ./install.sh              install everything that's missing
 #   ./install.sh --force      reinstall everything
 #   ./install.sh --no-sync    skip the headless plugin download at the end
+#   ./install.sh --config-only safely link config on Linux/macOS/WSL
 #
 # Idempotent: safe to re-run; existing tools are skipped unless --force.
 # Never calls sudo. Temporary files are removed on exit.
@@ -30,16 +31,18 @@ set -euo pipefail
 
 FORCE=0
 NOSYNC=0
+CONFIG_ONLY=0
 INSTALL_FAILED=0
 for arg in "$@"; do
   case "$arg" in
     --force) FORCE=1 ;;
     --no-sync) NOSYNC=1 ;;
+    --config-only) CONFIG_ONLY=1 ;;
     --help|-h)
       sed -n '2,22p' "$0"
       exit 0
       ;;
-    *) echo "unknown flag: $arg (known: --force --no-sync --help)" >&2; exit 2 ;;
+    *) echo "unknown flag: $arg (known: --force --no-sync --config-only --help)" >&2; exit 2 ;;
   esac
 done
 
@@ -80,6 +83,35 @@ want() { # want <command>
   if have "$1"; then skip "$1"; return 1; fi
   return 0
 }
+
+# ── platform and minimal config-only setup ────────────────────────────────
+# Full binary archives below are Linux-specific. Homebrew resolves the right
+# binaries on Intel/Apple Silicon macOS; --config-only works without any downloads.
+PLATFORM="$(uname -s)"
+case "$PLATFORM" in
+  Linux|Darwin) ;;
+  *) die "unsupported system: $PLATFORM. On Windows, use WSL2 (Linux) or install Neovim separately." ;;
+esac
+if [ "$PLATFORM" = Darwin ] || [ "$CONFIG_ONLY" = 1 ]; then
+  SOURCE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"
+  if [ -f "$SOURCE_DIR/nvim/init.lua" ] && [ -f "$SOURCE_DIR/scripts/link-config.sh" ]; then
+    REPO_DIR="$SOURCE_DIR"
+  else
+    REPO_DIR="$HOME/1337-session"
+    if [ ! -f "$REPO_DIR/nvim/init.lua" ]; then
+      have git || die "git is required to clone the configuration"
+      [ ! -e "$REPO_DIR" ] || die "$REPO_DIR exists but is not a valid 1337-session checkout"
+      git clone --depth=1 https://github.com/laghzal49/1337-session.git "$REPO_DIR" || die "cannot clone 1337-session"
+    fi
+  fi
+  [ -f "$REPO_DIR/scripts/link-config.sh" ] || die "link-config.sh missing; update the checkout"
+  if [ "$CONFIG_ONLY" = 1 ]; then
+    bash "$REPO_DIR/scripts/link-config.sh" "$REPO_DIR/nvim"
+    exit 0
+  fi
+  [ -f "$REPO_DIR/scripts/install-macos.sh" ] || die "install-macos.sh missing; update the checkout"
+  exec bash "$REPO_DIR/scripts/install-macos.sh" "$@"
+fi
 
 # ── downloads ───────────────────────────────────────────────────────────────
 fetch() { # fetch <url> <dest-file>
@@ -468,17 +500,10 @@ else
 fi
 
 # ============================================================================
-step "9/10 · this repo's Neovim config → ~/.config/nvim"
-# ============================================================================
-
-mkdir -p "$HOME/.config"
-if [ -e "$HOME/.config/nvim" ] && [ ! -L "$HOME/.config/nvim" ]; then
-  BAK="$HOME/.config/nvim.bak.$(date +%Y%m%d%H%M%S)"
-  mv "$HOME/.config/nvim" "$BAK"
-  warn "existing ~/.config/nvim moved to ${BAK/#$HOME/~}"
-fi
-ln -sfn "$REPO_DIR/nvim" "$HOME/.config/nvim"
-ok "$HOME/.config/nvim → ${REPO_DIR/#$HOME/~}/nvim"
+step "9/10 · this repo's Neovim config → XDG config home"
+CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
+bash "$REPO_DIR/scripts/link-config.sh" "$REPO_DIR/nvim" || die "could not link Neovim configuration"
+ok "$CONFIG_HOME/nvim → ${REPO_DIR/#$HOME/~}/nvim"
 
 # ============================================================================
 step "10/10 · preinstall pinned plugins and parsers"
@@ -490,7 +515,7 @@ elif have nvim; then
     local phase="$1" log="$TMP/nvim-$1.log"
     local -a command=(nvim --headless -c 'lua dofile(vim.env.NVIM_BOOTSTRAP_SCRIPT)')
     if have timeout; then command=(timeout 900 "${command[@]}"); fi
-    if env NVIM_APPNAME=nvim XDG_CONFIG_HOME="$HOME/.config" XDG_CACHE_HOME="$TMP/nvim-cache" \
+    if env NVIM_APPNAME=nvim XDG_CONFIG_HOME="$CONFIG_HOME" XDG_CACHE_HOME="$TMP/nvim-cache" \
         TMPDIR="$TMP" NVIM_BLACK_DOCS_AUTO_UPDATE=0 \
         NVIM_BOOTSTRAP_MODE="$phase" NVIM_BOOTSTRAP_SCRIPT="$REPO_DIR/scripts/nvim-bootstrap.lua" \
         "${command[@]}" >"$log" 2>&1 \
