@@ -29,11 +29,26 @@ local rose = {
   error_bg = '#30131F', warning_bg = '#292112', success_bg = '#13251F',
   focus_bg = '#362439', search_bg = '#3B273B', search_text = '#F6D0F0',
 }
--- Choose before Neovim starts: NVIM_COLOR_STYLE=classic nvim
-local style = vim.g.black_color_style or vim.env.NVIM_COLOR_STYLE
-if style ~= 'classic' then style = 'rose' end
+-- Preserve the installed black-and-crimson theme across the configuration update.
+local crimson = {
+  canvas = '#000000', inset = '#07070B', panel = '#0E0E14', line = '#141414', selection = '#380D14',
+  text = '#D7E3FF', muted = '#7A5A62', punctuation = '#A9B9D6', path = '#A9B9D6',
+  gutter = '#53627A', guide = '#2A0E15',
+  border = '#5C1522', border_strong = '#FF2E4C', border_soft = '#3D101A',
+  focus_border = '#FF2E4C', focus = '#FF2E4C',
+  variable = '#D7E3FF', parameter = '#D7E3FF', member = '#70D7FF',
+  callable = '#69AFFF', keyword = '#C7A6FF', type = '#4FD1C5',
+  string = '#B8E986', literal = '#FF9E64',
+  success = '#7FE3C2', error = '#FF8FA3', warning = '#FFD166',
+  on_accent = '#000000', strong = '#FFFFFF',
+  error_bg = '#291414', warning_bg = '#201A0D', success_bg = '#131E13',
+  focus_bg = '#4E121D', search_bg = '#231B2D', search_text = '#C7A6FF',
+}
+-- Optional upstream palettes remain available through NVIM_COLOR_STYLE.
+local style = vim.g.black_color_style or vim.env.NVIM_COLOR_STYLE or 'crimson'
+if style ~= 'classic' and style ~= 'rose' then style = 'crimson' end
 vim.g.black_color_style = style
-local c = style == 'classic' and classic or rose
+local c = style == 'classic' and classic or style == 'rose' and rose or crimson
 c.folder, c.info, c.hint = c.focus, c.focus, c.type
 c.success, c.comment, c.popup_selection = c.success or c.string, c.muted, c.selection
 -- A heading hierarchy in one cool family, shared by native and rendered Markdown.
