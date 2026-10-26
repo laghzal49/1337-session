@@ -2,6 +2,8 @@
 local M = {}
 local pending = false
 function M.apply()
+  -- Preserve the source theme's keyword and heading weights.
+  if vim.g.colors_name == 'electrovoid' then return end
   for name, hl in pairs(vim.api.nvim_get_hl(0, {link=true})) do
     -- Keep links intact: changing their target also updates every linked group.
     if not hl.link and (hl.bold or (hl.cterm and hl.cterm.bold)) then

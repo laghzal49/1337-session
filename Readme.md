@@ -2,11 +2,14 @@
 
 My 1337 Session Setting: nvim, vscode, zsh and also Zed.
 
-## Perfect Black Neovim
+## ElectroVoid Neovim and terminal
 
-Pure black editing with a high-contrast rose/pink accent option, a redesigned documentation panel,
-and a composed status bar. JetBrains Mono with selective italics. Python uses
-`ty` and Ruff.
+ElectroVoid by SireOmega is the default: a true-black canvas, purple focus and
+cursor accents, cyan information, green success and red errors. Neovim, its
+embedded terminal, Kitty, Alacritty, Starship and tmux share the same palette.
+The source palette is [`nvim/themes/electrovoid.json`](nvim/themes/electrovoid.json).
+See the [terminal setup](dotfiles/README.md#electrovoid-terminal) to restore it.
+The screenshots below show earlier Perfect Black revisions. Python uses `ty` and Ruff.
 
 ![Python palette and status bar](nvim/assets/python.png)
 
@@ -60,22 +63,18 @@ The installer supports Linux `x86_64` and `aarch64`, keeps downloads and
 temporary files under `${TMPDIR:-/tmp}`, and never calls `sudo`.
 
 
-## Rose theme and cross-platform setup
+## Theme selection and cross-platform setup
 
-The default **rose** palette is based on the black/pink/white editor style in the
-reference screenshot: near-black surfaces, readable off-white prose, rose strings
-and variables, muted lilac keywords and restrained cool function colors.
-The pre-existing colors remain available without removing plugins or changing
-your keymaps:
+Choose the palette before starting Neovim:
 
 ```sh
-nvim                           # rose (default)
-NVIM_COLOR_STYLE=classic nvim  # original Perfect Black palette
+nvim                              # ElectroVoid (default)
+NVIM_COLOR_STYLE=crimson nvim       # previous black-and-crimson palette
+NVIM_COLOR_STYLE=rose nvim          # black-and-rose palette
+NVIM_COLOR_STYLE=classic nvim       # original Perfect Black palette
 ```
 
-The background remains pure black; both variants keep the same semantic color
-roles across Tree-sitter, LSP, completion, signs and menus. The optional theme
-setting must be selected before starting Neovim.
+Changing this Neovim setting does not switch the external terminal theme.
 
 **Installation routes:**
 
@@ -105,3 +104,5 @@ Neovim and project dependencies installed.
 ## Personal dotfiles
 
 Current shell, terminal and desktop configs are in [`dotfiles/`](dotfiles/README.md), with restore instructions.
+
+The [Rust image and PDF reader](nvim/README.md#rust-image-and-pdf-reader) opens media on demand, with zoom, pan and PDF paging.

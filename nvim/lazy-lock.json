@@ -115,6 +115,10 @@
     "branch": "master",
     "commit": "cc9dd33aade7f20bae414d0cba163bc60d4d4b43"
   },
+  "nvim-gfx": {
+    "branch": "main",
+    "commit": "2ab524b8bf699a94f41c346e1fdd710e8988ed0d"
+  },
   "nvim-lspconfig": {
     "branch": "master",
     "commit": "a9bb4d5f4276aa5cddc015faa3ecc5a7b5a26b14"

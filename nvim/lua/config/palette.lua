@@ -45,14 +45,15 @@ local crimson = {
   focus_bg = '#4E121D', search_bg = '#231B2D', search_text = '#C7A6FF',
 }
 -- Optional upstream palettes remain available through NVIM_COLOR_STYLE.
-local style = vim.g.black_color_style or vim.env.NVIM_COLOR_STYLE or 'crimson'
-if style ~= 'classic' and style ~= 'rose' then style = 'crimson' end
+local style = vim.g.black_color_style or vim.env.NVIM_COLOR_STYLE or 'electrovoid'
+if style ~= 'classic' and style ~= 'rose' and style ~= 'crimson' and style ~= 'electrovoid' then style = 'electrovoid' end
 vim.g.black_color_style = style
-local c = style == 'classic' and classic or style == 'rose' and rose or crimson
-c.folder, c.info, c.hint = c.focus, c.focus, c.type
-c.success, c.comment, c.popup_selection = c.success or c.string, c.muted, c.selection
+local c = style == 'electrovoid' and require('config.electrovoid').palette()
+  or style == 'classic' and classic or style == 'rose' and rose or crimson
+c.folder, c.info, c.hint = c.folder or c.focus, c.info or c.focus, c.hint or c.type
+c.success, c.comment, c.popup_selection = c.success or c.string, c.comment or c.muted, c.popup_selection or c.selection
 -- A heading hierarchy in one cool family, shared by native and rendered Markdown.
-c.headings = { c.focus, c.callable, c.text, c.path, c.path, c.muted }
+c.headings = c.headings or { c.focus, c.callable, c.text, c.path, c.path, c.muted }
 c.icons = {
   Red=c.error, Orange=c.literal, Yellow=c.warning, Green=c.success,
   Cyan=c.type, Azure=c.callable, Blue=c.folder, Purple=c.keyword, Grey=c.muted,
@@ -67,4 +68,12 @@ c.kinds = {
   TypeParameter=c.type, Namespace=c.type, Package=c.type, String=c.string,
   Number=c.literal, Boolean=c.literal, Array=c.type, Object=c.type, Key=c.member, Null=c.literal,
 }
+if style == 'electrovoid' then
+  local theme = require('config.electrovoid')
+  for name in pairs(c.icons) do
+    local ansi = ({Red='red',Orange='yellow',Yellow='yellow',Green='green',Cyan='cyan',Azure='cyan',Blue='blue',Purple='magenta'})[name]
+    if ansi then c.icons[name] = theme.color('terminal.ansi.' .. ansi) end
+  end
+  c.kinds.Constant, c.kinds.Boolean, c.kinds.Enum = c.literal, c.boolean, c.callable
+end
 return c

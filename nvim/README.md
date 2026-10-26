@@ -1,10 +1,12 @@
-# Perfect Black II — Neovim
+# ElectroVoid — Neovim
 
 A standalone Neovim configuration: **no LazyVim distribution**. lazy.nvim manages
-46 explicitly configured plugins and dependencies, pinned in `lazy-lock.json`.
+47 explicitly configured plugins and dependencies, pinned in `lazy-lock.json`.
 Pure-black code surfaces, regular font weight, readable comments, opaque panels, and **ty + Ruff** for Python.
 On Python save, Ruff applies **safe fixes → organizes imports → formats**.
-It respects project rules, ignores and excludes; unsafe fixes remain disabled.
+The editor shares its Flake8-style defaults from `ruff.toml` between linting and
+formatting when a project has no Ruff config. Project rules take precedence;
+unsafe fixes remain disabled.
 Ruff also provides diagnostics through its LSP; `<leader>cf` runs formatting manually and `<leader>uf`
 toggles format-on-save.
 
@@ -62,12 +64,15 @@ They have distinct responsibilities; removing them would remove behavior.
 
 ![Coordinated colors and compact command popup](assets/popup-command-140.png)
 
-Rose is now the default: a pure-black canvas, pink variables and strings,
-soft lilac keywords and readable off-white text. To restore the original blue
-focus/green string/red variable accents, run `NVIM_COLOR_STYLE=classic nvim`.
-The preview below was captured with the earlier classic palette.
-See [the popup gallery](POPUPS.md) for current captures. The workspace overview
-images below document earlier layout upgrades.
+ElectroVoid by SireOmega is the default, ported from the supplied Zed theme in
+[`themes/electrovoid.json`](themes/electrovoid.json): pure black, white text,
+purple focus and cursor accents, cyan information and the source syntax colors.
+The embedded terminal uses the same 16 ANSI colors as the
+[Kitty and Alacritty themes](../dotfiles/README.md#electrovoid-terminal).
+
+Start with `NVIM_COLOR_STYLE=crimson nvim`, `NVIM_COLOR_STYLE=rose nvim`, or
+`NVIM_COLOR_STYLE=classic nvim` for an earlier palette. The popup gallery and
+screenshots below document earlier Perfect Black revisions.
 
 ## Rose UI polish and verified previews
 
@@ -789,3 +794,44 @@ and verifies actual attachment and diagnostics through the full config.
 
 Tests use temporary files. Headless startup timings do not measure cluster NFS
 or interactive language-server latency. See [design decisions](DESIGN.md).
+
+## Rust image and PDF reader
+
+[`nvim-gfx`](https://github.com/bobcowher/neovim-graphics-viewer) is loaded only
+when opening media or running a reader command. This configuration builds its
+Rust image/PDF backend locally, with FFmpeg/video disabled, and uses the existing
+Poppler executables for PDF pages. Supported images: PNG, JPEG, WebP, BMP and GIF
+(first frame). The build needs Cargo and Python 3; PDF pages need `pdfinfo` and
+`pdftoppm`, and text mode needs `pdftotext` (all in Poppler).
+
+Use **Kitty or Ghostty outside tmux** for full image rendering. Alacritty and
+Neovim's nested terminal emulator cannot render this graphics protocol. PDF text
+mode works in any terminal. No performance comparison with other viewers has
+been measured.
+
+- Open an image or PDF normally (`:edit file.pdf`), or use `<leader>fi` to select one.
+- `:ViewImage path.png` / `:ViewPDF path.pdf`: view a file; omit the path for the current file.
+- `J` / `K`, Ctrl-D / Ctrl-U or PageDown / PageUp: next/previous PDF page; `gg` / `G`: first/last.
+- Mouse wheel: scroll within the PDF page.
+- `+` / `-`: zoom; `h` / `j` / `k` / `l`: pan or scroll; `r`: reset; `q`: close.
+- `:PDFText path.pdf`: searchable, selectable PDF text (`/` searches normally).
+- `:MediaHealth`: check graphics terminal, backend and Poppler.
+- `:NvimGfxBuild`: rebuild the local image/PDF binary after restoring on another machine.
+
+The plugin revision is pinned. `scripts/build_media.py` compiles in a private
+temporary directory and installs only the resulting backend in the plugin's
+`bin/` directory. It does not install system packages or use sudo. Media larger
+than 100 MiB is refused by the graphics reader. Encrypted/unsupported files report
+an error; scanned PDFs need OCR before their text can be searched.
+
+Run `make media` from the repository root to test the installed native reader and
+PDF text fallback. The headless test captures the graphics protocol; it does not
+visually inspect terminal rendering.
+
+PDF pages are uploaded once as compressed PNGs and cached in the terminal (up to
+five pages). Scroll and zoom update a crop/placement rectangle, avoiding a full
+bitmap resize and upload for every keypress. On the two-page fixture at 160×60
+cells, 20 alternating scroll steps plus a redraw sent 1,480 bytes after the first
+page upload, versus 137,929,155 bytes with the original renderer. Backend time
+fell from 1,217 ms to 0.2 ms on this machine. This captures protocol output to a
+file; it does not measure GPU display latency or complex PDF first-page rendering.

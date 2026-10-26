@@ -51,7 +51,7 @@ return {
       branch_text = fit(vim.fn.fnamemodify(info.root, ':~'), width)
     end
     local sections = {
-      { text = { { fit('1337  /  PERFECT BLACK', width), hl = 'SnacksDashboardHeader' } }, padding = tall and 2 or 1 },
+      { text = { { fit(vim.g.black_color_style == 'electrovoid' and '1337  /  ELECTROVOID' or '1337  /  PERFECT BLACK', width), hl = 'SnacksDashboardHeader' } }, padding = tall and 2 or 1 },
       { text = fit('YOUR WORKSPACE  ·  READY TO BUILD', width), hl = 'BlackMuted', padding = 1 },
       { text = { { 'PROJECT  ', hl = 'BlackLabel' }, { fit(info.name, math.max(1, width - 9)), hl = 'BlackBrand' } }, padding = 1 },
       { text = branch_text, hl = 'BlackMuted', padding = 1 },

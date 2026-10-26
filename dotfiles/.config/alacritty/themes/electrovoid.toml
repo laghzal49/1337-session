@@ -1,0 +1,32 @@
+# ElectroVoid by SireOmega; palette from nvim/themes/electrovoid.json.
+[colors.primary]
+background = "#000000"
+foreground = "#ffffff"
+
+[colors.normal]
+black = "#000000"
+red = "#ff3b5c"
+green = "#00ff88"
+yellow = "#ffaa00"
+blue = "#8800ff"
+magenta = "#ff2fa0"
+cyan = "#00e5ff"
+white = "#cccccc"
+
+[colors.bright]
+black = "#444444"
+red = "#ff6b82"
+green = "#5cffb0"
+yellow = "#ffc44d"
+blue = "#bb00ff"
+magenta = "#ff6cbe"
+cyan = "#66f0ff"
+white = "#ffffff"
+
+[colors.cursor]
+cursor = "#bb00ff"
+text = "#000000"
+
+[colors.selection]
+background = "#2d003d"
+text = "CellForeground"

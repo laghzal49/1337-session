@@ -1,0 +1,9 @@
+# Neovim-only Flake8-style defaults; no project Ruff setup is required.
+line-length = 79
+
+[lint]
+select = ["E", "F", "W"]
+
+[format]
+quote-style = "double"
+indent-style = "space"

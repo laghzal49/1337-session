@@ -152,9 +152,16 @@ return {
         },
       },
       notifier = { enabled = false },
-      animate = { enabled = false },
+      animate = { enabled = true, fps = 60 },
       scroll = {
-        enabled = false, -- Native scrolling keeps destination feedback immediate.
+        enabled = true,
+        animate = { duration = { step = 6, total = 80 }, easing = 'outQuad' },
+        animate_repeat = { delay = 100, duration = { step = 3, total = 40 }, easing = 'linear' },
+        filter = function(buf)
+          return vim.g.snacks_scroll ~= false and vim.b[buf].snacks_scroll ~= false
+            and vim.bo[buf].buftype ~= 'terminal'
+            and not vim.b[buf].bigfile and not vim.b[buf].performance_guard
+        end,
       },
       indent = {
         enabled = true,
@@ -178,7 +185,9 @@ return {
           backdrop = 60,
           title = ' ' .. ui.icon('terminal') .. ' Terminal ',
           title_pos = 'center',
-          wo = { number = false, relativenumber = false, signcolumn = 'no' },
+          wo = { number = false, relativenumber = false, signcolumn = 'no',
+            winhighlight = vim.g.black_color_style == 'electrovoid'
+              and 'Normal:SnacksTerminal,NormalFloat:SnacksTerminal' or nil },
           keys = { term_normal = false }, -- Existing EscEsc owns terminal-mode exit.
         },
       },

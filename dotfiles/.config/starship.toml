@@ -1,24 +1,28 @@
+# ElectroVoid prompt, matching Neovim and the terminal palette.
 add_newline = true
 format = "$directory$git_branch$git_status$python$c$nodejs$cmd_duration$line_break$character"
 [character]
-success_symbol = "[❯](bold green)"
-error_symbol = "[❯](bold red)"
+success_symbol = "[❯](bold #bb00ff)"
+error_symbol = "[❯](bold #ff3b5c)"
 [directory]
-style = "bold white"
+style = "bold #ffffff"
 truncation_length = 3
 truncate_to_repo = true
 [git_branch]
 symbol = " "
-style = "#aaaaaa"
+style = "#bb00ff"
 [git_status]
-style = "#d6bf8f"
+style = "#ffaa00"
 [python]
 symbol = " "
-style = "#91b4d5"
+style = "#00e5ff"
 format = "[${symbol}${pyenv_prefix}(${version} )(\\($virtualenv\\) )]($style)"
 [c]
 symbol = " "
-style = "#91b4d5"
+style = "#00e5ff"
 [cmd_duration]
 min_time = 2000
 style = "#888888"
+
+[nodejs]
+style = "#00ff88"

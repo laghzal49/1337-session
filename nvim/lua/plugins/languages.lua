@@ -1,4 +1,24 @@
 -- Language-specific LSP servers and formatters.
+local ruff_config = vim.fn.stdpath('config') .. '/ruff.toml'
+local function ruff_args(safe)
+  return function(_, ctx)
+    local args = safe and { '--no-unsafe-fixes' } or {}
+    -- Mirror Ruff discovery: pyproject files without tool.ruff do not count.
+    for directory in vim.fs.parents(ctx.filename) do
+      for _, name in ipairs({ '.ruff.toml', 'ruff.toml', 'pyproject.toml' }) do
+        local path = directory .. '/' .. name
+        if vim.fn.filereadable(path) == 1 then
+          if name ~= 'pyproject.toml' then return args end
+          for _, line in ipairs(vim.fn.readfile(path)) do
+            if line:match('^%s*%[tool%.ruff[%].]') then return args end
+          end
+        end
+      end
+    end
+    vim.list_extend(args, { '--config', ruff_config })
+    return args
+  end
+end
 return {
   -- Neovim Lua development: injects runtime paths, vim API types, and plugin
   -- type annotations into lua_ls automatically (replaces deprecated neodev).
@@ -19,10 +39,11 @@ return {
       formatters_by_ft = {
         python = { 'ruff_fix', 'ruff_organize_imports', 'ruff_format' },
       },
-      -- Respect project rules, ignores and excludes; automatic edits use safe fixes.
+      -- Share editor-owned Flake8 defaults between Ruff LSP and Conform.
       formatters = {
-        ruff_fix = { append_args = { '--no-unsafe-fixes' } },
-        ruff_organize_imports = { append_args = { '--no-unsafe-fixes' } },
+        ruff_fix = { append_args = ruff_args(true) },
+        ruff_organize_imports = { append_args = ruff_args(true) },
+        ruff_format = { append_args = ruff_args(false) },
       },
     },
   },
@@ -80,7 +101,12 @@ return {
         ruff = {
           cmd = { 'ruff', 'server' },
           root_dir = require('config.python_environment').ruff_root_dir,
-          init_options = { settings = { organizeImports = true, fixAll = true } },
+          init_options = { settings = {
+            organizeImports = true,
+            fixAll = true,
+            configuration = ruff_config,
+            configurationPreference = 'filesystemFirst',
+          } },
           on_attach = function(client)
             client.server_capabilities.hoverProvider = false
             -- Conform provides one deterministic formatter; Ruff LSP owns lint

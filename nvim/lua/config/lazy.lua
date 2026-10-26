@@ -45,7 +45,7 @@ require("lazy").setup({
 })
 
 require('config.typography').setup()
-vim.cmd.colorscheme('perfect-black')
+vim.cmd.colorscheme(vim.g.black_color_style == 'electrovoid' and 'electrovoid' or 'perfect-black')
 require('config.accessibility').setup()
 require('config.popups').setup()
 

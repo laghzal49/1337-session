@@ -7,7 +7,7 @@ local M = {
   max_width = 80,
   max_height = 20,
   colors = {
-    teal = palette.type, lilac = palette.keyword, text = palette.text,
+    teal = palette.teal or palette.type, lilac = palette.keyword, text = palette.text,
     selection = palette.selection, selection_bright = palette.focus_bg,
     border = palette.border, border_soft = palette.border_soft,
     error = palette.error, cursor = palette.focus,

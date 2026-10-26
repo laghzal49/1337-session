@@ -31,3 +31,27 @@ The SSH agent service contains no keys. To use it, copy the service into
 
 Credentials, SSH keys, shell history, application state and Fish universal
 variables are deliberately excluded. Review future additions before committing.
+
+## ElectroVoid terminal
+
+Kitty, Alacritty, Starship and tmux match the default Neovim ElectroVoid theme.
+The terminal themes use the exact 16 ANSI colors from
+[`../nvim/themes/electrovoid.json`](../nvim/themes/electrovoid.json), including
+its purple cursor and selection. Terminal font settings preserve the current
+JetBrains Mono Nerd Font, italic, 12pt setup.
+
+After backing up existing files, restore the terminal configs from the repo root:
+
+```sh
+mkdir -p ~/.config/kitty/themes ~/.config/alacritty/themes ~/.config/tmux
+cp dotfiles/.config/kitty/kitty.conf ~/.config/kitty/kitty.conf
+cp dotfiles/.config/kitty/themes/electrovoid.conf ~/.config/kitty/themes/
+cp dotfiles/.config/alacritty/alacritty.toml ~/.config/alacritty/alacritty.toml
+cp dotfiles/.config/alacritty/themes/electrovoid.toml ~/.config/alacritty/themes/
+cp dotfiles/.config/starship.toml ~/.config/starship.toml
+cp dotfiles/.config/tmux/tmux.conf ~/.config/tmux/tmux.conf
+```
+
+Open a new terminal window, or reload Kitty with Ctrl+Shift+F5. Starship uses the
+new colors on the next prompt. In tmux, run `tmux source-file ~/.config/tmux/tmux.conf`.
+Neovim's installer links the editor config; restore the terminal configs separately.

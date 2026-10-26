@@ -5,9 +5,17 @@ return {
     'nvim-lualine/lualine.nvim', event = 'VeryLazy',
     opts = function()
       local s, ui = require('config.surfaces'), require('config.ui')
-      local function mode(accent)
-        return { a = { fg = palette.on_accent, bg = accent, gui = 'NONE' },
+      local function mode(accent, foreground)
+        return { a = { fg = foreground or palette.on_accent, bg = accent, gui = 'NONE' },
           b = { fg = palette.path, bg = s.inset }, c = { fg = s.text, bg = s.tree_panel } }
+      end
+      local theme = { normal = mode(s.accent), insert = mode(s.teal), visual = mode(s.lilac),
+        replace = mode(palette.literal), command = mode(palette.warning), inactive = mode(s.muted) }
+      if vim.g.black_color_style == 'electrovoid' then
+        local color = require('config.electrovoid').color
+        for name, source in pairs({normal='normal',insert='insert',visual='visual',replace='replace',command='normal',inactive='normal'}) do
+          theme[name] = mode(color('vim.' .. source .. '.background'), color('vim.' .. source .. '.foreground'))
+        end
       end
       local function wide(n) return function() return vim.o.columns >= n end end
       local function info() return require('config.workspace_info').get() end
@@ -26,8 +34,7 @@ return {
         options = { globalstatus = true, component_separators = '', section_separators = '',
           disabled_filetypes = { statusline = { 'snacks_dashboard' } },
           refresh = { statusline = 250, tabline = 1000, winbar = 1000 },
-          theme = { normal = mode(s.accent), insert = mode(s.teal), visual = mode(s.lilac),
-            replace = mode(palette.literal), command = mode(palette.warning), inactive = mode(s.muted) } },
+          theme = theme },
         sections = {
           lualine_a = { { 'mode', padding = { left = 1, right = 1 },
               fmt = function(value) return vim.o.columns < 90 and value:sub(1, 1) or value end } },
@@ -72,14 +79,19 @@ return {
     opts = function()
       local s, ui = require('config.surfaces'), require('config.ui')
       local h = {}
+      local background, selected, indicator = s.tree_panel, s.selected, s.accent
+      if vim.g.black_color_style == 'electrovoid' then
+        local color = require('config.electrovoid').color
+        background, selected, indicator = color('tab.inactive_background'), color('tab.active_background'), color('border.focused')
+      end
       for _, key in ipairs({ 'background', 'buffer', 'buffer_visible', 'separator', 'separator_visible', 'fill' }) do
-        h[key] = { fg = s.muted, bg = s.tree_panel }
+        h[key] = { fg = s.muted, bg = background }
       end
       for _, key in ipairs({ 'buffer_selected', 'separator_selected' }) do
-        h[key] = { fg = s.text, bg = s.selected, bold = false, italic = false }
+        h[key] = { fg = s.text, bg = selected, bold = false, italic = false }
       end
-      h.indicator_selected = { fg = s.accent, bg = s.selected }
-      h.modified_selected = { fg = palette.warning, bg = s.selected }
+      h.indicator_selected = { fg = indicator, bg = selected }
+      h.modified_selected = { fg = palette.warning, bg = selected }
       return { options = { style_preset = require('bufferline').style_preset.no_bold, mode = 'buffers', numbers = 'ordinal', show_duplicate_prefix = true, max_prefix_length = 12,
         separator_style = ui.accessible and { '', '' } or 'thin', always_show_bufferline = false,
         show_close_icon = false, show_buffer_close_icons = false, indicator = { style = 'icon', icon = ui.accessible and '|' or '▎' },

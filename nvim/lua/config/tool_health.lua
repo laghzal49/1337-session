@@ -1,6 +1,9 @@
 -- One tool inventory for :ConfigTools, health reports and action failures.
 local M = {}
 M.tools = {
+  { 'pdfinfo', 'optional PDF page count', 'Install Poppler (poppler-utils on Debian/Ubuntu)' },
+  { 'pdftoppm', 'optional PDF page rendering', 'Install Poppler (poppler-utils on Debian/Ubuntu)' },
+  { 'pdftotext', 'optional searchable PDF text', 'Install Poppler (poppler-utils on Debian/Ubuntu)' },
   { 'git', 'plugin installation and Git operations', 'Install Git and put it on PATH' },
   { 'rg', 'project text search', 'Install ripgrep and put rg on PATH' },
   { 'uv', 'Python environment creation', 'Install uv and put it on PATH' },

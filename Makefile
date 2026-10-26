@@ -5,7 +5,7 @@ export NVIM_APPNAME := nvim
 export XDG_CONFIG_HOME := $(CURDIR)
 export NVIM_BLACK_DOCS_AUTO_UPDATE := 0
 
-.PHONY: all test review bench check workflow spatial reference upgrade integrity-metadata portable runtime
+.PHONY: all test review bench check workflow spatial reference upgrade integrity-metadata portable runtime media
 all: test
 
 ## Validate installer portability and backups without network or Neovim
@@ -66,3 +66,8 @@ upgrade:
 ## Inspect official checksum metadata for both Linux architectures (no archives downloaded)
 integrity-metadata:
 	$(PYTHON) nvim/tests/download_metadata_review.py
+
+## Verify the installed Rust image/PDF reader and text fallback
+media:
+	$(PYTHON) nvim/tests/smoke.py media_review.lua
+	$(PYTHON) nvim/tests/media_transport_review.py
