@@ -15,6 +15,10 @@ return {
       { '<leader>fi', function() require('config.media').pick() end, desc = 'Read image or PDF' },
     },
     build = function(plugin)
+      if vim.fn.executable('cargo') ~= 1 then
+        vim.notify('Rust media build skipped: install Cargo, then run make media-build', vim.log.levels.WARN)
+        return
+      end
       local output = vim.fn.system({ 'python3', vim.fn.stdpath('config') .. '/scripts/build_media.py', plugin.dir })
       if vim.v.shell_error ~= 0 then error(output) end
     end,

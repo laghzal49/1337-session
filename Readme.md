@@ -106,3 +106,36 @@ Neovim and project dependencies installed.
 Current shell, terminal and desktop configs are in [`dotfiles/`](dotfiles/README.md), with restore instructions.
 
 The [Rust image and PDF reader](nvim/README.md#rust-image-and-pdf-reader) opens media on demand, with zoom, pan and PDF paging.
+
+## Portable Make commands
+
+On a PC or 1337 Linux cluster, from the checkout:
+
+```sh
+make setup      # install missing user-local tools/config/plugins; no sudo
+make run        # launch this checkout's Neovim config
+```
+
+`make cluster` is the same user-local setup. `make config` only links the config
+(with backup), `make doctor` reports the platform and tools, and `make media-build`
+builds the Rust image/PDF reader. If Cargo is missing, setup skips the optional
+media build; install Rust/Cargo and run `make media-build` afterward.
+`make` alone prints help.
+
+Use `make setup INSTALL_FLAGS=--no-sync` to postpone plugin downloads, or
+`TMPDIR=/your/scratch make setup` on a machine with a small home quota. Setup
+needs HTTPS/network access. Full setup supports Linux x86_64/ARM64 and macOS with
+Homebrew; Windows users should use WSL or the PowerShell installer. PDF pages
+need Poppler, and graphics need Kitty/Ghostty outside tmux.
+
+The Makefile resolves the checkout from its own path, so it also works when
+called from another directory:
+
+```sh
+make -f /path/to/1337-session/Makefile doctor
+make -f /path/to/1337-session/Makefile run NVIM=/path/to/nvim
+```
+
+`XDG_CONFIG_HOME` is respected for the installation destination. Tests and
+`make run` use the checkout's config. Override `NVIM`/`NVIM_BIN` and `PYTHON` for
+local tool paths; Neovim also discovers a user-local `~/.local/bin/nvim`.

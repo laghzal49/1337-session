@@ -34,7 +34,8 @@ function M.open(path)
     end
   end
   local plugin = require('lazy.core.config').plugins['nvim-gfx']
-  if not plugin or vim.fn.executable(plugin.dir .. '/bin/nvim-gfx') ~= 1 then
+  if not plugin or vim.fn.executable(plugin.dir .. '/bin/nvim-gfx') ~= 1
+    or vim.fn.filereadable(plugin.dir .. '/bin/media-Cargo.lock') ~= 1 then
     notify('Build the Rust reader with :NvimGfxBuild'); return false
   end
   local stat = vim.uv.fs_stat(path)
@@ -134,7 +135,8 @@ function M.setup()
   vim.api.nvim_create_user_command('MediaHealth', function()
     local plugin = require('lazy.core.config').plugins['nvim-gfx']
     vim.notify(table.concat({ 'Graphics terminal: ' .. tostring(M.supported_terminal()),
-      'Rust backend: ' .. tostring(plugin and vim.fn.executable(plugin.dir .. '/bin/nvim-gfx') == 1),
+      'Rust backend: ' .. tostring(plugin and vim.fn.executable(plugin.dir .. '/bin/nvim-gfx') == 1
+        and vim.fn.filereadable(plugin.dir .. '/bin/media-Cargo.lock') == 1),
       'pdfinfo: ' .. vim.fn.exepath('pdfinfo'), 'pdftoppm: ' .. vim.fn.exepath('pdftoppm'),
       'pdftotext: ' .. vim.fn.exepath('pdftotext') }, '\n'), vim.log.levels.INFO, { title = 'Media reader' })
   end, { force = true })
