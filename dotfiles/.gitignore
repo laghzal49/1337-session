@@ -14,3 +14,7 @@ fish_variables
 *.local
 *.bak
 *.log
+
+# Keep the installed font snapshot.
+!.local/
+.uuid
