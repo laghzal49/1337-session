@@ -54,6 +54,15 @@ jobs:
           python3 scripts/capture-nvim.py --full --view explorer --output nvim-rose-explorer.png --timeout 60
           python3 scripts/capture-nvim.py --full --view completion --output nvim-rose-completion.png --timeout 60
           python3 scripts/capture-nvim.py --full --view documentation --output nvim-rose-documentation.png --timeout 60
+      - name: Capture actual nvimz dashboard, editor, explorer, and picker
+        env:
+          XDG_CONFIG_HOME: ${{ runner.temp }}/config
+          NVIM_COLOR_STYLE: nvimz
+        run: |
+          python3 scripts/capture-nvim.py --full --view dashboard --output nvimz-dashboard.png --timeout 60
+          python3 scripts/capture-nvim.py --full --view editor --output nvimz-editor.png --timeout 60
+          python3 scripts/capture-nvim.py --full --view explorer --output nvimz-explorer.png --timeout 60
+          python3 scripts/capture-nvim.py --full --view picker --output nvimz-picker.png --timeout 60
       - name: Verify screenshots are distinct and legible
         run: |
           python3 - <<'PY'
@@ -76,4 +85,8 @@ jobs:
             nvim-rose-explorer.png
             nvim-rose-completion.png
             nvim-rose-documentation.png
+            nvimz-dashboard.png
+            nvimz-editor.png
+            nvimz-explorer.png
+            nvimz-picker.png
           retention-days: 30
