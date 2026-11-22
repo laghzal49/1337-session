@@ -3,6 +3,8 @@ return {
   {
     'bobcowher/neovim-graphics-viewer',
     name = 'nvim-gfx',
+    -- Large Rust media decoder is optional; not needed for Go/Python coding.
+    enabled = vim.g.black_color_style ~= 'nvimz' or vim.env.NVIM_ENABLE_MEDIA == '1',
     commit = '2ab524b8bf699a94f41c346e1fdd710e8988ed0d',
     cmd = { 'ViewImage', 'ViewPDF', 'PDFText', 'MediaHealth', 'NvimGfxBuild' },
     event = {
