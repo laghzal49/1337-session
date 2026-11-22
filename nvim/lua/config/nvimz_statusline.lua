@@ -52,6 +52,8 @@ local function get_mode()
 end
 local function code_buffer()
   local current = vim.api.nvim_get_current_buf()
+  -- Dashboard is an intentional welcome view, not an editor popup.
+  if vim.bo[current].filetype == 'nvimz_dashboard' then return current end
   if is_code_buffer(current) then return current end
   if last_code_buf and is_code_buffer(last_code_buf) then return last_code_buf end
   -- A :file rename does not trigger BufEnter; recover the visible source buffer
