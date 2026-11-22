@@ -3,7 +3,7 @@ name: Neovim visual screenshot
 on:
   pull_request:
   push:
-    branches: [main]
+    branches: [main, feat/nvimz-inspired-ui]
   workflow_dispatch:
 
 jobs:
