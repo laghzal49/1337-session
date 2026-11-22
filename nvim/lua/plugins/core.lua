@@ -2,6 +2,10 @@
 local performance = require('config.performance')
 performance.setup()
 return {
+  -- nvimz's visual foundation; loaded eagerly so the theme is ready on first draw.
+  { 'folke/tokyonight.nvim', lazy = false, priority = 1100,
+    opts = { style = 'night', transparent = false, styles = { sidebars = 'dark', floats = 'dark' } },
+  },
   { 'folke/persistence.nvim', event = 'BufReadPre', opts = {}, keys = {
     { '<leader>qs', function() require('persistence').load() end, desc = 'Restore session' },
     { '<leader>qS', function() require('persistence').select() end, desc = 'Select session' },
