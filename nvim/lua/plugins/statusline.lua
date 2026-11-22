@@ -1,3 +1,6 @@
+-- Native nvimz statusline replaces both heavy lualine and bufferline specs.
+-- Keep the original specs intact for all alternate visual presets.
+if vim.g.black_color_style == 'nvimz' then return {} end
 local palette = require('config.palette')
 -- Two clear information levels: buffer navigation above, editor state below.
 return {
