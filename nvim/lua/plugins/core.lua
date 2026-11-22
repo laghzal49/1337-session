@@ -46,8 +46,19 @@ return {
         hl['@variable'] = { fg = colors.yellow }
         hl['@variable.parameter'] = { fg = colors.yellow }
         hl['@variable.member'] = { fg = '#9cd4d0' }
+        -- Distinct Python declarations: violet classes, blue functions,
+        -- turquoise methods, gold __init__ (from after/queries/python).
         hl['@type'] = { fg = colors.blue2 }
-        hl['@type.definition'] = { fg = '#78c2d8', bold = true }
+        hl['@type.definition'] = { fg = '#c792ea', bold = true }
+        hl['@constructor'] = { fg = '#ffcb6b', bold = true }
+        hl['@function'] = { fg = '#82aaff', bold = true }
+        hl['@function.method'] = { fg = '#4fd6be', bold = true }
+        hl['@function.method.call'] = { fg = '#4fd6be' }
+        hl['@function.method.special'] = { fg = '#ffcb6b', bold = true }
+        -- Classic Vim syntax fallback when Tree-sitter parser is missing.
+        hl.pythonClass = { fg = '#c792ea', bold = true }
+        hl.pythonFunction = { fg = '#82aaff', bold = true }
+        hl.pythonBuiltinFunc = { fg = '#4fd6be' }
         hl['@string'] = { fg = '#8fbf8f' }
         hl['@constant'] = { fg = colors.magenta }
         hl['@operator'] = { fg = colors.teal }
