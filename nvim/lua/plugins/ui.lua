@@ -450,6 +450,8 @@ return {
   -- ── Tiny Inline Diagnostic ───────────────────────────────────────────
   {
     'rachartier/tiny-inline-diagnostic.nvim',
+    -- Native LSP signs already display diagnostics in the lean nvimz preset.
+    enabled = vim.g.black_color_style ~= 'nvimz',
     event = 'VeryLazy',
     opts = {
       preset = 'minimal',
