@@ -48,6 +48,12 @@ local function code_buffer()
   local current = vim.api.nvim_get_current_buf()
   if vim.bo[current].buftype == '' and vim.api.nvim_buf_get_name(current) ~= '' then return current end
   if last_code_buf and vim.api.nvim_buf_is_valid(last_code_buf) then return last_code_buf end
+  -- A :file rename does not trigger BufEnter; recover the visible source buffer
+  -- when an explorer or picker grabs focus before the first BufEnter event.
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buftype == ''
+      and vim.api.nvim_buf_get_name(buf) ~= '' then return buf end
+  end
   return current
 end
 local function name_info(buf)
