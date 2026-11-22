@@ -10,17 +10,17 @@ return {
       end,
       keymap = {
         preset = 'none',
-        ['<C-space>'] = { 'show', 'show_documentation', 'hide_documentation' },
+        ['<C-space>'] = vim.g.black_color_style == 'nvimz' and { 'show', 'hide' } or { 'show', 'show_documentation', 'hide_documentation' },
         ['<CR>'] = { 'accept', 'fallback' },
         ['<C-n>'] = { 'select_next', 'show' },
         ['<C-p>'] = { 'select_prev', 'show' },
         ['<Tab>'] = { 'snippet_forward', 'select_next', 'fallback' },
         ['<S-Tab>'] = { 'snippet_backward', 'select_prev', 'fallback' },
-        ['<C-b>'] = { 'scroll_documentation_up', 'show_documentation', 'fallback' },
-        ['<C-f>'] = { 'scroll_documentation_down', 'show_documentation', 'fallback' },
-        ['<C-d>'] = { 'hide_documentation', 'show_documentation', 'fallback' },
+        ['<C-b>'] = vim.g.black_color_style == 'nvimz' and { 'fallback' } or { 'scroll_documentation_up', 'show_documentation', 'fallback' },
+        ['<C-f>'] = vim.g.black_color_style == 'nvimz' and { 'fallback' } or { 'scroll_documentation_down', 'show_documentation', 'fallback' },
+        ['<C-d>'] = vim.g.black_color_style == 'nvimz' and { 'fallback' } or { 'hide_documentation', 'show_documentation', 'fallback' },
         ['<C-e>'] = { 'hide', 'fallback' },
-        ['<C-k>'] = { function() return require('config.symbol_help').signature() end },
+        ['<C-k>'] = vim.g.black_color_style == 'nvimz' and { 'fallback' } or { function() return require('config.symbol_help').signature() end },
       },
 
       completion = {
@@ -85,9 +85,9 @@ return {
           },
         },
         documentation = {
-          auto_show = true,
+          auto_show = vim.g.black_color_style ~= 'nvimz',
           auto_show_delay_ms = 180,
-          draw = function(opts) require('config.documentation').completion_draw(opts) end,
+          draw = vim.g.black_color_style == 'nvimz' and nil or function(opts) require('config.documentation').completion_draw(opts) end,
           window = {
             desired_min_width = 44,
             desired_min_height = 3,
@@ -98,7 +98,7 @@ return {
       },
 
       signature = {
-        enabled = true,
+        enabled = vim.g.black_color_style ~= 'nvimz',
         window = {
           max_width = require('config.ui').max_width,
           max_height = 8,
