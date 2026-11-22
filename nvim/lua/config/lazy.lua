@@ -20,7 +20,7 @@ require("lazy").setup({
     { import = "plugins" },
   },
   defaults = { lazy = true, version = false },
-  install = { colorscheme = { "tokyonight-night", "perfect-black", "habamax" } },
+  install = { colorscheme = { "tokyonight-moon", "perfect-black", "habamax" } },
   ui = { border = require("config.ui").border },
   checker = {
     enabled = false, -- check manually with :Lazy check
@@ -58,11 +58,20 @@ vim.api.nvim_create_autocmd('User', {
   pattern = 'VeryLazy', once = true,
   callback = function()
     require('config.workspace_info').setup()
-    require('config.editor_ui').setup()
+    if vim.g.black_color_style ~= 'nvimz' then require('config.editor_ui').setup() end
     require('config.symbol_context').setup()
     require('config.symbol_illumination').setup()
   end,
 })
+
+-- Native nvimz-style statusline and startup dashboard, without the heavyweight UI plugins.
+if vim.g.black_color_style == 'nvimz' then
+  require('config.nvimz_statusline').setup()
+  vim.api.nvim_create_autocmd('VimEnter', {
+    once = true,
+    callback = function() vim.schedule(function() require('config.nvimz_dashboard').open_if_empty() end) end,
+  })
+end
 
 -- 1337 Station Mode: non-blocking deferred startup scan
 vim.defer_fn(function()
