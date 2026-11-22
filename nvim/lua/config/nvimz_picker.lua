@@ -162,7 +162,12 @@ local function preview_for(item)
 	if stat and stat.size > 2 * 1024 * 1024 then
 		return { "Preview skipped: file is larger than 2 MiB" }, nil
 	end
-	local lines = vim.fn.readfile(file)
+	-- The file can disappear or become unreadable between fd/rg listing it
+	-- and rendering the preview. A failed read must not break TextChangedI.
+	local ok, lines = pcall(vim.fn.readfile, file)
+	if not ok or type(lines) ~= "table" then
+		return { "Preview unavailable: file changed or cannot be read" }, nil
+	end
 	if #lines == 0 then
 		lines = { "" }
 	end
@@ -543,6 +548,13 @@ function M.open(title, mode, hidden, on_select)
 	close_picker()
 	local source_buf = vim.api.nvim_get_current_buf()
 
+	-- Three bordered floats cannot fit safely in a very small terminal.
+	-- Fall back to the existing lightweight picker rather than asking Neovim
+	-- to create zero/negative-sized windows.
+	if vim.o.columns < 48 or vim.o.lines < 14 then
+		vim.notify("Terminal too small for the nvimz three-pane picker", vim.log.levels.WARN)
+		return
+	end
 	local results_h = math.min(vim.o.lines - 8, math.floor(vim.o.lines * 0.5))
 	if results_h < 5 then
 		results_h = 5
