@@ -3,6 +3,12 @@
 local M = {}
 local c = require('config.palette')
 local last_code_buf = nil
+local function is_code_buffer(buf)
+  if not vim.api.nvim_buf_is_valid(buf) or vim.bo[buf].buftype ~= '' then return false end
+  local name = vim.api.nvim_buf_get_name(buf)
+  return name ~= '' and not name:match('^[%a][%w+.-]*://')
+    and vim.bo[buf].filetype ~= 'oil'
+end
 
 local modes = {
   n = {' ● ', 'NvimzModeNormal'}, no = {' ● ', 'NvimzModeNormal'},
@@ -46,13 +52,12 @@ local function get_mode()
 end
 local function code_buffer()
   local current = vim.api.nvim_get_current_buf()
-  if vim.bo[current].buftype == '' and vim.api.nvim_buf_get_name(current) ~= '' then return current end
-  if last_code_buf and vim.api.nvim_buf_is_valid(last_code_buf) then return last_code_buf end
+  if is_code_buffer(current) then return current end
+  if last_code_buf and is_code_buffer(last_code_buf) then return last_code_buf end
   -- A :file rename does not trigger BufEnter; recover the visible source buffer
   -- when an explorer or picker grabs focus before the first BufEnter event.
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-    if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buftype == ''
-      and vim.api.nvim_buf_get_name(buf) ~= '' then return buf end
+    if vim.api.nvim_buf_is_loaded(buf) and is_code_buffer(buf) then return buf end
   end
   return current
 end
@@ -147,12 +152,12 @@ function M.setup()
   vim.o.relativenumber = false -- match upstream nvimz numbering
   vim.o.statusline = "%!v:lua.require'config.nvimz_statusline'.render()"
   local current = vim.api.nvim_get_current_buf()
-  if vim.bo[current].buftype == '' and vim.api.nvim_buf_get_name(current) ~= '' then last_code_buf = current end
+  if is_code_buffer(current) then last_code_buf = current end
   local group = vim.api.nvim_create_augroup('NvimzStatusline', { clear = true })
   vim.api.nvim_create_autocmd('BufEnter', {
     group = group,
     callback = function(ev)
-      if vim.bo[ev.buf].buftype == '' and vim.api.nvim_buf_get_name(ev.buf) ~= '' then
+      if is_code_buffer(ev.buf) then
         last_code_buf = ev.buf
       end
     end,
