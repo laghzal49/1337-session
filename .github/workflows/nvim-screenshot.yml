@@ -73,6 +73,15 @@ jobs:
         run: |
           python3 scripts/capture-nvim.py --full --view explorer --output nvimz-explorer.png --timeout 60 || echo "Oil screenshot not captured"
           python3 scripts/capture-nvim.py --full --view picker --output nvimz-picker.png --timeout 60 || echo "Picker screenshot not captured"
+      - name: Capture completion and documentation UI
+        if: github.ref == 'refs/heads/feat/nvimz-inspired-ui'
+        continue-on-error: true
+        env:
+          XDG_CONFIG_HOME: ${{ runner.temp }}/config
+          NVIM_COLOR_STYLE: nvimz
+        run: |
+          python3 scripts/capture-nvim.py --full --view completion --output nvimz-completion.png --timeout 60
+          python3 scripts/capture-nvim.py --full --view documentation --output nvimz-documentation.png --timeout 60
       - name: Verify screenshots are distinct and legible
         if: github.ref == 'refs/heads/main'
         run: |
@@ -101,4 +110,6 @@ jobs:
             nvimz-editor.png
             nvimz-explorer.png
             nvimz-picker.png
+            nvimz-completion.png
+            nvimz-documentation.png
           retention-days: 30
