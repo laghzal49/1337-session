@@ -13,6 +13,13 @@ assert(type(dashboard.open_if_empty) == 'function', 'nvimz dashboard missing')
 local picker = require('config.nvimz_picker')
 assert(type(picker.files) == 'function' and type(picker.grep) == 'function',
   'native file or grep picker missing')
+-- Regression for TextChangedI picker crash: preview APIs reject embedded LF.
+assert(picker.sanitize_line('before\nafter') == 'before after',
+  'picker preview sanitizer must flatten embedded newlines')
+assert(picker.sanitize_line('before\r\nafter\tend') == 'before  after  end',
+  'picker must normalize CRLF and tabs')
+assert(not picker.sanitize_line('x\nmore'):find('\n', 1, true),
+  'picker must not pass newlines into nvim_buf_set_lines')
 local oil = require('config.nvimz_files')
 assert(type(oil.toggle) == 'function', 'Oil explorer mapping missing')
 local ui = require('config.palette')
