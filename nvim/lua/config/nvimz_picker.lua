@@ -67,7 +67,7 @@ local function sanitize_line(s)
 	-- Each nvim_buf_set_lines() entry must be exactly one line: an LF here
 	-- raises E5108 every time TextChangedI refreshes the picker preview.
 	-- Preserve readable text on both sides instead of dropping it.
-	s = s:gsub("[\r\n]", " ")
+	s = s:gsub("[%z\r\n]", " ")
 	s = s:gsub("\t", "  ")
 	-- strip other C0 controls (keep nothing unprintable here; lines are already split)
 	s = s:gsub("[%z\1-\8\11\12\14-\31]", "")
