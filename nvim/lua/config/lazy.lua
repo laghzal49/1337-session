@@ -20,7 +20,7 @@ require("lazy").setup({
     { import = "plugins" },
   },
   defaults = { lazy = true, version = false },
-  install = { colorscheme = { "perfect-black", "habamax" } },
+  install = { colorscheme = { "tokyonight-night", "perfect-black", "habamax" } },
   ui = { border = require("config.ui").border },
   checker = {
     enabled = false, -- check manually with :Lazy check
@@ -45,7 +45,7 @@ require("lazy").setup({
 })
 
 require('config.typography').setup()
-vim.cmd.colorscheme(vim.g.black_color_style == 'electrovoid' and 'electrovoid' or 'perfect-black')
+vim.cmd.colorscheme(vim.g.black_color_style == 'nvimz' and 'nvimz' or (vim.g.black_color_style == 'electrovoid' and 'electrovoid' or 'perfect-black'))
 require('config.accessibility').setup()
 require('config.popups').setup()
 
