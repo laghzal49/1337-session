@@ -3,6 +3,7 @@ local palette = require('config.palette')
 return {
   {
     'nvim-lualine/lualine.nvim', event = 'VeryLazy',
+    enabled = vim.g.black_color_style ~= 'nvimz',
     opts = function()
       local s, ui = require('config.surfaces'), require('config.ui')
       local function mode(accent, foreground)
@@ -76,6 +77,7 @@ return {
   },
   {
     'akinsho/bufferline.nvim', event = 'VeryLazy',
+    enabled = vim.g.black_color_style ~= 'nvimz',
     opts = function()
       local s, ui = require('config.surfaces'), require('config.ui')
       local h = {}
