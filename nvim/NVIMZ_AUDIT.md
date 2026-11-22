@@ -13,9 +13,9 @@ language servers were executed on a user's computer.
 | Filesystem explorer | Oil rounded floating window | `nvimz-explorer.png` |
 | File/buffer picker | native three-pane `fd` / `rg` UI | `nvimz-picker.png` |
 | Completion | Rust-backed blink.cmp | `nvimz-completion.png` |
-| Documentation | existing Markdown/LSP documentation float | `nvimz-documentation.png` |
+| Python semantics | dedicated class/function/method/__init__ captures and LSP tokens | `nvim/tests/nvimz_ui_review.lua` |
 
-The `Neovim visual screenshot` workflow tests that all six screenshots are
+The `Neovim visual screenshot` workflow tests that all five screenshots are
 actually captured and nonidentical to the startup dashboard. Real UI screenshots
 are uploaded as the `neovim-visual-previews` artifact.
 
@@ -35,6 +35,8 @@ are uploaded as the `neovim-visual-previews` artifact.
   tiny-inline-diagnostic, Tree-sitter context, optional window-focus scanning,
   and custom diagnostic sign aggregation. The original alternate themes retain
   their own implementations.
+- **Removed from lean preset:** offline Docs commands, docs updater, Smart/Deep Docs keymaps, automatic Blink documentation/signature popups, Neogen/docstring generation, and the extra docs screenshot. Their legacy implementations remain for alternate presets where still used.
+- **Python colors:** classes violet, functions blue, methods teal and `__init__` gold, with Vim syntax fallback if the parser is missing.
 - **Rust media viewer:** disabled by default on the lean preset because its
   build creates work and Git dirtiness unrelated to Go/Python editing. Opt in
   with `NVIM_ENABLE_MEDIA=1 nvim` if image/PDF viewing is wanted.
