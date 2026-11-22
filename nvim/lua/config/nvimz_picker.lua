@@ -303,7 +303,13 @@ local function render_preview()
 		return
 	end
 	local sel_item = state.candidates[state.selected]
-	local preview_lines, preview_cursor, file = preview_for(sel_item)
+	local selection_changed = not state._preview_loaded or state._preview_item ~= sel_item
+	if selection_changed then
+		state._preview_lines, state._preview_cursor, state._preview_file = preview_for(sel_item)
+		state._preview_item, state._preview_loaded = sel_item, true
+	end
+	local preview_lines, preview_cursor, file =
+		state._preview_lines, state._preview_cursor, state._preview_file
 	local pw = state.preview_win and vim.api.nvim_win_is_valid(state.preview_win)
 			and vim.api.nvim_win_get_width(state.preview_win)
 		or 40
@@ -312,7 +318,7 @@ local function render_preview()
 		truncated[#truncated + 1] = truncate_str(sanitize_line(l), pw)
 	end
 	preview_lines = truncated
-	if state.preview_buf and vim.api.nvim_buf_is_valid(state.preview_buf) then
+	if selection_changed and state.preview_buf and vim.api.nvim_buf_is_valid(state.preview_buf) then
 		vim.api.nvim_buf_set_option(state.preview_buf, "modifiable", true)
 		vim.api.nvim_buf_set_lines(state.preview_buf, 0, -1, false, preview_lines)
 		vim.api.nvim_buf_set_option(state.preview_buf, "modifiable", false)
@@ -546,6 +552,10 @@ end
 --- input (top, height 1) / results (bottom) / preview (right, full height).
 function M.open(title, mode, hidden, on_select)
 	close_picker()
+	-- Do not reuse an old fd result across sessions: files may have been
+	-- created, deleted, renamed or checked out since the previous search.
+	-- Within one picker session the cache still makes typing instantaneous.
+	file_cache = {}
 	local source_buf = vim.api.nvim_get_current_buf()
 
 	-- Three bordered floats cannot fit safely in a very small terminal.
