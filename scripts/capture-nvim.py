@@ -229,7 +229,7 @@ def capture(binary, width, height, full, timeout, view="editor"):
                 vim.cmd('file src/strchr.c')
                 vim.bo.filetype = 'c'
                 vim.cmd('syntax enable')
-                if vim.g.colors_name ~= 'perfect-black' then
+                if not vim.g.capture_full_ui and vim.g.colors_name ~= 'perfect-black' then
                     vim.cmd.colorscheme('perfect-black')
                 end
                 vim.opt.number = true
@@ -245,11 +245,32 @@ def capture(binary, width, height, full, timeout, view="editor"):
                 local view = vim.env.NVIM_CAPTURE_VIEW or 'editor'
                 local ready = true
                 if view == 'explorer' then
-                    require('lazy').load({plugins={'snacks.nvim'}})
-                    assert(_G.Snacks and Snacks.explorer, 'Snacks explorer is unavailable')
-                    Snacks.explorer()
-                    ready = vim.wait(3500, function()
-                        return #vim.api.nvim_tabpage_list_wins(0) >= 2
+                    if vim.g.black_color_style == 'nvimz' then
+                        require('config.nvimz_files').open()
+                        ready = vim.wait(3500, function()
+                            for _, w in ipairs(vim.api.nvim_list_wins()) do
+                                if vim.api.nvim_win_get_config(w).relative ~= '' and
+                                    vim.bo[vim.api.nvim_win_get_buf(w)].filetype == 'oil' then return true end
+                            end
+                            return false
+                        end, 50)
+                    else
+                        require('lazy').load({plugins={'snacks.nvim'}})
+                        assert(_G.Snacks and Snacks.explorer, 'Snacks explorer is unavailable')
+                        Snacks.explorer()
+                        ready = vim.wait(3500, function()
+                            return #vim.api.nvim_tabpage_list_wins(0) >= 2
+                        end, 50)
+                    end
+                elseif view == 'dashboard' then
+                    assert(vim.g.black_color_style == 'nvimz', 'dashboard is for nvimz preset')
+                    require('config.nvimz_dashboard').open()
+                    ready = vim.bo.filetype == 'nvimz_dashboard'
+                elseif view == 'picker' then
+                    assert(vim.g.black_color_style == 'nvimz', 'picker is for nvimz preset')
+                    require('config.nvimz_picker').buffers()
+                    ready = vim.wait(1500, function()
+                        return #vim.api.nvim_list_wins() >= 4
                     end, 50)
                 elseif view == 'documentation' then
                     -- Let deferred startup UI handlers finish before the float opens.
@@ -304,8 +325,12 @@ def capture(binary, width, height, full, timeout, view="editor"):
                 raise RuntimeError("Documentation float disappeared before capture")
             if view == "completion" and "Suggestions" not in visible:
                 raise RuntimeError("Blink completion menu disappeared before capture")
-            if view == "explorer" and "Explorer" not in visible:
+            if view == "explorer" and os.environ.get("NVIM_COLOR_STYLE") != "nvimz" and "Explorer" not in visible:
                 raise RuntimeError("Snacks explorer pane disappeared before capture")
+            if view == "dashboard" and "Find Files" not in visible:
+                raise RuntimeError("nvimz dashboard was not visible")
+            if view == "picker" and "Buffers" not in visible:
+                raise RuntimeError("nvimz picker was not visible")
             return result
     finally:
         try:
@@ -325,7 +350,7 @@ def main():
     parser.add_argument("--nvim", default=os.environ.get("NVIM_BIN", "nvim"))
     parser.add_argument("--font")
     parser.add_argument("--full", action="store_true", help="Load installed full 1337-session config")
-    parser.add_argument("--view", choices=("editor", "explorer", "completion", "documentation"),
+    parser.add_argument("--view", choices=("editor", "explorer", "completion", "documentation", "dashboard", "picker"),
                         default="editor", help="Which real Neovim UI surface to capture")
     parser.add_argument("--width", type=int, default=100)
     parser.add_argument("--height", type=int, default=28)
