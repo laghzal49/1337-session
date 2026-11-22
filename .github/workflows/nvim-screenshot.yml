@@ -38,14 +38,14 @@ jobs:
         run: |
           NVIM_COLOR_STYLE=rose NVIM_BLACK_DOCS_AUTO_UPDATE=0 \
             nvim --headless --cmd 'let g:station_1337 = v:false' \
-            -c 'lua dofile("nvim/tests/rose_polish_review.lua")' -c 'qa!'
+            -c "lua local ok, err = pcall(dofile, 'nvim/tests/rose_polish_review.lua'); if not ok then vim.api.nvim_err_writeln(tostring(err)); vim.cmd('cquit 1') end" -c 'qa!'
       - name: Verify nvimz Moon UI and editor integration
         env:
           XDG_CONFIG_HOME: ${{ runner.temp }}/config
         run: |
           NVIM_COLOR_STYLE=nvimz NVIM_BLACK_DOCS_AUTO_UPDATE=0 \
             nvim --headless --cmd 'let g:station_1337 = v:false' \
-            -c 'lua dofile("nvim/tests/nvimz_ui_review.lua")' -c 'qa!'
+            -c "lua local ok, err = pcall(dofile, 'nvim/tests/nvimz_ui_review.lua'); if not ok then vim.api.nvim_err_writeln(tostring(err)); vim.cmd('cquit 1') end" -c 'qa!'
       - name: Capture all four real 1337-session views
         if: github.ref == 'refs/heads/main'
         env:
@@ -62,7 +62,7 @@ jobs:
         run: |
           NVIM_COLOR_STYLE=nvimz NVIM_BLACK_DOCS_AUTO_UPDATE=0 \
             nvim --headless --cmd 'let g:station_1337 = v:false' \
-            -c 'lua dofile("nvim/tests/python_highlighting_review.lua")' -c 'qa!'
+            -c "lua local ok, err = pcall(dofile, 'nvim/tests/python_highlighting_review.lua'); if not ok then vim.api.nvim_err_writeln(tostring(err)); vim.cmd('cquit 1') end" -c 'qa!'
       - name: Capture nvimz dashboard and editor
         if: github.ref == 'refs/heads/feat/nvimz-inspired-ui'
         env:
