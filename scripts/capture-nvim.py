@@ -220,7 +220,7 @@ def capture(binary, width, height, full, timeout, view="editor"):
 
     try:
         attach = write("nvim_ui_attach", [width, height, {"rgb": True, "ext_linegrid": True}])
-        events(attach, 12)
+        events(attach, min(timeout, 45))
         with tempfile.TemporaryDirectory(prefix="nvim-rose-preview-") as temporary:
             demo = Path(temporary) / "strchr.c"
             demo.write_text(DEMO_C, encoding="utf8")
