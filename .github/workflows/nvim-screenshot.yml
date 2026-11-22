@@ -73,6 +73,7 @@ jobs:
           NVIM_CAPTURE_DEBUG: '1'
         run: |
           python3 scripts/capture-nvim.py --full --view explorer --output nvimz-explorer.png --timeout 60 || echo "Oil screenshot not captured"
+          cat /tmp/nvimz-oil-trace.log 2>/dev/null || true
           python3 scripts/capture-nvim.py --full --view picker --output nvimz-picker.png --timeout 60 || echo "Picker screenshot not captured"
       - name: Capture completion and documentation UI
         if: github.ref == 'refs/heads/feat/nvimz-inspired-ui'
