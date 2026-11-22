@@ -94,7 +94,9 @@ return {
       end
     end })
   end },
-  { 'nvim-treesitter/nvim-treesitter-context', event = { 'BufReadPost', 'BufNewFile' }, opts = {
+  { 'nvim-treesitter/nvim-treesitter-context',
+    -- nvimz prioritizes a fast uncluttered code surface.
+    enabled = vim.g.black_color_style ~= 'nvimz', event = { 'BufReadPost', 'BufNewFile' }, opts = {
     max_lines = 2, trim_scope = 'outer',
     on_attach = function(buf) return not performance.large(buf) and not require('config.markdown').large(buf) end,
   } },
