@@ -56,6 +56,11 @@ return {
       end,
     },
   },
+  { 'stevearc/oil.nvim', cmd = 'Oil',
+    dependencies = { 'refractalize/oil-git-status.nvim' },
+    enabled = vim.g.black_color_style == 'nvimz',
+    config = function() require('config.nvimz_files').setup() end,
+  },
   { 'folke/persistence.nvim', event = 'BufReadPre', opts = {}, keys = {
     { '<leader>qs', function() require('persistence').load() end, desc = 'Restore session' },
     { '<leader>qS', function() require('persistence').select() end, desc = 'Select session' },
