@@ -129,6 +129,7 @@ function M.setup()
   setup_highlights()
   vim.o.laststatus = 3
   vim.o.showtabline = 0 -- enforced after the plugin manager initializes
+  vim.o.relativenumber = false -- match upstream nvimz numbering
   vim.o.statusline = "%!v:lua.require'config.nvimz_statusline'.render()"
   local group = vim.api.nvim_create_augroup('NvimzStatusline', { clear = true })
   vim.api.nvim_create_autocmd('ColorScheme', { group = group, callback = setup_highlights })
