@@ -45,6 +45,24 @@ char *ft_strchr(const char *str, int needle)
 /* Neovim UI audit: syntax, completion, file navigation,
  * formatted documentation and native diagnostics. */
 """
+DEMO_PY = """class Character:
+    \"\"\"A small Python highlighting test.\"\"\"
+    def __init__(self, name: str, hp: int = 100):
+        self.name = name
+        self.hp = hp
+
+    def heal(self, amount: int) -> int:
+        self.hp += amount
+        return self.hp
+
+def create_player(name: str) -> Character:
+    player = Character(name)
+    player.heal(25)
+    return player
+
+hero = create_player("1337")
+print(hero.name, hero.hp)
+"""
 # The visible content is a normal Neovim buffer. Syntax coloring and cursor,
 # line numbers and statusline are produced by Neovim and its loaded config.
 
@@ -161,7 +179,7 @@ def render(grid, destination, font_path=None):
     return image.size
 
 
-def capture(binary, width, height, full, timeout, view="editor"):
+def capture(binary, width, height, full, timeout, view="editor", language="c"):
     env = dict(os.environ, NVIM_ASCII_ICONS="1", NVIM_BLACK_DOCS_AUTO_UPDATE="0",
                NVIM_CAPTURE_VIEW=view)
     args = [binary, "--embed", "--cmd", "let g:station_1337 = v:false"]
@@ -223,12 +241,12 @@ def capture(binary, width, height, full, timeout, view="editor"):
         attach = write("nvim_ui_attach", [width, height, {"rgb": True, "ext_linegrid": True}])
         events(attach, min(timeout, 45))
         with tempfile.TemporaryDirectory(prefix="nvim-rose-preview-") as temporary:
-            demo = Path(temporary) / "strchr.c"
-            demo.write_text(DEMO_C, encoding="utf8")
+            demo = Path(temporary) / ("example.py" if language == "python" else "strchr.c")
+            demo.write_text(DEMO_PY if language == "python" else DEMO_C, encoding="utf8")
             script = """
                 vim.cmd('edit ' .. vim.fn.fnameescape(...))
-                vim.cmd('file src/strchr.c')
-                vim.bo.filetype = 'c'
+                vim.cmd('file src/' .. vim.fn.fnamemodify(..., ':t'))
+                vim.bo.filetype = vim.fn.fnamemodify(..., ':e') == 'py' and 'python' or 'c'
                 vim.cmd('syntax enable')
                 if not vim.g.capture_full_ui and vim.g.colors_name ~= 'perfect-black' then
                     vim.cmd.colorscheme('perfect-black')
@@ -377,6 +395,7 @@ def main():
     parser.add_argument("--nvim", default=os.environ.get("NVIM_BIN", "nvim"))
     parser.add_argument("--font")
     parser.add_argument("--full", action="store_true", help="Load installed full 1337-session config")
+    parser.add_argument("--language", choices=("c", "python"), default="c", help="Source language for editor screenshot")
     parser.add_argument("--view", choices=("editor", "explorer", "completion", "documentation", "dashboard", "picker"),
                         default="editor", help="Which real Neovim UI surface to capture")
     parser.add_argument("--width", type=int, default=100)
@@ -389,7 +408,7 @@ def main():
         parser.error("Run inside a 1337-session checkout")
     if args.view != "editor" and not args.full:
         parser.error("panel previews need --full and installed plugins")
-    result = capture(args.nvim, args.width, args.height, args.full, args.timeout, args.view)
+    result = capture(args.nvim, args.width, args.height, args.full, args.timeout, args.view, args.language)
     size = render(result, args.output, args.font)
     print(f"REAL NVIM REDRAW CAPTURE: {args.output} ({size[0]}x{size[1]})")
 
