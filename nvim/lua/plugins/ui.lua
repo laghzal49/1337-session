@@ -104,7 +104,8 @@ return {
       quickfile = { enabled = true },
       dashboard = vim.g.black_color_style == 'nvimz' and { enabled = false } or require('config.dashboard'),
       explorer = {
-        enabled = true,
+        -- Oil is the file explorer in the nvimz layout.
+        enabled = vim.g.black_color_style ~= 'nvimz',
         replace_netrw = true,
       },
       picker = {
@@ -338,6 +339,8 @@ return {
   -- ── Panel layout (Edgy) ──────────────────────────────────────────────
   {
     'folke/edgy.nvim',
+    -- nvimz uses standalone floating panels, not Edgy-managed layouts.
+    enabled = vim.g.black_color_style ~= 'nvimz',
     event = 'VeryLazy',
     opts = function(_, opts)
       local icon = ui.icon
