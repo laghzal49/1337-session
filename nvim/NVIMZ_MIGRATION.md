@@ -7,6 +7,7 @@ existing 1337-session Neovim setup while preserving its development features.
 
 - Tokyo Night **Moon** customized to nvimz's forest green / teal / steel-blue
   colors. Transparent editor and float backgrounds.
+- Python syntax: violet class names, blue functions, teal methods and gold `__init__`. The Python Tree-sitter parser is recommended for accurate constructor coloring.
 - Same centered ASCII dashboard layout, menu keys (f/g/e/q), and color hierarchy.
   Local username branding replaces upstream author's name.
 - Native nvimz three-window **Files / Live Grep / Buffers** picker, with separate
@@ -18,6 +19,7 @@ existing 1337-session Neovim setup while preserving its development features.
 - Hide the original bufferline, floating Noice command palette and custom winbar
   while this preset is active. Other editor features remain installed.
 - Disable optional animated scrolling / UI animations under the new preset.
+- Remove the offline Docs menu, updater, K/gK docs shortcuts, completion documentation popups and Neogen docstrings from the lean preset. Keep LSP completion, diagnostics, and formatting.
 - Skip legacy lualine, bufferline, Edgy, Noice, tiny-inline-diagnostics, and sticky Tree-sitter context in this preset.
 - Avoid custom focus-window rescans and diagnostic-sign aggregation in favor of Neovim's native options.
 - The Rust media viewer is opt-in for this preset via `NVIM_ENABLE_MEDIA=1`; the old themes keep it by default.
