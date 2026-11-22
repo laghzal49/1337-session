@@ -52,7 +52,7 @@ vim.opt.synmaxcol = 300
 
 -- Keep the current split visually anchored without making other splits compete
 -- for attention. Preserve window-local highlighting used by floating panels.
-require('config.focus_ui').setup()
+if vim.g.black_color_style ~= 'nvimz' then require('config.focus_ui').setup() end
 
 -- Session options
 vim.opt.sessionoptions = { 'buffers', 'curdir', 'tabpages', 'winsize', 'help', 'globals', 'skiprtp', 'folds' }
