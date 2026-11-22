@@ -63,15 +63,6 @@ jobs:
           NVIM_COLOR_STYLE=nvimz NVIM_BLACK_DOCS_AUTO_UPDATE=0 \
             nvim --headless --cmd 'let g:station_1337 = v:false' \
             -c 'lua dofile("nvim/tests/python_highlighting_review.lua")' -c 'qa!'
-      - name: Install and verify Python Tree-sitter parser and captures
-        if: github.ref == 'refs/heads/feat/nvimz-inspired-ui'
-        env:
-          XDG_CONFIG_HOME: ${{ runner.temp }}/config
-          NVIM_COLOR_STYLE: nvimz
-        run: |
-          nvim --headless --cmd 'let g:station_1337 = v:false' \
-            -c "lua local ts=require('nvim-treesitter'); assert(ts.install({'python'}):wait(180000) ~= false); assert(vim.treesitter.language.add('python')); assert(vim.treesitter.query.get('python','highlights')); print('PYTHON TREE-SITTER QUERY PASS')" \
-            -c 'qa!'
       - name: Capture nvimz dashboard and editor
         if: github.ref == 'refs/heads/feat/nvimz-inspired-ui'
         env:
@@ -121,7 +112,22 @@ jobs:
               assert ImageChops.difference(images[0], images[i]).getbbox(), (
                   'Screenshot equals dashboard: ' + names[i]
               )
-          print('NVIMZ VISUAL QA PASS: dashboard, editor, Oil, picker, completion')
+          # The Python sample contains a class, a regular function, an
+          # indented method, and __init__; all four colors must be visible.
+          py = images[names.index('python')]
+          from collections import Counter
+          counts = Counter(py.getdata())
+          for label, rgb in {
+              'class': (199, 146, 234),
+              'function': (130, 170, 255),
+              'method': (79, 214, 190),
+              '__init__': (255, 203, 107),
+          }.items():
+              assert sum(n for color, n in counts.items() if
+                         max(abs(color[i] - rgb[i]) for i in range(3)) <= 8) > 5, (
+                  f'Python {label} color is missing from real screenshot'
+              )
+          print('NVIMZ VISUAL QA PASS: dashboard, editor, Python declarations, Oil, picker, completion')
           PY
       - name: Upload screenshot
         if: always()
