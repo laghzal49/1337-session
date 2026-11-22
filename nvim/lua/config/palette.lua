@@ -63,7 +63,6 @@ local nvimz = {
   on_accent = '#080d0b', strong = '#d7e3dc',
   error_bg = '#301f24', warning_bg = '#282518',
   success_bg = '#182c20', focus_bg = '#101a17',
-  focus_border = '#61afef',
   search_bg = '#253b34', search_text = '#ccd9d2',
 }
 
