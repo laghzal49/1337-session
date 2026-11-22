@@ -58,6 +58,7 @@ require('config.popups').setup()
 
 require("config.keymaps")
 require("config.autocmds")
+if vim.g.black_color_style == 'nvimz' then require('config.python_colors').setup() end
 require('config.cursor_ui').setup()
 -- Context lookup starts after startup; statusline draws only the cached string.
 vim.api.nvim_create_autocmd('User', {
