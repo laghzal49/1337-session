@@ -46,6 +46,10 @@ require("lazy").setup({
 
 require('config.typography').setup()
 vim.cmd.colorscheme(vim.g.black_color_style == 'nvimz' and 'nvimz' or (vim.g.black_color_style == 'electrovoid' and 'electrovoid' or 'perfect-black'))
+-- Restore semantic Rose variable color after theme/plugin initialization.
+if vim.g.black_color_style == 'rose' then
+  vim.api.nvim_set_hl(0, '@variable', { fg = require('config.palette').variable })
+end
 require('config.accessibility').setup()
 require('config.popups').setup()
 
