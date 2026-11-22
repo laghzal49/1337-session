@@ -102,7 +102,7 @@ return {
       bigfile = { enabled = true, size = 1024 * 1024,
         setup = function(ctx) require('config.performance').guard(ctx.buf) end },
       quickfile = { enabled = true },
-      dashboard = require('config.dashboard'),
+      dashboard = vim.g.black_color_style == 'nvimz' and { enabled = false } or require('config.dashboard'),
       explorer = {
         enabled = true,
         replace_netrw = true,
