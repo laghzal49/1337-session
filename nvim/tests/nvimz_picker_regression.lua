@@ -40,6 +40,7 @@ assert(ok_change, 'TextChangedI preview crashed: ' .. tostring(err_change))
 -- The buffer list filters by filename, not by code contents.
 -- Reopen after a buffer edit to force a new preview and exercise LF sanitization.
 picker.close_picker()
+vim.api.nvim_set_current_buf(source)
 local ok_reopen, err_reopen = pcall(picker.buffers)
 assert(ok_reopen, 'picker failed to reopen after edit: ' .. tostring(err_reopen))
 local fresh_preview
@@ -55,7 +56,7 @@ end
 assert(fresh_preview, 'reopened preview window missing')
 local final = table.concat(vim.api.nvim_buf_get_lines(fresh_preview, 0, -1, false), '\n')
 assert(final:find('class Demo: embedded', 1, true),
-  'buffer preview failed to safely flatten embedded NUL/LF')
+  'buffer preview failed to safely flatten embedded NUL/LF: ' .. vim.inspect(final))
 picker.close_picker()
 assert(not vim.api.nvim_buf_is_valid(fresh_preview), 'picker preview buffer leaked after close')
 print('NVIMZ PICKER REGRESSION PASS: open, type, preview, close, small terminal')
