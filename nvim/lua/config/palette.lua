@@ -47,20 +47,26 @@ local crimson = {
 -- nvimz-inspired Tokyo Night palette.  Works across the existing custom panels,
 -- explorer, completion menu, debugging windows and statusline.
 local nvimz = {
-  canvas = '#1a1b26', inset = '#16161e', panel = '#1f2335', popup = '#1f2335',
-  tree_panel = '#16161e', line = '#24283b', selection = '#283457',
-  text = '#c0caf5', muted = '#737aa2', punctuation = '#9aa5ce', path = '#a9b1d6',
-  gutter = '#565f89', guide = '#292e42',
-  border = '#414868', border_strong = '#7aa2f7', border_soft = '#292e42',
-  focus_border = '#7aa2f7', focus = '#7aa2f7', panel_accent = '#7aa2f7',
-  variable = '#c0caf5', parameter = '#e0af68', member = '#73daca',
-  callable = '#7aa2f7', keyword = '#bb9af7', type = '#2ac3de',
-  string = '#9ece6a', literal = '#ff9e64', success = '#9ece6a',
-  error = '#f7768e', warning = '#e0af68', comment = '#565f89',
-  on_accent = '#16161e', strong = '#ffffff',
-  error_bg = '#3b2234', warning_bg = '#373143', success_bg = '#20372b',
-  focus_bg = '#283457', search_bg = '#3b4261', search_text = '#c0caf5',
+  -- Ported from nvimz's modified Tokyo Night Moon palette
+  canvas = '#0b1210', inset = '#080d0b', panel = '#0d1614',
+  popup = '#0d1614', tree_panel = '#080d0b',
+  line = '#101a17', selection = '#253b34',
+  text = '#c0caf5', muted = '#688077', punctuation = '#5a6e68',
+  path = '#ccd9d2', gutter = '#2f3d37', guide = '#1f312b',
+  border = '#1f312b', border_strong = '#61afef',
+  border_soft = '#182820', focus_border = '#61afef',
+  focus = '#61afef', panel_accent = '#61afef',
+  variable = '#d9b36c', parameter = '#d9b36c', member = '#9cd4d0',
+  callable = '#61afef', keyword = '#9ad179', type = '#2ac3de',
+  string = '#8fbf8f', literal = '#a7c080', success = '#9ad179',
+  error = '#f7768e', warning = '#d9b36c', comment = '#688077',
+  on_accent = '#080d0b', strong = '#d7e3dc',
+  error_bg = '#301f24', warning_bg = '#282518',
+  success_bg = '#182c20', focus_bg = '#101a17',
+  focus_border = '#61afef',
+  search_bg = '#253b34', search_text = '#ccd9d2',
 }
+
 -- Optional upstream palettes remain available through NVIM_COLOR_STYLE.
 local style = vim.g.black_color_style or vim.env.NVIM_COLOR_STYLE or 'nvimz'
 if style ~= 'classic' and style ~= 'rose' and style ~= 'crimson' and style ~= 'electrovoid' and style ~= 'nvimz' then style = 'nvimz' end
