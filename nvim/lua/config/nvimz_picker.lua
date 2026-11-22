@@ -141,6 +141,11 @@ local function preview_for(item)
 	if vim.fn.filereadable(file) == 0 then
 		return { "No preview available" }, nil
 	end
+	-- Never load an entire multi-megabyte file just for a popup preview.
+	local stat = vim.uv.fs_stat(file)
+	if stat and stat.size > 2 * 1024 * 1024 then
+		return { "Preview skipped: file is larger than 2 MiB" }, nil
+	end
 	local lines = vim.fn.readfile(file)
 	if #lines == 0 then
 		lines = { "" }
@@ -424,6 +429,10 @@ local function refresh()
 			return
 		end
 		state.candidates = candidates or {}
+		-- Render only the first 200 matches; the candidate cache remains intact.
+		if #state.candidates > 200 then
+			state.candidates = vim.list_slice(state.candidates, 1, 200)
+		end
 		if #state.candidates == 0 then
 			state.selected = 0
 		elseif state.selected < 1 or state.selected > #state.candidates then
