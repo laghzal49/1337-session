@@ -78,3 +78,24 @@ local groups = {
   SnacksPickerListCursorLine = { fg = c.strong, bg = c.selection },
 }
 for name, opts in pairs(groups) do hi(name, opts) end
+-- Apply language groups after Tokyo Night and the legacy surface overlays.
+-- Plugin on_highlights alone is not sufficient: nested Neovim colorscheme
+-- loading can replace those groups before Python opens.
+local python_colors = {
+  ['@type.definition'] = { fg = '#c792ea', bold = true },
+  ['@type'] = { fg = '#c792ea' },
+  ['@constructor'] = { fg = '#ffcb6b', bold = true },
+  ['@function'] = { fg = '#82aaff', bold = true },
+  ['@function.call'] = { fg = '#82aaff' },
+  ['@function.method'] = { fg = '#4fd6be', bold = true },
+  ['@function.method.call'] = { fg = '#4fd6be' },
+  ['@function.method.special'] = { fg = '#ffcb6b', bold = true },
+  ['@lsp.type.class.python'] = { fg = '#c792ea', bold = true },
+  ['@lsp.type.function.python'] = { fg = '#82aaff', bold = true },
+  ['@lsp.type.method.python'] = { fg = '#4fd6be', bold = true },
+  ['@lsp.typemod.function.declaration.python'] = { fg = '#82aaff', bold = true },
+  ['@lsp.typemod.method.declaration.python'] = { fg = '#4fd6be', bold = true },
+  pythonClass = { fg = '#c792ea', bold = true },
+  pythonFunction = { fg = '#82aaff', bold = true },
+}
+for name, opts in pairs(python_colors) do hi(name, opts) end
