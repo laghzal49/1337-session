@@ -44,11 +44,28 @@ local crimson = {
   error_bg = '#291414', warning_bg = '#201A0D', success_bg = '#131E13',
   focus_bg = '#4E121D', search_bg = '#231B2D', search_text = '#C7A6FF',
 }
+-- nvimz-inspired Tokyo Night palette.  Works across the existing custom panels,
+-- explorer, completion menu, debugging windows and statusline.
+local nvimz = {
+  canvas = '#1a1b26', inset = '#16161e', panel = '#1f2335', popup = '#1f2335',
+  tree_panel = '#16161e', line = '#24283b', selection = '#283457',
+  text = '#c0caf5', muted = '#737aa2', punctuation = '#9aa5ce', path = '#a9b1d6',
+  gutter = '#565f89', guide = '#292e42',
+  border = '#414868', border_strong = '#7aa2f7', border_soft = '#292e42',
+  focus_border = '#7aa2f7', focus = '#7aa2f7', panel_accent = '#7aa2f7',
+  variable = '#c0caf5', parameter = '#e0af68', member = '#73daca',
+  callable = '#7aa2f7', keyword = '#bb9af7', type = '#2ac3de',
+  string = '#9ece6a', literal = '#ff9e64', success = '#9ece6a',
+  error = '#f7768e', warning = '#e0af68', comment = '#565f89',
+  on_accent = '#16161e', strong = '#ffffff',
+  error_bg = '#3b2234', warning_bg = '#373143', success_bg = '#20372b',
+  focus_bg = '#283457', search_bg = '#3b4261', search_text = '#c0caf5',
+}
 -- Optional upstream palettes remain available through NVIM_COLOR_STYLE.
-local style = vim.g.black_color_style or vim.env.NVIM_COLOR_STYLE or 'electrovoid'
-if style ~= 'classic' and style ~= 'rose' and style ~= 'crimson' and style ~= 'electrovoid' then style = 'electrovoid' end
+local style = vim.g.black_color_style or vim.env.NVIM_COLOR_STYLE or 'nvimz'
+if style ~= 'classic' and style ~= 'rose' and style ~= 'crimson' and style ~= 'electrovoid' and style ~= 'nvimz' then style = 'nvimz' end
 vim.g.black_color_style = style
-local c = style == 'electrovoid' and require('config.electrovoid').palette()
+local c = style == 'nvimz' and nvimz or style == 'electrovoid' and require('config.electrovoid').palette()
   or style == 'classic' and classic or style == 'rose' and rose or crimson
 c.folder, c.info, c.hint = c.folder or c.focus, c.info or c.focus, c.hint or c.type
 c.success, c.comment, c.popup_selection = c.success or c.string, c.comment or c.muted, c.popup_selection or c.selection
