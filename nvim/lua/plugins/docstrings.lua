@@ -1,6 +1,7 @@
 return {
   {
     'danymat/neogen',
+    enabled = vim.g.black_color_style ~= 'nvimz',
     cmd = { 'Neogen', 'PythonDocstring' },
     keys = {
       { '<leader>cD', function() require('config.docstrings').generate() end, desc = 'Generate Python docstring' },
