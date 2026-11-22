@@ -138,6 +138,18 @@ local function preview_for(item)
 		file = item
 		lnum = 1
 	end
+	-- Buffer picker previews the *loaded* buffer, including unsaved changes.
+	-- This also supports an unnamed scratch buffer without reading a fake path.
+	if state and state.mode == "buffers" then
+		local number = item:match("^%[No Name%] %((%d+)%)$")
+		local bufnr = number and tonumber(number) or vim.fn.bufnr(file)
+		if bufnr and bufnr > 0 and vim.api.nvim_buf_is_loaded(bufnr) then
+			local limit = math.min(200, vim.api.nvim_buf_line_count(bufnr))
+			local lines = vim.api.nvim_buf_get_lines(bufnr, 0, limit, false)
+			return #lines > 0 and lines or { "" }, 1,
+				(number and nil or file)
+		end
+	end
 	if vim.fn.filereadable(file) == 0 then
 		return { "No preview available" }, nil
 	end
@@ -788,7 +800,14 @@ local function open_grep(item)
 end
 
 local function open_buffer(item)
-	vim.cmd("edit " .. vim.fn.fnameescape(item))
+	-- The previous implementation tried to edit a literal "[No Name] (N)" file.
+	local number = item:match("^%[No Name%] %((%d+)%)$")
+	local bufnr = number and tonumber(number) or vim.fn.bufnr(item)
+	if bufnr and bufnr > 0 and vim.api.nvim_buf_is_valid(bufnr) then
+		vim.cmd("buffer " .. bufnr)
+	else
+		vim.cmd("edit " .. vim.fn.fnameescape(item))
+	end
 end
 
 function M.files()
