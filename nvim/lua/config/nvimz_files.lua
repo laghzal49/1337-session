@@ -28,8 +28,12 @@ function M.setup()
       override = function(conf)
         conf.anchor = 'NW'
         conf.col, conf.row = 0, 1
-        conf.width = math.max(15, math.floor(vim.o.columns * 0.30))
-        conf.height = math.max(5, math.floor(vim.o.lines * 0.85))
+        -- Float sizes must stay within the editor after a terminal resize.
+        -- An oversized Oil window would otherwise trigger E5555.
+        conf.width = math.max(1, math.min(vim.o.columns - 2,
+          math.max(15, math.floor(vim.o.columns * 0.30))))
+        conf.height = math.max(1, math.min(vim.o.lines - 3,
+          math.max(5, math.floor(vim.o.lines * 0.85))))
         return conf
       end,
     },
