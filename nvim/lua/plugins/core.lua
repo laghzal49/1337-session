@@ -55,6 +55,13 @@ return {
         hl['@function.method'] = { fg = '#4fd6be', bold = true }
         hl['@function.method.call'] = { fg = '#4fd6be' }
         hl['@function.method.special'] = { fg = '#ffcb6b', bold = true }
+        -- Python LSP semantic tokens take precedence over Tree-sitter captures.
+        hl['@lsp.type.class.python'] = { fg = '#c792ea', bold = true }
+        hl['@lsp.type.type.python'] = { fg = '#c792ea', bold = true }
+        hl['@lsp.type.function.python'] = { fg = '#82aaff', bold = true }
+        hl['@lsp.type.method.python'] = { fg = '#4fd6be', bold = true }
+        hl['@lsp.typemod.function.declaration.python'] = { fg = '#82aaff', bold = true }
+        hl['@lsp.typemod.method.declaration.python'] = { fg = '#4fd6be', bold = true }
         -- Classic Vim syntax fallback when Tree-sitter parser is missing.
         hl.pythonClass = { fg = '#c792ea', bold = true }
         hl.pythonFunction = { fg = '#82aaff', bold = true }
