@@ -1,6 +1,6 @@
 -- nvimz-inspired visual layer: Tokyo Night + shared Perfect Black UI tokens.
 -- Keeps all existing editor features while making every panel use the same palette.
-vim.cmd.colorscheme('tokyonight-night')
+vim.cmd.colorscheme('tokyonight-moon')
 vim.g.colors_name = 'nvimz'
 
 local c = require('config.palette')
@@ -25,19 +25,19 @@ for name, spec in pairs(s.highlights()) do
 end
 
 local groups = {
-  Normal = { fg = c.text, bg = c.canvas },
-  NormalNC = { fg = c.text, bg = c.canvas },
-  NormalFloat = { fg = c.text, bg = c.popup },
-  FloatBorder = { fg = c.border, bg = c.popup },
-  FloatTitle = { fg = c.focus, bg = c.popup, bold = true },
+  Normal = { fg = c.text, bg = 'NONE' },
+  NormalNC = { fg = c.text, bg = 'NONE' },
+  NormalFloat = { fg = c.text, bg = 'NONE' },
+  FloatBorder = { fg = c.border, bg = 'NONE' },
+  FloatTitle = { fg = c.focus, bg = 'NONE', bold = true },
   WinSeparator = { fg = c.border_soft, bg = c.canvas },
   CursorLine = { bg = c.line },
   CursorLineNr = { fg = c.focus, bold = true },
   LineNr = { fg = c.gutter },
-  SignColumn = { bg = c.canvas },
-  FoldColumn = { bg = c.canvas, fg = c.gutter },
-  WinBar = { fg = c.path, bg = c.canvas },
-  WinBarNC = { fg = c.muted, bg = c.canvas },
+  SignColumn = { bg = 'NONE' },
+  FoldColumn = { bg = 'NONE', fg = c.gutter },
+  WinBar = { fg = c.path, bg = 'NONE' },
+  WinBarNC = { fg = c.muted, bg = 'NONE' },
   StatusLine = { fg = c.text, bg = c.panel },
   StatusLineNC = { fg = c.muted, bg = c.inset },
   TabLine = { fg = c.muted, bg = c.inset },
