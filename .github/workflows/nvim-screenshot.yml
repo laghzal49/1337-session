@@ -33,6 +33,7 @@ jobs:
             timeout 240 nvim --headless --cmd 'let g:station_1337 = v:false' \
             -c 'lua dofile(vim.env.NVIM_BOOTSTRAP_SCRIPT)'
       - name: Verify rose palette and statusline
+        if: github.ref == 'refs/heads/main'
         env:
           XDG_CONFIG_HOME: ${{ runner.temp }}/config
         run: |
@@ -47,6 +48,7 @@ jobs:
             nvim --headless --cmd 'let g:station_1337 = v:false' \
             -c 'lua dofile("nvim/tests/nvimz_ui_review.lua")' -c 'qa!'
       - name: Capture all four real 1337-session views
+        if: github.ref == 'refs/heads/main'
         env:
           XDG_CONFIG_HOME: ${{ runner.temp }}/config
         run: |
@@ -55,6 +57,7 @@ jobs:
           python3 scripts/capture-nvim.py --full --view completion --output nvim-rose-completion.png --timeout 60
           python3 scripts/capture-nvim.py --full --view documentation --output nvim-rose-documentation.png --timeout 60
       - name: Capture actual nvimz dashboard, editor, explorer, and picker
+        if: github.ref == 'refs/heads/feat/nvimz-inspired-ui'
         env:
           XDG_CONFIG_HOME: ${{ runner.temp }}/config
           NVIM_COLOR_STYLE: nvimz
@@ -64,6 +67,7 @@ jobs:
           python3 scripts/capture-nvim.py --full --view explorer --output nvimz-explorer.png --timeout 60
           python3 scripts/capture-nvim.py --full --view picker --output nvimz-picker.png --timeout 60
       - name: Verify screenshots are distinct and legible
+        if: github.ref == 'refs/heads/main'
         run: |
           python3 - <<'PY'
           from PIL import Image, ImageChops
