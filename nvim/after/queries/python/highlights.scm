@@ -8,4 +8,5 @@
 
 (function_definition
   name: (identifier) @function.method.special
-  (#eq? @function.method.special "__init__"))
+  (#eq? @function.method.special "__init__")
+  (#set! "priority" 130))
