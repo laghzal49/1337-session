@@ -1,4 +1,17 @@
-require("config.diagnostic_signs").setup()
+-- Lightweight preset uses native diagnostic signs instead of aggregating
+-- every server's diagnostics through a custom redraw handler.
+if vim.g.black_color_style == 'nvimz' then
+  vim.diagnostic.config({
+    signs = { text = {
+      [vim.diagnostic.severity.ERROR] = '󰅚 ',
+      [vim.diagnostic.severity.WARN] = '󰀪 ',
+      [vim.diagnostic.severity.INFO] = '󰋽 ',
+      [vim.diagnostic.severity.HINT] = '󰌶 ',
+    } },
+  })
+else
+  require("config.diagnostic_signs").setup()
+end
 
 vim.api.nvim_create_autocmd('FileType', {
   group = vim.api.nvim_create_augroup('PythonDocstrings', { clear = true }),
