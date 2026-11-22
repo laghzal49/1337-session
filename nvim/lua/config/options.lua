@@ -26,7 +26,7 @@ vim.opt.fillchars:append({ eob = " ", fold = " ", foldopen = require('config.ui'
 vim.opt.pumheight = 8
 vim.opt.scrolloff = 8
 vim.opt.sidescrolloff = 8
-vim.opt.smoothscroll = true
+vim.opt.smoothscroll = vim.g.black_color_style ~= 'nvimz'
 vim.opt.cursorline = true
 vim.opt.cursorlineopt = "number,line"
 vim.opt.numberwidth = 2
