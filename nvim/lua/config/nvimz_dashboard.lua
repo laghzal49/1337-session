@@ -1,0 +1,187 @@
+-- Adapted from nvimz (MIT Copyright (c) 2026 nvimz @andev0x).
+-- See nvim/NVIMZ_MIGRATION.md for attribution.
+local M = {}
+
+local dashboard_ns = vim.api.nvim_create_namespace("nvimz_dashboard")
+local _hl_defined = false
+
+local function define_highlights()
+	if _hl_defined then
+		return
+	end
+	_hl_defined = true
+
+	local hls = {
+		DashboardNormal = { bg = "NONE" },
+		DashboardEndOfBuffer = { fg = "NONE", bg = "NONE", ctermfg = "NONE", ctermbg = "NONE" },
+		NvimzLogo = { fg = "#61afef", bold = true },
+		NvimzUser = { fg = "#9ad179", bold = true },
+		NvimzStats = { fg = "#688077", italic = true },
+		NvimzKey = { fg = "#61afef", bold = true },
+		NvimzMenu = { fg = "#ccd9d2" },
+	}
+	for name, opts in pairs(hls) do
+		vim.api.nvim_set_hl(0, name, opts)
+	end
+end
+
+vim.api.nvim_create_autocmd("ColorScheme", {
+	pattern = "*",
+	callback = function()
+		_hl_defined = false
+		define_highlights()
+	end,
+})
+
+local function padding_for(text_width, win_width)
+	return math.max(0, math.floor((win_width - text_width) / 2))
+end
+
+function M.setup()
+	if vim.fn.argc() > 0 or vim.g.blueprints_loaded then
+		return
+	end
+
+	define_highlights()
+
+	local bufnr = vim.api.nvim_create_buf(false, true)
+
+	local buf_opts = { buf = bufnr }
+	vim.api.nvim_set_option_value("bufhidden", "wipe", buf_opts)
+	vim.api.nvim_set_option_value("buftype", "nofile", buf_opts)
+	vim.api.nvim_set_option_value("swapfile", false, buf_opts)
+	vim.api.nvim_set_option_value("filetype", "nvimz_dashboard", buf_opts)
+
+
+	local logo = {
+		[[ █▄░█ █░█ █ █▀▄▀█ ▀█░ ]],
+		[[ █░▀█ ▀▄▀ █ █░▀░█ █▄▀ ]],
+		"",
+		[[@laghzal49]],
+		"1337  •  GO / PYTHON / C / RUST",
+	}
+
+	local menu = {
+		string.format("[f]  %-14s", "Find Files"),
+		string.format("[g]  %-14s", "Live Grep"),
+		string.format("[e]  %-14s", "File Explorer"),
+		string.format("[q]  %-14s", "Quit Neovim"),
+	}
+
+	local win_width = vim.api.nvim_win_get_width(0)
+	local win_height = vim.api.nvim_win_get_height(0)
+
+	local content_height = #logo + #menu + 1
+	local top_padding = math.max(0, math.floor((win_height - content_height) / 2))
+
+	local lines = {}
+
+	for _ = 1, top_padding do
+		lines[#lines + 1] = ""
+	end
+
+	local _ = {}
+	for i, text in ipairs(logo) do
+		local w = vim.fn.strdisplaywidth(text)
+		local pad = padding_for(w, win_width)
+		_[i] = pad
+		lines[#lines + 1] = string.rep(" ", pad) .. text
+	end
+
+	lines[#lines + 1] = ""
+
+	local menu_col_starts = {}
+	for i, text in ipairs(menu) do
+		local w = vim.fn.strdisplaywidth(text)
+		local pad = padding_for(w, win_width)
+		menu_col_starts[i] = pad
+		lines[#lines + 1] = string.rep(" ", pad) .. text
+	end
+
+	vim.api.nvim_buf_set_lines(bufnr, 0, -1, false, lines)
+	vim.api.nvim_set_option_value("modifiable", false, { buf = bufnr })
+
+	vim.api.nvim_set_current_buf(bufnr)
+	vim.api.nvim_win_set_cursor(0, { top_padding + 8, 0 })
+
+	vim.opt_local.number = false
+	vim.opt_local.relativenumber = false
+	vim.opt_local.signcolumn = "no"
+	vim.opt_local.statusline = ""
+	vim.opt_local.winbar = ""
+	vim.opt_local.cursorline = false
+	vim.opt_local.cursorcolumn = false
+	vim.opt_local.wrap = false
+	vim.opt_local.list = false
+	vim.opt_local.fillchars = "eob: "
+
+	vim.wo.winhighlight = "Normal:DashboardNormal,EndOfBuffer:DashboardEndOfBuffer"
+
+	local map_opts = { buffer = bufnr, nowait = true, silent = true }
+
+	vim.keymap.set("n", "f", function()
+		require("config.nvimz_picker").files()
+	end, map_opts)
+
+	vim.keymap.set("n", "g", function()
+		require("config.nvimz_picker").grep()
+	end, map_opts)
+
+	vim.keymap.set("n", "e", function()
+		require("oil").open_float()
+	end, map_opts)
+
+	vim.keymap.set("n", "q", "<cmd>qa<cr>", map_opts)
+
+	vim.api.nvim_buf_clear_namespace(bufnr, dashboard_ns, 0, -1)
+
+	-- Uses the pre-built lines table to avoid get_lines round-trips
+	local function hl_full_row(row, hl)
+		local col_end = #lines[row + 1]
+		if col_end == 0 then
+			return
+		end
+		vim.api.nvim_buf_set_extmark(bufnr, dashboard_ns, row, 0, {
+			end_col = col_end,
+			hl_group = hl,
+		})
+	end
+
+	local function hl_range(row, c0, c1, hl)
+		local col_end = (c1 == -1) and #lines[row + 1] or c1
+		vim.api.nvim_buf_set_extmark(bufnr, dashboard_ns, row, c0, {
+			end_col = col_end,
+			hl_group = hl,
+		})
+	end
+
+	hl_full_row(top_padding, "NvimzLogo")
+	hl_full_row(top_padding + 1, "NvimzLogo")
+	hl_full_row(top_padding + 3, "NvimzUser")
+	hl_full_row(top_padding + 4, "NvimzStats")
+
+	local menu_start = top_padding + #logo + 1
+
+	for i = 1, #menu do
+		local row = menu_start + i - 1
+		local col0 = menu_col_starts[i]
+
+		hl_range(row, col0, col0 + 3, "NvimzKey")
+		hl_range(row, col0 + 5, -1, "NvimzMenu")
+	end
+end
+
+function M.open()
+  M.setup()
+end
+
+function M.open_if_empty()
+  if vim.fn.argc() ~= 0 then return end
+  if vim.bo.buftype ~= '' or vim.api.nvim_buf_get_name(0) ~= '' then return end
+  if vim.api.nvim_buf_line_count(0) ~= 1 then return end
+  local lines = vim.api.nvim_buf_get_lines(0, 0, 1, false)
+  if lines[1] ~= '' then return end
+  M.setup()
+end
+
+return M
