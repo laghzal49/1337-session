@@ -182,6 +182,8 @@ def capture(binary, width, height, full, timeout, view="editor"):
         return serial
 
     def events(wait_for, duration=timeout):
+        if os.environ.get("NVIM_CAPTURE_DEBUG") == "1":
+            print(f"RPC wait #{wait_for} up to {duration}s", flush=True)
         deadline = time.monotonic() + duration
         latest_flush = 0
         while time.monotonic() < deadline:
@@ -216,7 +218,7 @@ def capture(binary, width, height, full, timeout, view="editor"):
                 raise RuntimeError("Neovim RPC error: " + str(reply[2]))
             grid.last_reply = reply[3]
             return grid
-        raise TimeoutError("Timed out reading Neovim redraw RPC")
+        raise TimeoutError(f"Timed out waiting for Neovim RPC #{wait_for} after {duration}s")
 
     try:
         attach = write("nvim_ui_attach", [width, height, {"rgb": True, "ext_linegrid": True}])
