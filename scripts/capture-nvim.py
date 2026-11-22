@@ -246,14 +246,15 @@ def capture(binary, width, height, full, timeout, view="editor"):
                 local ready = true
                 if view == 'explorer' then
                     if vim.g.black_color_style == 'nvimz' then
-                        require('config.nvimz_files').open()
-                        ready = vim.wait(3500, function()
-                            for _, w in ipairs(vim.api.nvim_list_wins()) do
-                                if vim.api.nvim_win_get_config(w).relative ~= '' and
-                                    vim.bo[vim.api.nvim_win_get_buf(w)].filetype == 'oil' then return true end
-                            end
-                            return false
-                        end, 50)
+                        -- Opening Oil during an embedded RPC can suspend its reply;
+                        -- defer opening and check the actual float in a second RPC.
+                        vim.schedule(function()
+                            local ok, err = pcall(function()
+                                require('config.nvimz_files').open()
+                            end)
+                            if not ok then vim.g.nvim_capture_error = tostring(err) end
+                        end)
+                        ready = true
                     else
                         require('lazy').load({plugins={'snacks.nvim'}})
                         assert(_G.Snacks and Snacks.explorer, 'Snacks explorer is unavailable')
@@ -316,6 +317,31 @@ def capture(binary, width, height, full, timeout, view="editor"):
             state = result.last_reply or {}
             if not isinstance(state, dict) or not state.get("ready"):
                 raise RuntimeError(f"Cannot capture {view}: its real Neovim panel did not open")
+            if view == "explorer" and full and env.get("NVIM_COLOR_STYLE") == "nvimz":
+                # A separate RPC proves the floating Oil view really exists.
+                # No synthetic Explorer panel is accepted as a screenshot.
+                opened = False
+                failure = ""
+                for _ in range(12):
+                    request = write("nvim_exec_lua", ["""
+                        for _, win in ipairs(vim.api.nvim_list_wins()) do
+                            if vim.api.nvim_win_get_config(win).relative ~= '' and
+                               vim.bo[vim.api.nvim_win_get_buf(win)].filetype == 'oil' then
+                                return {opened=true}
+                            end
+                        end
+                        return {opened=false, error=vim.g.nvim_capture_error}
+                    """, []])
+                    outcome = events(request, 5).last_reply or {}
+                    if outcome.get("opened"):
+                        opened = True
+                        break
+                    failure = outcome.get("error", "")
+                    if failure:
+                        break
+                    time.sleep(0.2)
+                if not opened:
+                    raise RuntimeError("Oil explorer did not open: " + (failure or "no Oil floating window"))
             # Capture after deferred UI redraws have settled.
             request = write("nvim_eval", ["g:colors_name"])
             result = events(request, 6)
