@@ -5,22 +5,9 @@ local ignored = {
   ['node_modules']=true, ['.git']=true, ['.cache']=true,
   ['dist']=true, ['build']=true, ['.next']=true, ['.astro']=true,
 }
-local symbols = {
-  index = { M=' ', A=' ', D=' ', R=' ', C=' ', U=' ', ['?']=' ', ['!']=' ', [' ']=' ' },
-  working_tree = { M='●', A='✚', D='✖', R='»', C='©', U='!', ['?']='?', ['!']='◌', [' ']=' ' },
-}
 local function setup_highlights()
   vim.api.nvim_set_hl(0, 'OilGitIgnored', { link = 'Comment' })
-  local signs = {
-    OilGitStatusIndexUnstagedModified = 'MiniDiffSignChange',
-    OilGitStatusIndexStagedModified = 'MiniDiffSignChange',
-    OilGitStatusIndexUnstagedAdded = 'MiniDiffSignAdd',
-    OilGitStatusIndexStagedAdded = 'MiniDiffSignAdd',
-    OilGitStatusIndexUnstagedDeleted = 'MiniDiffSignDelete',
-    OilGitStatusIndexStagedDeleted = 'MiniDiffSignDelete',
-    OilGitStatusIndexUntracked = 'Comment',
-  }
-  for group, link in pairs(signs) do vim.api.nvim_set_hl(0, group, { link = link }) end
+
 end
 function M.setup()
   require('oil').setup({
@@ -47,8 +34,6 @@ function M.setup()
       end,
     },
   })
-  local ok, git = pcall(require, 'oil-git-status')
-  if ok then git.setup({ show_ignored = true, symbols = symbols }) end
   setup_highlights()
   vim.api.nvim_create_autocmd('ColorScheme', {
     group = vim.api.nvim_create_augroup('NvimzOilHighlights', { clear = true }),
