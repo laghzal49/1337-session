@@ -1,6 +1,12 @@
 -- nvimz-style rounded left Oil file explorer.
 -- Visual behavior adapted from nvimz (MIT © 2026 @andev0x).
 local M = {}
+-- Diagnostics are emitted only under NVIM_CAPTURE_DEBUG for UI regression tests.
+local function trace(stage)
+  if vim.env.NVIM_CAPTURE_DEBUG ~= '1' then return end
+  local f = io.open('/tmp/nvimz-oil-trace.log', 'a')
+  if f then f:write(stage .. '\n'); f:close() end
+end
 local ignored = {
   ['node_modules']=true, ['.git']=true, ['.cache']=true,
   ['dist']=true, ['build']=true, ['.next']=true, ['.astro']=true,
@@ -41,8 +47,11 @@ function M.setup()
   })
 end
 function M.open()
+  trace('begin Oil load')
   require('lazy').load({ plugins = { 'oil.nvim' } })
+  trace('Oil plugin loaded')
   require('oil').open_float()
+  trace('Oil float opened')
 end
 function M.toggle()
   require('lazy').load({ plugins = { 'oil.nvim' } })
