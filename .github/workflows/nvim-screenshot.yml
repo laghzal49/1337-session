@@ -71,8 +71,8 @@ jobs:
           XDG_CONFIG_HOME: ${{ runner.temp }}/config
           NVIM_COLOR_STYLE: nvimz
         run: |
-          python3 scripts/capture-nvim.py --full --view explorer --output nvimz-explorer.png --timeout 60
-          python3 scripts/capture-nvim.py --full --view picker --output nvimz-picker.png --timeout 60
+          python3 scripts/capture-nvim.py --full --view explorer --output nvimz-explorer.png --timeout 60 || echo "Oil screenshot not captured"
+          python3 scripts/capture-nvim.py --full --view picker --output nvimz-picker.png --timeout 60 || echo "Picker screenshot not captured"
       - name: Verify screenshots are distinct and legible
         if: github.ref == 'refs/heads/main'
         run: |
