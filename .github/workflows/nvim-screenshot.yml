@@ -55,6 +55,14 @@ jobs:
           python3 scripts/capture-nvim.py --full --view explorer --output nvim-rose-explorer.png --timeout 60
           python3 scripts/capture-nvim.py --full --view completion --output nvim-rose-completion.png --timeout 60
           python3 scripts/capture-nvim.py --full --view documentation --output nvim-rose-documentation.png --timeout 60
+      - name: Check Python syntax highlighting fallback
+        if: github.ref == 'refs/heads/feat/nvimz-inspired-ui'
+        env:
+          XDG_CONFIG_HOME: ${{ runner.temp }}/config
+        run: |
+          NVIM_COLOR_STYLE=nvimz NVIM_BLACK_DOCS_AUTO_UPDATE=0 \
+            nvim --headless --cmd 'let g:station_1337 = v:false' \
+            -c 'lua dofile("nvim/tests/python_highlighting_review.lua")' -c 'qa!'
       - name: Capture nvimz dashboard and editor
         if: github.ref == 'refs/heads/feat/nvimz-inspired-ui'
         env:
