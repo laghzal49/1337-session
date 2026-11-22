@@ -42,9 +42,8 @@ char *ft_strchr(const char *str, int needle)
     return target == 0 ? (char *)str : NULL;
 }
 
-/* C • Python • Lua • Markdown
- * Rose palette: pink identifiers, lilac keywords,
- * soft comments and a pure black background. */
+/* Neovim UI audit: syntax, completion, file navigation,
+ * formatted documentation and native diagnostics. */
 """
 # The visible content is a normal Neovim buffer. Syntax coloring and cursor,
 # line numbers and statusline are produced by Neovim and its loaded config.
@@ -252,7 +251,7 @@ def capture(binary, width, height, full, timeout, view="editor"):
                         -- defer opening and check the actual float in a second RPC.
                         vim.schedule(function()
                             local ok, err = pcall(function()
-                                require('config.nvimz_files').open()
+                                require('config.nvimz_files').open(vim.fn.getcwd())
                             end)
                             if not ok then vim.g.nvim_capture_error = tostring(err) end
                         end)
