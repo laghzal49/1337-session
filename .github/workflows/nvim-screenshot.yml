@@ -24,7 +24,6 @@ jobs:
       - name: Capture editor screenshot
         run: python3 scripts/capture-nvim.py --output nvim-rose-preview.png
       - name: Prepare full Neovim configuration
-        continue-on-error: true
         run: |
           mkdir -p "$RUNNER_TEMP/config"
           ln -s "$GITHUB_WORKSPACE/nvim" "$RUNNER_TEMP/config/nvim"
@@ -66,18 +65,14 @@ jobs:
           python3 scripts/capture-nvim.py --full --view editor --output nvimz-editor.png --timeout 60
       - name: Capture nvimz Oil explorer and native picker
         if: github.ref == 'refs/heads/feat/nvimz-inspired-ui'
-        continue-on-error: true
         env:
           XDG_CONFIG_HOME: ${{ runner.temp }}/config
           NVIM_COLOR_STYLE: nvimz
-          NVIM_CAPTURE_DEBUG: '1'
         run: |
-          python3 scripts/capture-nvim.py --full --view explorer --output nvimz-explorer.png --timeout 60 || echo "Oil screenshot not captured"
-          cat /tmp/nvimz-oil-trace.log 2>/dev/null || true
-          python3 scripts/capture-nvim.py --full --view picker --output nvimz-picker.png --timeout 60 || echo "Picker screenshot not captured"
+          python3 scripts/capture-nvim.py --full --view explorer --output nvimz-explorer.png --timeout 60
+          python3 scripts/capture-nvim.py --full --view picker --output nvimz-picker.png --timeout 60
       - name: Capture completion and documentation UI
         if: github.ref == 'refs/heads/feat/nvimz-inspired-ui'
-        continue-on-error: true
         env:
           XDG_CONFIG_HOME: ${{ runner.temp }}/config
           NVIM_COLOR_STYLE: nvimz
@@ -96,6 +91,20 @@ jobs:
           for im in images[1:]:
               assert ImageChops.difference(images[0], im).getbbox(), 'Panel screenshot equals editor'
           print('VISUAL QA PASS: 4 real distinct Neovim captures')
+          PY
+      - name: Verify six nvimz UI screenshots
+        if: github.ref == 'refs/heads/feat/nvimz-inspired-ui'
+        run: |
+          python3 - <<'PY'
+          from PIL import Image, ImageChops
+          names = ['dashboard','editor','explorer','picker','completion','documentation']
+          images = [Image.open(f'nvimz-{name}.png').convert('RGB') for name in names]
+          assert all(im.width >= 1000 and im.height >= 700 for im in images)
+          for i in range(1, len(images)):
+              assert ImageChops.difference(images[0], images[i]).getbbox(), (
+                  'Screenshot equals dashboard: ' + names[i]
+              )
+          print('NVIMZ VISUAL QA PASS: dashboard, editor, Oil, picker, completion, docs')
           PY
       - name: Upload screenshot
         if: always()
