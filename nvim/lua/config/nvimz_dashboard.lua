@@ -176,6 +176,7 @@ function M.open()
 end
 
 function M.open_if_empty()
+  if #vim.api.nvim_list_uis() == 0 then return end
   if vim.fn.argc() ~= 0 then return end
   if vim.bo.buftype ~= '' or vim.api.nvim_buf_get_name(0) ~= '' then return end
   if vim.api.nvim_buf_line_count(0) ~= 1 then return end
