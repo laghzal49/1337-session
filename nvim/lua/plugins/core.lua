@@ -69,29 +69,52 @@ return {
   } },
   -- Last main snapshot before the installer adopted Neovim 0.12-only vim.list.
   { 'nvim-treesitter/nvim-treesitter', commit = '4d9916e477e5d4e3b245845dfd285edf429f3252',
-    event = { 'BufReadPost', 'BufNewFile' }, build = ':TSUpdate', opts = {}, config = function(_, opts)
+    -- nvim-treesitter's rewritten main branch explicitly does not support
+    -- lazy loading; the old BufReadPost hook missed the initial FileType event.
+    lazy = false, build = ':TSUpdate', opts = {}, config = function(_, opts)
     require('nvim-treesitter').setup(opts)
     local warned = {}
-    vim.api.nvim_create_autocmd('FileType', { callback = function(ev)
-      if vim.bo[ev.buf].buftype == '' and not performance.large(ev.buf) and not require('config.markdown').large(ev.buf) then
-        local filetype = vim.bo[ev.buf].filetype
-        local language = vim.treesitter.language.get_lang(filetype) or filetype
-        if language == '' then return end
-        -- A newer highlights query with an older parser can start successfully
-        -- and then fail later in the decoration provider on every redraw.
-        local query_ok, query_err = pcall(vim.treesitter.query.get, language, 'highlights')
-        if not query_ok then
-          if not warned[language] and tostring(query_err):find('Query error', 1, true) then
-            warned[language] = true
-            vim.schedule(function()
-              vim.notify(('Tree-sitter %s highlights are incompatible with its parser. Run :TSUpdate %s.'):format(language, language), vim.log.levels.WARN)
-            end)
-          end
-          return
+    local function attach(buf)
+      if not vim.api.nvim_buf_is_valid(buf) or vim.bo[buf].buftype ~= ''
+        or performance.large(buf) or require('config.markdown').large(buf) then return end
+      local filetype = vim.bo[buf].filetype
+      if filetype == '' then return end
+      local language = vim.treesitter.language.get_lang(filetype) or filetype
+      -- Never silently leave a Python buffer looking like uncolored plain text.
+      local parser_ok, parser_loaded = pcall(vim.treesitter.language.add, language)
+      if not parser_ok or not parser_loaded then
+        if filetype == 'python' and not warned.python then
+          warned.python = true
+          vim.schedule(function()
+            vim.notify("Python Tree-sitter parser missing. Run :lua require('nvim-treesitter').install({'python'}):wait(300000), then :edit", vim.log.levels.WARN)
+          end)
         end
-        pcall(vim.treesitter.start, ev.buf)
+        return -- built-in :syntax enable remains available
       end
-    end })
+      local query_ok, query = pcall(vim.treesitter.query.get, language, 'highlights')
+      if not query_ok or query == nil then
+        if not warned[language] then
+          warned[language] = true
+          vim.schedule(function()
+            vim.notify(('Tree-sitter %s highlight query unavailable. Run :TSUpdate %s'):format(language, language), vim.log.levels.WARN)
+          end)
+        end
+        return
+      end
+      local start_ok, start_err = pcall(vim.treesitter.start, buf)
+      if not start_ok and not warned[language] then
+        warned[language] = true
+        vim.schedule(function()
+          vim.notify(('Tree-sitter %s failed: %s'):format(language, tostring(start_err)), vim.log.levels.WARN)
+        end)
+      end
+    end
+    local group = vim.api.nvim_create_augroup('BlackTreesitterAttach', { clear = true })
+    vim.api.nvim_create_autocmd({ 'FileType', 'BufEnter' }, {
+      group = group, callback = function(ev) attach(ev.buf) end,
+    })
+    -- Also cover files opened during startup before these handlers existed.
+    vim.schedule(function() attach(vim.api.nvim_get_current_buf()) end)
   end },
   { 'nvim-treesitter/nvim-treesitter-context',
     -- nvimz prioritizes a fast uncluttered code surface.
