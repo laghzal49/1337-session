@@ -2,6 +2,7 @@
 -- Rendered using native statusline syntax so it adds zero statusline plugins.
 local M = {}
 local c = require('config.palette')
+local last_code_buf = nil
 
 local modes = {
   n = {' ● ', 'NvimzModeNormal'}, no = {' ● ', 'NvimzModeNormal'},
@@ -43,12 +44,19 @@ local function get_mode()
   local value = vim.fn.mode(1)
   return modes[value] or modes[value:sub(1, 1)] or modes.n
 end
-local function name_info()
-  local name = vim.fn.expand('%:t')
-  if name == '' or vim.bo.filetype == 'nvimz_dashboard' then
+local function code_buffer()
+  local current = vim.api.nvim_get_current_buf()
+  if vim.bo[current].buftype == '' and vim.api.nvim_buf_get_name(current) ~= '' then return current end
+  if last_code_buf and vim.api.nvim_buf_is_valid(last_code_buf) then return last_code_buf end
+  return current
+end
+local function name_info(buf)
+  local full = vim.api.nvim_buf_get_name(buf)
+  local name = full ~= '' and vim.fn.fnamemodify(full, ':t') or ''
+  if name == '' or vim.bo[buf].filetype == 'nvimz_dashboard' then
     return '󰖔  Welcome, @' .. (vim.env.USER or 'developer'), false, true
   end
-  return escape(name), vim.bo.modified, false
+  return escape(name), vim.bo[buf].modified, false
 end
 local function git()
   -- workspace_info has its own caching. No shell commands on a redraw.
@@ -67,8 +75,8 @@ local function update_size(buf)
   elseif bytes < 1024 * 1024 then file_sizes[buf] = string.format('%.1fKB', bytes / 1024)
   else file_sizes[buf] = string.format('%.1fMB', bytes / 1048576) end
 end
-local function diagnostics()
-  local counts = vim.diagnostic.count(0)
+local function diagnostics(buf)
+  local counts = vim.diagnostic.count(buf)
   local errors = counts[vim.diagnostic.severity.ERROR] or 0
   local warnings = counts[vim.diagnostic.severity.WARN] or 0
   local entries = {}
@@ -76,9 +84,9 @@ local function diagnostics()
   if warnings > 0 then entries[#entries + 1] = hl('NvimzStatusWarning') .. ' ' .. warnings end
   return table.concat(entries, ' ')
 end
-local function lsp()
+local function lsp(buf)
   local names = {}
-  for _, client in ipairs(vim.lsp.get_clients({ bufnr = 0 })) do
+  for _, client in ipairs(vim.lsp.get_clients({ bufnr = buf })) do
     if client.name ~= 'copilot' then names[#names + 1] = client.name end
   end
   table.sort(names)
@@ -93,13 +101,14 @@ local function day_icon()
 end
 function M.render()
   local mode = get_mode()
-  local filename, changed, welcome = name_info()
+  local buf = code_buffer()
+  local filename, changed, welcome = name_info(buf)
   local out = hl(mode[2]) .. mode[1] .. hl('NvimzStatusText') .. '  '
   out = out .. hl(changed and 'NvimzStatusChanged' or 'NvimzStatusFile') .. filename
   if changed then out = out .. ' ●' end
-  if vim.bo.readonly then out = out .. ' 󰌾' end
+  if vim.bo[buf].readonly then out = out .. ' 󰌾' end
   if not welcome and vim.o.columns >= 95 then
-    local path = vim.fn.expand('%:~:.:h')
+    local path = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(buf), ':~:.:h')
     if path ~= '.' and path ~= '' then
       out = out .. hl('NvimzStatusPath') .. '  ' .. escape(path)
     end
@@ -109,14 +118,14 @@ function M.render()
   end
   out = out .. hl('NvimzStatusText') .. '%<%='
   if not welcome then
-    local diags = diagnostics()
+    local diags = diagnostics(buf)
     if diags ~= '' then out = out .. diags .. '  ' end
     if vim.o.columns >= 95 then
-      local server = lsp()
+      local server = lsp(buf)
       if server ~= '' then out = out .. hl('NvimzStatusLSP') .. server .. '  ' end
     end
     if vim.o.columns >= 110 then
-      local size = file_sizes[vim.api.nvim_get_current_buf()] or ''
+      local size = file_sizes[buf] or ''
       if size ~= '' then out = out .. hl('NvimzStatusPath') .. '󰈐 ' .. size .. '  ' end
     end
   end
@@ -131,7 +140,21 @@ function M.setup()
   vim.o.showtabline = 0 -- enforced after the plugin manager initializes
   vim.o.relativenumber = false -- match upstream nvimz numbering
   vim.o.statusline = "%!v:lua.require'config.nvimz_statusline'.render()"
+  local current = vim.api.nvim_get_current_buf()
+  if vim.bo[current].buftype == '' and vim.api.nvim_buf_get_name(current) ~= '' then last_code_buf = current end
   local group = vim.api.nvim_create_augroup('NvimzStatusline', { clear = true })
+  vim.api.nvim_create_autocmd('BufEnter', {
+    group = group,
+    callback = function(ev)
+      if vim.bo[ev.buf].buftype == '' and vim.api.nvim_buf_get_name(ev.buf) ~= '' then
+        last_code_buf = ev.buf
+      end
+    end,
+  })
+  vim.api.nvim_create_autocmd('BufWipeout', { group = group, callback = function(ev)
+    file_sizes[ev.buf] = nil
+    if last_code_buf == ev.buf then last_code_buf = nil end
+  end })
   vim.api.nvim_create_autocmd('ColorScheme', { group = group, callback = setup_highlights })
   vim.api.nvim_create_autocmd({ 'BufReadPost', 'BufWritePost', 'BufEnter' }, {
     group = group, callback = function(ev) update_size(ev.buf) end,
