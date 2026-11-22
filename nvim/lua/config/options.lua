@@ -11,7 +11,7 @@ vim.opt.relativenumber = vim.g.black_color_style ~= 'nvimz'
 vim.opt.signcolumn = vim.g.black_color_style == "nvimz" and "yes" or "auto:1-2"
 vim.opt.statuscolumn = "" -- Native rendering honors the dynamic sign width.
 vim.opt.laststatus = 3
-vim.opt.cmdheight = 0
+vim.opt.cmdheight = vim.g.black_color_style == 'nvimz' and 1 or 0
 vim.opt.showmode = false
 if vim.g.black_color_style == 'nvimz' then vim.opt.showtabline = 0 end
 vim.opt.showcmd = false
