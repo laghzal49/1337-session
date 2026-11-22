@@ -233,6 +233,7 @@ return {
   {
     'folke/noice.nvim',
     event = 'VeryLazy',
+    enabled = vim.g.black_color_style ~= 'nvimz',
     dependencies = { 'MunifTanjim/nui.nvim' },
     config = function(_, opts)
       require('noice').setup(opts)
