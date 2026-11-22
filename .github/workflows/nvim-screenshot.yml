@@ -56,7 +56,7 @@ jobs:
           python3 scripts/capture-nvim.py --full --view explorer --output nvim-rose-explorer.png --timeout 60
           python3 scripts/capture-nvim.py --full --view completion --output nvim-rose-completion.png --timeout 60
           python3 scripts/capture-nvim.py --full --view documentation --output nvim-rose-documentation.png --timeout 60
-      - name: Capture actual nvimz dashboard, editor, explorer, and picker
+      - name: Capture nvimz dashboard and editor
         if: github.ref == 'refs/heads/feat/nvimz-inspired-ui'
         env:
           XDG_CONFIG_HOME: ${{ runner.temp }}/config
@@ -64,6 +64,13 @@ jobs:
         run: |
           python3 scripts/capture-nvim.py --full --view dashboard --output nvimz-dashboard.png --timeout 60
           python3 scripts/capture-nvim.py --full --view editor --output nvimz-editor.png --timeout 60
+      - name: Capture nvimz Oil explorer and native picker
+        if: github.ref == 'refs/heads/feat/nvimz-inspired-ui'
+        continue-on-error: true
+        env:
+          XDG_CONFIG_HOME: ${{ runner.temp }}/config
+          NVIM_COLOR_STYLE: nvimz
+        run: |
           python3 scripts/capture-nvim.py --full --view explorer --output nvimz-explorer.png --timeout 60
           python3 scripts/capture-nvim.py --full --view picker --output nvimz-picker.png --timeout 60
       - name: Verify screenshots are distinct and legible
@@ -80,9 +87,10 @@ jobs:
           print('VISUAL QA PASS: 4 real distinct Neovim captures')
           PY
       - name: Upload screenshot
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: neovim-rose-preview
+          name: neovim-visual-previews
           path: |
             nvim-rose-preview.png
             nvim-rose-full-preview.png
