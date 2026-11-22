@@ -152,9 +152,10 @@ return {
         },
       },
       notifier = { enabled = false },
-      animate = { enabled = true, fps = 60 },
+      animate = { enabled = vim.g.black_color_style ~= 'nvimz', fps = 60 },
       scroll = {
-        enabled = true,
+        -- Native scrolling avoids additional redraw work in the lightweight preset.
+        enabled = vim.g.black_color_style ~= 'nvimz',
         animate = { duration = { step = 6, total = 80 }, easing = 'outQuad' },
         animate_repeat = { delay = 100, duration = { step = 3, total = 40 }, easing = 'linear' },
         filter = function(buf)
