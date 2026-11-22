@@ -14,6 +14,8 @@ local picker = require('config.nvimz_picker')
 assert(type(picker.files) == 'function' and type(picker.grep) == 'function',
   'native file or grep picker missing')
 -- Regression for TextChangedI picker crash: preview APIs reject embedded LF.
+assert(picker.sanitize_line('before\0after') == 'before after',
+  'picker preview sanitizer must preserve NUL boundaries')
 assert(picker.sanitize_line('before\nafter') == 'before after',
   'picker preview sanitizer must flatten embedded newlines')
 assert(picker.sanitize_line('before\r\nafter\tend') == 'before  after  end',
