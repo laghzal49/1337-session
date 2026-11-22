@@ -12,12 +12,15 @@ existing 1337-session Neovim setup while preserving its development features.
 - Native nvimz three-window **Files / Live Grep / Buffers** picker, with separate
   input, results, preview, rounded borders and async fd/rg searches.
 - Oil file explorer on the left in a rounded floating window, with hidden files,
-  Git status, and file icons matching the nvimz configuration.
+  hidden-file highlighting and file icons; Git signs stay with Gitsigns.
 - Nvimz-style compact statusline: icon-based mode, filename, Git context,
   diagnostics, active LSP, file size, time icon, location.
 - Hide the original bufferline, floating Noice command palette and custom winbar
   while this preset is active. Other editor features remain installed.
 - Disable optional animated scrolling / UI animations under the new preset.
+- Skip legacy lualine, bufferline, Edgy, Noice, tiny-inline-diagnostics, and sticky Tree-sitter context in this preset.
+- Avoid custom focus-window rescans and diagnostic-sign aggregation in favor of Neovim's native options.
+- The Rust media viewer is opt-in for this preset via `NVIM_ENABLE_MEDIA=1`; the old themes keep it by default.
 
 The statusline is reimplemented with Neovim's native statusline; it closely
 matches nvimz without loading an additional statusline plugin. Existing
