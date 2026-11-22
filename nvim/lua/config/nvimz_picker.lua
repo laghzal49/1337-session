@@ -485,7 +485,11 @@ local function refresh()
 				if name == "" then
 					name = "[No Name] (" .. bufnr .. ")"
 				end
-				table.insert(items, sanitize_line(name))
+				if bufnr == state.origin_buf then
+					table.insert(items, 1, sanitize_line(name))
+				else
+					table.insert(items, sanitize_line(name))
+				end
 			end
 		end
 		apply(filter_files(items, query))
@@ -533,6 +537,7 @@ end
 --- input (top, height 1) / results (bottom) / preview (right, full height).
 function M.open(title, mode, hidden, on_select)
 	close_picker()
+	local source_buf = vim.api.nvim_get_current_buf()
 
 	local results_h = math.min(vim.o.lines - 8, math.floor(vim.o.lines * 0.5))
 	if results_h < 5 then
@@ -646,6 +651,7 @@ function M.open(title, mode, hidden, on_select)
 		preview_win = preview_win,
 		title = title,
 		mode = mode,
+		origin_buf = source_buf,
 		hidden = hidden,
 		query = "",
 		candidates = {},
