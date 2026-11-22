@@ -12,7 +12,7 @@ assert(ok_small, 'small terminal crashed picker: ' .. tostring(err_small))
 
 local source = vim.api.nvim_create_buf(true, false)
 vim.api.nvim_set_current_buf(source)
-vim.api.nvim_buf_set_name(source, vim.fn.tempname() .. '.py')
+vim.api.nvim_buf_set_name(source, vim.fn.tempname() .. 'Demo.py')
 vim.api.nvim_buf_set_lines(source, 0, -1, false, { 'class Demo:', '    def method(self):', '        return 1' })
 vim.bo[source].filetype = 'python'
 
@@ -34,11 +34,28 @@ assert(before:find('class Demo:', 1, true), 'preview did not display source buff
 -- A literal LF in the source buffer is how Neovim represents NUL-backed
 -- content. TextChangedI must not pass it through to nvim_buf_set_lines().
 vim.api.nvim_buf_set_lines(source, 0, 1, false, { 'class Demo:\0embedded' })
-vim.api.nvim_buf_set_lines(input, 0, -1, false, { 'Demo' })
+vim.api.nvim_buf_set_lines(input, 0, -1, false, { 'Demo.py' })
 local ok_change, err_change = pcall(vim.api.nvim_exec_autocmds, 'TextChangedI', { buffer = input })
 assert(ok_change, 'TextChangedI preview crashed: ' .. tostring(err_change))
-local final = table.concat(vim.api.nvim_buf_get_lines(preview, 0, -1, false), '\n')
-assert(final:find('class Demo:', 1, true), 'picker preview disappeared after typing')
+-- The buffer list filters by filename, not by code contents.
+-- Reopen after a buffer edit to force a new preview and exercise LF sanitization.
 picker.close_picker()
-assert(not vim.api.nvim_buf_is_valid(preview), 'picker preview buffer leaked after close')
+local ok_reopen, err_reopen = pcall(picker.buffers)
+assert(ok_reopen, 'picker failed to reopen after edit: ' .. tostring(err_reopen))
+local fresh_preview
+for _, win in ipairs(vim.api.nvim_list_wins()) do
+  local cfg = vim.api.nvim_win_get_config(win)
+  if cfg.relative ~= '' then
+    local title = type(cfg.title) == 'table' and cfg.title[1] and cfg.title[1][1] or cfg.title
+    if title and title:find('Preview', 1, true) then
+      fresh_preview = vim.api.nvim_win_get_buf(win)
+    end
+  end
+end
+assert(fresh_preview, 'reopened preview window missing')
+local final = table.concat(vim.api.nvim_buf_get_lines(fresh_preview, 0, -1, false), '\n')
+assert(final:find('class Demo: embedded', 1, true),
+  'buffer preview failed to safely flatten embedded NUL/LF')
+picker.close_picker()
+assert(not vim.api.nvim_buf_is_valid(fresh_preview), 'picker preview buffer leaked after close')
 print('NVIMZ PICKER REGRESSION PASS: open, type, preview, close, small terminal')
