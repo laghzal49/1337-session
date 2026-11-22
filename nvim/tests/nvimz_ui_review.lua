@@ -19,4 +19,22 @@ local ui = require('config.palette')
 assert(ui.canvas == '#0b1210' and ui.focus == '#61afef', 'nvimz palette mismatch')
 assert(type(require('config.performance').large) == 'function',
   'original bigfile performance guard missing')
-print('nvimz UI smoke test PASS')
+-- Legacy documentation and docstring integrations must not reactivate.
+assert(vim.fn.exists(':Docs') == 0 and vim.fn.exists(':DocsUpdate') == 0,
+  'unused offline Docs commands still registered')
+assert(vim.fn.maparg('<leader>dk', 'n') == '', 'legacy docs keymap still registered')
+assert(vim.fn.maparg('gK', 'n') == '', 'deep Docs keymap still registered')
+local cfg = require('lazy.core.config').plugins
+assert(not cfg['neogen'] or not cfg['neogen'].enabled, 'unused neogen still enabled')
+local function fg(name)
+  return vim.api.nvim_get_hl(0, { name = name, link = false }).fg
+end
+assert(fg('@type.definition') ~= fg('@function'), 'class and function look identical')
+assert(fg('@function') ~= fg('@function.method.special'),
+  '__init__ and regular functions look identical')
+assert(fg('@function.method') ~= fg('@function'),
+  'method and regular function look identical')
+local q = vim.fn.readfile(vim.fn.stdpath('config') .. '/after/queries/python/highlights.scm')
+assert(table.concat(q, '\\n'):find('__init__', 1, true),
+  'Python constructor query missing')
+print('nvimz UI and Python colors PASS (without unused Docs UI)')
