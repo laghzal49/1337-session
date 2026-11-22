@@ -1,57 +1,79 @@
-# nvimz-inspired lightweight UI preset
+# nvimz UI port for 1337-session
 
-This branch keeps the **1337-session** Neovim feature set and brings its appearance
-closer to nvimz's Tokyo Night interface. It is **not** a Rust rewrite of Neovim.
+The `feat/nvimz-inspired-ui` branch ports the *actual* nvimz interface to the
+existing 1337-session Neovim setup while preserving its development features.
 
-## What's changed
+## UI fidelity
 
-- Tokyo Night night variant is the base colorscheme.
-- Shared nvimz palette now drives the explorer, picker, completion,
-  diagnostics, debug panels, statusline, bufferline, and floating windows.
-- Dashboard branding follows the new preset.
-- Disables Snacks animation, animated scrolling and smoothscroll under
-  the lightweight preset to reduce per-frame redraw overhead.
-- Existing keyboard shortcuts, LSP, conform formatting, DAP, sessions,
-  project tools, and per-language behavior are retained.
+- Tokyo Night **Moon** customized to nvimz's forest green / teal / steel-blue
+  colors. Transparent editor and float backgrounds.
+- Same centered ASCII dashboard layout, menu keys (f/g/e/q), and color hierarchy.
+  Local username branding replaces upstream author's name.
+- Native nvimz three-window **Files / Live Grep / Buffers** picker, with separate
+  input, results, preview, rounded borders and async fd/rg searches.
+- Oil file explorer on the left in a rounded floating window, with hidden files,
+  Git status, and file icons matching the nvimz configuration.
+- Nvimz-style compact statusline: icon-based mode, filename, Git context,
+  diagnostics, active LSP, file size, time icon, location.
+- Hide the original bufferline, floating Noice command palette and custom winbar
+  while this preset is active. Other editor features remain installed.
+- Disable optional animated scrolling / UI animations under the new preset.
 
-## Rust-powered speed
+The statusline is reimplemented with Neovim's native statusline; it closely
+matches nvimz without loading an additional statusline plugin. Existing
+project-specific picker modes still use Snacks. Because plugin ecosystems
+differ, this is not a claim of pixel-perfect identical rendering in every window.
 
-The existing `blink.cmp` setup already uses a Rust fuzzy matcher, so replacing
-it would be unnecessary. For fast file/text search install the **Rust binaries**
-`fd` and `ripgrep`; the current Snacks picker can use them.
+## Rust tools
 
-On CachyOS/Arch:
+- `blink.cmp` already has a Rust fuzzy matcher and remains enabled.
+- The nvimz picker uses the Rust-based `fd` and `ripgrep` executables.
+
+Install on CachyOS:
 
 ```sh
-sudo pacman -S --needed ripgrep fd
+sudo pacman -S --needed fd ripgrep
 ```
 
-On the 1337 Ubuntu cluster, choose user-local binaries if sudo isn't available.
+If `fd` or `rg` is missing, find/grep falls back to the existing Snacks
+picker. No sudo is required to run Neovim; cluster installation of tools can
+be done into `~/.local/bin` separately.
 
-## Launch / rollback
+## Try and roll back
 
-The new theme is the default on this branch:
+Check out this Git branch in your 1337-session clone, then ensure your
+installed `~/.config/nvim` is pointing to the checkout's `nvim/` directory.
+Use `:Lazy sync` once to install Tokyo Night and Oil.
 
 ```sh
 nvim .
 ```
 
-Switch back to the previous appearance without modifying files:
+To use the previous interface without changing the branch:
 
 ```sh
 NVIM_COLOR_STYLE=electrovoid nvim .
 ```
 
-Other supported choices: `classic`, `rose`, `crimson`.
+`NVIM_COLOR_STYLE=rose`, `classic` and `crimson` remain available.
 
-## Validation checklist
+## Verify
 
-1. Run `:Lazy sync` once and restart to install Tokyo Night.
-2. Open Python and Go files; inspect `:LspInfo`, `:ConformInfo` and completion.
-3. Check `<leader>e` explorer, `<leader>ff` picker and the startup dashboard.
-4. Compare startup with `nvim --startuptime /tmp/nvim-startup.log +qa`;
-   use the same machine and installed plugins for any comparison.
-5. If the theme fails, launch with `NVIM_COLOR_STYLE=electrovoid nvim`.
+1. Start with plain `nvim`, verify the nvimz dashboard and its f/g/e/q keys.
+2. Open a Go/Python project and check the statusline, `<leader>e`, `<leader>ff`,
+   `<leader>/`, completion, `:LspInfo`, and `:ConformInfo`.
+3. Compare startup with `nvim --startuptime /tmp/startup-nvimz.log +qa` and the
+   Electrovoid preset under the same installed plugin set.
+4. Confirm fallback appearance with `NVIM_COLOR_STYLE=electrovoid nvim`.
 
-Performance was optimized at the configuration level. No real-world speedup
-is claimed until measured on the target machine.
+**Performance note:** No device-local startup or editing speed improvement has
+been measured yet. The cloned nvimz architecture is leaner than the existing
+multi-feature 1337-session stack, so this port copies its UI rather than
+claiming its startup figures.
+
+## Upstream and license
+
+The dashboard and native picker were adapted from
+[nvimz by @andev0x](https://github.com/andev0x/nvimz), licensed under MIT.
+The same source inspired the Moon palette, Oil explorer and statusline layout.
+See `THIRD_PARTY_NOTICES.md` for the upstream license.
