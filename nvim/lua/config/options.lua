@@ -6,13 +6,14 @@ vim.g.maplocalleader = "\\"
 vim.opt.termguicolors = true
 vim.opt.background = "dark"
 vim.opt.number = true
-vim.opt.relativenumber = true
+vim.opt.relativenumber = vim.g.black_color_style ~= 'nvimz'
 -- Keep one sign slot; add a second when multiple signs share a line.
-vim.opt.signcolumn = "auto:1-2"
+vim.opt.signcolumn = vim.g.black_color_style == "nvimz" and "yes" or "auto:1-2"
 vim.opt.statuscolumn = "" -- Native rendering honors the dynamic sign width.
 vim.opt.laststatus = 3
 vim.opt.cmdheight = 0
 vim.opt.showmode = false
+if vim.g.black_color_style == 'nvimz' then vim.opt.showtabline = 0 end
 vim.opt.showcmd = false
 vim.opt.ruler = false
 vim.opt.shortmess:append({ I = true, W = true, c = true })
@@ -24,7 +25,7 @@ vim.opt.fillchars:append({ eob = " ", fold = " ", foldopen = require('config.ui'
 
 -- Stable visual anchors; a short completion menu keeps code visible.
 vim.opt.pumheight = 8
-vim.opt.scrolloff = 8
+vim.opt.scrolloff = vim.g.black_color_style == 'nvimz' and 4 or 8
 vim.opt.sidescrolloff = 8
 vim.opt.smoothscroll = vim.g.black_color_style ~= 'nvimz'
 vim.opt.cursorline = true
