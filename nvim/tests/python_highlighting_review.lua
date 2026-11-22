@@ -17,4 +17,10 @@ assert(syntax_id ~= 0,
 local hl_name = vim.fn.synIDattr(syntax_id, 'name')
 assert(hl_name ~= '',
   'Python syntax group name missing')
+local got = {}
+for _, match in ipairs(vim.fn.getmatches()) do got[match.group] = true end
+for _, name in ipairs({ 'NvimzPyClassName', 'NvimzPyFunctionName',
+  'NvimzPyMethodName', 'NvimzPyConstructorName' }) do
+  assert(got[name], 'missing Python declaration color match: ' .. name)
+end
 print('PYTHON SYNTAX PASS: def keyword uses ' .. hl_name)
