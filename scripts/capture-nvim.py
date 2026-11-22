@@ -327,38 +327,13 @@ def capture(binary, width, height, full, timeout, view="editor", language="c"):
                     error('unknown screenshot view: ' .. view)
                 end
                 vim.cmd('redraw!')
-                local debug_info
-                if vim.bo.filetype == 'python' and view == 'editor' then
-                    local buf = vim.api.nvim_get_current_buf()
-                    debug_info = {
-                        colorscheme = vim.g.colors_name,
-                        syntax = vim.bo[buf].syntax,
-                        active = vim.treesitter.highlighter.active[buf] ~= nil,
-                        groups = {},
-                        captures = {},
-                    }
-                    for name, pos in pairs({
-                        class_name = {0, 7}, constructor = {2, 9},
-                        method = {6, 9}, function_name = {10, 5},
-                    }) do
-                        local ok, captures = pcall(vim.treesitter.get_captures_at_pos, buf, pos[1], pos[2])
-                        local names = {}
-                        if ok then for _, cap in ipairs(captures or {}) do names[#names+1] = cap.capture end end
-                        debug_info.captures[name] = names
-                    end
-                    for _, name in ipairs({'@type.definition', '@function', '@function.method.special', 'pythonClass', 'pythonFunction'}) do
-                        debug_info.groups[name] = vim.api.nvim_get_hl(0, {name=name, link=false})
-                    end
-                end
-                return {theme=vim.g.colors_name, view=view, ready=ready, debug=debug_info}
+                return {theme=vim.g.colors_name, view=view, ready=ready}
             """
             flag = write("nvim_set_var", ["capture_full_ui", full])
             events(flag, 5)
             request = write("nvim_exec_lua", [script, [str(demo)]])
             result = events(request, timeout)
             state = result.last_reply or {}
-            if language == "python" and isinstance(state, dict):
-                print("PYTHON_HIGHLIGHT_DEBUG", state.get("debug"), flush=True)
             if not isinstance(state, dict) or not state.get("ready"):
                 raise RuntimeError(f"Cannot capture {view}: its real Neovim panel did not open")
             if view == "explorer" and full and env.get("NVIM_COLOR_STYLE") == "nvimz":
