@@ -80,11 +80,9 @@ function M.setup()
 		lines[#lines + 1] = ""
 	end
 
-	local _ = {}
 	for i, text in ipairs(logo) do
 		local w = vim.fn.strdisplaywidth(text)
 		local pad = padding_for(w, win_width)
-		_[i] = pad
 		lines[#lines + 1] = string.rep(" ", pad) .. text
 	end
 
