@@ -432,6 +432,9 @@ local function refresh()
 	if not state then
 		return
 	end
+	-- Generation numbers repeat after a picker is reopened. Check identity
+	-- as well so delayed fd/rg callbacks never update a different picker.
+	local owner = state
 	-- Monotonic generation: every keystroke bumps the sequence and async
 	-- fd/rg callbacks only apply when their generation is still current.
 	-- This drops stale results that would otherwise overwrite (and appear
@@ -452,7 +455,7 @@ local function refresh()
 	end
 
 	local function apply(candidates)
-		if not state or state._seq ~= seq or state.query ~= query then
+		if state ~= owner or state._seq ~= seq or state.query ~= query then
 			return
 		end
 		state.candidates = candidates or {}
@@ -476,7 +479,7 @@ local function refresh()
 		else
 			local job = vim.system(fd_cmd(state.hidden), { text = true }, function(res)
 				vim.schedule(function()
-					if not state or state._seq ~= seq or state.query ~= query then
+					if state ~= owner or state._seq ~= seq or state.query ~= query then
 						return
 					end
 					local files = {}
@@ -520,7 +523,7 @@ local function refresh()
 		timer:start(90, 0, function()
 			timer:stop()
 			vim.schedule(function()
-				if not state or state._seq ~= seq or state.query ~= query then
+				if state ~= owner or state._seq ~= seq or state.query ~= query then
 					return
 				end
 				if #query < 2 then
@@ -529,7 +532,7 @@ local function refresh()
 				end
 				local job = vim.system(rg_cmd(query, state.hidden), { text = true }, function(res)
 					vim.schedule(function()
-						if not state or state._seq ~= seq or state.query ~= query then
+						if state ~= owner or state._seq ~= seq or state.query ~= query then
 							return
 						end
 						local items = {}
