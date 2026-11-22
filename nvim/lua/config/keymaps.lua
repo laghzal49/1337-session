@@ -28,7 +28,9 @@ map('<Esc>', function()
 end, 'Clear search highlights & popups')
 map('<C-h>', '<C-w>h', 'Window left')
 map('<C-j>', '<C-w>j', 'Window down')
-map('<C-k>', function() require('config.symbol_help').show() end, 'Symbol documentation and usage')
+if vim.g.black_color_style ~= 'nvimz' then
+  map('<C-k>', function() require('config.symbol_help').show() end, 'Symbol documentation and usage')
+end
 map('<C-l>', '<C-w>l', 'Window right')
 map('<S-h>', '<cmd>bprevious<cr>', 'Previous buffer')
 map('<S-l>', '<cmd>bnext<cr>', 'Next buffer')
@@ -58,7 +60,9 @@ vim.api.nvim_create_autocmd('LspAttach', { callback = function(ev)
   lmap('gr', function() require('config.pick').open('references') end, 'References')
   lmap('gI', function() require('config.lsp_actions').locations('implementation') end, 'Implementation')
   lmap('gy', function() require('config.lsp_actions').locations('type_definition') end, 'Type definition')
-  lmap('K', function() require('config.smart_docs').show() end, 'Smart Docs')
+  if vim.g.black_color_style ~= 'nvimz' then
+    lmap('K', function() require('config.smart_docs').show() end, 'Smart Docs')
+  end
   lmap('<leader>ca', function() require('config.lsp_actions').code_action() end, 'Code Actions')
   vim.keymap.set('n', '<leader>cr', function() return ':IncRename ' .. vim.fn.expand('<cword>') end,
     {buffer=ev.buf, expr=true, desc='Rename'})
@@ -164,14 +168,16 @@ vim.keymap.set('v', '<', '<gv', { desc = 'Indent left (keep selection)' })
 vim.keymap.set('v', '>', '>gv', { desc = 'Indent right (keep selection)' })
 
 -- Commands register cheaply; reference modules and indices stay lazy.
-require('config.docs_lifecycle').setup()
-map('K', function() require('config.smart_docs').show() end, 'Smart Docs')
-map('gK', function() require('config.deep_docs').lookup() end, 'Deep Docs')
-map('<leader>dk', function() require('config.smart_docs').show() end, 'Smart Docs')
-map('<leader>dK', function() require('config.deep_docs').lookup() end, 'Deep Docs')
-map('<leader>db', '<cmd>DocsBrowse<cr>', 'Browse Docs')
-map('<leader>du', '<cmd>DocsUpdate<cr>', 'Update Docs')
-map('<leader>dh', '<cmd>DocsHealth<cr>', 'Docs Health')
+if vim.g.black_color_style ~= 'nvimz' then
+  require('config.docs_lifecycle').setup()
+  map('K', function() require('config.smart_docs').show() end, 'Smart Docs')
+  map('gK', function() require('config.deep_docs').lookup() end, 'Deep Docs')
+  map('<leader>dk', function() require('config.smart_docs').show() end, 'Smart Docs')
+  map('<leader>dK', function() require('config.deep_docs').lookup() end, 'Deep Docs')
+  map('<leader>db', '<cmd>DocsBrowse<cr>', 'Browse Docs')
+  map('<leader>du', '<cmd>DocsUpdate<cr>', 'Update Docs')
+  map('<leader>dh', '<cmd>DocsHealth<cr>', 'Docs Health')
+end
 
 -- Diagnostic navigation keymaps
 local function diagnostic_jump(count)
