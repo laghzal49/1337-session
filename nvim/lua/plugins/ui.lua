@@ -102,7 +102,7 @@ return {
       bigfile = { enabled = true, size = 1024 * 1024,
         setup = function(ctx) require('config.performance').guard(ctx.buf) end },
       quickfile = { enabled = true },
-      dashboard = require('config.dashboard'),
+      dashboard = vim.g.black_color_style == 'nvimz' and { enabled = false } or require('config.dashboard'),
       explorer = {
         enabled = true,
         replace_netrw = true,
@@ -152,9 +152,10 @@ return {
         },
       },
       notifier = { enabled = false },
-      animate = { enabled = true, fps = 60 },
+      animate = { enabled = vim.g.black_color_style ~= 'nvimz', fps = 60 },
       scroll = {
-        enabled = true,
+        -- Native scrolling avoids additional redraw work in the lightweight preset.
+        enabled = vim.g.black_color_style ~= 'nvimz',
         animate = { duration = { step = 6, total = 80 }, easing = 'outQuad' },
         animate_repeat = { delay = 100, duration = { step = 3, total = 40 }, easing = 'linear' },
         filter = function(buf)
@@ -232,6 +233,7 @@ return {
   {
     'folke/noice.nvim',
     event = 'VeryLazy',
+    enabled = vim.g.black_color_style ~= 'nvimz',
     dependencies = { 'MunifTanjim/nui.nvim' },
     config = function(_, opts)
       require('noice').setup(opts)

@@ -44,11 +44,34 @@ local crimson = {
   error_bg = '#291414', warning_bg = '#201A0D', success_bg = '#131E13',
   focus_bg = '#4E121D', search_bg = '#231B2D', search_text = '#C7A6FF',
 }
+-- nvimz-inspired Tokyo Night palette.  Works across the existing custom panels,
+-- explorer, completion menu, debugging windows and statusline.
+local nvimz = {
+  -- Ported from nvimz's modified Tokyo Night Moon palette
+  canvas = '#0b1210', inset = '#080d0b', panel = '#0d1614',
+  popup = '#0d1614', tree_panel = '#080d0b',
+  line = '#101a17', selection = '#253b34',
+  text = '#c0caf5', muted = '#688077', punctuation = '#5a6e68',
+  path = '#ccd9d2', gutter = '#2f3d37', guide = '#1f312b',
+  border = '#1f312b', border_strong = '#61afef',
+  border_soft = '#182820', focus_border = '#61afef',
+  focus = '#61afef', panel_accent = '#61afef',
+  variable = '#d9b36c', parameter = '#d9b36c', member = '#9cd4d0',
+  callable = '#61afef', keyword = '#9ad179', type = '#2ac3de',
+  string = '#8fbf8f', literal = '#a7c080', success = '#9ad179',
+  error = '#f7768e', warning = '#d9b36c', comment = '#688077',
+  on_accent = '#080d0b', strong = '#d7e3dc',
+  error_bg = '#301f24', warning_bg = '#282518',
+  success_bg = '#182c20', focus_bg = '#101a17',
+  focus_border = '#61afef',
+  search_bg = '#253b34', search_text = '#ccd9d2',
+}
+
 -- Optional upstream palettes remain available through NVIM_COLOR_STYLE.
-local style = vim.g.black_color_style or vim.env.NVIM_COLOR_STYLE or 'electrovoid'
-if style ~= 'classic' and style ~= 'rose' and style ~= 'crimson' and style ~= 'electrovoid' then style = 'electrovoid' end
+local style = vim.g.black_color_style or vim.env.NVIM_COLOR_STYLE or 'nvimz'
+if style ~= 'classic' and style ~= 'rose' and style ~= 'crimson' and style ~= 'electrovoid' and style ~= 'nvimz' then style = 'nvimz' end
 vim.g.black_color_style = style
-local c = style == 'electrovoid' and require('config.electrovoid').palette()
+local c = style == 'nvimz' and nvimz or style == 'electrovoid' and require('config.electrovoid').palette()
   or style == 'classic' and classic or style == 'rose' and rose or crimson
 c.folder, c.info, c.hint = c.folder or c.focus, c.info or c.focus, c.hint or c.type
 c.success, c.comment, c.popup_selection = c.success or c.string, c.comment or c.muted, c.popup_selection or c.selection

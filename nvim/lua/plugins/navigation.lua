@@ -1,3 +1,14 @@
+-- Route the core file/search UI to nvimz's exact three-pane native picker.
+-- Existing 1337 project/symbol/git pickers remain available through Snacks.
+local function open_picker(command)
+  if vim.g.black_color_style == 'nvimz' then
+    local native = { files = 'files', grep = 'grep', buffers = 'buffers' }
+    if native[command] then
+      return require('config.nvimz_picker')[native[command]]()
+    end
+  end
+  return require('config.pick').open(command)
+end
 return {
   { 'folke/snacks.nvim',
     keys = (function()
@@ -19,7 +30,7 @@ return {
       }
       for _, map in ipairs(maps) do
         local command = map[2]
-        result[#result + 1] = { map[1], function() require('config.pick').open(command) end, desc = map[3] }
+        result[#result + 1] = { map[1], function() open_picker(command) end, desc = map[3] }
       end
       result[#result + 1] = { '<leader>fc', function() require('config.pick').open('files', { cwd = vim.fn.stdpath('config') }) end, desc = 'Find config file' }
       return result
@@ -67,6 +78,9 @@ return {
       {
         '<leader>e',
         function()
+          if vim.g.black_color_style == 'nvimz' then
+            return require('config.nvimz_files').toggle()
+          end
           local pickers = Snacks.picker.get({ source = 'explorer' })
           if #pickers > 0 then
             for _, p in ipairs(pickers) do
@@ -78,7 +92,7 @@ return {
         end,
         desc = 'Explorer',
       },
-      { '<leader>fe', function() Snacks.explorer() end, desc = 'Explorer' },
+      { '<leader>fe', function() if vim.g.black_color_style == 'nvimz' then require('config.nvimz_files').toggle() else Snacks.explorer() end end, desc = 'Explorer' },
     },
   },
   {

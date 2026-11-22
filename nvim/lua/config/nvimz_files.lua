@@ -1,0 +1,70 @@
+-- nvimz-style rounded left Oil file explorer.
+-- Visual behavior adapted from nvimz (MIT © 2026 @andev0x).
+local M = {}
+local ignored = {
+  ['node_modules']=true, ['.git']=true, ['.cache']=true,
+  ['dist']=true, ['build']=true, ['.next']=true, ['.astro']=true,
+}
+local symbols = {
+  index = { M=' ', A=' ', D=' ', R=' ', C=' ', U=' ', ['?']=' ', ['!']=' ', [' ']=' ' },
+  working_tree = { M='●', A='✚', D='✖', R='»', C='©', U='!', ['?']='?', ['!']='◌', [' ']=' ' },
+}
+local function setup_highlights()
+  vim.api.nvim_set_hl(0, 'OilGitIgnored', { link = 'Comment' })
+  local signs = {
+    OilGitStatusIndexUnstagedModified = 'MiniDiffSignChange',
+    OilGitStatusIndexStagedModified = 'MiniDiffSignChange',
+    OilGitStatusIndexUnstagedAdded = 'MiniDiffSignAdd',
+    OilGitStatusIndexStagedAdded = 'MiniDiffSignAdd',
+    OilGitStatusIndexUnstagedDeleted = 'MiniDiffSignDelete',
+    OilGitStatusIndexStagedDeleted = 'MiniDiffSignDelete',
+    OilGitStatusIndexUntracked = 'Comment',
+  }
+  for group, link in pairs(signs) do vim.api.nvim_set_hl(0, group, { link = link }) end
+end
+function M.setup()
+  require('oil').setup({
+    default_file_explorer = true,
+    columns = { 'icon' },
+    win_options = { signcolumn = 'yes:2' },
+    view_options = {
+      show_hidden = true,
+      highlight_filename = function(entry)
+        if ignored[entry.name] or (entry.name:sub(1,1) == '.' and entry.name ~= '..') then
+          return 'OilGitIgnored'
+        end
+      end,
+    },
+    float = {
+      padding = 0,
+      border = 'rounded',
+      override = function(conf)
+        conf.anchor = 'NW'
+        conf.col, conf.row = 0, 1
+        conf.width = math.max(15, math.floor(vim.o.columns * 0.30))
+        conf.height = math.max(5, math.floor(vim.o.lines * 0.85))
+        return conf
+      end,
+    },
+  })
+  local ok, git = pcall(require, 'oil-git-status')
+  if ok then git.setup({ show_ignored = true, symbols = symbols }) end
+  setup_highlights()
+  vim.api.nvim_create_autocmd('ColorScheme', {
+    group = vim.api.nvim_create_augroup('NvimzOilHighlights', { clear = true }),
+    callback = setup_highlights,
+  })
+end
+function M.open()
+  require('lazy').load({ plugins = { 'oil.nvim' } })
+  require('oil').open_float()
+end
+function M.toggle()
+  require('lazy').load({ plugins = { 'oil.nvim' } })
+  if vim.bo.filetype == 'oil' then
+    require('oil').close()
+  else
+    require('oil').open_float()
+  end
+end
+return M

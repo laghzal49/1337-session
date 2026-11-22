@@ -2,6 +2,66 @@
 local performance = require('config.performance')
 performance.setup()
 return {
+  -- nvimz's visual foundation; loaded eagerly so the theme is ready on first draw.
+  { 'folke/tokyonight.nvim', lazy = false, priority = 1100,
+    enabled = vim.g.black_color_style == 'nvimz',
+    opts = {
+      style = 'moon',
+      transparent = true,
+      terminal_colors = true,
+      on_colors = function(colors)
+        colors.bg, colors.bg_dark = '#0b1210', '#080d0b'
+        colors.bg_float, colors.bg_sidebar = '#0d1614', '#080d0b'
+        colors.bg_statusline = '#0d1614'
+        colors.bg_visual, colors.bg_highlight = '#253b34', '#101a17'
+        colors.green, colors.teal = '#9ad179', '#73daca'
+        colors.blue, colors.blue1 = '#61afef', '#b4f9f8'
+        colors.blue2, colors.blue5 = '#2ac3de', '#89ddff'
+        colors.blue6, colors.blue7 = '#b4f9f8', '#394b70'
+        colors.orange, colors.yellow = '#e6b366', '#d9b36c'
+        colors.magenta, colors.purple = '#a7c080', '#a7c080'
+        colors.magenta2 = '#73daca'
+      end,
+      styles = {
+        comments = { italic = true }, keywords = { italic = true },
+        functions = { bold = true }, variables = {},
+        sidebars = 'transparent', floats = 'transparent',
+      },
+      on_highlights = function(hl, colors)
+        hl.Normal = { bg = 'NONE' }
+        hl.NormalFloat = { bg = 'NONE' }
+        hl.LineNr = { fg = '#2f3d37' }
+        hl.CursorLineNr = { fg = '#d7e3dc', bold = true }
+        hl.CursorLine = { bg = '#101a17' }
+        hl.Visual = { bg = '#253b34' }
+        hl.WinSeparator = { fg = '#1f312b' }
+        hl['@keyword'] = { fg = colors.green, italic = true }
+        hl['@keyword.function'] = { fg = colors.orange, bold = true }
+        hl['@keyword.return'] = { fg = colors.green, italic = true }
+        hl['@keyword.import'] = { fg = colors.green, italic = true }
+        hl['@function'] = { fg = colors.blue, bold = true }
+        hl['@function.call'] = { fg = colors.blue, bold = true }
+        hl['@function.method'] = { fg = colors.blue2 }
+        hl['@function.method.call'] = { fg = colors.blue2 }
+        hl['@variable'] = { fg = colors.yellow }
+        hl['@variable.parameter'] = { fg = colors.yellow }
+        hl['@variable.member'] = { fg = '#9cd4d0' }
+        hl['@type'] = { fg = colors.blue2 }
+        hl['@type.definition'] = { fg = '#78c2d8', bold = true }
+        hl['@string'] = { fg = '#8fbf8f' }
+        hl['@constant'] = { fg = colors.magenta }
+        hl['@operator'] = { fg = colors.teal }
+        hl['@comment'] = { fg = '#688077', italic = true }
+        hl['@punctuation.bracket'] = { fg = '#5a6e68' }
+        hl['@punctuation.delimiter'] = { fg = '#89b482' }
+      end,
+    },
+  },
+  { 'stevearc/oil.nvim', cmd = 'Oil',
+    dependencies = { 'refractalize/oil-git-status.nvim' },
+    enabled = vim.g.black_color_style == 'nvimz',
+    config = function() require('config.nvimz_files').setup() end,
+  },
   { 'folke/persistence.nvim', event = 'BufReadPre', opts = {}, keys = {
     { '<leader>qs', function() require('persistence').load() end, desc = 'Restore session' },
     { '<leader>qS', function() require('persistence').select() end, desc = 'Select session' },
