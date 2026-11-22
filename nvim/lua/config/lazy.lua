@@ -15,6 +15,9 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("config.options")
+-- Always retain Vim's bundled language syntax as a fallback when a Tree-sitter
+-- parser has not been installed yet (notably on a fresh PC/1337 workstation).
+vim.cmd('syntax enable')
 require("lazy").setup({
   spec = {
     { import = "plugins" },
