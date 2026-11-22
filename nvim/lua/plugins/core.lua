@@ -4,6 +4,7 @@ performance.setup()
 return {
   -- nvimz's visual foundation; loaded eagerly so the theme is ready on first draw.
   { 'folke/tokyonight.nvim', lazy = false, priority = 1100,
+    enabled = vim.g.black_color_style == 'nvimz',
     opts = {
       style = 'moon',
       transparent = true,
