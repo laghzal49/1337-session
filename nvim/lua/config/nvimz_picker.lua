@@ -785,19 +785,25 @@ local function open_buffer(item)
 end
 
 function M.files()
-	M.open("Files", "files", false, open_file)
+  if vim.fn.executable('fd') ~= 1 then
+    return require('config.pick').open('files')
+  end
+  M.open("Files", "files", false, open_file)
 end
 
 function M.files_hidden()
-	M.open("Files (hidden)", "files", true, open_file)
+  if vim.fn.executable('fd') ~= 1 then return require('config.pick').open('files') end
+  M.open("Files (hidden)", "files", true, open_file)
 end
 
 function M.grep()
-	M.open("Live Grep", "grep", false, open_grep)
+  if vim.fn.executable('rg') ~= 1 then return require('config.pick').open('grep') end
+  M.open("Live Grep", "grep", false, open_grep)
 end
 
 function M.grep_hidden()
-	M.open("Grep hidden (gitignored)", "grep", true, open_grep)
+  if vim.fn.executable('rg') ~= 1 then return require('config.pick').open('grep') end
+  M.open("Grep hidden (gitignored)", "grep", true, open_grep)
 end
 
 function M.buffers()
