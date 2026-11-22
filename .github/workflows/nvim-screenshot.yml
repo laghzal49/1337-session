@@ -63,6 +63,15 @@ jobs:
           NVIM_COLOR_STYLE=nvimz NVIM_BLACK_DOCS_AUTO_UPDATE=0 \
             nvim --headless --cmd 'let g:station_1337 = v:false' \
             -c "lua local ok, err = pcall(dofile, 'nvim/tests/python_highlighting_review.lua'); if not ok then vim.api.nvim_err_writeln(tostring(err)); vim.cmd('cquit 1') end" -c 'qa!'
+      - name: Check native picker input, preview and close lifecycle
+        if: github.ref == 'refs/heads/feat/nvimz-inspired-ui'
+        env:
+          XDG_CONFIG_HOME: ${{ runner.temp }}/config
+          NVIM_COLOR_STYLE: nvimz
+        run: |
+          timeout 35 nvim --headless --cmd 'let g:station_1337 = v:false' \
+            -c "lua local ok, err = pcall(dofile, 'nvim/tests/nvimz_picker_regression.lua'); if not ok then vim.api.nvim_err_writeln(tostring(err)); vim.cmd('cquit 1') end" \
+            -c 'qa!'
       - name: Capture nvimz dashboard and editor
         if: github.ref == 'refs/heads/feat/nvimz-inspired-ui'
         env:
