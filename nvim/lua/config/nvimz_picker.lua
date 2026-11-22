@@ -63,7 +63,11 @@ local function sanitize_line(s)
 	s = s:gsub("\27%][^\7\27]*(\7|\27\\)", "")
 	-- strip any remaining ESC + single char
 	s = s:gsub("\27.", "")
-	s = s:gsub("\r", "")
+	-- Neovim returns embedded NUL bytes as LF in nvim_buf_get_lines().
+	-- Each nvim_buf_set_lines() entry must be exactly one line: an LF here
+	-- raises E5108 every time TextChangedI refreshes the picker preview.
+	-- Preserve readable text on both sides instead of dropping it.
+	s = s:gsub("[\r\n]", " ")
 	s = s:gsub("\t", "  ")
 	-- strip other C0 controls (keep nothing unprintable here; lines are already split)
 	s = s:gsub("[%z\1-\8\11\12\14-\31]", "")
@@ -843,5 +847,7 @@ function M.buffers()
 end
 
 M.close_picker = close_picker
+-- Reusable line-safety contract for preview regression tests.
+M.sanitize_line = sanitize_line
 
 return M
