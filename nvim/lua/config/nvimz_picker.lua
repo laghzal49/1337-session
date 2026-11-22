@@ -6,10 +6,8 @@ local state = nil
 local ns = vim.api.nvim_create_namespace("nvimz_picker")
 local hl_ns = vim.api.nvim_create_namespace("nvimz_picker_hl")
 
-local file_cache = {
-	normal = nil,
-	hidden = nil,
-}
+-- Cache file lists per working directory, never leak project A into project B.
+local file_cache = {}
 
 local function close_picker()
 	local s = state
@@ -435,7 +433,7 @@ local function refresh()
 	end
 
 	if state.mode == "files" then
-		local key = state.hidden and "hidden" or "normal"
+		local key = vim.fn.getcwd() .. (state.hidden and ":hidden" or ":normal")
 		local cached = file_cache[key]
 		if cached then
 			apply(filter_files(cached, query))
