@@ -128,7 +128,7 @@ function M.setup()
 	end, map_opts)
 
 	vim.keymap.set("n", "e", function()
-		require("oil").open_float()
+		require("config.nvimz_files").open()
 	end, map_opts)
 
 	vim.keymap.set("n", "q", "<cmd>qa<cr>", map_opts)
