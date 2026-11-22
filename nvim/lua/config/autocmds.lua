@@ -13,11 +13,13 @@ else
   require("config.diagnostic_signs").setup()
 end
 
-vim.api.nvim_create_autocmd('FileType', {
-  group = vim.api.nvim_create_augroup('PythonDocstrings', { clear = true }),
-  pattern = 'python',
-  callback = function(ev) require('config.docstrings').attach(ev.buf) end,
-})
+if vim.g.black_color_style ~= 'nvimz' then
+  vim.api.nvim_create_autocmd('FileType', {
+    group = vim.api.nvim_create_augroup('PythonDocstrings', { clear = true }),
+    pattern = 'python',
+    callback = function(ev) require('config.docstrings').attach(ev.buf) end,
+  })
+end
 
 -- Snacks normally starts guides on BufReadPost; new unsaved files need them too.
 vim.api.nvim_create_autocmd('FileType', {
